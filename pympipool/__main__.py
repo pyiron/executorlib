@@ -1,6 +1,7 @@
 import dill
 import textwrap
 from mpi4py import MPI
+
 MPI.pickle.__init__(
     dill.dumps,
     dill.loads,
@@ -33,15 +34,13 @@ def main():
                 elif "f" in input_dict.keys() and "l" in input_dict.keys():
                     output = exec_funct(
                         executor=executor,
-                        funct=get_function_from_string(
-                            function_str=input_dict["f"]
-                        ),
-                        lst=input_dict["l"]
+                        funct=get_function_from_string(function_str=input_dict["f"]),
+                        lst=input_dict["l"],
                     )
                 if output is not None:
                     dill.dump(output, sys.stdout.buffer)
                     sys.stdout.flush()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
