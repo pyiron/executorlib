@@ -2,6 +2,7 @@
 Setuptools based setup module
 """
 from setuptools import setup, find_packages
+from pathlib import Path
 import versioneer
 
 
@@ -9,6 +10,8 @@ setup(
     name='pympipool',
     version=versioneer.get_version(),
     description='pympipool - scale functions over multiple compute nodes using mpi4py',
+    long_description=Path("README.md").read_text(),
+    long_description_content_type='text/markdown',
     url='https://github.com/jan-janssen/pympipool',
     author_email='jan.janssen@outlook.com',
     license='BSD',
