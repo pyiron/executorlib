@@ -1,0 +1,28 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Black
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        python-version: 3.9
+        channel-priority: strict
+    - name: Setup
+      shell: bash -l {0}
+      run: |
+        conda install -c conda-forge black
+    - name: Test
+      shell: bash -l {0}
+      run: black --check pympipool
