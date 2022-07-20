@@ -27,7 +27,7 @@ setup(
     ],
     packages=find_packages(exclude=["*tests*", "*.ci_support*"]),
     install_requires=[
-        'dill==0.3.5.1',
+        'cloudpickle==2.1.0',
         'mpi4py==3.1.3',
         'tqdm==4.64.0'
     ],

@@ -1,6 +1,6 @@
 import subprocess
 import os
-import dill
+import cloudpickle
 import inspect
 
 
@@ -43,9 +43,9 @@ class Pool(object):
         self._send_raw(input_dict={"f": inspect.getsource(function), "l": lst})
 
     def _send_raw(self, input_dict):
-        dill.dump(input_dict, self._process.stdin)
+        cloudpickle.dump(input_dict, self._process.stdin)
         self._process.stdin.flush()
 
     def _receive(self):
-        output = dill.load(self._process.stdout)
+        output = cloudpickle.load(self._process.stdout)
         return output
