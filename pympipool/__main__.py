@@ -1,5 +1,4 @@
 import dill
-import textwrap
 from mpi4py import MPI
 
 MPI.pickle.__init__(
@@ -10,12 +9,6 @@ MPI.pickle.__init__(
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
-
-
-def get_function_from_string(function_str):
-    function_dedent_str = textwrap.dedent(function_str)
-    exec(function_dedent_str)
-    return eval(function_dedent_str.split("(")[0][4:])
 
 
 def exec_funct(executor, funct, lst):
@@ -34,7 +27,7 @@ def main():
                 elif "f" in input_dict.keys() and "l" in input_dict.keys():
                     output = exec_funct(
                         executor=executor,
-                        funct=get_function_from_string(function_str=input_dict["f"]),
+                        funct=input_dict["f"],
                         lst=input_dict["l"],
                     )
                 if output is not None:

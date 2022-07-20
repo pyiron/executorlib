@@ -1,7 +1,6 @@
 import subprocess
 import os
 import dill
-import inspect
 
 
 class Pool(object):
@@ -40,7 +39,7 @@ class Pool(object):
         return output
 
     def _send(self, function, lst):
-        self._send_raw(input_dict={"f": inspect.getsource(function), "l": lst})
+        self._send_raw(input_dict={"f": function, "l": lst})
 
     def _send_raw(self, input_dict):
         dill.dump(input_dict, self._process.stdin)
