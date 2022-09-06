@@ -29,7 +29,7 @@ setup(
     install_requires=[
         'dill==0.3.5.1',
         'mpi4py==3.1.3',
-        'tqdm==4.64.0'
+        'tqdm==4.64.1'
     ],
     cmdclass=versioneer.get_cmdclass(),
 
