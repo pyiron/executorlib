@@ -29,7 +29,7 @@ setup(
     packages=find_packages(exclude=["*tests*", "*.ci_support*"]),
     install_requires=[
         'dill==0.3.6',
-        'mpi4py==3.1.3',
+        'mpi4py==3.1.4',
         'tqdm==4.64.1'
     ],
     cmdclass=versioneer.get_cmdclass(),
