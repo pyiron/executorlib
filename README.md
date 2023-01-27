@@ -18,3 +18,4 @@ You can execute the python file `pool.py` in a serial python process:
 python pool.py
 >>> [array(1), array(4), array(9), array(16)]
 ```
+Internally `pympipool` uses `mpi4py` to distribute the 4 calculation to two processors `cores=2`.  
