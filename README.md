@@ -19,3 +19,5 @@ python pool.py
 >>> [array(1), array(4), array(9), array(16)]
 ```
 Internally `pympipool` uses `mpi4py` to distribute the 4 calculation to two processors `cores=2`.  
+
+Alternatively, you can copy all lines to a `jupyter notebook` or an `ipython` shell and execute them directly. But this does not work with a regular python shell. 
