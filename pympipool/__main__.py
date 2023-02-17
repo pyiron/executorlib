@@ -40,6 +40,7 @@ def main():
                 if output is not None:
                     dill.dump(output, sys.stdout.buffer)
                     sys.stdout.flush()
+                    break  # after submitting the output the process is stopped
 
 
 if __name__ == "__main__":
