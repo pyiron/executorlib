@@ -10,13 +10,12 @@ MPI.pickle.__init__(
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
-import os 
+import os
 
 
 # Keep the output channel clean
 stdout_link = sys.stdout
-devnul_link = open(os.devnull, 'w')
-sys.stdout = devnul_link
+sys.stdout = open(os.devnull, "w")
 
 
 def get_function_from_string(function_str):
