@@ -10,6 +10,13 @@ MPI.pickle.__init__(
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
+import os 
+
+
+# Keep the output channel clean
+stdout_link = sys.stdout
+devnul_link = open(os.devnull, 'w')
+sys.stdout = devnul_link
 
 
 def get_function_from_string(function_str):
@@ -38,8 +45,8 @@ def main():
                         lst=input_dict["l"],
                     )
                 if output is not None:
-                    dill.dump(output, sys.stdout.buffer)
-                    sys.stdout.flush()
+                    dill.dump(output, stdout_link.buffer)
+                    stdout_link.flush()
 
 
 if __name__ == "__main__":
