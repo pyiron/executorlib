@@ -30,7 +30,7 @@ class Pool(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._send_raw(input_dict={"c": "close"})
+        # self._send_raw(input_dict={"c": "close"})  # the process stops automatically
         self._process.stdout.close()
         self._process.stdin.close()
 
