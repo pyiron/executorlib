@@ -11,6 +11,12 @@ MPI.pickle.__init__(
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
+import os
+
+
+# Keep the output channel clean
+stdout_link = sys.stdout
+sys.stdout = open(os.devnull, "w")
 
 
 def get_function_from_string(function_str):
@@ -39,7 +45,8 @@ def main():
                         lst=input_dict["l"],
                     )
                 if output is not None:
-                    cloudpickle.dump(output, sys.stdout.buffer)
+
+                    cloudpickle.dump(output, stdout_link.buffer)
                     sys.stdout.flush()
 
 

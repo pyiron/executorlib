@@ -23,13 +23,14 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10'
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11'
     ],
     packages=find_packages(exclude=["*tests*", "*.ci_support*"]),
     install_requires=[
         'cloudpickle==2.1.0',
-        'mpi4py==3.1.3',
-        'tqdm==4.64.0'
+        'mpi4py==3.1.4',
+        'tqdm==4.64.1'
     ],
     cmdclass=versioneer.get_cmdclass(),
 
