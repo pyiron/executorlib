@@ -27,6 +27,7 @@ class Pool(object):
             print(p.map(function=calc, lst=[1, 2, 3, 4]))
         ```
     """
+
     def __init__(self, cores=1):
         self._cores = cores
         self._process = None
@@ -47,7 +48,6 @@ class Pool(object):
             stdout=subprocess.PIPE,
             stderr=None,
             stdin=subprocess.PIPE,
-            # cwd=self.working_directory,
         )
         return self
 
@@ -67,7 +67,8 @@ class Pool(object):
         Returns:
             list: list of output generated from applying the function on the list of arguments
         """
-        # Cloud pickle can decide which modules to pickle by value vs. pickle by reference
+        # Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
+        # be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
         # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
         # inspect can help to find the module which is calling pympipool
         # https://docs.python.org/3/library/inspect.html
