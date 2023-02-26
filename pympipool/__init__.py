@@ -93,4 +93,5 @@ class Pool(object):
         if "r" in output.keys():
             return output["r"]
         else:
-            raise ValueError(output["e"])
+            error_type = output["et"].split("'")[1]
+            raise eval(error_type)(output["e"])

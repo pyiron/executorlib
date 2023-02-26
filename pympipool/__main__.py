@@ -46,7 +46,7 @@ def main():
                             lst=input_dict["l"],
                         )
                     except Exception as error:
-                        send(output_dict={"e": error})
+                        send(output_dict={"e": error, "et": str(type(error))})
                     else:
                         send(output_dict={"r": output})
 

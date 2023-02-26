@@ -19,7 +19,7 @@ You can execute the python file `pool.py` in a serial python process:
 python pool.py
 >>> [array(1), array(4), array(9), array(16)]
 ```
-Internally `pympipool` uses `mpi4py` to distribute the 4 calculation to two processors `cores=2`.
+Internally `pympipool` uses `mpi4py` to distribute the four calculation to two processors `cores=2`.
 
 ## Installation
 As `pympipool` requires `openmpi` and `mpi4py` it is highly recommended to install it via conda: 
@@ -32,6 +32,9 @@ pip install pympipool
 ```
 
 ## Changelog
+### Current main branch
+* Add error handling to propagate the `Exception`, when it is raised by mapping the function to the arguments.
+
 ### 0.1.0
 * Major switch of the communication interface between the serial python process and the mpi parallel python process. 
   Previously, functions were converted to source code using `inspect.getsource()` and `dill` was used to convert the
