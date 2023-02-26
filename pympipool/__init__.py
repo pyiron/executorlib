@@ -33,7 +33,6 @@ class Pool(object):
         self._cores = cores
         self._process = None
         self._socket = None
-        self._port_selected = None
 
     def __enter__(self):
         path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
