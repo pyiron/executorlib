@@ -34,14 +34,11 @@ def send(output_dict):
 def check_using_openmpi():
     vendor = MPI.get_vendor()[0]
     if vendor != "Open MPI":
-        send(
-            output_dict={
-                "e": "Currently only OpenMPI is supported. "
-                     + vendor
-                     + " is not supported."
-            }
+        raise ValueError(
+            "Currently only OpenMPI is supported. "
+            + vendor
+            + " is not supported."
         )
-        return False
     else:
         send(output_dict={"r": True})
         return True
