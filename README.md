@@ -3,10 +3,10 @@ Scale functions over multiple compute nodes using mpi4py
 
 Write a python test file like `pool.py`: 
 ```python
+import numpy as np
 from pympipool import Pool
 
 def calc(i):
-    import numpy as np
     return np.array(i ** 2)
 
 with Pool(cores=2) as p:
