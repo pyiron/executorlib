@@ -50,13 +50,13 @@ class Pool(object):
                 "-m",
                 "mpi4py.futures",
                 path,
+                "--zmqport",
+                str(port_selected)
             ],
             stdout=subprocess.PIPE,
             stderr=None,
             stdin=subprocess.PIPE,
         )
-        cloudpickle.dump(str(port_selected), self._process.stdin)
-        self._process.stdin.flush()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
