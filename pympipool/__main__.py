@@ -27,9 +27,10 @@ def check_using_openmpi():
     if MPI.COMM_WORLD.Get_rank() == 0:
         vendor = MPI.get_vendor()[0]
         if vendor != "Open MPI":
-            raise ValueError(
+            cloudpickle.dump(ValueError(
                 "Currently only OpenMPI is supported. " + vendor + " is not supported."
-            )
+            ), stdout_link.buffer)
+            stdout_link.flush()
 
 
 def main():
