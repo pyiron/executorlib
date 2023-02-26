@@ -51,7 +51,7 @@ class Pool(object):
                 "mpi4py.futures",
                 path,
                 "--zmqport",
-                str(port_selected)
+                str(port_selected),
             ],
             stdout=subprocess.PIPE,
             stderr=None,
