@@ -5,6 +5,28 @@ import cloudpickle
 
 
 class Pool(object):
+    """
+    The pympipool.Pool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast to the
+    mpi4py.futures.MPIPoolExecutor the pympipool.Pool can be executed in a serial python process and does not require
+    the python script to be executed with MPI. Still internally the pympipool.Pool uses the
+    mpi4py.futures.MPIPoolExecutor, consequently it is primarily an abstraction of its functionality to improve the
+    usability in particular when used in combination with Jupyter notebooks.
+
+    Args:
+        cores (int): defines the number of MPI compute cores to use
+
+    Simple example:
+        ```
+        import numpy as np
+        from pympipool import Pool
+
+        def calc(i):
+            return np.array(i ** 2)
+
+        with Pool(cores=2) as p:
+            print(p.map(function=calc, lst=[1, 2, 3, 4]))
+        ```
+    """
     def __init__(self, cores=1):
         self._cores = cores
         self._process = None
@@ -35,6 +57,16 @@ class Pool(object):
         self._process.stdin.close()
 
     def map(self, function, lst):
+        """
+        Map a given function on a list of attributes.
+
+        Args:
+            function: function to be applied to each element of the following list
+            lst (list): list of arguments the function should be applied on
+
+        Returns:
+            list: list of output generated from applying the function on the list of arguments
+        """
         # Cloud pickle can decide which modules to pickle by value vs. pickle by reference
         # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
         # inspect can help to find the module which is calling pympipool
