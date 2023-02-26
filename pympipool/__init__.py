@@ -2,6 +2,7 @@ import subprocess
 import os
 import inspect
 import cloudpickle
+import zmq
 
 
 class Pool(object):
@@ -14,6 +15,7 @@ class Pool(object):
 
     Args:
         cores (int): defines the number of MPI compute cores to use
+        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
 
     Simple example:
         ```
@@ -28,23 +30,32 @@ class Pool(object):
         ```
     """
 
-    def __init__(self, cores=1):
+    def __init__(self, cores=1, oversubscribe=False):
         self._cores = cores
         self._process = None
+        self._socket = None
+        self._oversubscribe = oversubscribe
 
     def __enter__(self):
         path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
+        context = zmq.Context()
+        self._socket = context.socket(zmq.PAIR)
+        port_selected = self._socket.bind_to_random_port("tcp://*")
+        command_lst = ["mpiexec"]
+        if self._oversubscribe:
+            command_lst += ["--oversubscribe"]
+        command_lst += [
+            "-n",
+            str(self._cores),
+            "python",
+            "-m",
+            "mpi4py.futures",
+            path,
+            "--zmqport",
+            str(port_selected),
+        ]
         self._process = subprocess.Popen(
-            [
-                "mpiexec",
-                "--oversubscribe",
-                "-n",
-                str(self._cores),
-                "python",
-                "-m",
-                "mpi4py.futures",
-                path,
-            ],
+            command_lst,
             stdout=subprocess.PIPE,
             stderr=None,
             stdin=subprocess.PIPE,
@@ -85,11 +96,10 @@ class Pool(object):
         return self._receive()
 
     def _send_raw(self, input_dict):
-        cloudpickle.dump(input_dict, self._process.stdin)
-        self._process.stdin.flush()
+        self._socket.send(cloudpickle.dumps(input_dict))
 
     def _receive(self):
-        output = cloudpickle.load(self._process.stdout)
+        output = cloudpickle.loads(self._socket.recv())
         if "r" in output.keys():
             return output["r"]
         else:

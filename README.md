@@ -33,6 +33,7 @@ pip install pympipool
 
 ## Changelog
 ### Current main branch
+* Communicate via zmq rather than `stdin` and `stdout`, this enables support for `mpich` and `openmpi`.
 * Add error handling to propagate the `Exception`, when it is raised by mapping the function to the arguments.
 
 ### 0.1.0

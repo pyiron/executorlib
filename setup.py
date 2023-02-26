@@ -30,7 +30,8 @@ setup(
     install_requires=[
         'cloudpickle==2.2.1',
         'mpi4py==3.1.4',
-        'tqdm==4.64.1'
+        'tqdm==4.64.1',
+        'pyzmq==25.0.0'
     ],
     cmdclass=versioneer.get_cmdclass(),
 

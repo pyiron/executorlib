@@ -10,12 +10,7 @@ MPI.pickle.__init__(
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
-import os
-
-
-# Keep the output channel clean
-stdout_link = sys.stdout
-sys.stdout = open(os.devnull, "w")
+import zmq
 
 
 def exec_funct(executor, funct, lst):
@@ -23,19 +18,17 @@ def exec_funct(executor, funct, lst):
     return list(tqdm(results, desc="Configs", total=len(lst)))
 
 
-def send(output_dict):
-    cloudpickle.dump(
-        output_dict,
-        stdout_link.buffer,
-    )
-    stdout_link.flush()
-
-
 def main():
     with MPIPoolExecutor() as executor:
+        if executor is not None:
+            context = zmq.Context()
+            socket = context.socket(zmq.PAIR)
+            argument_lst = sys.argv
+            port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
+            socket.connect("tcp://localhost:" + port_selected)
         while True:
             if executor is not None:
-                input_dict = cloudpickle.load(sys.stdin.buffer)
+                input_dict = cloudpickle.loads(socket.recv())
                 if "c" in input_dict.keys() and input_dict["c"] == "close":
                     break
                 elif "f" in input_dict.keys() and "l" in input_dict.keys():
@@ -46,9 +39,11 @@ def main():
                             lst=input_dict["l"],
                         )
                     except Exception as error:
-                        send(output_dict={"e": error, "et": str(type(error))})
+                        socket.send(
+                            cloudpickle.dumps({"e": error, "et": str(type(error))})
+                        )
                     else:
-                        send(output_dict={"r": output})
+                        socket.send(cloudpickle.dumps({"r": output}))
 
 
 if __name__ == "__main__":
