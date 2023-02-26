@@ -24,7 +24,7 @@ def main():
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
             port_selected = cloudpickle.load(sys.stdin.buffer)
-            socket.connect('tcp://localhost:' + str(port_selected))
+            socket.connect("tcp://localhost:" + str(port_selected))
         while True:
             if executor is not None:
                 input_dict = cloudpickle.loads(socket.recv())
@@ -38,13 +38,11 @@ def main():
                             lst=input_dict["l"],
                         )
                     except Exception as error:
-                        socket.send(cloudpickle.dumps(
-                            {"e": error, "et": str(type(error))}
-                        ))
+                        socket.send(
+                            cloudpickle.dumps({"e": error, "et": str(type(error))})
+                        )
                     else:
-                        socket.send(cloudpickle.dumps(
-                            {"r": output}
-                        ))
+                        socket.send(cloudpickle.dumps({"r": output}))
 
 
 if __name__ == "__main__":

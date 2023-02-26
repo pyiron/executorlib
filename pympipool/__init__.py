@@ -39,7 +39,7 @@ class Pool(object):
         path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
         context = zmq.Context()
         self._socket = context.socket(zmq.PAIR)
-        port_selected = self._socket.bind_to_random_port('tcp://*')
+        port_selected = self._socket.bind_to_random_port("tcp://*")
         self._process = subprocess.Popen(
             [
                 "mpiexec",
