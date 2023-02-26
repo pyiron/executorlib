@@ -28,11 +28,11 @@ def check_using_openmpi():
         vendor = MPI.get_vendor()[0]
         if vendor != "Open MPI":
             cloudpickle.dump(
-                ValueError(
-                    "Currently only OpenMPI is supported. "
+                {
+                    "e": "Currently only OpenMPI is supported. "
                     + vendor
                     + " is not supported."
-                ),
+                },
                 stdout_link.buffer,
             )
             stdout_link.flush()
@@ -48,13 +48,17 @@ def main():
                 if "c" in input_dict.keys() and input_dict["c"] == "close":
                     break
                 elif "f" in input_dict.keys() and "l" in input_dict.keys():
-                    output = exec_funct(
-                        executor=executor,
-                        funct=input_dict["f"],
-                        lst=input_dict["l"],
-                    )
+                    try:
+                        output = exec_funct(
+                            executor=executor,
+                            funct=input_dict["f"],
+                            lst=input_dict["l"],
+                        )
+                    except Exception as error:
+                        cloudpickle.dump({"e": error}, stdout_link.buffer)
+                        stdout_link.flush()
                 if output is not None:
-                    cloudpickle.dump(output, stdout_link.buffer)
+                    cloudpickle.dump({"r": output}, stdout_link.buffer)
                     stdout_link.flush()
 
 

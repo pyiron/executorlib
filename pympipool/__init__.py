@@ -90,4 +90,7 @@ class Pool(object):
 
     def _receive(self):
         output = cloudpickle.load(self._process.stdout)
-        return output
+        if "e" in output.keys():
+            raise ValueError(output["e"])
+        else:
+            return output["r"]
