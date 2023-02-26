@@ -34,7 +34,7 @@ jobs:
         miniforge-variant: Mambaforge
         channel-priority: strict
         auto-update-conda: true
-        environment-file: .ci_support/environment.yml
+        environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 30
