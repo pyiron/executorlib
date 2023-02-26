@@ -42,7 +42,12 @@ class Pool(object):
         # to learn more about inspect another good read is:
         # http://pymotw.com/2/inspect/index.html#module-inspect
         # 1 refers to 1 level higher than the map function
-        cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[1][0]))
+        try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
+            cloudpickle.register_pickle_by_value(
+                inspect.getmodule(inspect.stack()[1][0])
+            )
+        except ValueError:
+            pass
         self._send_raw(input_dict={"f": function, "l": lst})
         return self._receive()
 
