@@ -31,14 +31,32 @@ def send(output_dict):
     stdout_link.flush()
 
 
+def check_using_openmpi():
+    vendor = MPI.get_vendor()[0]
+    if vendor != "Open MPI":
+        send(
+            output_dict={
+                "e": "Currently only OpenMPI is supported. "
+                     + vendor
+                     + " is not supported."
+            }
+        )
+        return False
+    else:
+        send(output_dict={"r": True})
+        return True
+
+
 def main():
     with MPIPoolExecutor() as executor:
+        if executor is not None:
+            active = check_using_openmpi()
         while True:
             if executor is not None:
                 input_dict = cloudpickle.load(sys.stdin.buffer)
                 if "c" in input_dict.keys() and input_dict["c"] == "close":
                     break
-                elif "f" in input_dict.keys() and "l" in input_dict.keys():
+                elif active and "f" in input_dict.keys() and "l" in input_dict.keys():
                     try:
                         output = exec_funct(
                             executor=executor,
