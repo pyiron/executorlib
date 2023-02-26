@@ -79,7 +79,10 @@ class Pool(object):
             )
         except ValueError:
             pass
-        self._send_raw(input_dict={"f": function, "l": lst})
+        try:  # if an unsupported MPI version is identified no input is accepted.
+            self._send_raw(input_dict={"f": function, "l": lst})
+        except BrokenPipeError:
+            pass
         return self._receive()
 
     def _send_raw(self, input_dict):
