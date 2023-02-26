@@ -1,7 +1,7 @@
 import subprocess
 import os
-import dill
 import inspect
+import cloudpickle
 
 
 class Pool(object):
@@ -35,17 +35,21 @@ class Pool(object):
         self._process.stdin.close()
 
     def map(self, function, lst):
-        self._send(function=function, lst=lst)
-        output = self._receive()
-        return output
-
-    def _send(self, function, lst):
-        self._send_raw(input_dict={"f": inspect.getsource(function), "l": lst})
+        # Cloud pickle can decide which modules to pickle by value vs. pickle by reference
+        # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
+        # inspect can help to find the module which is calling pympipool
+        # https://docs.python.org/3/library/inspect.html
+        # to learn more about inspect another good read is:
+        # http://pymotw.com/2/inspect/index.html#module-inspect
+        # 1 refers to 1 level higher than the map function
+        cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[1][0]))
+        self._send_raw(input_dict={"f": function, "l": lst})
+        return self._receive()
 
     def _send_raw(self, input_dict):
-        dill.dump(input_dict, self._process.stdin)
+        cloudpickle.dump(input_dict, self._process.stdin)
         self._process.stdin.flush()
 
     def _receive(self):
-        output = dill.load(self._process.stdout)
+        output = cloudpickle.load(self._process.stdout)
         return output

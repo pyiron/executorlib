@@ -1,9 +1,9 @@
+import numpy as np
 import unittest
 from pympipool import Pool
 
 
 def calc(i):
-    import numpy as np
     return np.array(i ** 2)
 
 
