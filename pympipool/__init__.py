@@ -49,7 +49,8 @@ class Pool(object):
             stderr=None,
             stdin=subprocess.PIPE,
         )
-        return self
+        if self._receive():
+            return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._exit()
