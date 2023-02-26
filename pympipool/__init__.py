@@ -42,7 +42,6 @@ class Pool(object):
         self._process = subprocess.Popen(
             [
                 "mpiexec",
-                "--oversubscribe",
                 "-n",
                 str(self._cores),
                 "python",
