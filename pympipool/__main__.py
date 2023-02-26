@@ -23,23 +23,32 @@ def exec_funct(executor, funct, lst):
     return list(tqdm(results, desc="Configs", total=len(lst)))
 
 
+def send(output_dict):
+    cloudpickle.dump(
+        output_dict,
+        stdout_link.buffer,
+    )
+    stdout_link.flush()
+
+
 def main():
     with MPIPoolExecutor() as executor:
         while True:
-            output = None
             if executor is not None:
                 input_dict = cloudpickle.load(sys.stdin.buffer)
                 if "c" in input_dict.keys() and input_dict["c"] == "close":
                     break
                 elif "f" in input_dict.keys() and "l" in input_dict.keys():
-                    output = exec_funct(
-                        executor=executor,
-                        funct=input_dict["f"],
-                        lst=input_dict["l"],
-                    )
-                if output is not None:
-                    cloudpickle.dump(output, stdout_link.buffer)
-                    stdout_link.flush()
+                    try:
+                        output = exec_funct(
+                            executor=executor,
+                            funct=input_dict["f"],
+                            lst=input_dict["l"],
+                        )
+                    except Exception as error:
+                        send(output_dict={"e": error})
+                    else:
+                        send(output_dict={"r": output})
 
 
 if __name__ == "__main__":
