@@ -23,7 +23,9 @@ def main():
         if executor is not None:
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
-            socket.connect("tcp://localhost:" + sys.argv[-1])
+            argument_lst = sys.argv
+            port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
+            socket.connect("tcp://localhost:" + port_selected)
         while True:
             if executor is not None:
                 input_dict = cloudpickle.loads(socket.recv())
