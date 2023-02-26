@@ -53,9 +53,7 @@ class Pool(object):
             return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self._send_raw(input_dict={"c": "close"})
-        self._process.stdout.close()
-        self._process.stdin.close()
+        self._close()
 
     def map(self, function, lst):
         """
@@ -85,6 +83,11 @@ class Pool(object):
         self._send_raw(input_dict={"f": function, "l": lst})
         return self._receive()
 
+    def _close(self):
+        self._send_raw(input_dict={"c": "close"})
+        self._process.stdout.close()
+        self._process.stdin.close()
+
     def _send_raw(self, input_dict):
         cloudpickle.dump(input_dict, self._process.stdin)
         self._process.stdin.flush()
@@ -94,4 +97,5 @@ class Pool(object):
         if "r" in output.keys():
             return output["r"]
         else:
+            self._close()
             raise ValueError(output["e"])
