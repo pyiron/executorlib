@@ -57,10 +57,10 @@ def main():
                     except Exception as error:
                         cloudpickle.dump({"e": error}, stdout_link.buffer)
                         stdout_link.flush()
-                        break
-                if output is not None:
-                    cloudpickle.dump({"r": output}, stdout_link.buffer)
-                    stdout_link.flush()
+                    else:
+                        if output is not None:
+                            cloudpickle.dump({"r": output}, stdout_link.buffer)
+                            stdout_link.flush()
 
 
 if __name__ == "__main__":
