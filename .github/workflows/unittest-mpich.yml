@@ -1,6 +1,6 @@
 # This workflow is used to run the unittest of pyiron
 
-name: Unittests
+name: Unittests-mpich
 
 on:
   push:
