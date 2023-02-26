@@ -23,7 +23,15 @@ def exec_funct(executor, funct, lst):
     return list(tqdm(results, desc="Configs", total=len(lst)))
 
 
+def check_using_openmpi():
+    if MPI.COMM_WORLD.Get_rank() == 0:
+        vendor = MPI.get_vendor()[0]
+        if vendor != 'Open MPI':
+            raise ValueError("Currently only OpenMPI is supported. " + vendor + " is not supported.")
+
+
 def main():
+    check_using_openmpi()
     with MPIPoolExecutor() as executor:
         while True:
             output = None
