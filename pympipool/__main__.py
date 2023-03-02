@@ -30,6 +30,8 @@ def main():
             if executor is not None:
                 input_dict = cloudpickle.loads(socket.recv())
                 if "c" in input_dict.keys() and input_dict["c"] == "close":
+                    socket.close()
+                    context.term()
                     break
                 elif "f" in input_dict.keys() and "l" in input_dict.keys():
                     try:

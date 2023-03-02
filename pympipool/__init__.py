@@ -34,12 +34,13 @@ class Pool(object):
         self._cores = cores
         self._process = None
         self._socket = None
+        self._context = None
         self._oversubscribe = oversubscribe
 
     def __enter__(self):
         path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
-        context = zmq.Context()
-        self._socket = context.socket(zmq.PAIR)
+        self._context = zmq.Context()
+        self._socket = self._context.socket(zmq.PAIR)
         port_selected = self._socket.bind_to_random_port("tcp://*")
         command_lst = ["mpiexec"]
         if self._oversubscribe:
@@ -64,8 +65,15 @@ class Pool(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._send_raw(input_dict={"c": "close"})
+        self._process.terminate()
         self._process.stdout.close()
         self._process.stdin.close()
+        self._process.wait()
+        self._socket.close()
+        self._context.term()
+        self._process = None
+        self._socket = None
+        self._context = None
 
     def map(self, function, lst):
         """
