@@ -22,7 +22,7 @@ python pool.py
 Internally `pympipool` uses `mpi4py` to distribute the four calculation to two processors `cores=2`.
 
 ## Installation
-As `pympipool` requires `openmpi` and `mpi4py` it is highly recommended to install it via conda: 
+As `pympipool` requires `mpi` and `mpi4py` it is highly recommended to install it via conda: 
 ```
 conda install -c conda-forge pympipool
 ```
@@ -32,6 +32,9 @@ pip install pympipool
 ```
 
 ## Changelog
+### Current main branch
+* Close communication socket when closing the `pympipool.Pool`. 
+
 ### 0.2.0
 * Communicate via zmq rather than `stdin` and `stdout`, this enables support for `mpich` and `openmpi`.
 * Add error handling to propagate the `Exception`, when it is raised by mapping the function to the arguments.
