@@ -46,9 +46,13 @@ class Pool(object):
         command_lst = ["mpiexec"]
         if self._oversubscribe:
             command_lst += ["--oversubscribe"]
+        if self._cores_per_task == 1:
+            cores = self._cores
+        else:
+            cores = 1
         command_lst += [
             "-n",
-            str(self._cores),
+            str(cores),
             "python",
             "-m",
             "mpi4py.futures",

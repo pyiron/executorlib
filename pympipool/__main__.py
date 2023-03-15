@@ -31,17 +31,19 @@ def wrap(funct, number_of_cores_per_communicator):
 def exec_funct(executor, funct, lst, cores_per_task):
     if cores_per_task == 1:
         results = executor.map(funct, lst)
-        return list(tqdm(results, desc="Configs", total=len(lst)))
+        return list(tqdm(results, desc="Tasks", total=len(lst)))
     else:
         lst_parallel = []
-        for l in lst:
+        for input_parameter in lst:
             for _ in range(cores_per_task):
-                lst_parallel.append(l)
+                lst_parallel.append(input_parameter)
         results = executor.map(
             wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
             lst_parallel,
         )
-        return list(tqdm(results, desc="Configs", total=len(lst)))[::cores_per_task]
+        return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
+            ::cores_per_task
+        ]
 
 
 def main():
