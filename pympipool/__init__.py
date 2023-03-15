@@ -30,8 +30,9 @@ class Pool(object):
         ```
     """
 
-    def __init__(self, cores=1, oversubscribe=False):
+    def __init__(self, cores=1, cores_per_task=1, oversubscribe=False):
         self._cores = cores
+        self._cores_per_task = cores_per_task
         self._process = None
         self._socket = None
         self._context = None
@@ -54,6 +55,8 @@ class Pool(object):
             path,
             "--zmqport",
             str(port_selected),
+            "--cores-per-task",
+            str(self._cores_per_task)
         ]
         self._process = subprocess.Popen(
             command_lst,
