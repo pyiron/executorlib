@@ -61,6 +61,8 @@ class Pool(object):
             str(port_selected),
             "--cores-per-task",
             str(self._cores_per_task),
+            "--cores-total",
+            str(self._cores),
         ]
         self._process = subprocess.Popen(
             command_lst,

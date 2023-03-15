@@ -47,11 +47,12 @@ def exec_funct(executor, funct, lst, cores_per_task):
 
 
 def main():
-    with MPIPoolExecutor() as executor:
+    argument_lst = sys.argv
+    total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
+    with MPIPoolExecutor(total_cores) as executor:
         if executor is not None:
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
-            argument_lst = sys.argv
             port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
             cores_per_task = int(
                 argument_lst[argument_lst.index("--cores-per-task") + 1]
