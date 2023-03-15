@@ -18,9 +18,10 @@ def wrap(funct, number_of_cores_per_communicator):
     def functwrapped(input_parameter):
         MPI.COMM_WORLD.Barrier()
         rank = MPI.COMM_WORLD.Get_rank()
-        color = rank // number_of_cores_per_communicator
-        key = rank % number_of_cores_per_communicator
-        comm_new = MPI.COMM_WORLD.Split(color, key)
+        comm_new = MPI.COMM_WORLD.Split(
+            rank // number_of_cores_per_communicator,
+            rank % number_of_cores_per_communicator
+        )
         comm_new.Barrier()
         return funct(input_parameter, comm=comm_new)
 
