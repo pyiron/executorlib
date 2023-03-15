@@ -23,6 +23,7 @@ def wrap(funct, number_of_cores_per_communicator):
         comm_new = MPI.COMM_WORLD.Split(color, key)
         comm_new.Barrier()
         return funct(input_parameter, comm=comm_new)
+
     return functwrapped
 
 
@@ -37,7 +38,7 @@ def exec_funct(executor, funct, lst, cores_per_task):
                 lst_parallel.append(l)
         results = executor.map(
             wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-            lst_parallel
+            lst_parallel,
         )
         return list(tqdm(results, desc="Configs", total=len(lst)))[::cores_per_task]
 
@@ -49,7 +50,9 @@ def main():
             socket = context.socket(zmq.PAIR)
             argument_lst = sys.argv
             port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
-            cores_per_task = int(argument_lst[argument_lst.index("--cores-per-task") + 1])
+            cores_per_task = int(
+                argument_lst[argument_lst.index("--cores-per-task") + 1]
+            )
             socket.connect("tcp://localhost:" + port_selected)
         while True:
             if executor is not None:
@@ -64,7 +67,7 @@ def main():
                             executor=executor,
                             funct=input_dict["f"],
                             lst=input_dict["l"],
-                            cores_per_task=cores_per_task
+                            cores_per_task=cores_per_task,
                         )
                     except Exception as error:
                         socket.send(

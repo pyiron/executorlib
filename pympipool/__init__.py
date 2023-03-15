@@ -56,7 +56,7 @@ class Pool(object):
             "--zmqport",
             str(port_selected),
             "--cores-per-task",
-            str(self._cores_per_task)
+            str(self._cores_per_task),
         ]
         self._process = subprocess.Popen(
             command_lst,
