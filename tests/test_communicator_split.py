@@ -24,7 +24,7 @@ class TestPool(unittest.TestCase):
         self.assertEqual(output[2], (4, 3, 0, 0, 3))
 
     def test_pool_parallel(self):
-        with Pool(cores=2, cores_per_task=2, oversubscribe=True) as p:
+        with Pool(cores=2, cores_per_task=2) as p:
             output = p.map(function=get_ranks, lst=[1, 2, 3, 4])
         self.assertEqual(output[0], (1, 0, 1, 0, 1))
         self.assertEqual(output[1], (1, 0, 1, 0, 2))
