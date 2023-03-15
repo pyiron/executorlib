@@ -33,6 +33,7 @@ pip install pympipool
 
 ## Changelog
 ### Current main branch
+* Support subtasks with multiple MPI ranks. 
 * Close communication socket when closing the `pympipool.Pool`. 
 
 ### 0.2.0
