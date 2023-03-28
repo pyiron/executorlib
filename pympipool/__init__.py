@@ -47,15 +47,21 @@ class Pool(object):
         if self._oversubscribe:
             command_lst += ["--oversubscribe"]
         if self._cores_per_task == 1:
-            cores = self._cores
+            command_lst += [
+                "-n",
+                str(self._cores),
+                "python",
+                "-m",
+                "mpi4py.futures"
+            ]
         else:
-            cores = 1
+            command_lst += [
+                "-n",
+                "1",
+                "--use-hwthread-cpus",
+                "python",
+            ]
         command_lst += [
-            "-n",
-            str(cores),
-            "python",
-            "-m",
-            "mpi4py.futures",
             path,
             "--zmqport",
             str(port_selected),
