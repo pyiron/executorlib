@@ -51,7 +51,9 @@ pip install pympipool
 ## Changelog
 ### 0.3.0
 * Support subtasks with multiple MPI ranks. 
-* Close communication socket when closing the `pympipool.Pool`. 
+* Close communication socket when closing the `pympipool.Pool`.
+* `tqdm` compatibility is updated from `4.64.1` to `4.65.0`
+* `pyzmq` compatibility is updated from `25.0.0` to `25.0.2`
 
 ### 0.2.0
 * Communicate via zmq rather than `stdin` and `stdout`, this enables support for `mpich` and `openmpi`.
