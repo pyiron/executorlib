@@ -49,7 +49,6 @@ class Pool(object):
             command_lst += [
                 "-n",
                 "1",
-                "--oversubscribe",
                 "python",
             ]
         command_lst += [
