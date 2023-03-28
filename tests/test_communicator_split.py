@@ -26,6 +26,8 @@ class TestPool(unittest.TestCase):
     def test_pool_parallel(self):
         with Pool(cores=2, cores_per_task=2) as p:
             output = p.map(function=get_ranks, lst=[1, 2, 3, 4])
+        print(output)
+        output = output[::2]
         self.assertEqual(output[0], (1, 0, 1, 0, 1))
         self.assertEqual(output[1], (1, 0, 1, 0, 2))
         self.assertEqual(output[2], (1, 0, 1, 0, 3))

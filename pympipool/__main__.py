@@ -29,6 +29,7 @@ def wrap(funct, number_of_cores_per_communicator):
 
 
 def exec_funct(executor, funct, lst, cores_per_task):
+    print("cores_per_task:", cores_per_task, file=sys.stderr)
     if cores_per_task == 1:
         results = executor.map(funct, lst)
         return list(tqdm(results, desc="Tasks", total=len(lst)))
@@ -41,9 +42,10 @@ def exec_funct(executor, funct, lst, cores_per_task):
             wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
             lst_parallel,
         )
-        return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
-            ::cores_per_task
-        ]
+        return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))
+        # return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
+        #     ::cores_per_task
+        # ]
 
 
 def main():
@@ -51,6 +53,7 @@ def main():
     total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
     with MPIPoolExecutor(total_cores) as executor:
         if executor is not None:
+            print("mpi world:", MPI.COMM_WORLD.Get_size(), file=sys.stderr)
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
             port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
