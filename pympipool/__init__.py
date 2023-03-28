@@ -16,6 +16,7 @@ class Pool(object):
     Args:
         cores (int): defines the total number of MPI ranks to use
         cores_per_task (int): defines the number of MPI ranks per task
+        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
 
     Simple example:
         ```
@@ -30,12 +31,13 @@ class Pool(object):
         ```
     """
 
-    def __init__(self, cores=1, cores_per_task=1):
+    def __init__(self, cores=1, cores_per_task=1, oversubscribe=False):
         self._cores = cores
         self._cores_per_task = cores_per_task
         self._process = None
         self._socket = None
         self._context = None
+        self._oversubscribe = oversubscribe
 
     def __enter__(self):
         path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
@@ -43,6 +45,8 @@ class Pool(object):
         self._socket = self._context.socket(zmq.PAIR)
         port_selected = self._socket.bind_to_random_port("tcp://*")
         command_lst = ["mpiexec"]
+        if self._oversubscribe:
+            command_lst += ["--oversubscribe"]
         if self._cores_per_task == 1:
             command_lst += ["-n", str(self._cores), "python", "-m", "mpi4py.futures"]
         else:
