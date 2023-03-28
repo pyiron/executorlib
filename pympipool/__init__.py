@@ -14,7 +14,8 @@ class Pool(object):
     usability in particular when used in combination with Jupyter notebooks.
 
     Args:
-        cores (int): defines the number of MPI compute cores to use
+        cores (int): defines the total number of MPI ranks to use
+        cores_per_task (int): defines the number of MPI ranks per task
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
 
     Simple example:
@@ -30,8 +31,9 @@ class Pool(object):
         ```
     """
 
-    def __init__(self, cores=1, oversubscribe=False):
+    def __init__(self, cores=1, cores_per_task=1, oversubscribe=False):
         self._cores = cores
+        self._cores_per_task = cores_per_task
         self._process = None
         self._socket = None
         self._context = None
@@ -45,15 +47,22 @@ class Pool(object):
         command_lst = ["mpiexec"]
         if self._oversubscribe:
             command_lst += ["--oversubscribe"]
+        if self._cores_per_task == 1:
+            command_lst += ["-n", str(self._cores), "python", "-m", "mpi4py.futures"]
+        else:
+            command_lst += [
+                "-n",
+                "1",
+                "python",
+            ]
         command_lst += [
-            "-n",
-            str(self._cores),
-            "python",
-            "-m",
-            "mpi4py.futures",
             path,
             "--zmqport",
             str(port_selected),
+            "--cores-per-task",
+            str(self._cores_per_task),
+            "--cores-total",
+            str(self._cores),
         ]
         self._process = subprocess.Popen(
             command_lst,

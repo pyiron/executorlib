@@ -39,3 +39,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 30
       run: coverage run --omit pympipool/_version.py -m unittest discover tests
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'

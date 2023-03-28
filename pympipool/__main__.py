@@ -7,24 +7,56 @@ MPI.pickle.__init__(
     cloudpickle.loads,
     pickle.HIGHEST_PROTOCOL,
 )
+
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
 import zmq
 
 
-def exec_funct(executor, funct, lst):
-    results = executor.map(funct, lst)
-    return list(tqdm(results, desc="Configs", total=len(lst)))
+def wrap(funct, number_of_cores_per_communicator):
+    def functwrapped(input_parameter):
+        MPI.COMM_WORLD.Barrier()
+        rank = MPI.COMM_WORLD.Get_rank()
+        comm_new = MPI.COMM_WORLD.Split(
+            rank // number_of_cores_per_communicator,
+            rank % number_of_cores_per_communicator,
+        )
+        comm_new.Barrier()
+        return funct(input_parameter, comm=comm_new)
+
+    return functwrapped
+
+
+def exec_funct(executor, funct, lst, cores_per_task):
+    if cores_per_task == 1:
+        results = executor.map(funct, lst)
+        return list(tqdm(results, desc="Tasks", total=len(lst)))
+    else:
+        lst_parallel = []
+        for input_parameter in lst:
+            for _ in range(cores_per_task):
+                lst_parallel.append(input_parameter)
+        results = executor.map(
+            wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+            lst_parallel,
+        )
+        return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
+            ::cores_per_task
+        ]
 
 
 def main():
-    with MPIPoolExecutor() as executor:
+    argument_lst = sys.argv
+    total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
+    with MPIPoolExecutor(total_cores) as executor:
         if executor is not None:
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
-            argument_lst = sys.argv
             port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
+            cores_per_task = int(
+                argument_lst[argument_lst.index("--cores-per-task") + 1]
+            )
             socket.connect("tcp://localhost:" + port_selected)
         while True:
             if executor is not None:
@@ -39,6 +71,7 @@ def main():
                             executor=executor,
                             funct=input_dict["f"],
                             lst=input_dict["l"],
+                            cores_per_task=cores_per_task,
                         )
                     except Exception as error:
                         socket.send(

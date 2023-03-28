@@ -2,6 +2,7 @@
 Scale functions over multiple compute nodes using mpi4py
 
 ## Functionality
+### Serial subtasks 
 Write a python test file like `pool.py`: 
 ```python
 import numpy as np
@@ -21,6 +22,22 @@ python pool.py
 ```
 Internally `pympipool` uses `mpi4py` to distribute the four calculation to two processors `cores=2`.
 
+### MPI parallel subtasks
+In addition, the individual python functions can also use multiple MPI ranks. Example `ranks.py`:
+```python
+from pympipool import Pool
+
+def calc(i, comm):
+    return i, comm.Get_size(), comm.Get_rank()
+
+with Pool(cores=4, cores_per_task=2) as p:
+    print(p.map(function=calc, lst=[1, 2, 3, 4]))
+```
+
+Here the user-defined function `calc()` receives an additional input parameter `comm` which represents the 
+MPI communicator. It can be used just like any other `mpi4py.COMM` object. Here just the size `Get_size()` 
+and the rank `Get_rank()` are returned. 
+
 ## Installation
 As `pympipool` requires `mpi` and `mpi4py` it is highly recommended to install it via conda: 
 ```
@@ -32,7 +49,8 @@ pip install pympipool
 ```
 
 ## Changelog
-### Current main branch
+### 0.3.0
+* Support subtasks with multiple MPI ranks. 
 * Close communication socket when closing the `pympipool.Pool`. 
 
 ### 0.2.0
