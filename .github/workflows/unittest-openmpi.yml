@@ -66,6 +66,5 @@ jobs:
       continue-on-error: True
       shell: bash -l {0}
       run: |
-        coverage combine
         coveralls
         coverage xml
