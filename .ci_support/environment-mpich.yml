@@ -2,8 +2,6 @@ channels:
 - conda-forge
 dependencies:
 - python
-- coverage
-- coveralls
 - numpy
 - mpich
 - cloudpickle =2.2.1
