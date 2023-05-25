@@ -70,7 +70,7 @@ class Pool(Executor):
             )
         except ValueError:
             pass
-        self._send_raw(input_dict={"f": fn, "l": zip(*iterables)})
+        self._send_raw(input_dict={"f": fn, "l": iterables})
         return self._receive()
 
     def shutdown(self, wait=True, *, cancel_futures=False):
