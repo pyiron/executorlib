@@ -57,7 +57,11 @@ def main():
             cores_per_task = int(
                 argument_lst[argument_lst.index("--cores-per-task") + 1]
             )
-            socket.connect("tcp://localhost:" + port_selected)
+            if "--host" in argument_lst:
+                host = argument_lst[argument_lst.index("--host") + 1]
+            else:
+                host = "localhost"
+            socket.connect("tcp://" + host + ":" + port_selected)
         while True:
             if executor is not None:
                 input_dict = cloudpickle.loads(socket.recv())

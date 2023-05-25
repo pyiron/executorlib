@@ -1,5 +1,6 @@
 import subprocess
 import os
+import socket
 import inspect
 import cloudpickle
 import zmq
@@ -31,7 +32,9 @@ class Pool(object):
         ```
     """
 
-    def __init__(self, cores=1, cores_per_task=1, oversubscribe=False, enable_flux_backend=False):
+    def __init__(
+        self, cores=1, cores_per_task=1, oversubscribe=False, enable_flux_backend=False
+    ):
         self._cores = cores
         self._cores_per_task = cores_per_task
         self._process = None
@@ -59,8 +62,13 @@ class Pool(object):
                 "1",
                 "python",
             ]
+        command_lst += [path]
+        if self._enable_flux_backend:
+            command_lst += [
+                "--host",
+                socket.gethostname(),
+            ]
         command_lst += [
-            path,
             "--zmqport",
             str(port_selected),
             "--cores-per-task",
