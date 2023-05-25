@@ -4,9 +4,10 @@ import socket
 import inspect
 import cloudpickle
 import zmq
+from concurrent.futures import Executor
 
 
-class Pool(object):
+class Pool(Executor):
     """
     The pympipool.Pool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast to the
     mpi4py.futures.MPIPoolExecutor the pympipool.Pool can be executed in a serial python process and does not require
@@ -42,15 +43,9 @@ class Pool(object):
         self._context = None
         self._enable_flux_backend = enable_flux_backend
         self._oversubscribe = oversubscribe
-        self._pool_open()
+        self._bootup()
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._pool_close()
-
-    def map(self, function, lst):
+    def map(self, fn, *iterables, timeout=None, chunksize=1):
         """
         Map a given function on a list of attributes.
 
@@ -75,10 +70,28 @@ class Pool(object):
             )
         except ValueError:
             pass
-        self._send_raw(input_dict={"f": function, "l": lst})
+        self._send_raw(input_dict={"f": fn, "l": zip(*iterables)})
         return self._receive()
 
-    def _pool_open(self):
+    def shutdown(self, wait=True, *, cancel_futures=False):
+        if self._process is not None and self._process.poll() is None:
+            self._send_raw(input_dict={"c": "close"})
+            self._process.terminate()
+            self._process.stdout.close()
+            self._process.stdin.close()
+            if wait:
+                self._process.wait()
+                self._socket.close()
+                self._context.term()
+                self._process = None
+                self._socket = None
+                self._context = None
+        else:
+            self._process = None
+            self._socket = None
+            self._context = None
+
+    def _bootup(self):
         path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
@@ -117,18 +130,6 @@ class Pool(object):
             stderr=None,
             stdin=subprocess.PIPE,
         )
-
-    def _pool_close(self):
-        self._send_raw(input_dict={"c": "close"})
-        self._process.terminate()
-        self._process.stdout.close()
-        self._process.stdin.close()
-        self._process.wait()
-        self._socket.close()
-        self._context.term()
-        self._process = None
-        self._socket = None
-        self._context = None
 
     def _send_raw(self, input_dict):
         self._socket.send(cloudpickle.dumps(input_dict))
