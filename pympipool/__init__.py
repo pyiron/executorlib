@@ -45,13 +45,13 @@ class Pool(Executor):
         self._oversubscribe = oversubscribe
         self._bootup()
 
-    def map(self, fn, *iterables, timeout=None, chunksize=1):
+    def map(self, fn, iterables, timeout=None, chunksize=1):
         """
         Map a given function on a list of attributes.
 
         Args:
-            function: function to be applied to each element of the following list
-            lst (list): list of arguments the function should be applied on
+            fn: function to be applied to each element of the following list
+            iterables (list): list of arguments the function should be applied on
 
         Returns:
             list: list of output generated from applying the function on the list of arguments

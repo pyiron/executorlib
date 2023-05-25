@@ -22,7 +22,7 @@ def calc_error_type_error(i):
 class TestPool(unittest.TestCase):
     def test_pool_serial(self):
         with Pool(cores=1) as p:
-            output = p.map(calc, [1, 2, 3, 4])
+            output = p.map(fn=calc, iterables=[1, 2, 3, 4])
         self.assertEqual(output[0], 1)
         self.assertEqual(output[1], 4)
         self.assertEqual(output[2], 9)
@@ -30,7 +30,7 @@ class TestPool(unittest.TestCase):
 
     def test_pool_parallel(self):
         with Pool(cores=2) as p:
-            output = p.map(function=calc, lst=[1, 2, 3, 4])
+            output = p.map(fn=calc, iterables=[1, 2, 3, 4])
         self.assertEqual(output[0], 1)
         self.assertEqual(output[1], 4)
         self.assertEqual(output[2], 9)
@@ -38,13 +38,13 @@ class TestPool(unittest.TestCase):
 
     def test_pool_none(self):
         with Pool(cores=2) as p:
-            output = p.map(function=calc_none, lst=[1, 2, 3, 4])
+            output = p.map(fn=calc_none, iterables=[1, 2, 3, 4])
         self.assertEqual(output, [None, None, None, None])
 
     def test_pool_error(self):
         with self.assertRaises(ValueError):
             with Pool(cores=2) as p:
-                p.map(function=calc_error_value_error, lst=[1, 2, 3, 4])
+                p.map(fn=calc_error_value_error, iterables=[1, 2, 3, 4])
         with self.assertRaises(TypeError):
             with Pool(cores=2) as p:
-                p.map(function=calc_error_type_error, lst=[1, 2, 3, 4])
+                p.map(fn=calc_error_type_error, iterables=[1, 2, 3, 4])
