@@ -1,5 +1,6 @@
 import numpy as np
 import unittest
+from time import sleep
 from pympipool import Pool
 from concurrent.futures import Future
 
@@ -15,5 +16,6 @@ class TestPool(unittest.TestCase):
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
             p.update()
+        sleep(1)
         self.assertTrue(output.done())
         self.assertEqual(output.result(), 4)
