@@ -22,7 +22,7 @@ def calc_error_type_error(i):
 class TestPool(unittest.TestCase):
     def test_pool_serial(self):
         with Pool(cores=1) as p:
-            output = p.map(function=calc, lst=[1, 2, 3, 4])
+            output = p.map(calc, [1, 2, 3, 4])
         self.assertEqual(output[0], 1)
         self.assertEqual(output[1], 4)
         self.assertEqual(output[2], 9)
