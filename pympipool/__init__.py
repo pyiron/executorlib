@@ -31,12 +31,13 @@ class Pool(object):
         ```
     """
 
-    def __init__(self, cores=1, cores_per_task=1, oversubscribe=False):
+    def __init__(self, cores=1, cores_per_task=1, oversubscribe=False, enable_flux_backend=False):
         self._cores = cores
         self._cores_per_task = cores_per_task
         self._process = None
         self._socket = None
         self._context = None
+        self._enable_flux_backend = enable_flux_backend
         self._oversubscribe = oversubscribe
 
     def __enter__(self):
@@ -44,7 +45,10 @@ class Pool(object):
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         port_selected = self._socket.bind_to_random_port("tcp://*")
-        command_lst = ["mpiexec"]
+        if self._enable_flux_backend:
+            command_lst = ["flux", "run"]
+        else:
+            command_lst = ["mpiexec"]
         if self._oversubscribe:
             command_lst += ["--oversubscribe"]
         if self._cores_per_task == 1:
