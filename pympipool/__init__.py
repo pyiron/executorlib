@@ -4,7 +4,7 @@ import socket
 import inspect
 import cloudpickle
 import zmq
-from concurrent.futures import Executor
+from concurrent.futures import Executor, Future
 
 
 class Pool(Executor):
@@ -44,6 +44,7 @@ class Pool(Executor):
         self._enable_flux_backend = enable_flux_backend
         self._oversubscribe = oversubscribe
         self._bootup()
+        self._future_dict = {}
 
     def map(self, fn, iterables, timeout=None, chunksize=1):
         """
@@ -90,6 +91,19 @@ class Pool(Executor):
             self._process = None
             self._socket = None
             self._context = None
+
+    def submit(self, fn, *args, **kwargs):
+        future = Future()
+        self._send_raw(input_dict={"f": fn, "a": args, "k": kwargs})
+        self._future_dict[self._receive()] = future
+        return future
+
+    def update(self):
+        hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
+        if len(hash_to_update) > 0:
+            self._send_raw(input_dict={"u": hash_to_update})
+            for k, v in self._receive():
+                self._future_dict[k].set_result(v)
 
     def _bootup(self):
         path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
