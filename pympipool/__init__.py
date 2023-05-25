@@ -102,7 +102,7 @@ class Pool(Executor):
         hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
         if len(hash_to_update) > 0:
             self._send_raw(input_dict={"u": hash_to_update})
-            for k, v in self._receive():
+            for k, v in self._receive().items():
                 self._future_dict[k].set_result(v)
 
     def _bootup(self):

@@ -108,7 +108,7 @@ def main():
                 elif "u" in input_dict.keys():
                     done_dict = {
                         k: f.result()
-                        for k, f in {k: future_dict[k] for k in input_dict["u"]}
+                        for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
                         if f.done()
                     }
                     socket.send(cloudpickle.dumps({"r": done_dict}))
