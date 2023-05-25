@@ -84,8 +84,14 @@ def main():
                         )
                     else:
                         socket.send(cloudpickle.dumps({"r": output}))
-                elif "f" in input_dict.keys() and "a" in input_dict.keys() and "k" in input_dict.keys():
-                    future = executor.submit(input_dict["f"], *input_dict["a"], **input_dict["k"])
+                elif (
+                    "f" in input_dict.keys()
+                    and "a" in input_dict.keys()
+                    and "k" in input_dict.keys()
+                ):
+                    future = executor.submit(
+                        input_dict["f"], *input_dict["a"], **input_dict["k"]
+                    )
                     future_hash = hash(future)
                     future_dict[future_hash] = future
                     socket.send(cloudpickle.dumps({"r": future_hash}))
