@@ -12,7 +12,24 @@ from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
 import zmq
-from pympipool.common import parse_arguments
+
+
+def parse_arguments(argument_lst):
+    argument_dict = {
+        "total_cores": "--cores-total",
+        "zmqport": "--zmqport",
+        "cores_per_task": "--cores-per-task",
+        "host": "--host",
+    }
+    parse_dict = {"host": "localhost"}
+    parse_dict.update(
+        {
+            k: argument_lst[argument_lst.index(v) + 1]
+            for k, v in argument_dict.items()
+            if v in argument_lst
+        }
+    )
+    return parse_dict
 
 
 def wrap(funct, number_of_cores_per_communicator):
