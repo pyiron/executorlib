@@ -33,10 +33,7 @@ def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
         if funct_args is not None and funct_kwargs is not None:
             return executor.submit(funct, *funct_args, **funct_kwargs)
         elif funct_args is not None:
-            return executor.submit(
-                funct,
-                *funct_args,
-            )
+            return executor.submit(funct, *funct_args)
         elif funct_kwargs is not None:
             return executor.submit(funct, **funct_kwargs)
         else:
@@ -148,16 +145,6 @@ def main():
                         funct_kwargs=funct_kwargs,
                         cores_per_task=cores_per_task,
                     )
-                    future_hash = hash(future)
-                    future_dict[future_hash] = future
-                    socket.send(cloudpickle.dumps({"r": future_hash}))
-                elif "f" in input_dict.keys() and "k" in input_dict.keys():
-                    future = executor.submit(input_dict["f"], **input_dict["k"])
-                    future_hash = hash(future)
-                    future_dict[future_hash] = future
-                    socket.send(cloudpickle.dumps({"r": future_hash}))
-                elif "f" in input_dict.keys() and "a" in input_dict.keys():
-                    future = executor.submit(input_dict["f"], *input_dict["a"])
                     future_hash = hash(future)
                     future_dict[future_hash] = future
                     socket.send(cloudpickle.dumps({"r": future_hash}))
