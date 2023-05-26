@@ -28,6 +28,20 @@ def wrap(funct, number_of_cores_per_communicator):
     return functwrapped
 
 
+def is_done(future_obj):
+    if not isinstance(future_obj, list):
+        return future_obj.done()
+    else:
+        return future_obj[0].done()
+
+
+def get_result(future_obj):
+    if not isinstance(future_obj, list):
+        return future_obj.result()
+    else:
+        return future_obj[0].result()
+
+
 def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
     if cores_per_task == 1:
         if funct_args is not None and funct_kwargs is not None:
@@ -40,7 +54,7 @@ def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
             raise ValueError("Neither *args nor *kwargs are defined.")
     else:
         if funct_args is not None and funct_kwargs is not None:
-            future_lst = [
+            return [
                 executor.submit(
                     wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
                     *funct_args,
@@ -48,25 +62,22 @@ def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
                 )
                 for _ in range(cores_per_task)
             ]
-            return future_lst[0]
         elif funct_args is not None:
-            future_lst = [
+            return [
                 executor.submit(
                     wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
                     *funct_args,
                 )
                 for _ in range(cores_per_task)
             ]
-            return future_lst[0]
         elif funct_kwargs is not None:
-            future_lst = [
+            return [
                 executor.submit(
                     wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
                     **funct_kwargs,
                 )
                 for _ in range(cores_per_task)
             ]
-            return future_lst[0]
         else:
             raise ValueError("Neither *args nor *kwargs are defined.")
 
@@ -145,14 +156,19 @@ def main():
                         funct_kwargs=funct_kwargs,
                         cores_per_task=cores_per_task,
                     )
-                    future_hash = hash(future)
-                    future_dict[future_hash] = future
-                    socket.send(cloudpickle.dumps({"r": future_hash}))
+                    if not isinstance(future, list):
+                        future_hash = hash(future)
+                        future_dict[future_hash] = future
+                        socket.send(cloudpickle.dumps({"r": future_hash}))
+                    else:
+                        future_hash = hash(future[0])
+                        future_dict[future_hash] = future
+                        socket.send(cloudpickle.dumps({"r": future_hash}))
                 elif "u" in input_dict.keys():
                     done_dict = {
-                        k: f.result()
+                        k: get_result(future_obj=f)
                         for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
-                        if f.done()
+                        if is_done(future_obj=f)
                     }
                     socket.send(cloudpickle.dumps({"r": done_dict}))
                     for k in done_dict.keys():
