@@ -11,7 +11,7 @@ MPI.pickle.__init__(
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
-import zmq
+from pympipool.common import parse_arguments, connect_to_message_queue
 
 
 def wrap(funct, number_of_cores_per_communicator):
@@ -47,22 +47,13 @@ def exec_funct(executor, funct, lst, cores_per_task):
 
 
 def main():
-    argument_lst = sys.argv
-    total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
+    argument_dict = parse_arguments(argument_lst=sys.argv)
     future_dict = {}
-    with MPIPoolExecutor(total_cores) as executor:
+    with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
         if executor is not None:
-            context = zmq.Context()
-            socket = context.socket(zmq.PAIR)
-            port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
-            cores_per_task = int(
-                argument_lst[argument_lst.index("--cores-per-task") + 1]
+            context, socket = connect_to_message_queue(
+                host=argument_dict["host"], port_selected=argument_dict["zmqport"]
             )
-            if "--host" in argument_lst:
-                host = argument_lst[argument_lst.index("--host") + 1]
-            else:
-                host = "localhost"
-            socket.connect("tcp://" + host + ":" + port_selected)
         while True:
             if executor is not None:
                 input_dict = cloudpickle.loads(socket.recv())
@@ -76,7 +67,7 @@ def main():
                             executor=executor,
                             funct=input_dict["f"],
                             lst=input_dict["l"],
-                            cores_per_task=cores_per_task,
+                            cores_per_task=int(argument_dict["cores_per_task"]),
                         )
                     except Exception as error:
                         socket.send(
