@@ -5,6 +5,7 @@ import inspect
 import cloudpickle
 import zmq
 from concurrent.futures import Executor, Future
+from pympipool.common import start_parallel_subprocess
 
 
 class Pool(Executor):
@@ -38,13 +39,19 @@ class Pool(Executor):
     ):
         self._cores = cores
         self._cores_per_task = cores_per_task
-        self._process = None
-        self._socket = None
-        self._context = None
+        self._context = zmq.Context()
+        self._socket = self._context.socket(zmq.PAIR)
+        self._process = start_parallel_subprocess(
+            port_selected=self._socket.bind_to_random_port("tcp://*"),
+            cores=cores,
+            cores_per_task=cores_per_task,
+            oversubscribe=oversubscribe,
+            enable_flux_backend=enable_flux_backend
+        )
         self._future_dict = {}
         self._enable_flux_backend = enable_flux_backend
         self._oversubscribe = oversubscribe
-        self._bootup()
+        # self._bootup()
         self._cloudpickle_update()
 
     def map(self, fn, iterables, timeout=None, chunksize=1):
