@@ -42,7 +42,7 @@ class Pool(Executor):
             cores=cores,
             cores_per_task=cores_per_task,
             oversubscribe=oversubscribe,
-            enable_flux_backend=enable_flux_backend
+            enable_flux_backend=enable_flux_backend,
         )
         self._cloudpickle_update()
 
