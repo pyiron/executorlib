@@ -1,6 +1,3 @@
-import subprocess
-import os
-import socket
 import inspect
 import cloudpickle
 import zmq
@@ -37,8 +34,7 @@ class Pool(Executor):
     def __init__(
         self, cores=1, cores_per_task=1, oversubscribe=False, enable_flux_backend=False
     ):
-        self._cores = cores
-        self._cores_per_task = cores_per_task
+        self._future_dict = {}
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = start_parallel_subprocess(
@@ -48,10 +44,6 @@ class Pool(Executor):
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend
         )
-        self._future_dict = {}
-        self._enable_flux_backend = enable_flux_backend
-        self._oversubscribe = oversubscribe
-        # self._bootup()
         self._cloudpickle_update()
 
     def map(self, fn, iterables, timeout=None, chunksize=1):
@@ -99,46 +91,6 @@ class Pool(Executor):
             self._send_raw(input_dict={"u": hash_to_update})
             for k, v in self._receive().items():
                 self._future_dict[k].set_result(v)
-
-    def _bootup(self):
-        path = os.path.abspath(os.path.join(__file__, "..", "__main__.py"))
-        self._context = zmq.Context()
-        self._socket = self._context.socket(zmq.PAIR)
-        port_selected = self._socket.bind_to_random_port("tcp://*")
-        if self._enable_flux_backend:
-            command_lst = ["flux", "run"]
-        else:
-            command_lst = ["mpiexec"]
-        if self._oversubscribe:
-            command_lst += ["--oversubscribe"]
-        if self._cores_per_task == 1:
-            command_lst += ["-n", str(self._cores), "python", "-m", "mpi4py.futures"]
-        else:
-            command_lst += [
-                "-n",
-                "1",
-                "python",
-            ]
-        command_lst += [path]
-        if self._enable_flux_backend:
-            command_lst += [
-                "--host",
-                socket.gethostname(),
-            ]
-        command_lst += [
-            "--zmqport",
-            str(port_selected),
-            "--cores-per-task",
-            str(self._cores_per_task),
-            "--cores-total",
-            str(self._cores),
-        ]
-        self._process = subprocess.Popen(
-            command_lst,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-        )
 
     def _send_raw(self, input_dict):
         self._socket.send(cloudpickle.dumps(input_dict))
