@@ -72,8 +72,7 @@ def main():
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
             socket.connect("tcp://" + argument_dict["host"] + ":" + argument_dict["zmqport"])
-        while True:
-            if executor is not None:
+            while True:
                 input_dict = cloudpickle.loads(socket.recv())
                 if "c" in input_dict.keys() and input_dict["c"] == "close":
                     socket.close()
