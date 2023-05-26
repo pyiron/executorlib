@@ -47,7 +47,7 @@ def start_parallel_subprocess(
     command_lst = command_line_options(
         hostname=socket.gethostname(),
         port_selected=port_selected,
-        path=os.path.abspath(os.path.join(__file__, "..", "__main__.py")),
+        path=os.path.abspath(os.path.join(__file__, "..", "mpipool.py")),
         cores=cores,
         cores_per_task=cores_per_task,
         oversubscribe=oversubscribe,
