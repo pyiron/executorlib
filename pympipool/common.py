@@ -1,6 +1,6 @@
-import subprocess
 import os
 import socket
+import subprocess
 
 
 def command_line_options(

@@ -44,7 +44,7 @@ class TestParser(unittest.TestCase):
             '--cores-total', result_dict['total_cores']
         ]
         self.assertEqual(command_lst, command_line_options(
-            hostname="127.0.0.1",
+            hostname=result_dict['host'],
             port_selected=result_dict['zmqport'],
             path="/",
             cores=result_dict['total_cores'],
