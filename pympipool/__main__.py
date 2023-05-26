@@ -49,6 +49,7 @@ def exec_funct(executor, funct, lst, cores_per_task):
 def main():
     argument_lst = sys.argv
     total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
+    future_dict = {}
     with MPIPoolExecutor(total_cores) as executor:
         if executor is not None:
             context = zmq.Context()
@@ -83,6 +84,36 @@ def main():
                         )
                     else:
                         socket.send(cloudpickle.dumps({"r": output}))
+                elif (
+                    "f" in input_dict.keys()
+                    and "a" in input_dict.keys()
+                    and "k" in input_dict.keys()
+                ):
+                    future = executor.submit(
+                        input_dict["f"], *input_dict["a"], **input_dict["k"]
+                    )
+                    future_hash = hash(future)
+                    future_dict[future_hash] = future
+                    socket.send(cloudpickle.dumps({"r": future_hash}))
+                elif "f" in input_dict.keys() and "k" in input_dict.keys():
+                    future = executor.submit(input_dict["f"], **input_dict["k"])
+                    future_hash = hash(future)
+                    future_dict[future_hash] = future
+                    socket.send(cloudpickle.dumps({"r": future_hash}))
+                elif "f" in input_dict.keys() and "a" in input_dict.keys():
+                    future = executor.submit(input_dict["f"], *input_dict["a"])
+                    future_hash = hash(future)
+                    future_dict[future_hash] = future
+                    socket.send(cloudpickle.dumps({"r": future_hash}))
+                elif "u" in input_dict.keys():
+                    done_dict = {
+                        k: f.result()
+                        for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
+                        if f.done()
+                    }
+                    socket.send(cloudpickle.dumps({"r": done_dict}))
+                    for k in done_dict.keys():
+                        del future_dict[k]
 
 
 if __name__ == "__main__":
