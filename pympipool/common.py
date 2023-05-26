@@ -21,11 +21,9 @@ def command_line_options(
     if cores_per_task == 1:
         command_lst += ["-n", str(cores), "python", "-m", "mpi4py.futures"]
     else:
-        command_lst += [
-            "-n",
-            "1",
-            "python",
-        ]
+        # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
+        # https://github.com/mpi4py/mpi4py/issues/324
+        command_lst += ["-n", "1", "python"]
     command_lst += [path]
     if enable_flux_backend:
         command_lst += [
