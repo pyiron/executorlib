@@ -64,6 +64,51 @@ def exec_funct(executor, funct, lst, cores_per_task):
         ]
 
 
+def parse_socket_communication(executor, input_dict, future_dict, cores_per_task):
+    if "c" in input_dict.keys() and input_dict["c"] == "close":
+        return "exit"
+    elif "f" in input_dict.keys() and "l" in input_dict.keys():
+        try:
+            output = exec_funct(
+                executor=executor,
+                funct=input_dict["f"],
+                lst=input_dict["l"],
+                cores_per_task=cores_per_task,
+            )
+        except Exception as error:
+            return {"e": error, "et": str(type(error))}
+        else:
+            return {"r": output}
+    elif (
+        "f" in input_dict.keys()
+        and "a" in input_dict.keys()
+        and "k" in input_dict.keys()
+    ):
+        future = executor.submit(input_dict["f"], *input_dict["a"], **input_dict["k"])
+        future_hash = hash(future)
+        future_dict[future_hash] = future
+        return {"r": future_hash}
+    elif "f" in input_dict.keys() and "k" in input_dict.keys():
+        future = executor.submit(input_dict["f"], **input_dict["k"])
+        future_hash = hash(future)
+        future_dict[future_hash] = future
+        return {"r": future_hash}
+    elif "f" in input_dict.keys() and "a" in input_dict.keys():
+        future = executor.submit(input_dict["f"], *input_dict["a"])
+        future_hash = hash(future)
+        future_dict[future_hash] = future
+        return {"r": future_hash}
+    elif "u" in input_dict.keys():
+        done_dict = {
+            k: f.result()
+            for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
+            if f.done()
+        }
+        for k in done_dict.keys():
+            del future_dict[k]
+        return {"r": done_dict}
+
+
 def main():
     future_dict = {}
     argument_dict = parse_arguments(argument_lst=sys.argv)
@@ -71,57 +116,22 @@ def main():
         if executor is not None:
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
-            socket.connect("tcp://" + argument_dict["host"] + ":" + argument_dict["zmqport"])
+            socket.connect(
+                "tcp://" + argument_dict["host"] + ":" + argument_dict["zmqport"]
+            )
             while True:
-                input_dict = cloudpickle.loads(socket.recv())
-                if "c" in input_dict.keys() and input_dict["c"] == "close":
+                output = parse_socket_communication(
+                    executor=executor,
+                    input_dict=cloudpickle.loads(socket.recv()),
+                    future_dict=future_dict,
+                    cores_per_task=int(argument_dict["cores_per_task"]),
+                )
+                if isinstance(output, str) and output == "exit":
                     socket.close()
                     context.term()
                     break
-                elif "f" in input_dict.keys() and "l" in input_dict.keys():
-                    try:
-                        output = exec_funct(
-                            executor=executor,
-                            funct=input_dict["f"],
-                            lst=input_dict["l"],
-                            cores_per_task=int(argument_dict["cores_per_task"]),
-                        )
-                    except Exception as error:
-                        socket.send(
-                            cloudpickle.dumps({"e": error, "et": str(type(error))})
-                        )
-                    else:
-                        socket.send(cloudpickle.dumps({"r": output}))
-                elif (
-                    "f" in input_dict.keys()
-                    and "a" in input_dict.keys()
-                    and "k" in input_dict.keys()
-                ):
-                    future = executor.submit(
-                        input_dict["f"], *input_dict["a"], **input_dict["k"]
-                    )
-                    future_hash = hash(future)
-                    future_dict[future_hash] = future
-                    socket.send(cloudpickle.dumps({"r": future_hash}))
-                elif "f" in input_dict.keys() and "k" in input_dict.keys():
-                    future = executor.submit(input_dict["f"], **input_dict["k"])
-                    future_hash = hash(future)
-                    future_dict[future_hash] = future
-                    socket.send(cloudpickle.dumps({"r": future_hash}))
-                elif "f" in input_dict.keys() and "a" in input_dict.keys():
-                    future = executor.submit(input_dict["f"], *input_dict["a"])
-                    future_hash = hash(future)
-                    future_dict[future_hash] = future
-                    socket.send(cloudpickle.dumps({"r": future_hash}))
-                elif "u" in input_dict.keys():
-                    done_dict = {
-                        k: f.result()
-                        for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
-                        if f.done()
-                    }
-                    socket.send(cloudpickle.dumps({"r": done_dict}))
-                    for k in done_dict.keys():
-                        del future_dict[k]
+                elif isinstance(output, dict):
+                    socket.send(cloudpickle.dumps(output))
 
 
 if __name__ == "__main__":
