@@ -11,7 +11,8 @@ MPI.pickle.__init__(
 from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
-from pympipool.common import parse_arguments, connect_to_message_queue
+import zmq
+from pympipool.common import parse_arguments
 
 
 def wrap(funct, number_of_cores_per_communicator):
@@ -44,6 +45,13 @@ def exec_funct(executor, funct, lst, cores_per_task):
         return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
             ::cores_per_task
         ]
+
+
+def connect_to_message_queue(host, port_selected):
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://" + host + ":" + port_selected)
+    return context, socket
 
 
 def main():

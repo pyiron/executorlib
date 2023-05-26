@@ -1,7 +1,6 @@
 import subprocess
 import os
 import socket
-import zmq
 
 
 def command_line_options(
@@ -45,13 +44,11 @@ def command_line_options(
 
 
 def start_parallel_subprocess(
-    cores, cores_per_task, oversubscribe, enable_flux_backend
+    port_selected, cores, cores_per_task, oversubscribe, enable_flux_backend
 ):
-    zmq_context = zmq.Context()
-    zmq_socket = zmq_context.socket(zmq.PAIR)
     command_lst = command_line_options(
         hostname=socket.gethostname(),
-        port_selected=zmq_socket.bind_to_random_port("tcp://*"),
+        port_selected=port_selected,
         path=os.path.abspath(os.path.join(__file__, "..", "__main__.py")),
         cores=cores,
         cores_per_task=cores_per_task,
@@ -64,14 +61,7 @@ def start_parallel_subprocess(
         stderr=subprocess.PIPE,
         stdin=subprocess.PIPE,
     )
-    return process, zmq_context, zmq_socket
-
-
-def connect_to_message_queue(host, port_selected):
-    context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
-    socket.connect("tcp://" + host + ":" + port_selected)
-    return context, socket
+    return process
 
 
 def parse_arguments(argument_lst):
