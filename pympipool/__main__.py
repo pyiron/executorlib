@@ -15,7 +15,7 @@ import zmq
 
 
 def wrap(funct, number_of_cores_per_communicator):
-    def functwrapped(input_parameter):
+    def functwrapped(*args, **kwargs):
         MPI.COMM_WORLD.Barrier()
         rank = MPI.COMM_WORLD.Get_rank()
         comm_new = MPI.COMM_WORLD.Split(
@@ -23,7 +23,7 @@ def wrap(funct, number_of_cores_per_communicator):
             rank % number_of_cores_per_communicator,
         )
         comm_new.Barrier()
-        return funct(input_parameter, comm=comm_new)
+        return funct(*args, comm=comm_new, **kwargs)
 
     return functwrapped
 
