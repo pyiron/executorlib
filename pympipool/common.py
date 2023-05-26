@@ -85,7 +85,7 @@ def parse_arguments(argument_lst):
     parse_dict.update(
         {
             k: argument_lst[argument_lst.index(v) + 1]
-            for k, v in argument_dict
+            for k, v in argument_dict.items()
             if v in argument_lst
         }
     )
