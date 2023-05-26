@@ -119,8 +119,7 @@ def main():
             socket.connect(
                 "tcp://" + argument_dict["host"] + ":" + argument_dict["zmqport"]
             )
-        while True:
-            if executor is not None:
+            while True:
                 output = parse_socket_communication(
                     executor=executor,
                     input_dict=cloudpickle.loads(socket.recv()),
