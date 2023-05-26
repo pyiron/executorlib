@@ -1,5 +1,5 @@
 import unittest
-from pympipool.__main__ import parse_arguments 
+from pympipool.mpipool import parse_arguments
 from pympipool.common import command_line_options
 
 

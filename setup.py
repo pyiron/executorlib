@@ -34,10 +34,4 @@ setup(
         'pyzmq==25.0.2'
     ],
     cmdclass=versioneer.get_cmdclass(),
-
-    entry_points={
-            "console_scripts": [
-                'pympipool=pympipool.__main__:main'
-            ]
-    }
 )
