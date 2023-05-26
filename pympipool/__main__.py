@@ -72,9 +72,6 @@ def main():
         if executor is not None:
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
-            cores_per_task = int(
-                argument_lst[argument_lst.index("--cores-per-task") + 1]
-            )
             socket.connect("tcp://" + argument_dict["host"] + ":" + argument_dict["zmqport"])
         while True:
             if executor is not None:
@@ -89,7 +86,7 @@ def main():
                             executor=executor,
                             funct=input_dict["f"],
                             lst=input_dict["l"],
-                            cores_per_task=cores_per_task,
+                            cores_per_task=int(argument_dict["cores_per_task"]),
                         )
                     except Exception as error:
                         socket.send(
