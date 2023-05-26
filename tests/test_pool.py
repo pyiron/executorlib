@@ -48,3 +48,13 @@ class TestPool(unittest.TestCase):
         with self.assertRaises(TypeError):
             with Pool(cores=2) as p:
                 p.map(fn=calc_error_type_error, iterables=[1, 2, 3, 4])
+
+    def test_shutdown(self):
+        p = Pool(cores=1)
+        output = p.map(fn=calc, iterables=[1, 2, 3, 4])
+        p.shutdown(wait=False)
+        p.shutdown()
+        self.assertEqual(output[0], 1)
+        self.assertEqual(output[1], 4)
+        self.assertEqual(output[2], 9)
+        self.assertEqual(output[3], 16)
