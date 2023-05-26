@@ -66,8 +66,11 @@ def exec_funct(executor, funct, lst, cores_per_task):
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task):
     if "c" in input_dict.keys() and input_dict["c"] == "close":
+        # If close "c" is communicated the process is shutdown.
         return "exit"
     elif "f" in input_dict.keys() and "l" in input_dict.keys():
+        # If a function "f" and a list or arguments "l" are communicated,
+        # pympipool uses the map() function to apply the function on the list.
         try:
             output = exec_funct(
                 executor=executor,
@@ -81,24 +84,25 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
             return {"r": output}
     elif (
         "f" in input_dict.keys()
-        and "a" in input_dict.keys()
-        and "k" in input_dict.keys()
+        and ("a" in input_dict.keys() or "k" in input_dict.keys())
     ):
-        future = executor.submit(input_dict["f"], *input_dict["a"], **input_dict["k"])
-        future_hash = hash(future)
-        future_dict[future_hash] = future
-        return {"r": future_hash}
-    elif "f" in input_dict.keys() and "k" in input_dict.keys():
-        future = executor.submit(input_dict["f"], **input_dict["k"])
-        future_hash = hash(future)
-        future_dict[future_hash] = future
-        return {"r": future_hash}
-    elif "f" in input_dict.keys() and "a" in input_dict.keys():
-        future = executor.submit(input_dict["f"], *input_dict["a"])
+        # If a function "f" and either arguments "a" or keyword arguments "k" are
+        # communicated pympipool uses submit() to asynchronously apply the function
+        # on the arguments and or keyword arguments.
+        if "a" in input_dict.keys() and "k" in input_dict.keys():
+            future = executor.submit(input_dict["f"], *input_dict["a"], **input_dict["k"])
+        elif "a" in input_dict.keys():
+            future = executor.submit(input_dict["f"], *input_dict["a"])
+        elif "k" in input_dict.keys():
+            future = executor.submit(input_dict["f"], **input_dict["k"])
+        else:
+            raise ValueError("Neither *args nor *kwargs are defined.")
         future_hash = hash(future)
         future_dict[future_hash] = future
         return {"r": future_hash}
     elif "u" in input_dict.keys():
+        # If update "u" is communicated pympipool checks for asynchronously submitted
+        # functions which have completed in the meantime and communicates their results.
         done_dict = {
             k: f.result()
             for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
