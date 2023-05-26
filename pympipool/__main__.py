@@ -12,6 +12,7 @@ from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
 import zmq
+from pympipool.common import parse_arguments
 
 
 def wrap(funct, number_of_cores_per_communicator):
@@ -48,6 +49,7 @@ def exec_funct(executor, funct, lst, cores_per_task):
 
 def main():
     argument_lst = sys.argv
+    _ = parse_arguments(argument_lst=argument_lst)
     total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
     future_dict = {}
     with MPIPoolExecutor(total_cores) as executor:
