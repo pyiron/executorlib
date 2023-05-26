@@ -28,6 +28,52 @@ def wrap(funct, number_of_cores_per_communicator):
     return functwrapped
 
 
+def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
+    if cores_per_task == 1:
+        if funct_args is not None and funct_kwargs is not None:
+            return executor.submit(
+                funct, *funct_args, **funct_kwargs
+            )
+        elif funct_args is not None:
+            return executor.submit(
+                funct, *funct_args,
+            )
+        elif funct_kwargs is not None:
+            return executor.submit(
+                funct, **funct_kwargs
+            )
+        else:
+            raise ValueError("Neither *args nor *kwargs are defined.")
+    else:
+        if funct_args is not None and funct_kwargs is not None:
+            future_lst = [
+                executor.submit(
+                    wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+                    *funct_args,
+                    **funct_kwargs
+                ) for _ in range(cores_per_task)
+            ]
+            return future_lst[0]
+        elif funct_args is not None:
+            future_lst = [
+                executor.submit(
+                    wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+                    *funct_args
+                ) for _ in range(cores_per_task)
+            ]
+            return future_lst[0]
+        elif funct_kwargs is not None:
+            future_lst = [
+                executor.submit(
+                    wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+                    **funct_kwargs
+                ) for _ in range(cores_per_task)
+            ]
+            return future_lst[0]
+        else:
+            raise ValueError("Neither *args nor *kwargs are defined.")
+
+
 def exec_funct(executor, funct, lst, cores_per_task):
     if cores_per_task == 1:
         results = executor.map(funct, lst)
@@ -86,11 +132,22 @@ def main():
                         socket.send(cloudpickle.dumps({"r": output}))
                 elif (
                     "f" in input_dict.keys()
-                    and "a" in input_dict.keys()
-                    and "k" in input_dict.keys()
+                    and ("a" in input_dict.keys() or "k" in input_dict.keys())
                 ):
-                    future = executor.submit(
-                        input_dict["f"], *input_dict["a"], **input_dict["k"]
+                    if "a" in input_dict.keys():
+                        funct_args = input_dict["a"]
+                    else:
+                        funct_args = None
+                    if "a" in input_dict.keys():
+                        funct_kwargs = input_dict["k"]
+                    else:
+                        funct_kwargs = None
+                    future = exec_future(
+                        executor=executor,
+                        funct=input_dict["f"],
+                        funct_args=funct_args,
+                        funct_kwargs=funct_kwargs,
+                        cores_per_task=cores_per_task
                     )
                     future_hash = hash(future)
                     future_dict[future_hash] = future
