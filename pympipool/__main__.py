@@ -66,22 +66,17 @@ def exec_funct(executor, funct, lst, cores_per_task):
 
 def main():
     argument_lst = sys.argv
-    _ = parse_arguments(argument_lst=argument_lst)
+    argument_dict = parse_arguments(argument_lst=argument_lst)
     total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
     future_dict = {}
     with MPIPoolExecutor(total_cores) as executor:
         if executor is not None:
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
-            port_selected = argument_lst[argument_lst.index("--zmqport") + 1]
             cores_per_task = int(
                 argument_lst[argument_lst.index("--cores-per-task") + 1]
             )
-            if "--host" in argument_lst:
-                host = argument_lst[argument_lst.index("--host") + 1]
-            else:
-                host = "localhost"
-            socket.connect("tcp://" + host + ":" + port_selected)
+            socket.connect("tcp://" + argument_dict["host"] + ":" + argument_dict["zmqport"])
         while True:
             if executor is not None:
                 input_dict = cloudpickle.loads(socket.recv())
