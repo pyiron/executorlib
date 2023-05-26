@@ -67,9 +67,8 @@ def exec_funct(executor, funct, lst, cores_per_task):
 def main():
     argument_lst = sys.argv
     argument_dict = parse_arguments(argument_lst=argument_lst)
-    total_cores = int(argument_lst[argument_lst.index("--cores-total") + 1])
     future_dict = {}
-    with MPIPoolExecutor(total_cores) as executor:
+    with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
         if executor is not None:
             context = zmq.Context()
             socket = context.socket(zmq.PAIR)
