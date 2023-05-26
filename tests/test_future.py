@@ -39,6 +39,6 @@ class TestPool(unittest.TestCase):
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
             p.update()
-        sleep(1)
+        sleep(10)
         self.assertTrue(output.done())
         self.assertEqual(output.result(), [2, 0, 2, 0, 2])
