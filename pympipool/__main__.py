@@ -60,46 +60,6 @@ def get_result(future_obj):
         return future_obj[0].result()
 
 
-def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
-    if cores_per_task == 1:
-        if funct_args is not None and funct_kwargs is not None:
-            return executor.submit(funct, *funct_args, **funct_kwargs)
-        elif funct_args is not None:
-            return executor.submit(funct, *funct_args)
-        elif funct_kwargs is not None:
-            return executor.submit(funct, **funct_kwargs)
-        else:
-            raise ValueError("Neither *args nor *kwargs are defined.")
-    else:
-        if funct_args is not None and funct_kwargs is not None:
-            return [
-                executor.submit(
-                    wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-                    *funct_args,
-                    **funct_kwargs,
-                )
-                for _ in range(cores_per_task)
-            ]
-        elif funct_args is not None:
-            return [
-                executor.submit(
-                    wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-                    *funct_args,
-                )
-                for _ in range(cores_per_task)
-            ]
-        elif funct_kwargs is not None:
-            return [
-                executor.submit(
-                    wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-                    **funct_kwargs,
-                )
-                for _ in range(cores_per_task)
-            ]
-        else:
-            raise ValueError("Neither *args nor *kwargs are defined.")
-
-
 def exec_funct(executor, funct, lst, cores_per_task):
     if cores_per_task == 1:
         results = executor.map(funct, lst)
@@ -142,26 +102,67 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         # If a function "f" and either arguments "a" or keyword arguments "k" are
         # communicated pympipool uses submit() to asynchronously apply the function
         # on the arguments and or keyword arguments.
-        if "a" in input_dict.keys() and "k" in input_dict.keys():
-            future = executor.submit(
-                input_dict["f"], *input_dict["a"], **input_dict["k"]
-            )
-        elif "a" in input_dict.keys():
-            future = executor.submit(input_dict["f"], *input_dict["a"])
-        elif "k" in input_dict.keys():
-            future = executor.submit(input_dict["f"], **input_dict["k"])
+        if cores_per_task == 1:
+            if "a" in input_dict.keys() and "k" in input_dict.keys():
+                future = executor.submit(
+                    input_dict["f"], *input_dict["a"], **input_dict["k"]
+                )
+            elif "a" in input_dict.keys():
+                future = executor.submit(input_dict["f"], *input_dict["a"])
+            elif "k" in input_dict.keys():
+                future = executor.submit(input_dict["f"], **input_dict["k"])
+            else:
+                raise ValueError("Neither *args nor *kwargs are defined.")
+            future_hash = hash(future)
+            future_dict[future_hash] = future
+            return {"r": future_hash}
         else:
-            raise ValueError("Neither *args nor *kwargs are defined.")
-        future_hash = hash(future)
-        future_dict[future_hash] = future
-        return {"r": future_hash}
+            if "a" in input_dict.keys() and "k" in input_dict.keys():
+                future_lst = [
+                    executor.submit(
+                        wrap(
+                            funct=input_dict["f"],
+                            number_of_cores_per_communicator=cores_per_task
+                        ),
+                        *input_dict["a"],
+                        **input_dict["k"],
+                    )
+                    for _ in range(cores_per_task)
+                ]
+            elif "a" in input_dict.keys():
+                future_lst = [
+                    executor.submit(
+                        wrap(
+                            funct=input_dict["f"],
+                            number_of_cores_per_communicator=cores_per_task
+                        ),
+                        *input_dict["a"],
+                    )
+                    for _ in range(cores_per_task)
+                ]
+            elif "k" in input_dict.keys():
+                future_lst = [
+                    executor.submit(
+                        wrap(
+                            funct=input_dict["f"],
+                            number_of_cores_per_communicator=cores_per_task
+                        ),
+                        **input_dict["k"],
+                    )
+                    for _ in range(cores_per_task)
+                ]
+            else:
+                raise ValueError("Neither *args nor *kwargs are defined.")
+            future_hash = hash(future_lst[0])
+            future_dict[future_hash] = future_lst
+            return {"r": future_hash}
     elif "u" in input_dict.keys():
         # If update "u" is communicated pympipool checks for asynchronously submitted
         # functions which have completed in the meantime and communicates their results.
         done_dict = {
-            k: f.result()
+            k: get_result(future_obj=f)
             for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
-            if f.done()
+            if is_done(future_obj=f)
         }
         for k in done_dict.keys():
             del future_dict[k]
