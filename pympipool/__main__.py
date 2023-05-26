@@ -31,17 +31,14 @@ def wrap(funct, number_of_cores_per_communicator):
 def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
     if cores_per_task == 1:
         if funct_args is not None and funct_kwargs is not None:
-            return executor.submit(
-                funct, *funct_args, **funct_kwargs
-            )
+            return executor.submit(funct, *funct_args, **funct_kwargs)
         elif funct_args is not None:
             return executor.submit(
-                funct, *funct_args,
+                funct,
+                *funct_args,
             )
         elif funct_kwargs is not None:
-            return executor.submit(
-                funct, **funct_kwargs
-            )
+            return executor.submit(funct, **funct_kwargs)
         else:
             raise ValueError("Neither *args nor *kwargs are defined.")
     else:
@@ -50,24 +47,27 @@ def exec_future(executor, funct, funct_args, funct_kwargs, cores_per_task):
                 executor.submit(
                     wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
                     *funct_args,
-                    **funct_kwargs
-                ) for _ in range(cores_per_task)
+                    **funct_kwargs,
+                )
+                for _ in range(cores_per_task)
             ]
             return future_lst[0]
         elif funct_args is not None:
             future_lst = [
                 executor.submit(
                     wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-                    *funct_args
-                ) for _ in range(cores_per_task)
+                    *funct_args,
+                )
+                for _ in range(cores_per_task)
             ]
             return future_lst[0]
         elif funct_kwargs is not None:
             future_lst = [
                 executor.submit(
                     wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-                    **funct_kwargs
-                ) for _ in range(cores_per_task)
+                    **funct_kwargs,
+                )
+                for _ in range(cores_per_task)
             ]
             return future_lst[0]
         else:
@@ -130,9 +130,8 @@ def main():
                         )
                     else:
                         socket.send(cloudpickle.dumps({"r": output}))
-                elif (
-                    "f" in input_dict.keys()
-                    and ("a" in input_dict.keys() or "k" in input_dict.keys())
+                elif "f" in input_dict.keys() and (
+                    "a" in input_dict.keys() or "k" in input_dict.keys()
                 ):
                     if "a" in input_dict.keys():
                         funct_args = input_dict["a"]
@@ -147,7 +146,7 @@ def main():
                         funct=input_dict["f"],
                         funct_args=funct_args,
                         funct_kwargs=funct_kwargs,
-                        cores_per_task=cores_per_task
+                        cores_per_task=cores_per_task,
                     )
                     future_hash = hash(future)
                     future_dict[future_hash] = future
