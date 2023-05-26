@@ -1,14 +1,5 @@
 import pickle
 import cloudpickle
-from mpi4py import MPI
-
-MPI.pickle.__init__(
-    cloudpickle.dumps,
-    cloudpickle.loads,
-    pickle.HIGHEST_PROTOCOL,
-)
-
-from mpi4py.futures import MPIPoolExecutor
 from tqdm import tqdm
 import sys
 import zmq
@@ -34,6 +25,8 @@ def parse_arguments(argument_lst):
 
 def wrap(funct, number_of_cores_per_communicator):
     def functwrapped(*args, **kwargs):
+        from mpi4py import MPI
+
         MPI.COMM_WORLD.Barrier()
         rank = MPI.COMM_WORLD.Get_rank()
         comm_new = MPI.COMM_WORLD.Split(
@@ -115,6 +108,15 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
 
 
 def main():
+    from mpi4py import MPI
+
+    MPI.pickle.__init__(
+        cloudpickle.dumps,
+        cloudpickle.loads,
+        pickle.HIGHEST_PROTOCOL,
+    )
+    from mpi4py.futures import MPIPoolExecutor
+
     future_dict = {}
     argument_dict = parse_arguments(argument_lst=sys.argv)
     with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
