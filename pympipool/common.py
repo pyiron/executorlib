@@ -60,21 +60,3 @@ def start_parallel_subprocess(
         stdin=subprocess.PIPE,
     )
     return process
-
-
-def parse_arguments(argument_lst):
-    argument_dict = {
-        "total_cores": "--cores-total",
-        "zmqport": "--zmqport",
-        "cores_per_task": "--cores-per-task",
-        "host": "--host",
-    }
-    parse_dict = {"host": "localhost"}
-    parse_dict.update(
-        {
-            k: argument_lst[argument_lst.index(v) + 1]
-            for k, v in argument_dict.items()
-            if v in argument_lst
-        }
-    )
-    return parse_dict
