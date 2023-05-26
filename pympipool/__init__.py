@@ -79,6 +79,7 @@ class Pool(Executor):
             self._process.terminate()
             self._process.stdout.close()
             self._process.stdin.close()
+            self._process.stderr.close()
             if wait:
                 self._process.wait()
                 self._socket.close()
@@ -127,7 +128,7 @@ class Pool(Executor):
         self._process = subprocess.Popen(
             command_lst,
             stdout=subprocess.PIPE,
-            stderr=None,
+            stderr=subprocess.PIPE,
             stdin=subprocess.PIPE,
         )
 
