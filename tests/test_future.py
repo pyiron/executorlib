@@ -9,7 +9,7 @@ def calc(i):
     return np.array(i ** 2)
 
 
-class TestPool(unittest.TestCase):
+class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
         with Pool(cores=1) as p:
             output = p.submit(calc, i=2)
