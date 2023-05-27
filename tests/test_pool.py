@@ -1,6 +1,7 @@
 import numpy as np
 import unittest
 from pympipool import Pool
+from time import sleep
 
 
 def calc(i):
@@ -52,8 +53,8 @@ class TestPool(unittest.TestCase):
     def test_shutdown(self):
         p = Pool(cores=1)
         output = p.map(fn=calc, iterables=[1, 2, 3, 4])
+        p.shutdown(wait=True)
         p.shutdown(wait=False)
-        p.shutdown()
         self.assertEqual(output[0], 1)
         self.assertEqual(output[1], 4)
         self.assertEqual(output[2], 9)

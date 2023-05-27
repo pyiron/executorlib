@@ -15,7 +15,7 @@ def get_ranks(input_parameter, comm=None):
     return size, rank, size_new, rank_new, input_parameter
 
 
-class TestPool(unittest.TestCase):
+class TestCommunicator(unittest.TestCase):
     def test_pool_serial(self):
         with Pool(cores=2, cores_per_task=1) as p:
             output = p.map(fn=get_ranks, iterables=[1, 2, 3])
