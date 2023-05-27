@@ -16,6 +16,10 @@ from pympipool.common import exec_funct, parse_socket_communication
 #     return size, rank, size_new, rank_new, input_parameter
 
 
+def function_multi_args(a, b):
+    return a + b
+
+
 class TestExecutor(unittest.TestCase):
     def test_exec_funct_single_core(self):
         with ThreadPoolExecutor(max_workers=1) as executor:
@@ -57,7 +61,17 @@ class TestExecutor(unittest.TestCase):
             )
         self.assertEqual(output, {"r": [2]})
 
-    def test_parse_socket_communication_submit(self):
+    def test_parse_socket_communication_error(self):
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            output = parse_socket_communication(
+                executor=executor,
+                input_dict={"f": sum, "l": [["a", "b"]]},
+                future_dict={},
+                cores_per_task=1
+            )
+        self.assertEqual(output["et"], "<class 'TypeError'>")
+
+    def test_parse_socket_communication_submit_args(self):
         future_dict = {}
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
@@ -68,6 +82,30 @@ class TestExecutor(unittest.TestCase):
             )
         future = future_dict[output['r']]
         self.assertEqual(future.result(), 2)
+
+    def test_parse_socket_communication_submit_kwargs(self):
+        future_dict = {}
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            output = parse_socket_communication(
+                executor=executor,
+                input_dict={"f": function_multi_args, "k": {"a": 1, "b": 2}},
+                future_dict=future_dict,
+                cores_per_task=1
+            )
+        future = future_dict[output['r']]
+        self.assertEqual(future.result(), 3)
+
+    def test_parse_socket_communication_submit_both(self):
+        future_dict = {}
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            output = parse_socket_communication(
+                executor=executor,
+                input_dict={"f": function_multi_args, "a": [1], "k": {"b": 2}},
+                future_dict=future_dict,
+                cores_per_task=1
+            )
+        future = future_dict[output['r']]
+        self.assertEqual(future.result(), 3)
 
     def test_parse_socket_communication_update(self):
         future_dict = {}
