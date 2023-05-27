@@ -1,4 +1,7 @@
 # pympipool
+[![Unittests](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml)
+[![Coverage Status](https://coveralls.io/repos/github/pyiron/pympipool/badge.svg?branch=main)](https://coveralls.io/github/pyiron/pympipool?branch=main)
+
 Scale functions over multiple compute nodes using mpi4py
 
 ## Functionality
@@ -37,6 +40,35 @@ with Pool(cores=4, cores_per_task=2) as p:
 Here the user-defined function `calc()` receives an additional input parameter `comm` which represents the 
 MPI communicator. It can be used just like any other `mpi4py.COMM` object. Here just the size `Get_size()` 
 and the rank `Get_rank()` are returned. 
+
+### Futures Interface
+In additions to the `map()` function `pympipool` also implements the `concurrent.futures` interface. As the 
+tasks are executed in a parallel subprocess using mpi4py, an additional call to the update function `update()` 
+is required. Example `submit.py`:  
+```python
+import numpy as np
+from time import sleep
+from pympipool import Pool
+
+def calc(i):
+    return np.array(i ** 2)
+
+with Pool(cores=2) as p:
+    futures = [p.submit(calc, i=i) for i in [1, 2, 3, 4]]
+    print([f.done() for f in futures])
+    sleep(1)
+    p.update()
+    print([f.result() for f in futures if f.done()])
+```
+After the submission using the submit function `submit()` the futures objects are not completed `done()`. Following,
+a short call of the sleep function the update function `update()` synchronizes the local futures objects. Consequently, 
+the future objects are afterward completed `done()` and the results can be received using the results function 
+`result()`. The code above results in the following output:
+```
+python submit.py
+>>> [False, False, False, False]
+>>> [array(1), array(4), array(9), array(16)]
+```
 
 ## Installation
 As `pympipool` requires `mpi` and `mpi4py` it is highly recommended to install it via conda: 
