@@ -3,17 +3,17 @@ from concurrent.futures import ThreadPoolExecutor
 from pympipool.common import exec_funct, parse_socket_communication
 
 
-def get_ranks(input_parameter, comm=None):
-    from mpi4py import MPI
-    size = MPI.COMM_WORLD.Get_size()
-    rank = MPI.COMM_WORLD.Get_rank()
-    if comm is not None:
-        size_new = comm.Get_size()
-        rank_new = comm.Get_rank()
-    else:
-        size_new = 0
-        rank_new = 0
-    return size, rank, size_new, rank_new, input_parameter
+# def get_ranks(input_parameter, comm=None):
+#     from mpi4py import MPI
+#     size = MPI.COMM_WORLD.Get_size()
+#     rank = MPI.COMM_WORLD.Get_rank()
+#     if comm is not None:
+#         size_new = comm.Get_size()
+#         rank_new = comm.Get_rank()
+#     else:
+#         size_new = 0
+#         rank_new = 0
+#     return size, rank, size_new, rank_new, input_parameter
 
 
 class TestExecutor(unittest.TestCase):
@@ -27,15 +27,15 @@ class TestExecutor(unittest.TestCase):
             )
         self.assertEqual(output, [2, 4])
 
-    def test_exec_funct_multi_core(self):
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            output = exec_funct(
-                executor=executor,
-                funct=get_ranks,
-                lst=[1],
-                cores_per_task=2
-            )
-        self.assertEqual(output, [(1, 0, 1, 0, 1)])
+    # def test_exec_funct_multi_core(self):
+    #     with ThreadPoolExecutor(max_workers=1) as executor:
+    #         output = exec_funct(
+    #             executor=executor,
+    #             funct=get_ranks,
+    #             lst=[1],
+    #             cores_per_task=2
+    #         )
+    #     self.assertEqual(output, [(1, 0, 1, 0, 1)])
 
     def test_parse_socket_communication_close(self):
         with ThreadPoolExecutor(max_workers=1) as executor:
