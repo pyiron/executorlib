@@ -31,7 +31,7 @@ setup(
         'cloudpickle==2.2.1',
         'mpi4py==3.1.4',
         'tqdm==4.65.0',
-        'pyzmq==25.0.2'
+        'pyzmq==25.1.0'
     ],
     cmdclass=versioneer.get_cmdclass(),
 )
