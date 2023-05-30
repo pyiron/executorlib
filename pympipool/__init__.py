@@ -32,7 +32,12 @@ class Pool(Executor):
     """
 
     def __init__(
-        self, cores=1, cores_per_task=1, oversubscribe=False, enable_flux_backend=False, enable_mpi4py_backend=True
+        self,
+        cores=1,
+        cores_per_task=1,
+        oversubscribe=False,
+        enable_flux_backend=False,
+        enable_mpi4py_backend=True,
     ):
         self._future_dict = {}
         self._context = zmq.Context()
@@ -43,7 +48,7 @@ class Pool(Executor):
             cores_per_task=cores_per_task,
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
-            enable_mpi4py_backend=enable_mpi4py_backend
+            enable_mpi4py_backend=enable_mpi4py_backend,
         )
         self._cloudpickle_update()
 

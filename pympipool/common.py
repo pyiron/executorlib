@@ -26,9 +26,7 @@ def parse_arguments(argument_lst):
 def initialize_zmq(host, port):
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
-    socket.connect(
-        "tcp://" + host + ":" + port
-    )
+    socket.connect("tcp://" + host + ":" + port)
     return context, socket
 
 
@@ -161,7 +159,12 @@ def command_line_options(
 
 
 def start_parallel_subprocess(
-    port_selected, cores, cores_per_task, oversubscribe, enable_flux_backend, enable_mpi4py_backend,
+    port_selected,
+    cores,
+    cores_per_task,
+    oversubscribe,
+    enable_flux_backend,
+    enable_mpi4py_backend,
 ):
     if enable_mpi4py_backend:
         executable = "mpipool.py"
@@ -175,7 +178,7 @@ def start_parallel_subprocess(
         cores_per_task=cores_per_task,
         oversubscribe=oversubscribe,
         enable_flux_backend=enable_flux_backend,
-        enable_mpi4py_backend=enable_mpi4py_backend
+        enable_mpi4py_backend=enable_mpi4py_backend,
     )
     process = subprocess.Popen(
         args=command_lst,

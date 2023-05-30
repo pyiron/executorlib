@@ -19,8 +19,7 @@ def main():
     with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
         if executor is not None:
             context, socket = initialize_zmq(
-                host=argument_dict["host"],
-                port=argument_dict["zmqport"]
+                host=argument_dict["host"], port=argument_dict["zmqport"]
             )
             while True:
                 output = parse_socket_communication(

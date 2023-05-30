@@ -6,6 +6,7 @@ from pympipool.common import parse_arguments, initialize_zmq
 
 def main():
     from mpi4py import MPI
+
     MPI.pickle.__init__(
         cloudpickle.dumps,
         cloudpickle.loads,
@@ -16,8 +17,7 @@ def main():
     argument_dict = parse_arguments(argument_lst=sys.argv)
     if mpi_rank_zero:
         context, socket = initialize_zmq(
-            host=argument_dict["host"],
-            port=argument_dict["zmqport"]
+            host=argument_dict["host"], port=argument_dict["zmqport"]
         )
     else:
         context = None
