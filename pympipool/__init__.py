@@ -32,7 +32,7 @@ class Pool(Executor):
     """
 
     def __init__(
-        self, cores=1, cores_per_task=1, oversubscribe=False, enable_flux_backend=False
+        self, cores=1, cores_per_task=1, oversubscribe=False, enable_flux_backend=False, enable_mpi4py_backend=True
     ):
         self._future_dict = {}
         self._context = zmq.Context()
@@ -43,6 +43,7 @@ class Pool(Executor):
             cores_per_task=cores_per_task,
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
+            enable_mpi4py_backend=enable_mpi4py_backend
         )
         self._cloudpickle_update()
 
@@ -84,6 +85,10 @@ class Pool(Executor):
         self._send_raw(input_dict={"f": fn, "a": args, "k": kwargs})
         self._future_dict[self._receive()] = future
         return future
+
+    def run(self, fn, *args, **kwargs):
+        self._send_raw(input_dict={"f": fn, "a": args, "k": kwargs})
+        return cloudpickle.loads(self._socket.recv())["r"]
 
     def update(self):
         hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
