@@ -16,10 +16,10 @@ def mpi_funct(i):
 class TestTask(unittest.TestCase):
     def test_echo(self):
         with Pool(cores=2, enable_mpi4py_backend=False) as p:
-            output = p.run(echo_funct, 2)
+            output = p.apply(echo_funct, 2)
         self.assertEqual(output, [2, 2])
 
     def test_mpi(self):
         with Pool(cores=2, enable_mpi4py_backend=False) as p:
-            output = p.run(mpi_funct, 2)
+            output = p.apply(mpi_funct, 2)
         self.assertEqual(output, [(2, 2, 0), (2, 2, 1)])

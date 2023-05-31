@@ -91,7 +91,7 @@ class Pool(Executor):
         self._future_dict[self._receive()] = future
         return future
 
-    def run(self, fn, *args, **kwargs):
+    def apply(self, fn, *args, **kwargs):
         self._send_raw(input_dict={"f": fn, "a": args, "k": kwargs})
         return cloudpickle.loads(self._socket.recv())["r"]
 
