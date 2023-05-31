@@ -23,3 +23,15 @@ class TestTask(unittest.TestCase):
         with Pool(cores=2, enable_mpi4py_backend=False) as p:
             output = p.apply(mpi_funct, 2)
         self.assertEqual(output, [(2, 2, 0), (2, 2, 1)])
+
+    def test_mpi_multiple(self):
+        with Pool(cores=2, enable_mpi4py_backend=False) as p:
+            p._send_raw(input_dict={"f": mpi_funct, "a": [2]})
+            p._send_raw(input_dict={"f": mpi_funct, "a": [2]})
+            p._send_raw(input_dict={"f": mpi_funct, "a": [2]})
+            output = [p._receive(), p._receive(), p._receive()]
+        self.assertEqual(output, [
+            [(2, 2, 0), (2, 2, 1)],
+            [(2, 2, 0), (2, 2, 1)],
+            [(2, 2, 0), (2, 2, 1)]
+        ])

@@ -93,7 +93,7 @@ class Pool(Executor):
 
     def apply(self, fn, *args, **kwargs):
         self._send_raw(input_dict={"f": fn, "a": args, "k": kwargs})
-        return cloudpickle.loads(self._socket.recv())["r"]
+        return self._receive()
 
     def update(self):
         hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
