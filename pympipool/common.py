@@ -46,7 +46,7 @@ def wrap(funct, number_of_cores_per_communicator):
     return functwrapped
 
 
-def exec_funct(executor, funct, lst, cores_per_task):
+def map_funct(executor, funct, lst, cores_per_task):
     if cores_per_task == 1:
         results = executor.map(funct, lst)
         return list(tqdm(results, desc="Tasks", total=len(lst)))
@@ -64,6 +64,22 @@ def exec_funct(executor, funct, lst, cores_per_task):
         ]
 
 
+def call_funct(input_dict, funct=None):
+    if funct is None:
+
+        def funct(*args, **kwargs):
+            return args[0].__call__(*args[1:], **kwargs)
+
+    if "a" in input_dict.keys() and "k" in input_dict.keys():
+        return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
+    elif "a" in input_dict.keys():
+        return funct(input_dict["f"], *input_dict["a"])
+    elif "k" in input_dict.keys():
+        return funct(input_dict["f"], **input_dict["k"])
+    else:
+        raise ValueError("Neither *args nor *kwargs are defined.")
+
+
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task):
     if "c" in input_dict.keys() and input_dict["c"] == "close":
         # If close "c" is communicated the process is shutdown.
@@ -72,7 +88,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         # If a function "f" and a list or arguments "l" are communicated,
         # pympipool uses the map() function to apply the function on the list.
         try:
-            output = exec_funct(
+            output = map_funct(
                 executor=executor,
                 funct=input_dict["f"],
                 lst=input_dict["l"],
@@ -88,16 +104,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         # If a function "f" and either arguments "a" or keyword arguments "k" are
         # communicated pympipool uses submit() to asynchronously apply the function
         # on the arguments and or keyword arguments.
-        if "a" in input_dict.keys() and "k" in input_dict.keys():
-            future = executor.submit(
-                input_dict["f"], *input_dict["a"], **input_dict["k"]
-            )
-        elif "a" in input_dict.keys():
-            future = executor.submit(input_dict["f"], *input_dict["a"])
-        elif "k" in input_dict.keys():
-            future = executor.submit(input_dict["f"], **input_dict["k"])
-        else:
-            raise ValueError("Neither *args nor *kwargs are defined.")
+        future = call_funct(input_dict=input_dict, funct=executor.submit)
         future_hash = hash(future)
         future_dict[future_hash] = future
         return {"r": future_hash}

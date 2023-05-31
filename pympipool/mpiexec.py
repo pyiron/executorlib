@@ -1,7 +1,7 @@
 import pickle
 import cloudpickle
 import sys
-from pympipool.common import parse_arguments, initialize_zmq
+from pympipool.common import parse_arguments, initialize_zmq, call_funct
 
 
 def main():
@@ -40,17 +40,8 @@ def main():
         elif "f" in input_dict.keys() and (
             "a" in input_dict.keys() or "k" in input_dict.keys()
         ):
-            # Call function
-            if "a" in input_dict.keys() and "k" in input_dict.keys():
-                output = input_dict["f"](*input_dict["a"], **input_dict["k"])
-            elif "a" in input_dict.keys():
-                output = input_dict["f"](*input_dict["a"])
-            elif "k" in input_dict.keys():
-                output = input_dict["f"](**input_dict["k"])
-            else:
-                raise ValueError("Neither *args nor *kwargs are defined.")
-
-            # Collect output
+            # Execute function
+            output = call_funct(input_dict=input_dict, funct=None)
             output_reply = MPI.COMM_WORLD.gather(output, root=0)
 
             # Send output
