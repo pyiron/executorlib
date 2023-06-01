@@ -3,7 +3,7 @@ import cloudpickle
 from queue import Queue
 from threading import Thread
 from concurrent.futures import Executor, Future
-from pympipool.share.serial import get_parallel_subprocess_command
+from pympipool.share.serial import get_parallel_subprocess_command, execute_tasks
 from pympipool.share.communication import SocketInterface
 
 
@@ -94,11 +94,11 @@ class Pool(Executor):
                 self._future_dict[k].set_result(v)
 
 
-class PoolFuture(Executor):
+class Worker(Executor):
     def __init__(self, cores, oversubscribe=False, enable_flux_backend=False):
         self._future_queue = Queue()
         self._process = Thread(
-            target=_execute_tasks,
+            target=execute_tasks,
             args=(self._future_queue, cores, oversubscribe, enable_flux_backend),
         )
         self._process.start()
@@ -119,29 +119,6 @@ class PoolFuture(Executor):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.shutdown()
         return False
-
-
-def _execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
-    interface = SocketInterface()
-    interface.bootup(
-        command_lst=get_parallel_subprocess_command(
-            port_selected=interface.bind_to_random_port(),
-            cores=cores,
-            cores_per_task=1,
-            oversubscribe=oversubscribe,
-            enable_flux_backend=enable_flux_backend,
-            enable_mpi4py_backend=False,
-        )
-    )
-    while True:
-        task_dict = future_queue.get()
-        if "c" in task_dict.keys() and task_dict["c"] == "close":
-            interface.shutdown(wait=True)
-            break
-        elif "f" in task_dict.keys() and "l" in task_dict.keys():
-            f = task_dict.pop("l")
-            if f.set_running_or_notify_cancel():
-                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
 
 
 def _cloudpickle_update(ind=2):
