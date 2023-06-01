@@ -1,7 +1,8 @@
 import numpy as np
 import unittest
+from queue import Queue
 from time import sleep
-from pympipool import PoolFuture
+from pympipool import PoolFuture, _execute_tasks, _cloudpickle_update
 from concurrent.futures import Future
 
 
@@ -16,7 +17,7 @@ def mpi_funct(i):
     return i, size, rank
 
 
-class TestFuture(unittest.TestCase):
+class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
         with PoolFuture(cores=1) as p:
             output = p.submit(calc, i=2)
@@ -34,3 +35,17 @@ class TestFuture(unittest.TestCase):
             sleep(1)
         self.assertTrue(output.done())
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
+
+    def test_execute_task(self):
+        f = Future()
+        q = Queue()
+        q.put({"f": calc, 'a': (), "k": {"i": 2}, "l": f})
+        q.put({"c": "close"})
+        _cloudpickle_update(ind=1)
+        _execute_tasks(
+            future_queue=q,
+            cores=1,
+            oversubscribe=False,
+            enable_flux_backend=False
+        )
+        self.assertEqual(f.result(), np.array(4))

@@ -53,7 +53,7 @@ class Pool(Executor):
                 enable_mpi4py_backend=enable_mpi4py_backend,
             )
         )
-        _cloudpickle_update()
+        _cloudpickle_update(ind=2)
 
     def map(self, fn, iterables, timeout=None, chunksize=1):
         """
@@ -102,7 +102,7 @@ class PoolFuture(Executor):
             args=(self._future_queue, cores, oversubscribe, enable_flux_backend),
         )
         self._process.start()
-        _cloudpickle_update()
+        _cloudpickle_update(ind=2)
 
     def submit(self, fn, *args, **kwargs):
         f = Future()
@@ -110,7 +110,7 @@ class PoolFuture(Executor):
         return f
 
     def shutdown(self, wait=True, *, cancel_futures=False):
-        self._future_queue.put({"c": "exit"})
+        self._future_queue.put({"c": "close"})
         self._process.join()
 
     def __enter__(self):
@@ -135,7 +135,7 @@ def _execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
     )
     while True:
         task_dict = future_queue.get()
-        if "c" in task_dict.keys() and task_dict["c"] == "exit":
+        if "c" in task_dict.keys() and task_dict["c"] == "close":
             interface.shutdown(wait=True)
             break
         elif "f" in task_dict.keys() and "l" in task_dict.keys():
@@ -144,7 +144,7 @@ def _execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
                 f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
 
 
-def _cloudpickle_update():
+def _cloudpickle_update(ind=2):
     # Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
     # be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
     # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
@@ -154,6 +154,6 @@ def _cloudpickle_update():
     # http://pymotw.com/2/inspect/index.html#module-inspect
     # 1 refers to 1 level higher than the map function
     try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
-        cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[2][0]))
+        cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[ind][0]))
     except ValueError:
         pass
