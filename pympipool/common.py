@@ -1,6 +1,5 @@
 import os
 import socket
-import subprocess
 import zmq
 from tqdm import tqdm
 
@@ -165,7 +164,7 @@ def command_line_options(
     return command_lst
 
 
-def start_parallel_subprocess(
+def get_parallel_subprocess_command(
     port_selected,
     cores,
     cores_per_task,
@@ -187,17 +186,4 @@ def start_parallel_subprocess(
         enable_flux_backend=enable_flux_backend,
         enable_mpi4py_backend=enable_mpi4py_backend,
     )
-    process = subprocess.Popen(
-        args=command_lst,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        stdin=subprocess.PIPE,
-    )
-    return process
-
-
-def close_process(process):
-    process.terminate()
-    process.stdout.close()
-    process.stdin.close()
-    process.stderr.close()
+    return command_lst

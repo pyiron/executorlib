@@ -1,9 +1,8 @@
 import inspect
 import cloudpickle
-import zmq
 from concurrent.futures import Executor, Future
-from pympipool.common import start_parallel_subprocess, close_process
-from pympipool.socketcommunication import send_dict, receive_dict, send_and_receive_dict
+from pympipool.common import get_parallel_subprocess_command
+from pympipool.socketcommunication import SocketInterface
 
 
 class Pool(Executor):
@@ -41,15 +40,16 @@ class Pool(Executor):
         enable_mpi4py_backend=True,
     ):
         self._future_dict = {}
-        self._context = zmq.Context()
-        self._socket = self._context.socket(zmq.PAIR)
-        self._process = start_parallel_subprocess(
-            port_selected=self._socket.bind_to_random_port("tcp://*"),
-            cores=cores,
-            cores_per_task=cores_per_task,
-            oversubscribe=oversubscribe,
-            enable_flux_backend=enable_flux_backend,
-            enable_mpi4py_backend=enable_mpi4py_backend,
+        self._interface = SocketInterface()
+        self._interface.bootup(
+            command_lst=get_parallel_subprocess_command(
+                port_selected=self._interface.bind_to_random_port(),
+                cores=cores,
+                cores_per_task=cores_per_task,
+                oversubscribe=oversubscribe,
+                enable_flux_backend=enable_flux_backend,
+                enable_mpi4py_backend=enable_mpi4py_backend,
+            )
         )
         self._cloudpickle_update()
 
@@ -64,36 +64,31 @@ class Pool(Executor):
         Returns:
             list: list of output generated from applying the function on the list of arguments
         """
-        return send_and_receive_dict(
-            socket=self._socket, input_dict={"f": fn, "l": iterables}
+        return self._interface.send_and_receive_dict(
+            input_dict={"f": fn, "l": iterables}
         )
 
     def shutdown(self, wait=True, *, cancel_futures=False):
-        if self._process is not None and self._process.poll() is None:
-            send_dict(socket=self._socket, input_dict={"c": "close"})
-            close_process(process=self._process)
-            if wait:
-                self._process.wait()
-        self._reset_socket()
+        self._interface.shutdown(wait=wait)
 
     def submit(self, fn, *args, **kwargs):
         future = Future()
-        future_hash = send_and_receive_dict(
-            socket=self._socket, input_dict={"f": fn, "a": args, "k": kwargs}
+        future_hash = self._interface.send_and_receive_dict(
+            input_dict={"f": fn, "a": args, "k": kwargs}
         )
         self._future_dict[future_hash] = future
         return future
 
     def apply(self, fn, *args, **kwargs):
-        return send_and_receive_dict(
-            socket=self._socket, input_dict={"f": fn, "a": args, "k": kwargs}
+        return self._interface.send_and_receive_dict(
+            input_dict={"f": fn, "a": args, "k": kwargs}
         )
 
     def update(self):
         hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
         if len(hash_to_update) > 0:
-            send_dict(socket=self._socket, input_dict={"u": hash_to_update})
-            for k, v in receive_dict(socket=self._socket).items():
+            self._interface.send_dict(input_dict={"u": hash_to_update})
+            for k, v in self._interface.receive_dict().items():
                 self._future_dict[k].set_result(v)
 
     def _cloudpickle_update(self):
@@ -111,12 +106,3 @@ class Pool(Executor):
             )
         except ValueError:
             pass
-
-    def _reset_socket(self):
-        if self._socket is not None:
-            self._socket.close()
-        if self._context is not None:
-            self._context.term()
-        self._process = None
-        self._socket = None
-        self._context = None
