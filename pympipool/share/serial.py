@@ -1,5 +1,6 @@
 import os
 import socket
+from pympipool.share.communication import SocketInterface
 
 
 def command_line_options(
@@ -69,3 +70,26 @@ def get_parallel_subprocess_command(
         enable_mpi4py_backend=enable_mpi4py_backend,
     )
     return command_lst
+
+
+def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
+    interface = SocketInterface()
+    interface.bootup(
+        command_lst=get_parallel_subprocess_command(
+            port_selected=interface.bind_to_random_port(),
+            cores=cores,
+            cores_per_task=1,
+            oversubscribe=oversubscribe,
+            enable_flux_backend=enable_flux_backend,
+            enable_mpi4py_backend=False,
+        )
+    )
+    while True:
+        task_dict = future_queue.get()
+        if "c" in task_dict.keys() and task_dict["c"] == "close":
+            interface.shutdown(wait=True)
+            break
+        elif "f" in task_dict.keys() and "l" in task_dict.keys():
+            f = task_dict.pop("l")
+            if f.set_running_or_notify_cancel():
+                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
