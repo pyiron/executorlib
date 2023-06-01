@@ -1,7 +1,6 @@
 import numpy as np
 import unittest
 from pympipool import Pool
-from time import sleep
 
 
 def calc(i):

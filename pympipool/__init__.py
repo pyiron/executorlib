@@ -1,5 +1,7 @@
 import inspect
 import cloudpickle
+from queue import Queue
+from threading import Thread
 from concurrent.futures import Executor, Future
 from pympipool.share.serial import get_parallel_subprocess_command
 from pympipool.share.communication import SocketInterface
@@ -51,7 +53,7 @@ class Pool(Executor):
                 enable_mpi4py_backend=enable_mpi4py_backend,
             )
         )
-        self._cloudpickle_update()
+        _cloudpickle_update()
 
     def map(self, fn, iterables, timeout=None, chunksize=1):
         """
@@ -91,18 +93,69 @@ class Pool(Executor):
             for k, v in self._interface.receive_dict().items():
                 self._future_dict[k].set_result(v)
 
-    def _cloudpickle_update(self):
-        # Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
-        # be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
-        # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
-        # inspect can help to find the module which is calling pympipool
-        # https://docs.python.org/3/library/inspect.html
-        # to learn more about inspect another good read is:
-        # http://pymotw.com/2/inspect/index.html#module-inspect
-        # 1 refers to 1 level higher than the map function
-        try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
-            cloudpickle.register_pickle_by_value(
-                inspect.getmodule(inspect.stack()[2][0])
-            )
-        except ValueError:
-            pass
+
+class PoolFuture(Executor):
+    def __init__(self, cores, oversubscribe=False, enable_flux_backend=False):
+        self._future_queue = Queue()
+        self._process = Thread(
+            target=_execute_tasks,
+            args=(self._future_queue, cores, oversubscribe, enable_flux_backend)
+        )
+        self._process.start()
+        _cloudpickle_update()
+
+    def submit(self, fn, *args, **kwargs):
+        f = Future()
+        self._future_queue.put({"f": fn, "a": args, "k": kwargs, "l": f})
+        return f
+
+    def shutdown(self, wait=True, *, cancel_futures=False):
+        self._future_queue.put({"c": "exit"})
+        self._process.join()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.shutdown()
+        return False
+
+
+def _execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
+    interface = SocketInterface()
+    interface.bootup(
+        command_lst=get_parallel_subprocess_command(
+            port_selected=interface.bind_to_random_port(),
+            cores=cores,
+            cores_per_task=1,
+            oversubscribe=oversubscribe,
+            enable_flux_backend=enable_flux_backend,
+            enable_mpi4py_backend=False,
+        )
+    )
+    while True:
+        task_dict = future_queue.get()
+        if "c" in task_dict.keys() and task_dict["c"] == "exit":
+            interface.shutdown(wait=True)
+            break
+        elif "f" in task_dict.keys() and "l" in task_dict.keys():
+            f = task_dict.pop("l")
+            if f.set_running_or_notify_cancel():
+                f.set_result(interface.send_and_receive_dict(
+                    input_dict=task_dict
+                ))
+
+
+def _cloudpickle_update():
+    # Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
+    # be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
+    # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
+    # inspect can help to find the module which is calling pympipool
+    # https://docs.python.org/3/library/inspect.html
+    # to learn more about inspect another good read is:
+    # http://pymotw.com/2/inspect/index.html#module-inspect
+    # 1 refers to 1 level higher than the map function
+    try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
+        cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[2][0]))
+    except ValueError:
+        pass
