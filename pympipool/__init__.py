@@ -1,10 +1,12 @@
 import inspect
-import cloudpickle
+from concurrent.futures import Executor, Future
 from queue import Queue
 from threading import Thread
-from concurrent.futures import Executor, Future
-from pympipool.share.serial import get_parallel_subprocess_command, execute_tasks
+
+import cloudpickle
+
 from pympipool.share.communication import SocketInterface
+from pympipool.share.serial import execute_tasks, get_parallel_subprocess_command
 
 
 class Pool(Executor):

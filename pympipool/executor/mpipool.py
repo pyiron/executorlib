@@ -1,10 +1,12 @@
 import pickle
-import cloudpickle
 import sys
+
+import cloudpickle
+
 from pympipool.share.parallel import (
+    initialize_zmq,
     parse_arguments,
     parse_socket_communication,
-    initialize_zmq,
 )
 
 
