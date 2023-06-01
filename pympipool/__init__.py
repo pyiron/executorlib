@@ -99,7 +99,7 @@ class PoolFuture(Executor):
         self._future_queue = Queue()
         self._process = Thread(
             target=_execute_tasks,
-            args=(self._future_queue, cores, oversubscribe, enable_flux_backend)
+            args=(self._future_queue, cores, oversubscribe, enable_flux_backend),
         )
         self._process.start()
         _cloudpickle_update()
@@ -141,9 +141,7 @@ def _execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
         elif "f" in task_dict.keys() and "l" in task_dict.keys():
             f = task_dict.pop("l")
             if f.set_running_or_notify_cancel():
-                f.set_result(interface.send_and_receive_dict(
-                    input_dict=task_dict
-                ))
+                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
 
 
 def _cloudpickle_update():
