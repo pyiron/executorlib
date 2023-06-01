@@ -1,8 +1,8 @@
 import inspect
 import cloudpickle
 from concurrent.futures import Executor, Future
-from pympipool.common import get_parallel_subprocess_command
-from pympipool.socketcommunication import SocketInterface
+from pympipool.share.serial import get_parallel_subprocess_command
+from pympipool.share.communication import SocketInterface
 
 
 class Pool(Executor):

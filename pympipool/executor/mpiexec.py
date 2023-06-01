@@ -1,7 +1,7 @@
 import pickle
 import cloudpickle
 import sys
-from pympipool.common import parse_arguments, initialize_zmq, call_funct
+from pympipool.share.parallel import parse_arguments, initialize_zmq, call_funct
 
 
 def main():

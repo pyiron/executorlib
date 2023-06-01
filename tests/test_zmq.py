@@ -1,7 +1,7 @@
 import unittest
 import zmq
 import cloudpickle
-from pympipool.common import initialize_zmq
+from pympipool.share.parallel import initialize_zmq
 
 
 class TestZMQ(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
 from concurrent.futures import ThreadPoolExecutor
-from pympipool.common import map_funct, parse_socket_communication, call_funct
+from pympipool.share.parallel import map_funct, parse_socket_communication, call_funct
 
 
 # def get_ranks(input_parameter, comm=None):
