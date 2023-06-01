@@ -1,5 +1,5 @@
 import unittest
-from pympipool import Pool, send_dict, receive_dict
+from pympipool import Pool
 
 
 def echo_funct(i):
@@ -26,13 +26,13 @@ class TestTask(unittest.TestCase):
 
     def test_mpi_multiple(self):
         with Pool(cores=2, enable_mpi4py_backend=False) as p:
-            send_dict(socket=p._socket, input_dict={"f": mpi_funct, "a": [2]})
-            send_dict(socket=p._socket, input_dict={"f": mpi_funct, "a": [2]})
-            send_dict(socket=p._socket, input_dict={"f": mpi_funct, "a": [2]})
+            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2]})
+            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2]})
+            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2]})
             output = [
-                receive_dict(socket=p._socket),
-                receive_dict(socket=p._socket),
-                receive_dict(socket=p._socket)
+                p._interface.receive_dict(),
+                p._interface.receive_dict(),
+                p._interface.receive_dict(),
             ]
         self.assertEqual(output, [
             [(2, 2, 0), (2, 2, 1)],
