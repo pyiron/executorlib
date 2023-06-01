@@ -2,7 +2,8 @@ import inspect
 import cloudpickle
 import zmq
 from concurrent.futures import Executor, Future
-from pympipool.common import start_parallel_subprocess
+from pympipool.common import start_parallel_subprocess, close_process
+from pympipool.socketcommunication import send_dict, receive_dict, send_and_receive_dict
 
 
 class Pool(Executor):
@@ -63,55 +64,37 @@ class Pool(Executor):
         Returns:
             list: list of output generated from applying the function on the list of arguments
         """
-        self._send_raw(input_dict={"f": fn, "l": iterables})
-        return self._receive()
+        return send_and_receive_dict(
+            socket=self._socket, input_dict={"f": fn, "l": iterables}
+        )
 
     def shutdown(self, wait=True, *, cancel_futures=False):
         if self._process is not None and self._process.poll() is None:
-            self._send_raw(input_dict={"c": "close"})
-            self._process.terminate()
-            self._process.stdout.close()
-            self._process.stdin.close()
-            self._process.stderr.close()
+            send_dict(socket=self._socket, input_dict={"c": "close"})
+            close_process(process=self._process)
             if wait:
                 self._process.wait()
-                self._socket.close()
-                self._context.term()
-                self._process = None
-                self._socket = None
-                self._context = None
-        else:
-            self._process = None
-            self._socket = None
-            self._context = None
+        self._reset_socket()
 
     def submit(self, fn, *args, **kwargs):
         future = Future()
-        self._send_raw(input_dict={"f": fn, "a": args, "k": kwargs})
-        self._future_dict[self._receive()] = future
+        future_hash = send_and_receive_dict(
+            socket=self._socket, input_dict={"f": fn, "a": args, "k": kwargs}
+        )
+        self._future_dict[future_hash] = future
         return future
 
     def apply(self, fn, *args, **kwargs):
-        self._send_raw(input_dict={"f": fn, "a": args, "k": kwargs})
-        return self._receive()
+        return send_and_receive_dict(
+            socket=self._socket, input_dict={"f": fn, "a": args, "k": kwargs}
+        )
 
     def update(self):
         hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
         if len(hash_to_update) > 0:
-            self._send_raw(input_dict={"u": hash_to_update})
-            for k, v in self._receive().items():
+            send_dict(socket=self._socket, input_dict={"u": hash_to_update})
+            for k, v in receive_dict(socket=self._socket).items():
                 self._future_dict[k].set_result(v)
-
-    def _send_raw(self, input_dict):
-        self._socket.send(cloudpickle.dumps(input_dict))
-
-    def _receive(self):
-        output = cloudpickle.loads(self._socket.recv())
-        if "r" in output.keys():
-            return output["r"]
-        else:
-            error_type = output["et"].split("'")[1]
-            raise eval(error_type)(output["e"])
 
     def _cloudpickle_update(self):
         # Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
@@ -128,3 +111,12 @@ class Pool(Executor):
             )
         except ValueError:
             pass
+
+    def _reset_socket(self):
+        if self._socket is not None:
+            self._socket.close()
+        if self._context is not None:
+            self._context.term()
+        self._process = None
+        self._socket = None
+        self._context = None

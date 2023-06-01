@@ -194,3 +194,10 @@ def start_parallel_subprocess(
         stdin=subprocess.PIPE,
     )
     return process
+
+
+def close_process(process):
+    process.terminate()
+    process.stdout.close()
+    process.stdin.close()
+    process.stderr.close()
