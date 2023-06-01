@@ -1,8 +1,11 @@
 import pickle
 import cloudpickle
 import sys
-import zmq
-from pympipool.common import parse_arguments, parse_socket_communication
+from pympipool.share.parallel import (
+    parse_arguments,
+    parse_socket_communication,
+    initialize_zmq,
+)
 
 
 def main():
@@ -19,10 +22,8 @@ def main():
     argument_dict = parse_arguments(argument_lst=sys.argv)
     with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
         if executor is not None:
-            context = zmq.Context()
-            socket = context.socket(zmq.PAIR)
-            socket.connect(
-                "tcp://" + argument_dict["host"] + ":" + argument_dict["zmqport"]
+            context, socket = initialize_zmq(
+                host=argument_dict["host"], port=argument_dict["zmqport"]
             )
             while True:
                 output = parse_socket_communication(

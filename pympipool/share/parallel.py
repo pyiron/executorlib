@@ -1,6 +1,4 @@
-import os
-import socket
-import subprocess
+import zmq
 from tqdm import tqdm
 
 
@@ -22,6 +20,13 @@ def parse_arguments(argument_lst):
     return parse_dict
 
 
+def initialize_zmq(host, port):
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://" + host + ":" + port)
+    return context, socket
+
+
 def wrap(funct, number_of_cores_per_communicator):
     def functwrapped(*args, **kwargs):
         from mpi4py import MPI
@@ -38,7 +43,7 @@ def wrap(funct, number_of_cores_per_communicator):
     return functwrapped
 
 
-def exec_funct(executor, funct, lst, cores_per_task):
+def map_funct(executor, funct, lst, cores_per_task):
     if cores_per_task == 1:
         results = executor.map(funct, lst)
         return list(tqdm(results, desc="Tasks", total=len(lst)))
@@ -56,6 +61,22 @@ def exec_funct(executor, funct, lst, cores_per_task):
         ]
 
 
+def call_funct(input_dict, funct=None):
+    if funct is None:
+
+        def funct(*args, **kwargs):
+            return args[0].__call__(*args[1:], **kwargs)
+
+    if "a" in input_dict.keys() and "k" in input_dict.keys():
+        return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
+    elif "a" in input_dict.keys():
+        return funct(input_dict["f"], *input_dict["a"])
+    elif "k" in input_dict.keys():
+        return funct(input_dict["f"], **input_dict["k"])
+    else:
+        raise ValueError("Neither *args nor *kwargs are defined.")
+
+
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task):
     if "c" in input_dict.keys() and input_dict["c"] == "close":
         # If close "c" is communicated the process is shutdown.
@@ -64,7 +85,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         # If a function "f" and a list or arguments "l" are communicated,
         # pympipool uses the map() function to apply the function on the list.
         try:
-            output = exec_funct(
+            output = map_funct(
                 executor=executor,
                 funct=input_dict["f"],
                 lst=input_dict["l"],
@@ -80,16 +101,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         # If a function "f" and either arguments "a" or keyword arguments "k" are
         # communicated pympipool uses submit() to asynchronously apply the function
         # on the arguments and or keyword arguments.
-        if "a" in input_dict.keys() and "k" in input_dict.keys():
-            future = executor.submit(
-                input_dict["f"], *input_dict["a"], **input_dict["k"]
-            )
-        elif "a" in input_dict.keys():
-            future = executor.submit(input_dict["f"], *input_dict["a"])
-        elif "k" in input_dict.keys():
-            future = executor.submit(input_dict["f"], **input_dict["k"])
-        else:
-            raise ValueError("Neither *args nor *kwargs are defined.")
+        future = call_funct(input_dict=input_dict, funct=executor.submit)
         future_hash = hash(future)
         future_dict[future_hash] = future
         return {"r": future_hash}
@@ -104,62 +116,3 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         for k in done_dict.keys():
             del future_dict[k]
         return {"r": done_dict}
-
-
-def command_line_options(
-    hostname,
-    port_selected,
-    path,
-    cores,
-    cores_per_task=1,
-    oversubscribe=False,
-    enable_flux_backend=False,
-):
-    if enable_flux_backend:
-        command_lst = ["flux", "run"]
-    else:
-        command_lst = ["mpiexec"]
-    if oversubscribe:
-        command_lst += ["--oversubscribe"]
-    if cores_per_task == 1:
-        command_lst += ["-n", str(cores), "python", "-m", "mpi4py.futures"]
-    else:
-        # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
-        # https://github.com/mpi4py/mpi4py/issues/324
-        command_lst += ["-n", "1", "python"]
-    command_lst += [path]
-    if enable_flux_backend:
-        command_lst += [
-            "--host",
-            hostname,
-        ]
-    command_lst += [
-        "--zmqport",
-        str(port_selected),
-        "--cores-per-task",
-        str(cores_per_task),
-        "--cores-total",
-        str(cores),
-    ]
-    return command_lst
-
-
-def start_parallel_subprocess(
-    port_selected, cores, cores_per_task, oversubscribe, enable_flux_backend
-):
-    command_lst = command_line_options(
-        hostname=socket.gethostname(),
-        port_selected=port_selected,
-        path=os.path.abspath(os.path.join(__file__, "..", "mpipool.py")),
-        cores=cores,
-        cores_per_task=cores_per_task,
-        oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-    )
-    process = subprocess.Popen(
-        args=command_lst,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        stdin=subprocess.PIPE,
-    )
-    return process

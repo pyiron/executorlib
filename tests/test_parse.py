@@ -1,6 +1,6 @@
 import unittest
-from pympipool.mpipool import parse_arguments
-from pympipool.common import command_line_options
+from pympipool.executor.mpipool import parse_arguments
+from pympipool.share.serial import command_line_options
 
 
 class TestParser(unittest.TestCase):
@@ -48,8 +48,8 @@ class TestParser(unittest.TestCase):
             hostname=result_dict['host'],
             port_selected=result_dict['zmqport'],
             path="/",
-            cores=result_dict['total_cores'],
-            cores_per_task=result_dict['cores_per_task'],
+            cores=int(result_dict['total_cores']),
+            cores_per_task=int(result_dict['cores_per_task']),
             oversubscribe=False,
             enable_flux_backend=True,
         ))

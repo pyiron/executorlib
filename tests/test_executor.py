@@ -1,6 +1,6 @@
 import unittest
 from concurrent.futures import ThreadPoolExecutor
-from pympipool.common import exec_funct, parse_socket_communication
+from pympipool.share.parallel import map_funct, parse_socket_communication, call_funct
 
 
 # def get_ranks(input_parameter, comm=None):
@@ -23,7 +23,7 @@ def function_multi_args(a, b):
 class TestExecutor(unittest.TestCase):
     def test_exec_funct_single_core(self):
         with ThreadPoolExecutor(max_workers=1) as executor:
-            output = exec_funct(
+            output = map_funct(
                 executor=executor,
                 funct=sum,
                 lst=[[1, 1], [2, 2]],
@@ -124,3 +124,9 @@ class TestExecutor(unittest.TestCase):
                 cores_per_task=1
             )
         self.assertEqual(result, {"r": {future_hash: 2}})
+
+    def test_funct_call_default(self):
+        self.assertEqual(call_funct(input_dict={
+            "f": sum,
+            "a": [[1, 2, 3]]
+        }), 6)
