@@ -20,14 +20,18 @@ def command_line_options(
         command_lst = ["mpiexec"]
     if oversubscribe:
         command_lst += ["--oversubscribe"]
+    if enable_flux_backend:
+        command_lst += ["-c"]
+    else:
+        command_lst += ["-n"]
     if cores_per_task == 1 and enable_mpi4py_backend:
-        command_lst += ["-n", str(cores), "python", "-m", "mpi4py.futures"]
+        command_lst += [str(cores), "python", "-m", "mpi4py.futures"]
     elif cores_per_task > 1 and enable_mpi4py_backend:
         # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
         # https://github.com/mpi4py/mpi4py/issues/324
-        command_lst += ["-n", "1", "python"]
+        command_lst += ["1", "python"]
     else:
-        command_lst += ["-n", str(cores), "python"]
+        command_lst += [str(cores), "python"]
     command_lst += [path]
     if enable_flux_backend:
         command_lst += [

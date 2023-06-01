@@ -38,7 +38,7 @@ class TestParser(unittest.TestCase):
             'cores_per_task': '2'
         }
         command_lst = [
-            'flux', 'run', '-n', '1', 'python', '/',
+            'flux', 'run', '-c', '1', 'python', '/',
             '--host', result_dict['host'],
             '--zmqport', result_dict['zmqport'],
             '--cores-per-task', result_dict['cores_per_task'],
