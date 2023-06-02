@@ -22,19 +22,23 @@ class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
         with Worker(cores=1) as p:
             output = p.submit(calc, i=2)
+            self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
             sleep(1)
-        self.assertTrue(output.done())
+            self.assertTrue(output.done())
+            self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), np.array(4))
 
     def test_pool_serial_multi_core(self):
         with Worker(cores=2) as p:
             output = p.submit(mpi_funct, i=2)
+            self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
             sleep(1)
-        self.assertTrue(output.done())
+            self.assertTrue(output.done())
+            self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
 
     def test_execute_task(self):

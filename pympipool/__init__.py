@@ -115,6 +115,9 @@ class Worker(Executor):
         self._future_queue.put({"c": "close"})
         self._process.join()
 
+    def __len__(self):
+        return self._future_queue.qsize()
+
     def __enter__(self):
         return self
 
