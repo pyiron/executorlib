@@ -94,6 +94,8 @@ def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
             f = task_dict.pop("l")
             if f.set_running_or_notify_cancel():
                 if cores == 1:
-                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict)[0])
+                    f.set_result(
+                        interface.send_and_receive_dict(input_dict=task_dict)[0]
+                    )
                 else:
                     f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
