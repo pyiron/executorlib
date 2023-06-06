@@ -54,3 +54,17 @@ class TestFuturePool(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array(4))
+
+    def test_execute_task_parallel(self):
+        f = Future()
+        q = Queue()
+        q.put({"f": calc, 'a': (), "k": {"i": 2}, "l": f})
+        q.put({"c": "close"})
+        _cloudpickle_update(ind=1)
+        execute_tasks(
+            future_queue=q,
+            cores=2,
+            oversubscribe=False,
+            enable_flux_backend=False
+        )
+        self.assertEqual(f.result(), [np.array(4), np.array(4)])
