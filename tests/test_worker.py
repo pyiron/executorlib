@@ -28,7 +28,7 @@ class TestFuturePool(unittest.TestCase):
             sleep(1)
             self.assertTrue(output.done())
             self.assertEqual(len(p), 0)
-        self.assertEqual(output.result(), 4)
+        self.assertEqual(output.result(), np.array(4))
 
     def test_pool_serial_multi_core(self):
         with Worker(cores=2) as p:
@@ -53,4 +53,18 @@ class TestFuturePool(unittest.TestCase):
             oversubscribe=False,
             enable_flux_backend=False
         )
-        self.assertEqual(f.result(), 4)
+        self.assertEqual(f.result(), np.array(4))
+
+    def test_execute_task_parallel(self):
+        f = Future()
+        q = Queue()
+        q.put({"f": calc, 'a': (), "k": {"i": 2}, "l": f})
+        q.put({"c": "close"})
+        _cloudpickle_update(ind=1)
+        execute_tasks(
+            future_queue=q,
+            cores=2,
+            oversubscribe=False,
+            enable_flux_backend=False
+        )
+        self.assertEqual(f.result(), [np.array(4), np.array(4)])
