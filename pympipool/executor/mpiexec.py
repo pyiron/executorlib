@@ -39,8 +39,10 @@ def main():
                 socket.close()
                 context.term()
             break
-        elif "f" in input_dict.keys() and (
-            "a" in input_dict.keys() or "k" in input_dict.keys()
+        elif (
+            "f" in input_dict.keys()
+            and "a" in input_dict.keys()
+            and "k" in input_dict.keys()
         ):
             # Execute function
             output = call_funct(input_dict=input_dict, funct=None)

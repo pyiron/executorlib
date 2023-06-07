@@ -26,9 +26,9 @@ class TestTask(unittest.TestCase):
 
     def test_mpi_multiple(self):
         with Pool(cores=2, enable_mpi4py_backend=False) as p:
-            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2]})
-            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2]})
-            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2]})
+            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2], "k": {}})
+            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2], "k": {}})
+            p._interface.send_dict(input_dict={"f": mpi_funct, "a": [2], "k": {}})
             output = [
                 p._interface.receive_dict(),
                 p._interface.receive_dict(),
