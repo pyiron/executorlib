@@ -97,7 +97,9 @@ class Pool(Executor):
 
 
 class Worker(Executor):
-    def __init__(self, cores, oversubscribe=False, enable_flux_backend=False, init_function=None):
+    def __init__(
+        self, cores, oversubscribe=False, enable_flux_backend=False, init_function=None
+    ):
         self._future_queue = Queue()
         self._process = Thread(
             target=execute_tasks,

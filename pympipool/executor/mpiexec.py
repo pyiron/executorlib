@@ -40,8 +40,10 @@ def main():
                 socket.close()
                 context.term()
             break
-        elif "f" in input_dict.keys() and "i" not in input_dict.keys() and (
-            "a" in input_dict.keys() or "k" in input_dict.keys()
+        elif (
+            "f" in input_dict.keys()
+            and "i" not in input_dict.keys()
+            and ("a" in input_dict.keys() or "k" in input_dict.keys())
         ):
             # Execute function
             output = call_funct(input_dict=input_dict, funct=None, memory=memory)
@@ -50,8 +52,10 @@ def main():
             # Send output
             if mpi_rank_zero:
                 socket.send(cloudpickle.dumps({"r": output_reply}))
-        elif "i" in input_dict.keys() and input_dict["i"] and (
-                "a" in input_dict.keys() or "k" in input_dict.keys()
+        elif (
+            "i" in input_dict.keys()
+            and input_dict["i"]
+            and ("a" in input_dict.keys() or "k" in input_dict.keys())
         ):
             memory = call_funct(input_dict=input_dict, funct=None)
 
