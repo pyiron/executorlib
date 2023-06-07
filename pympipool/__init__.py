@@ -42,6 +42,7 @@ class Pool(Executor):
         oversubscribe=False,
         enable_flux_backend=False,
         enable_mpi4py_backend=True,
+        cwd=None
     ):
         self._future_dict = {}
         self._interface = SocketInterface()
@@ -53,7 +54,8 @@ class Pool(Executor):
                 oversubscribe=oversubscribe,
                 enable_flux_backend=enable_flux_backend,
                 enable_mpi4py_backend=enable_mpi4py_backend,
-            )
+            ),
+            cwd=cwd,
         )
         _cloudpickle_update(ind=2)
 
@@ -98,12 +100,12 @@ class Pool(Executor):
 
 class Worker(Executor):
     def __init__(
-        self, cores, oversubscribe=False, enable_flux_backend=False, init_function=None
+        self, cores, oversubscribe=False, enable_flux_backend=False, init_function=None, cwd=None
     ):
         self._future_queue = Queue()
         self._process = Thread(
             target=execute_tasks,
-            args=(self._future_queue, cores, oversubscribe, enable_flux_backend),
+            args=(self._future_queue, cores, oversubscribe, enable_flux_backend, cwd),
         )
         self._process.start()
         _cloudpickle_update(ind=2)

@@ -73,7 +73,7 @@ def get_parallel_subprocess_command(
     return command_lst
 
 
-def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
+def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend, cwd=None):
     interface = SocketInterface()
     interface.bootup(
         command_lst=get_parallel_subprocess_command(
@@ -83,7 +83,8 @@ def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
             enable_mpi4py_backend=False,
-        )
+        ),
+        cwd=cwd,
     )
     while True:
         task_dict = future_queue.get()
