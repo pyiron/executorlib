@@ -61,11 +61,14 @@ def map_funct(executor, funct, lst, cores_per_task):
         ]
 
 
-def call_funct(input_dict, funct=None):
+def call_funct(input_dict, funct=None, memory=None):
     if funct is None:
 
         def funct(*args, **kwargs):
             return args[0].__call__(*args[1:], **kwargs)
+
+    if memory is not None:
+        input_dict["k"]["memory"] = memory
 
     if "a" in input_dict.keys() and "k" in input_dict.keys():
         return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])

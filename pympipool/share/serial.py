@@ -99,3 +99,5 @@ def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend):
                     )
                 else:
                     f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+        elif "f" in task_dict.keys() and "i" in task_dict.keys():
+            interface.send_dict(input_dict=task_dict)
