@@ -28,12 +28,13 @@ class SocketInterface(object):
     def bind_to_random_port(self):
         return self._socket.bind_to_random_port("tcp://*")
 
-    def bootup(self, command_lst):
+    def bootup(self, command_lst, cwd=None):
         self._process = subprocess.Popen(
             args=command_lst,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             stdin=subprocess.PIPE,
+            cwd=cwd,
         )
 
     def shutdown(self, wait=True):
