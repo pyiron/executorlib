@@ -76,7 +76,7 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": sum, "a": [[1, 1]]},
+                input_dict={"f": sum, "a": [[1, 1]], "k":{}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
@@ -88,7 +88,7 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": function_multi_args, "k": {"a": 1, "b": 2}},
+                input_dict={"f": function_multi_args, "a":(), "k": {"a": 1, "b": 2}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
@@ -112,7 +112,7 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": sum, "a": [[1, 1]]},
+                input_dict={"f": sum, "a": [[1, 1]], "k": {}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
@@ -128,5 +128,6 @@ class TestExecutor(unittest.TestCase):
     def test_funct_call_default(self):
         self.assertEqual(call_funct(input_dict={
             "f": sum,
-            "a": [[1, 2, 3]]
+            "a": [[1, 2, 3]],
+            "k": {}
         }), 6)

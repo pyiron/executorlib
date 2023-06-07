@@ -43,7 +43,8 @@ def main():
         elif (
             "f" in input_dict.keys()
             and "i" not in input_dict.keys()
-            and ("a" in input_dict.keys() or "k" in input_dict.keys())
+            and "a" in input_dict.keys()
+            and "k" in input_dict.keys()
         ):
             # Execute function
             output = call_funct(input_dict=input_dict, funct=None, memory=memory)
