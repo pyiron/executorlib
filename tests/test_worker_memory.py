@@ -8,7 +8,7 @@ def get_global(memory=None):
 
 
 def set_global():
-    return np.array([5])
+    return {"memory": np.array([5])}
 
 
 class TestWorkerMemory(unittest.TestCase):
