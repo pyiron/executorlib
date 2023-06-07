@@ -91,7 +91,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
     elif (
         "f" in input_dict.keys()
         and "a" in input_dict.keys()
-        or "k" in input_dict.keys()
+        and "k" in input_dict.keys()
     ):
         # If a function "f" and either arguments "a" or keyword arguments "k" are
         # communicated pympipool uses submit() to asynchronously apply the function
