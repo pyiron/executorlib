@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 from pympipool import Worker
+from pympipool.share.parallel import call_funct
 
 
 def get_global(memory=None):
@@ -18,3 +19,9 @@ class TestWorkerMemory(unittest.TestCase):
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
             self.assertTrue(f.done())
+
+    def test_call_funct(self):
+        self.assertEqual(call_funct(
+            input_dict={"f": get_global, "a": (), "k": {}},
+            memory={"memory": 4}
+        ), 4)
