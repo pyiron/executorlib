@@ -1,3 +1,4 @@
+import inspect
 import zmq
 from tqdm import tqdm
 
@@ -67,7 +68,7 @@ def call_funct(input_dict, funct=None, memory=None):
         def funct(*args, **kwargs):
             return args[0].__call__(*args[1:], **kwargs)
 
-    if memory is not None:
+    if memory is not None and "memory" in inspect.getfullargspec(input_dict["f"]).args:
         input_dict["k"]["memory"] = memory
 
     if "a" in input_dict.keys() and "k" in input_dict.keys():
