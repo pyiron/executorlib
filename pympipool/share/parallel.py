@@ -68,8 +68,9 @@ def call_funct(input_dict, funct=None, memory=None):
         def funct(*args, **kwargs):
             return args[0].__call__(*args[1:], **kwargs)
 
-    if memory is not None and "memory" in inspect.getfullargspec(input_dict["f"]).args:
-        input_dict["k"]["memory"] = memory
+    funct_args = inspect.getfullargspec(input_dict["f"]).args
+    if memory is not None:
+        input_dict["k"].update({k: v for k, v in memory.items() if k in funct_args})
 
     if "a" in input_dict.keys() and "k" in input_dict.keys():
         return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
