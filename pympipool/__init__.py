@@ -97,7 +97,9 @@ class Pool(Executor):
 
 
 class Worker(Executor):
-    def __init__(self, cores, oversubscribe=False, enable_flux_backend=False):
+    def __init__(
+        self, cores, oversubscribe=False, enable_flux_backend=False, init_function=None
+    ):
         self._future_queue = Queue()
         self._process = Thread(
             target=execute_tasks,
@@ -105,6 +107,8 @@ class Worker(Executor):
         )
         self._process.start()
         _cloudpickle_update(ind=2)
+        if init_function is not None:
+            self._future_queue.put({"i": True, "f": init_function, "a": (), "k": {}})
 
     def submit(self, fn, *args, **kwargs):
         f = Future()

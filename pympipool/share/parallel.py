@@ -1,3 +1,4 @@
+import inspect
 import zmq
 from tqdm import tqdm
 
@@ -61,11 +62,15 @@ def map_funct(executor, funct, lst, cores_per_task):
         ]
 
 
-def call_funct(input_dict, funct=None):
+def call_funct(input_dict, funct=None, memory=None):
     if funct is None:
 
         def funct(*args, **kwargs):
             return args[0].__call__(*args[1:], **kwargs)
+
+    funct_args = inspect.getfullargspec(input_dict["f"]).args
+    if memory is not None:
+        input_dict["k"].update({k: v for k, v in memory.items() if k in funct_args})
 
     return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
 

@@ -25,6 +25,7 @@ def main():
         context = None
         socket = None
 
+    memory = None
     while True:
         # Read from socket
         if mpi_rank_zero:
@@ -41,16 +42,23 @@ def main():
             break
         elif (
             "f" in input_dict.keys()
+            and "i" not in input_dict.keys()
             and "a" in input_dict.keys()
             and "k" in input_dict.keys()
         ):
             # Execute function
-            output = call_funct(input_dict=input_dict, funct=None)
+            output = call_funct(input_dict=input_dict, funct=None, memory=memory)
             output_reply = MPI.COMM_WORLD.gather(output, root=0)
 
             # Send output
             if mpi_rank_zero:
                 socket.send(cloudpickle.dumps({"r": output_reply}))
+        elif (
+            "i" in input_dict.keys()
+            and input_dict["i"]
+            and ("a" in input_dict.keys() or "k" in input_dict.keys())
+        ):
+            memory = call_funct(input_dict=input_dict, funct=None)
 
 
 if __name__ == "__main__":
