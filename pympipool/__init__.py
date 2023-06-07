@@ -42,7 +42,7 @@ class Pool(Executor):
         oversubscribe=False,
         enable_flux_backend=False,
         enable_mpi4py_backend=True,
-        cwd=None
+        cwd=None,
     ):
         self._future_dict = {}
         self._interface = SocketInterface()
@@ -100,7 +100,12 @@ class Pool(Executor):
 
 class Worker(Executor):
     def __init__(
-        self, cores, oversubscribe=False, enable_flux_backend=False, init_function=None, cwd=None
+        self,
+        cores,
+        oversubscribe=False,
+        enable_flux_backend=False,
+        init_function=None,
+        cwd=None,
     ):
         self._future_queue = Queue()
         self._process = Thread(
