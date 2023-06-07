@@ -67,14 +67,7 @@ def call_funct(input_dict, funct=None):
         def funct(*args, **kwargs):
             return args[0].__call__(*args[1:], **kwargs)
 
-    if "a" in input_dict.keys() and "k" in input_dict.keys():
-        return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
-    elif "a" in input_dict.keys():
-        return funct(input_dict["f"], *input_dict["a"])
-    elif "k" in input_dict.keys():
-        return funct(input_dict["f"], **input_dict["k"])
-    else:
-        raise ValueError("Neither *args nor *kwargs are defined.")
+    return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
 
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task):
@@ -95,9 +88,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
             return {"e": error, "et": str(type(error))}
         else:
             return {"r": output}
-    elif "f" in input_dict.keys() and (
-        "a" in input_dict.keys() or "k" in input_dict.keys()
-    ):
+    elif "f" in input_dict.keys() and "a" in input_dict.keys() or "k" in input_dict.keys():
         # If a function "f" and either arguments "a" or keyword arguments "k" are
         # communicated pympipool uses submit() to asynchronously apply the function
         # on the arguments and or keyword arguments.
