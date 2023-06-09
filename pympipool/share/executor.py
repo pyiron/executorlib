@@ -2,7 +2,11 @@ from concurrent.futures import Executor as FutureExecutor, Future
 from queue import Queue
 from threading import Thread
 
-from pympipool.share.serial import execute_tasks, _cloudpickle_update, cancel_items_in_queue
+from pympipool.share.serial import (
+    execute_tasks,
+    _cloudpickle_update,
+    cancel_items_in_queue,
+)
 
 
 class Executor(FutureExecutor):
@@ -41,6 +45,7 @@ class Executor(FutureExecutor):
         >>> [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
         ```
     """
+
     def __init__(
         self,
         cores,
