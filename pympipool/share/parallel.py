@@ -105,7 +105,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
                 lst=input_dict["l"],
                 cores_per_task=cores_per_task,
                 chunksize=input_dict["s"],
-                map_flag=input_dict["m"]
+                map_flag=input_dict["m"],
             )
         except Exception as error:
             return {"e": error, "et": str(type(error))}
