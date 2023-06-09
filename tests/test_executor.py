@@ -96,6 +96,18 @@ class TestExecutor(unittest.TestCase):
         future = future_dict[output['r']]
         self.assertEqual(future.result(), 3)
 
+    def test_parse_socket_communication_submit_starmap(self):
+        future_dict = {}
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            output = parse_socket_communication(
+                executor=executor,
+                input_dict={"f": function_multi_args, "a": ([1, 2]), "k": {}, "m": False},
+                future_dict=future_dict,
+                cores_per_task=1
+            )
+        future = future_dict[output['r']]
+        self.assertEqual(future.result(), 3)
+
     def test_parse_socket_communication_submit_both(self):
         future_dict = {}
         with ThreadPoolExecutor(max_workers=1) as executor:
