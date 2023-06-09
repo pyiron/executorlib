@@ -97,12 +97,7 @@ def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend, cwd=N
         elif "f" in task_dict.keys() and "l" in task_dict.keys():
             f = task_dict.pop("l")
             if f.set_running_or_notify_cancel():
-                if cores == 1:
-                    f.set_result(
-                        interface.send_and_receive_dict(input_dict=task_dict)[0]
-                    )
-                else:
-                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         elif "f" in task_dict.keys() and "i" in task_dict.keys():
             interface.send_dict(input_dict=task_dict)
 

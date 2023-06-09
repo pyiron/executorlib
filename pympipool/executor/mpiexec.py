@@ -15,6 +15,7 @@ def main():
         pickle.HIGHEST_PROTOCOL,
     )
     mpi_rank_zero = MPI.COMM_WORLD.Get_rank() == 0
+    mpi_size_larger_one = MPI.COMM_WORLD.Get_size() > 1
 
     argument_dict = parse_arguments(argument_lst=sys.argv)
     if mpi_rank_zero:
@@ -47,12 +48,19 @@ def main():
             and "k" in input_dict.keys()
         ):
             # Execute function
-            output = call_funct(input_dict=input_dict, funct=None, memory=memory)
-            output_reply = MPI.COMM_WORLD.gather(output, root=0)
-
-            # Send output
-            if mpi_rank_zero:
-                socket.send(cloudpickle.dumps({"r": output_reply}))
+            try:
+                output = call_funct(input_dict=input_dict, funct=None, memory=memory)
+                if mpi_size_larger_one:
+                    output_reply = MPI.COMM_WORLD.gather(output, root=0)
+                else:
+                    output_reply = output
+            except Exception as error:
+                if mpi_rank_zero:
+                    socket.send(cloudpickle.dumps({"e": error, "et": str(type(error))}))
+            else:
+                # Send output
+                if mpi_rank_zero:
+                    socket.send(cloudpickle.dumps({"r": output_reply}))
         elif (
             "i" in input_dict.keys()
             and input_dict["i"]

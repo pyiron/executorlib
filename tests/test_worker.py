@@ -51,6 +51,34 @@ class TestFuturePool(unittest.TestCase):
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(list(output), [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]])
 
+    def test_execute_task_failed_no_argument(self):
+        f = Future()
+        q = Queue()
+        q.put({"f": calc, 'a': (), "k": {}, "l": f})
+        q.put({"c": "close"})
+        _cloudpickle_update(ind=1)
+        with self.assertRaises(TypeError):
+            execute_tasks(
+                future_queue=q,
+                cores=1,
+                oversubscribe=False,
+                enable_flux_backend=False
+            )
+
+    def test_execute_task_failed_wrong_argument(self):
+        f = Future()
+        q = Queue()
+        q.put({"f": calc, 'a': (), "k": {"j": 4}, "l": f})
+        q.put({"c": "close"})
+        _cloudpickle_update(ind=1)
+        with self.assertRaises(TypeError):
+            execute_tasks(
+                future_queue=q,
+                cores=1,
+                oversubscribe=False,
+                enable_flux_backend=False
+            )
+
     def test_execute_task(self):
         f = Future()
         q = Queue()
