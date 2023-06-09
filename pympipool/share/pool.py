@@ -5,7 +5,7 @@ from pympipool.share.serial import get_parallel_subprocess_command, _cloudpickle
 
 
 class PoolBase(object):
-    def __int__(self):
+    def __init__(self):
         self._future_dict = {}
         self._interface = SocketInterface()
         _cloudpickle_update(ind=3)
