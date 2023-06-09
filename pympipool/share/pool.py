@@ -94,3 +94,10 @@ class Pool(object):
             self._interface.send_dict(input_dict={"u": hash_to_update})
             for k, v in self._interface.receive_dict().items():
                 self._future_dict[k].set_result(v)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.shutdown(wait=True)
+        return False
