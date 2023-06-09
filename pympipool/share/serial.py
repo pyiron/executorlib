@@ -122,9 +122,7 @@ def cancel_items_in_queue(que):
     while True:
         try:
             item = que.get_nowait()
-            if item is None:
-                break
-            elif isinstance(item, dict) and "l" in item.keys():
+            if isinstance(item, dict) and "l" in item.keys():
                 item["l"].cancel()
         except queue.Empty:
             break
