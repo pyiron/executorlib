@@ -59,8 +59,9 @@ class Pool(object):
         Map a given function on a list of attributes.
 
         Args:
-            fn: function to be applied to each element of the following list
-            iterables (list): list of arguments the function should be applied on
+            func: function to be applied to each element of the following list
+            iterable (list): list of arguments the function should be applied on
+            chunksize (int/None):
 
         Returns:
             list: list of output generated from applying the function on the list of arguments
@@ -69,7 +70,26 @@ class Pool(object):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"f": func, "l": iterable, "s": chunksize}
+            input_dict={"f": func, "l": iterable, "s": chunksize, "m": True}
+        )
+
+    def starmap(self, func, iterable, chunksize=None):
+        """
+        Map a given function on a list of attributes.
+
+        Args:
+            func: function to be applied to each element of the following list
+            iterable (list): list of arguments the function should be applied on
+            chunksize (int/None):
+
+        Returns:
+            list: list of output generated from applying the function on the list of arguments
+        """
+        # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
+        if chunksize is None:
+            chunksize = 1
+        return self._interface.send_and_receive_dict(
+            input_dict={"f": func, "l": iterable, "s": chunksize, "m": False}
         )
 
     def shutdown(self, wait=True, *, cancel_futures=False):

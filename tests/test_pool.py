@@ -7,6 +7,10 @@ def calc(i):
     return np.array(i ** 2)
 
 
+def calc_add(i, j):
+    return i + j
+
+
 def calc_none(i):
     return None
 
@@ -20,7 +24,7 @@ def calc_error_type_error(i):
 
 
 class TestPool(unittest.TestCase):
-    def test_pool_serial(self):
+    def test_map_serial(self):
         with Pool(cores=1) as p:
             output = p.map(func=calc, iterable=[1, 2, 3, 4])
         self.assertEqual(output[0], 1)
@@ -28,13 +32,25 @@ class TestPool(unittest.TestCase):
         self.assertEqual(output[2], 9)
         self.assertEqual(output[3], 16)
 
-    def test_pool_parallel(self):
+    def test_starmap_serial(self):
+        with Pool(cores=1) as p:
+            output = p.starmap(func=calc_add, iterable=[[1, 2], [3, 4]])
+        self.assertEqual(output[0], 3)
+        self.assertEqual(output[1], 7)
+
+    def test_map_parallel(self):
         with Pool(cores=2) as p:
             output = p.map(func=calc, iterable=[1, 2, 3, 4])
         self.assertEqual(output[0], 1)
         self.assertEqual(output[1], 4)
         self.assertEqual(output[2], 9)
         self.assertEqual(output[3], 16)
+
+    def test_starmap_parallel(self):
+        with Pool(cores=2) as p:
+            output = p.starmap(func=calc_add, iterable=[[1, 2], [3, 4]])
+        self.assertEqual(output[0], 3)
+        self.assertEqual(output[1], 7)
 
     def test_pool_none(self):
         with Pool(cores=2) as p:

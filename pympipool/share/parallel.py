@@ -44,20 +44,30 @@ def wrap(funct, number_of_cores_per_communicator=1):
     return functwrapped
 
 
-def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1):
+def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True):
     if cores_per_task == 1:
-        results = executor.map(funct, lst, chunksize=chunksize)
+        if map_flag:
+            results = executor.map(funct, lst, chunksize=chunksize)
+        else:
+            results = executor.starmap(funct, lst, chunksize=chunksize)
         return list(tqdm(results, desc="Tasks", total=len(lst)))
     else:
         lst_parallel = []
         for input_parameter in lst:
             for _ in range(cores_per_task):
                 lst_parallel.append(input_parameter)
-        results = executor.map(
-            wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-            lst_parallel,
-            chunksize=chunksize,
-        )
+        if map_flag:
+            results = executor.map(
+                wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+                lst_parallel,
+                chunksize=chunksize,
+            )
+        else:
+            results = executor.starmap(
+                wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+                lst_parallel,
+                chunksize=chunksize,
+            )
         return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
             ::cores_per_task
         ]
@@ -95,6 +105,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
                 lst=input_dict["l"],
                 cores_per_task=cores_per_task,
                 chunksize=input_dict["s"],
+                map_flag=input_dict["m"],
             )
         except Exception as error:
             return {"e": error, "et": str(type(error))}
