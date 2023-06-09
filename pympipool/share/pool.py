@@ -4,7 +4,26 @@ from pympipool.share.communication import SocketInterface
 from pympipool.share.serial import get_parallel_subprocess_command, _cloudpickle_update
 
 
-class Pool(object):
+class PoolBase(object):
+    def __init__(
+        self,
+    ):
+        self._future_dict = {}
+        self._interface = SocketInterface()
+        _cloudpickle_update(ind=2)
+
+    def shutdown(self, wait=True, *, cancel_futures=False):
+        self._interface.shutdown(wait=wait)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.shutdown(wait=True)
+        return False
+
+
+class Pool(PoolBase):
     """
     The pympipool.Pool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast to the
     mpi4py.futures.MPIPoolExecutor the pympipool.Pool can be executed in a serial python process and does not require
@@ -36,11 +55,9 @@ class Pool(object):
         cores_per_task=1,
         oversubscribe=False,
         enable_flux_backend=False,
-        enable_mpi4py_backend=True,
         cwd=None,
     ):
-        self._future_dict = {}
-        self._interface = SocketInterface()
+        super(PoolBase, self).__init__()
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
@@ -48,11 +65,10 @@ class Pool(object):
                 cores_per_task=cores_per_task,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=enable_flux_backend,
-                enable_mpi4py_backend=enable_mpi4py_backend,
+                enable_mpi4py_backend=True,
             ),
             cwd=cwd,
         )
-        _cloudpickle_update(ind=2)
 
     def map(self, func, iterable, chunksize=None):
         """
@@ -72,8 +88,29 @@ class Pool(object):
             input_dict={"f": func, "l": iterable, "s": chunksize}
         )
 
-    def shutdown(self, wait=True, *, cancel_futures=False):
-        self._interface.shutdown(wait=wait)
+
+class PoolEx(PoolBase):
+    def __init__(
+        self,
+        cores=1,
+        cores_per_task=1,
+        oversubscribe=False,
+        enable_flux_backend=False,
+        enable_mpi4py_backend=True,
+        cwd=None,
+    ):
+        super(PoolBase, self).__init__()
+        self._interface.bootup(
+            command_lst=get_parallel_subprocess_command(
+                port_selected=self._interface.bind_to_random_port(),
+                cores=cores,
+                cores_per_task=cores_per_task,
+                oversubscribe=oversubscribe,
+                enable_flux_backend=enable_flux_backend,
+                enable_mpi4py_backend=enable_mpi4py_backend,
+            ),
+            cwd=cwd,
+        )
 
     def submit(self, fn, *args, **kwargs):
         future = Future()
@@ -94,10 +131,3 @@ class Pool(object):
             self._interface.send_dict(input_dict={"u": hash_to_update})
             for k, v in self._interface.receive_dict().items():
                 self._future_dict[k].set_result(v)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.shutdown(wait=True)
-        return False
