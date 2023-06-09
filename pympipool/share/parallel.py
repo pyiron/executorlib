@@ -28,7 +28,7 @@ def initialize_zmq(host, port):
     return context, socket
 
 
-def wrap(funct, number_of_cores_per_communicator):
+def wrap(funct, number_of_cores_per_communicator=1):
     def functwrapped(*args, **kwargs):
         from mpi4py import MPI
 
@@ -44,7 +44,7 @@ def wrap(funct, number_of_cores_per_communicator):
     return functwrapped
 
 
-def map_funct(executor, funct, lst, cores_per_task):
+def map_funct(executor, funct, lst, cores_per_task=1):
     if cores_per_task == 1:
         results = executor.map(funct, lst)
         return list(tqdm(results, desc="Tasks", total=len(lst)))
@@ -80,7 +80,7 @@ def call_funct(input_dict, funct=None, memory=None):
     return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
 
 
-def parse_socket_communication(executor, input_dict, future_dict, cores_per_task):
+def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):
     if "c" in input_dict.keys() and input_dict["c"] == "close":
         # If close "c" is communicated the process is shutdown.
         return "exit"

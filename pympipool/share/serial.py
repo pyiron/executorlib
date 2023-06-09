@@ -54,10 +54,10 @@ def command_line_options(
 def get_parallel_subprocess_command(
     port_selected,
     cores,
-    cores_per_task,
-    oversubscribe,
-    enable_flux_backend,
-    enable_mpi4py_backend,
+    cores_per_task=1,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    enable_mpi4py_backend=True,
 ):
     if enable_mpi4py_backend:
         executable = "mpipool.py"
@@ -76,7 +76,7 @@ def get_parallel_subprocess_command(
     return command_lst
 
 
-def execute_tasks(future_queue, cores, oversubscribe, enable_flux_backend, cwd=None):
+def execute_tasks(future_queue, cores, oversubscribe=False, enable_flux_backend=False, cwd=None):
     interface = SocketInterface()
     interface.bootup(
         command_lst=get_parallel_subprocess_command(
