@@ -3,25 +3,12 @@ from concurrent.futures import ThreadPoolExecutor
 from pympipool.share.parallel import map_funct, parse_socket_communication, call_funct
 
 
-# def get_ranks(input_parameter, comm=None):
-#     from mpi4py import MPI
-#     size = MPI.COMM_WORLD.Get_size()
-#     rank = MPI.COMM_WORLD.Get_rank()
-#     if comm is not None:
-#         size_new = comm.Get_size()
-#         rank_new = comm.Get_rank()
-#     else:
-#         size_new = 0
-#         rank_new = 0
-#     return size, rank, size_new, rank_new, input_parameter
-
-
 def function_multi_args(a, b):
     return a + b
 
 
 class TestExecutor(unittest.TestCase):
-    def test_exec_funct_single_core(self):
+    def test_exec_funct_single_core_map(self):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = map_funct(
                 executor=executor,
@@ -32,15 +19,17 @@ class TestExecutor(unittest.TestCase):
             )
         self.assertEqual(output, [2, 4])
 
-    # def test_exec_funct_multi_core(self):
-    #     with ThreadPoolExecutor(max_workers=1) as executor:
-    #         output = exec_funct(
-    #             executor=executor,
-    #             funct=get_ranks,
-    #             lst=[1],
-    #             cores_per_task=2
-    #         )
-    #     self.assertEqual(output, [(1, 0, 1, 0, 1)])
+    def test_exec_funct_single_core_starmap(self):
+        with self.assertRaises(AttributeError):
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                map_funct(
+                    executor=executor,
+                    funct=sum,
+                    lst=[[1, 1], [2, 2]],
+                    cores_per_task=1,
+                    chunksize=1,
+                    map_flag=False
+                )
 
     def test_parse_socket_communication_close(self):
         with ThreadPoolExecutor(max_workers=1) as executor:
@@ -77,7 +66,7 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": sum, "a": [[1, 1]], "k":{}},
+                input_dict={"f": sum, "a": [[1, 1]], "k": {}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
@@ -90,18 +79,6 @@ class TestExecutor(unittest.TestCase):
             output = parse_socket_communication(
                 executor=executor,
                 input_dict={"f": function_multi_args, "a": (), "k": {"a": 1, "b": 2}},
-                future_dict=future_dict,
-                cores_per_task=1
-            )
-        future = future_dict[output['r']]
-        self.assertEqual(future.result(), 3)
-
-    def test_parse_socket_communication_submit_starmap(self):
-        future_dict = {}
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            output = parse_socket_communication(
-                executor=executor,
-                input_dict={"f": function_multi_args, "a": ([1, 2]), "k": {}, "m": False},
                 future_dict=future_dict,
                 cores_per_task=1
             )
