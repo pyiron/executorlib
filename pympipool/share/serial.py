@@ -76,7 +76,9 @@ def get_parallel_subprocess_command(
     return command_lst
 
 
-def execute_tasks(future_queue, cores, oversubscribe=False, enable_flux_backend=False, cwd=None):
+def execute_tasks(
+    future_queue, cores, oversubscribe=False, enable_flux_backend=False, cwd=None
+):
     interface = SocketInterface()
     interface.bootup(
         command_lst=get_parallel_subprocess_command(
