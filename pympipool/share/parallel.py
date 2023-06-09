@@ -70,8 +70,11 @@ def call_funct(input_dict, funct=None, memory=None):
 
     funct_args = inspect.getfullargspec(input_dict["f"]).args
     if memory is not None:
-        input_dict["k"].update({k: v for k, v in memory.items() if k in funct_args})
-
+        input_dict["k"].update(update_dict_delta(
+            dict_input=memory, 
+            dict_output=input_dict["k"], 
+            keys_possible_lst=funct_args
+        ))
     return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
 
 
@@ -116,3 +119,10 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         for k in done_dict.keys():
             del future_dict[k]
         return {"r": done_dict}
+
+
+def update_dict_delta(dict_input, dict_output, keys_possible_lst):
+    return {
+        k: v for k, v in dict_input.items() 
+        if k in keys_possible_lst and k not in dict_output
+    }
