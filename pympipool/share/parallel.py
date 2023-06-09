@@ -46,7 +46,7 @@ def wrap(funct, number_of_cores_per_communicator=1):
 
 def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1):
     if cores_per_task == 1:
-        results = executor.map(funct, lst, chunksize)
+        results = executor.map(funct, lst, chunksize=chunksize)
         return list(tqdm(results, desc="Tasks", total=len(lst)))
     else:
         lst_parallel = []
@@ -56,7 +56,7 @@ def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1):
         results = executor.map(
             wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
             lst_parallel,
-            chunksize,
+            chunksize=chunksize,
         )
         return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
             ::cores_per_task
