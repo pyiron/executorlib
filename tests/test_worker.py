@@ -30,7 +30,12 @@ class TestFuturePool(unittest.TestCase):
             self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), np.array(4))
 
-    def test_pool_serial_multi_core(self):
+    def test_pool_serial_map(self):
+        with Executor(cores=1) as p:
+            output = p.map(calc, [1, 2, 3])
+        self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
+
+    def test_pool_multi_core(self):
         with Executor(cores=2) as p:
             output = p.submit(mpi_funct, i=2)
             self.assertEqual(len(p), 1)
@@ -40,6 +45,11 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(output.done())
             self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
+
+    def test_pool_multi_core_map(self):
+        with Executor(cores=2) as p:
+            output = p.map(mpi_funct, [1, 2, 3])
+        self.assertEqual(list(output), [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]])
 
     def test_execute_task(self):
         f = Future()
