@@ -107,9 +107,6 @@ class Pool(PoolBase):
             input_dict={"f": func, "l": iterable, "s": chunksize, "m": False}
         )
 
-    def shutdown(self, wait=True, *, cancel_futures=False):
-        self._interface.shutdown(wait=wait)
-
     def submit(self, fn, *args, **kwargs):
         future = Future()
         future_hash = self._interface.send_and_receive_dict(
