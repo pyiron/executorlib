@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 from queue import Queue
 from time import sleep
+from concurrent.futures import CancelledError
 from pympipool import Executor
 from pympipool.share.serial import execute_tasks, _cloudpickle_update
 from concurrent.futures import Future
@@ -9,6 +10,11 @@ from concurrent.futures import Future
 
 def calc(i):
     return np.array(i ** 2)
+
+
+def sleep_one(i):
+    sleep(1)
+    return i
 
 
 def mpi_funct(i):
@@ -29,6 +35,18 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(output.done())
             self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), np.array(4))
+
+    def test_shutdown(self):
+        p = Executor(cores=1)
+        fs1 = p.submit(sleep_one, i=2)
+        fs2 = p.submit(sleep_one, i=4)
+        sleep(1)
+        p.shutdown(wait=True, cancel_futures=True)
+        self.assertTrue(fs1.done())
+        self.assertTrue(fs2.done())
+        self.assertEqual(fs1.result(), 2)
+        with self.assertRaises(CancelledError):
+            fs2.result()
 
     def test_pool_serial_map(self):
         with Executor(cores=1) as p:
