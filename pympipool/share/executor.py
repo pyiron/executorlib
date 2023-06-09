@@ -1,11 +1,11 @@
-from concurrent.futures import Executor, Future
+from concurrent.futures import Executor as FutureExecutor, Future
 from queue import Queue
 from threading import Thread
 
 from pympipool.share.serial import execute_tasks, _cloudpickle_update
 
 
-class Worker(Executor):
+class Executor(FutureExecutor):
     def __init__(
         self,
         cores,
