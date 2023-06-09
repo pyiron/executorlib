@@ -57,7 +57,7 @@ class Pool(PoolBase):
         enable_flux_backend=False,
         cwd=None,
     ):
-        super(PoolBase, self).__init__()
+        super(Pool, self).__init__()
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
@@ -99,7 +99,7 @@ class PoolEx(PoolBase):
         enable_mpi4py_backend=True,
         cwd=None,
     ):
-        super(PoolBase, self).__init__()
+        super(PoolEx, self).__init__()
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
