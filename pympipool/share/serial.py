@@ -1,6 +1,7 @@
 import inspect
 import os
 import socket
+import queue
 
 import cloudpickle
 
@@ -115,3 +116,15 @@ def _cloudpickle_update(ind=2):
         cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[ind][0]))
     except ValueError:
         pass
+
+
+def cancel_items_in_queue(que):
+    while True:
+        try:
+            item = que.get_nowait()
+            if item is None:
+                break
+            elif isinstance(item, dict) and "l" in item.keys():
+                item["l"].cancel()
+        except queue.Empty:
+            break
