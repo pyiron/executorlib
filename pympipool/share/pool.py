@@ -56,7 +56,7 @@ class Pool(PoolBase):
         enable_mpi4py_backend=True,
         cwd=None,
     ):
-        super(Pool, self).__init__()
+        super().__init__()
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
