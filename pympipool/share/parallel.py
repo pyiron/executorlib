@@ -124,5 +124,5 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
 def update_dict_delta(dict_input, dict_output, keys_possible_lst):
     return {
         k: v for k, v in dict_input.items() 
-        if k in keys_possible_lst and k not in dict_output
+        if k in keys_possible_lst and k not in dict_output.keys()
     }
