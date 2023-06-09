@@ -34,7 +34,7 @@ def main():
                     future_dict=future_dict,
                     cores_per_task=int(argument_dict["cores_per_task"]),
                 )
-                if isinstance(output, str) and output == "exit":
+                if isinstance(output, str) and output == "shutdown":
                     socket.close()
                     context.term()
                     break

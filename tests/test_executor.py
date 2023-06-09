@@ -26,8 +26,9 @@ class TestExecutor(unittest.TestCase):
             output = map_funct(
                 executor=executor,
                 funct=sum,
-                lst=[[1, 1], [2, 2]],
-                cores_per_task=1
+                iterable=[[1, 1], [2, 2]],
+                cores_per_task=1,
+                chuncksize=1,
             )
         self.assertEqual(output, [2, 4])
 

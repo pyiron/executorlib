@@ -15,7 +15,7 @@ def calc(i):
     return np.array(i ** 2)
 
 with Pool(cores=2) as p:
-    print(p.map(fn=calc, iterables=[1, 2, 3, 4]))
+    print(p.map(func=calc, iterable=[1, 2, 3, 4]))
 ```
 
 You can execute the python file `pool.py` in a serial python process: 
@@ -34,7 +34,7 @@ def calc(i, comm):
     return i, comm.Get_size(), comm.Get_rank()
 
 with Pool(cores=4, cores_per_task=2) as p:
-    print(p.map(fn=calc, iterables=[1, 2, 3, 4]))
+    print(p.map(func=calc, iterable=[1, 2, 3, 4]))
 ```
 
 Here the user-defined function `calc()` receives an additional input parameter `comm` which represents the 

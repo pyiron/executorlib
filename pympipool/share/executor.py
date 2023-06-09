@@ -22,15 +22,15 @@ class Worker(Executor):
         self._process.start()
         _cloudpickle_update(ind=2)
         if init_function is not None:
-            self._future_queue.put({"i": True, "f": init_function, "a": (), "k": {}})
+            self._future_queue.put({"init": True, "fn": init_function, "args": (), "kwargs": {}})
 
     def submit(self, fn, *args, **kwargs):
         f = Future()
-        self._future_queue.put({"f": fn, "a": args, "k": kwargs, "l": f})
+        self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
         return f
 
     def shutdown(self, wait=True, *, cancel_futures=False):
-        self._future_queue.put({"c": "close"})
+        self._future_queue.put({"shutdown": True})
         self._process.join()
 
     def __len__(self):
