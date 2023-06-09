@@ -1,10 +1,10 @@
-from concurrent.futures import Executor, Future
+from concurrent.futures import Future
 
 from pympipool.share.communication import SocketInterface
 from pympipool.share.serial import get_parallel_subprocess_command, _cloudpickle_update
 
 
-class Pool(Executor):
+class Pool(object):
     """
     The pympipool.Pool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast to the
     mpi4py.futures.MPIPoolExecutor the pympipool.Pool can be executed in a serial python process and does not require
@@ -26,7 +26,7 @@ class Pool(Executor):
             return np.array(i ** 2)
 
         with Pool(cores=2) as p:
-            print(p.map(function=calc, lst=[1, 2, 3, 4]))
+            print(p.map(func=calc, iterable=[1, 2, 3, 4]))
         ```
     """
 
@@ -54,7 +54,7 @@ class Pool(Executor):
         )
         _cloudpickle_update(ind=2)
 
-    def map(self, fn, iterables, timeout=None, chunksize=1):
+    def map(self, func, iterable, chunksize=None):
         """
         Map a given function on a list of attributes.
 
@@ -65,8 +65,11 @@ class Pool(Executor):
         Returns:
             list: list of output generated from applying the function on the list of arguments
         """
+        # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
+        if chunksize is None:
+            chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"f": fn, "l": iterables}
+            input_dict={"f": func, "l": iterable, "s": chunksize}
         )
 
     def shutdown(self, wait=True, *, cancel_futures=False):

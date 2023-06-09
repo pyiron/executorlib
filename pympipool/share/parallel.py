@@ -44,9 +44,9 @@ def wrap(funct, number_of_cores_per_communicator=1):
     return functwrapped
 
 
-def map_funct(executor, funct, lst, cores_per_task=1):
+def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1):
     if cores_per_task == 1:
-        results = executor.map(funct, lst)
+        results = executor.map(funct, lst, chunksize)
         return list(tqdm(results, desc="Tasks", total=len(lst)))
     else:
         lst_parallel = []
@@ -56,6 +56,7 @@ def map_funct(executor, funct, lst, cores_per_task=1):
         results = executor.map(
             wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
             lst_parallel,
+            chunksize,
         )
         return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
             ::cores_per_task
@@ -93,6 +94,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
                 funct=input_dict["f"],
                 lst=input_dict["l"],
                 cores_per_task=cores_per_task,
+                chunksize=input_dict["s"],
             )
         except Exception as error:
             return {"e": error, "et": str(type(error))}
