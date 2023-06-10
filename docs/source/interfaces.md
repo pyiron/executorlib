@@ -7,6 +7,24 @@ So by increasing the number of workers, by setting the `max_workers` parameter t
 execution of serial python functions beyond a single compute node. For MPI parallel python functions the `pympipool.MPISpawnPool`
 is derived from the `pympipool.Pool` and uses `MPI_Spawn()` to execute those.  
 
+### Example 
+Write a python test file like `test_pool.py`: 
+```python
+import numpy as np
+from pympipool import Pool
+def calc(i):
+    return np.array(i ** 2)
+with Pool(cores=2) as p:
+    print(p.map(func=calc, iterable=[1, 2, 3, 4]))
+```
+
+You can execute the python file `test_pool.py` in a serial python process: 
+```
+python test_pool.py
+>>> [array(1), array(4), array(9), array(16)]
+```
+Internally `pympipool` uses `mpi4py` to distribute the four calculation to two processors `cores=2`.
+
 ## Executor
 `pympipool.Executor`: The easiest way to execute MPI parallel python functions right next to serial python functions 
 is the `pympipool.Executor`. It implements the executor interface defined by the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures).
@@ -33,6 +51,23 @@ additional `ranks_per_task` parameter defines how many MPI ranks are used per ta
 same number of MPI ranks. The limitation of this approach is that it uses `MPI_Spawn()` to create new MPI ranks for the
 execution of the individual tasks. Consequently, this approach is not as scalable as the `pympipool.Executor` but it 
 offers load balancing for a large number of similar MPI parallel tasks. 
+
+### Example 
+Write a python test file like `test_mpispawnpool.py`: 
+```python
+from pympipool import MPISpawnPool
+def calc(i, comm):
+    return i, comm.Get_size(), comm.Get_rank()
+with MPISpawnPool(cores=4, cores_per_task=2) as p:
+    print(p.map(func=calc, iterable=[1, 2, 3, 4]))
+```
+
+You can execute the python file `test_mpispawnpool.py` in a serial python process: 
+```
+python test_mpispawnpool.py
+>>> [array(1), array(4), array(9), array(16)]
+```
+Internally `pympipool` uses `mpi4py` to distribute the four calculation to two processors `cores=2`.
 
 ## SocketInterface
 `pympipool.SocketInterface`: The key functionality of the `pympipool` package is the coupling of a serial python process
