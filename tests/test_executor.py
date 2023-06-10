@@ -35,7 +35,7 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"c": "close"},
+                input_dict={"shutdown": True},
                 future_dict={},
                 cores_per_task=1
             )
@@ -45,32 +45,32 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": sum, "l": [[1, 1]], "s": 1, "m": True},
+                input_dict={"fn": sum, "iterable": [[1, 1]], "chunksize": 1, "map": True},
                 future_dict={},
                 cores_per_task=1
             )
-        self.assertEqual(output, {"r": [2]})
+        self.assertEqual(output, {"result": [2]})
 
     def test_parse_socket_communication_error(self):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": sum, "l": [["a", "b"]], "s": 1, "m": True},
+                input_dict={"fn": sum, "iterable": [["a", "b"]], "chunksize": 1, "map": True},
                 future_dict={},
                 cores_per_task=1
             )
-        self.assertEqual(output["et"], "<class 'TypeError'>")
+        self.assertEqual(output["error_type"], "<class 'TypeError'>")
 
     def test_parse_socket_communication_submit_args(self):
         future_dict = {}
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": sum, "a": [[1, 1]], "k": {}},
+                input_dict={"fn": sum, "args": [[1, 1]], "kwargs": {}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
-        future = future_dict[output['r']]
+        future = future_dict[output['result']]
         self.assertEqual(future.result(), 2)
 
     def test_parse_socket_communication_submit_kwargs(self):
@@ -78,11 +78,11 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": function_multi_args, "a": (), "k": {"a": 1, "b": 2}},
+                input_dict={"fn": function_multi_args, "args": (), "kwargs": {"a": 1, "b": 2}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
-        future = future_dict[output['r']]
+        future = future_dict[output['result']]
         self.assertEqual(future.result(), 3)
 
     def test_parse_socket_communication_submit_both(self):
@@ -90,11 +90,11 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": function_multi_args, "a": [1], "k": {"b": 2}},
+                input_dict={"fn": function_multi_args, "args": [1], "kwargs": {"b": 2}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
-        future = future_dict[output['r']]
+        future = future_dict[output['result']]
         self.assertEqual(future.result(), 3)
 
     def test_parse_socket_communication_update(self):
@@ -102,22 +102,22 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"f": sum, "a": [[1, 1]], "k": {}},
+                input_dict={"fn": sum, "args": [[1, 1]], "kwargs": {}},
                 future_dict=future_dict,
                 cores_per_task=1
             )
-            future_hash = output["r"]
+            future_hash = output["result"]
             result = parse_socket_communication(
                 executor=executor,
-                input_dict={"u": [future_hash]},
+                input_dict={"update": [future_hash]},
                 future_dict=future_dict,
                 cores_per_task=1
             )
-        self.assertEqual(result, {"r": {future_hash: 2}})
+        self.assertEqual(result, {"result": {future_hash: 2}})
 
     def test_funct_call_default(self):
         self.assertEqual(call_funct(input_dict={
-            "f": sum,
-            "a": [[1, 2, 3]],
-            "k": {}
+            "fn": sum,
+            "args": [[1, 2, 3]],
+            "kwargs": {}
         }), 6)

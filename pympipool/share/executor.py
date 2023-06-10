@@ -62,7 +62,7 @@ class Executor(FutureExecutor):
         self._process.start()
         _cloudpickle_update(ind=2)
         if init_function is not None:
-            self._future_queue.put({"i": True, "f": init_function, "a": (), "k": {}})
+            self._future_queue.put({"init": True, "fn": init_function, "args": (), "kwargs": {}})
 
     def submit(self, fn, *args, **kwargs):
         """Submits a callable to be executed with the given arguments.
@@ -74,7 +74,7 @@ class Executor(FutureExecutor):
             A Future representing the given call.
         """
         f = Future()
-        self._future_queue.put({"f": fn, "a": args, "k": kwargs, "l": f})
+        self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
         return f
 
     def shutdown(self, wait=True, *, cancel_futures=False):
@@ -93,7 +93,7 @@ class Executor(FutureExecutor):
         """
         if cancel_futures:
             cancel_items_in_queue(que=self._future_queue)
-        self._future_queue.put({"c": "close"})
+        self._future_queue.put({"shutdown": True})
         self._process.join()
 
     def __len__(self):

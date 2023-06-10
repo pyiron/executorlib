@@ -79,42 +79,42 @@ def call_funct(input_dict, funct=None, memory=None):
         def funct(*args, **kwargs):
             return args[0].__call__(*args[1:], **kwargs)
 
-    funct_args = inspect.getfullargspec(input_dict["f"]).args
+    funct_args = inspect.getfullargspec(input_dict["fn"]).args
     if memory is not None:
-        input_dict["k"].update(
+        input_dict["kwargs"].update(
             update_dict_delta(
                 dict_input=memory,
-                dict_output=input_dict["k"],
+                dict_output=input_dict["kwargs"],
                 keys_possible_lst=funct_args,
             )
         )
-    return funct(input_dict["f"], *input_dict["a"], **input_dict["k"])
+    return funct(input_dict["fn"], *input_dict["args"], **input_dict["kwargs"])
 
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):
-    if "c" in input_dict.keys() and input_dict["c"] == "close":
+    if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
         # If close "c" is communicated the process is shutdown.
         return "exit"
-    elif "f" in input_dict.keys() and "l" in input_dict.keys():
+    elif "fn" in input_dict.keys() and "iterable" in input_dict.keys():
         # If a function "f" and a list or arguments "l" are communicated,
         # pympipool uses the map() function to apply the function on the list.
         try:
             output = map_funct(
                 executor=executor,
-                funct=input_dict["f"],
-                lst=input_dict["l"],
+                funct=input_dict["fn"],
+                lst=input_dict["iterable"],
                 cores_per_task=cores_per_task,
-                chunksize=input_dict["s"],
-                map_flag=input_dict["m"],
+                chunksize=input_dict["chunksize"],
+                map_flag=input_dict["map"],
             )
         except Exception as error:
-            return {"e": error, "et": str(type(error))}
+            return {"error": error, "error_type": str(type(error))}
         else:
-            return {"r": output}
+            return {"result": output}
     elif (
-        "f" in input_dict.keys()
-        and "a" in input_dict.keys()
-        and "k" in input_dict.keys()
+        "fn" in input_dict.keys()
+        and "args" in input_dict.keys()
+        and "kwargs" in input_dict.keys()
     ):
         # If a function "f" and either arguments "a" or keyword arguments "k" are
         # communicated pympipool uses submit() to asynchronously apply the function
@@ -122,18 +122,18 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         future = call_funct(input_dict=input_dict, funct=executor.submit)
         future_hash = hash(future)
         future_dict[future_hash] = future
-        return {"r": future_hash}
-    elif "u" in input_dict.keys():
+        return {"result": future_hash}
+    elif "update" in input_dict.keys():
         # If update "u" is communicated pympipool checks for asynchronously submitted
         # functions which have completed in the meantime and communicates their results.
         done_dict = {
             k: f.result()
-            for k, f in {k: future_dict[k] for k in input_dict["u"]}.items()
+            for k, f in {k: future_dict[k] for k in input_dict["update"]}.items()
             if f.done()
         }
         for k in done_dict.keys():
             del future_dict[k]
-        return {"r": done_dict}
+        return {"result": done_dict}
 
 
 def update_dict_delta(dict_input, dict_output, keys_possible_lst):

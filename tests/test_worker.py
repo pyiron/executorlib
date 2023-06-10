@@ -72,8 +72,8 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_failed_no_argument(self):
         f = Future()
         q = Queue()
-        q.put({"f": calc, 'a': (), "k": {}, "l": f})
-        q.put({"c": "close"})
+        q.put({"fn": calc, 'args': (), "kwargs": {}, "future": f})
+        q.put({"shutdown": True})
         _cloudpickle_update(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -86,8 +86,8 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_failed_wrong_argument(self):
         f = Future()
         q = Queue()
-        q.put({"f": calc, 'a': (), "k": {"j": 4}, "l": f})
-        q.put({"c": "close"})
+        q.put({"fn": calc, 'args': (), "kwargs": {"j": 4}, "l": f})
+        q.put({"shutdown": True})
         _cloudpickle_update(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -100,8 +100,8 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task(self):
         f = Future()
         q = Queue()
-        q.put({"f": calc, 'a': (), "k": {"i": 2}, "l": f})
-        q.put({"c": "close"})
+        q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
+        q.put({"shutdown": True})
         _cloudpickle_update(ind=1)
         execute_parallel_tasks(
             future_queue=q,
@@ -114,8 +114,8 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_parallel(self):
         f = Future()
         q = Queue()
-        q.put({"f": calc, 'a': (), "k": {"i": 2}, "l": f})
-        q.put({"c": "close"})
+        q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "l": f})
+        q.put({"shutdown": True})
         _cloudpickle_update(ind=1)
         execute_parallel_tasks(
             future_queue=q,

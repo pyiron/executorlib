@@ -83,7 +83,7 @@ class Pool(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"f": func, "l": iterable, "s": chunksize, "m": True}
+            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": True}
         )
 
     def starmap(self, func, iterable, chunksize=None):
@@ -102,7 +102,7 @@ class Pool(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"f": func, "l": iterable, "s": chunksize, "m": False}
+            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": False}
         )
 
 
@@ -170,7 +170,7 @@ class PoolExtended(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"f": func, "l": iterable, "s": chunksize, "m": True}
+            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": True}
         )
 
     def starmap(self, func, iterable, chunksize=None):
@@ -189,25 +189,25 @@ class PoolExtended(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"f": func, "l": iterable, "s": chunksize, "m": False}
+            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": False}
         )
 
     def submit(self, fn, *args, **kwargs):
         future = Future()
         future_hash = self._interface.send_and_receive_dict(
-            input_dict={"f": fn, "a": args, "k": kwargs}
+            input_dict={"fn": fn, "args": args, "kwargs": kwargs}
         )
         self._future_dict[future_hash] = future
         return future
 
     def apply(self, fn, *args, **kwargs):
         return self._interface.send_and_receive_dict(
-            input_dict={"f": fn, "a": args, "k": kwargs}
+            input_dict={"fn": fn, "args": args, "kwargs": kwargs}
         )
 
     def update(self):
         hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
         if len(hash_to_update) > 0:
-            self._interface.send_dict(input_dict={"u": hash_to_update})
+            self._interface.send_dict(input_dict={"update": hash_to_update})
             for k, v in self._interface.receive_dict().items():
                 self._future_dict[k].set_result(v)

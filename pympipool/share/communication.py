@@ -15,11 +15,11 @@ class SocketInterface(object):
 
     def receive_dict(self):
         output = cloudpickle.loads(self._socket.recv())
-        if "r" in output.keys():
-            return output["r"]
+        if "result" in output.keys():
+            return output["result"]
         else:
-            error_type = output["et"].split("'")[1]
-            raise eval(error_type)(output["e"])
+            error_type = output["error_type"].split("'")[1]
+            raise eval(error_type)(output["error"])
 
     def send_and_receive_dict(self, input_dict):
         self.send_dict(input_dict=input_dict)
@@ -39,7 +39,7 @@ class SocketInterface(object):
 
     def shutdown(self, wait=True):
         if self._process is not None and self._process.poll() is None:
-            self.send_dict(input_dict={"c": "close"})
+            self.send_dict(input_dict={"shutdown": True})
             self._process_close(wait=wait)
         if self._socket is not None:
             self._socket.close()

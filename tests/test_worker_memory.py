@@ -25,16 +25,16 @@ class TestWorkerMemory(unittest.TestCase):
 
     def test_call_funct(self):
         self.assertEqual(call_funct(
-            input_dict={"f": get_global, "a": (), "k": {}},
+            input_dict={"fn": get_global, "args": (), "kwargs": {}},
             memory={"memory": 4}
         ), 4)
 
     def test_execute_task(self):
         f = Future()
         q = Queue()
-        q.put({"i": True, "f": set_global, "a": (), "k": {}})
-        q.put({"f": get_global, 'a': (), "k": {}, "l": f})
-        q.put({"c": "close"})
+        q.put({"init": True, "fn": set_global, "args": (), "kwargs": {}})
+        q.put({"fn": get_global, 'args': (), "kwargs": {}, "future": f})
+        q.put({"shutdown": True})
         _cloudpickle_update(ind=1)
         execute_parallel_tasks(
             future_queue=q,
