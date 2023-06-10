@@ -94,14 +94,14 @@ def execute_parallel_tasks(
     )
     while True:
         task_dict = future_queue.get()
-        if "c" in task_dict.keys() and task_dict["c"] == "close":
+        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
             interface.shutdown(wait=True)
             break
-        elif "f" in task_dict.keys() and "l" in task_dict.keys():
-            f = task_dict.pop("l")
+        elif "fn" in task_dict.keys() and "future" in task_dict.keys():
+            f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-        elif "f" in task_dict.keys() and "i" in task_dict.keys():
+        elif "fn" in task_dict.keys() and "init" in task_dict.keys():
             interface.send_dict(input_dict=task_dict)
 
 
@@ -124,7 +124,7 @@ def cancel_items_in_queue(que):
     while True:
         try:
             item = que.get_nowait()
-            if isinstance(item, dict) and "l" in item.keys():
-                item["l"].cancel()
+            if isinstance(item, dict) and "future" in item.keys():
+                item["future"].cancel()
         except queue.Empty:
             break

@@ -11,7 +11,7 @@ def calc(i):
 class TestInterface(unittest.TestCase):
     def test_interface(self):
         _cloudpickle_update(ind=1)
-        task_dict = {"f": calc, 'a': (), "k": {"i": 2}}
+        task_dict = {"fn": calc, 'args': (), "kwargs": {"i": 2}}
         interface = SocketInterface()
         interface.bootup(
             command_lst=get_parallel_subprocess_command(

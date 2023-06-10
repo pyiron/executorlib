@@ -36,16 +36,16 @@ def main():
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
 
         # Parse input
-        if "c" in input_dict.keys() and input_dict["c"] == "close":
+        if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             if mpi_rank_zero:
                 socket.close()
                 context.term()
             break
         elif (
-            "f" in input_dict.keys()
-            and "i" not in input_dict.keys()
-            and "a" in input_dict.keys()
-            and "k" in input_dict.keys()
+            "fn" in input_dict.keys()
+            and "init" not in input_dict.keys()
+            and "args" in input_dict.keys()
+            and "kwargs" in input_dict.keys()
         ):
             # Execute function
             try:
@@ -56,15 +56,20 @@ def main():
                     output_reply = output
             except Exception as error:
                 if mpi_rank_zero:
-                    socket.send(cloudpickle.dumps({"e": error, "et": str(type(error))}))
+                    socket.send(
+                        cloudpickle.dumps(
+                            {"error": error, "error_type": str(type(error))}
+                        )
+                    )
             else:
                 # Send output
                 if mpi_rank_zero:
-                    socket.send(cloudpickle.dumps({"r": output_reply}))
+                    socket.send(cloudpickle.dumps({"result": output_reply}))
         elif (
-            "i" in input_dict.keys()
-            and input_dict["i"]
-            and ("a" in input_dict.keys() or "k" in input_dict.keys())
+            "init" in input_dict.keys()
+            and input_dict["init"]
+            and "args" in input_dict.keys()
+            and "kwargs" in input_dict.keys()
         ):
             memory = call_funct(input_dict=input_dict, funct=None)
 
