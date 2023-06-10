@@ -56,7 +56,11 @@ def main():
                     output_reply = output
             except Exception as error:
                 if mpi_rank_zero:
-                    socket.send(cloudpickle.dumps({"error": error, "error_type": str(type(error))}))
+                    socket.send(
+                        cloudpickle.dumps(
+                            {"error": error, "error_type": str(type(error))}
+                        )
+                    )
             else:
                 # Send output
                 if mpi_rank_zero:

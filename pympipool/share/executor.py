@@ -62,7 +62,9 @@ class Executor(FutureExecutor):
         self._process.start()
         _cloudpickle_update(ind=2)
         if init_function is not None:
-            self._future_queue.put({"init": True, "fn": init_function, "args": (), "kwargs": {}})
+            self._future_queue.put(
+                {"init": True, "fn": init_function, "args": (), "kwargs": {}}
+            )
 
     def submit(self, fn, *args, **kwargs):
         """Submits a callable to be executed with the given arguments.

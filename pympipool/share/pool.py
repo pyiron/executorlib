@@ -83,7 +83,12 @@ class Pool(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": True}
+            input_dict={
+                "fn": func,
+                "iterable": iterable,
+                "chunksize": chunksize,
+                "map": True,
+            }
         )
 
     def starmap(self, func, iterable, chunksize=None):
@@ -102,7 +107,12 @@ class Pool(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": False}
+            input_dict={
+                "fn": func,
+                "iterable": iterable,
+                "chunksize": chunksize,
+                "map": False,
+            }
         )
 
 
@@ -170,7 +180,12 @@ class PoolExtended(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": True}
+            input_dict={
+                "fn": func,
+                "iterable": iterable,
+                "chunksize": chunksize,
+                "map": True,
+            }
         )
 
     def starmap(self, func, iterable, chunksize=None):
@@ -189,7 +204,12 @@ class PoolExtended(PoolBase):
         if chunksize is None:
             chunksize = 1
         return self._interface.send_and_receive_dict(
-            input_dict={"fn": func, "iterable": iterable, "chunksize": chunksize, "map": False}
+            input_dict={
+                "fn": func,
+                "iterable": iterable,
+                "chunksize": chunksize,
+                "map": False,
+            }
         )
 
     def submit(self, fn, *args, **kwargs):
