@@ -86,7 +86,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_failed_wrong_argument(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, 'args': (), "kwargs": {"j": 4}, "l": f})
+        q.put({"fn": calc, 'args': (), "kwargs": {"j": 4}, "future": f})
         q.put({"shutdown": True})
         _cloudpickle_update(ind=1)
         with self.assertRaises(TypeError):
@@ -114,7 +114,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_parallel(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "l": f})
+        q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True})
         _cloudpickle_update(ind=1)
         execute_parallel_tasks(
