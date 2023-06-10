@@ -3,7 +3,7 @@ import unittest
 from queue import Queue
 from time import sleep
 from concurrent.futures import CancelledError
-from pympipool import SingleTaskExecutor
+from pympipool import Executor
 from pympipool.share.serial import execute_parallel_tasks, cloudpickle_register
 from concurrent.futures import Future
 
@@ -26,7 +26,7 @@ def mpi_funct(i):
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with SingleTaskExecutor(cores=1) as p:
+        with Executor(cores=1) as p:
             output = p.submit(calc, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -37,7 +37,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_shutdown(self):
-        p = SingleTaskExecutor(cores=1)
+        p = Executor(cores=1)
         fs1 = p.submit(sleep_one, i=2)
         fs2 = p.submit(sleep_one, i=4)
         sleep(1)
@@ -49,12 +49,12 @@ class TestFuturePool(unittest.TestCase):
             fs2.result()
 
     def test_pool_serial_map(self):
-        with SingleTaskExecutor(cores=1) as p:
+        with Executor(cores=1) as p:
             output = p.map(calc, [1, 2, 3])
         self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
 
     def test_pool_multi_core(self):
-        with SingleTaskExecutor(cores=2) as p:
+        with Executor(cores=2) as p:
             output = p.submit(mpi_funct, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -65,7 +65,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
 
     def test_pool_multi_core_map(self):
-        with SingleTaskExecutor(cores=2) as p:
+        with Executor(cores=2) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(list(output), [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]])
 
