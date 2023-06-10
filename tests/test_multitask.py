@@ -57,3 +57,19 @@ class TestFuturePool(unittest.TestCase):
         self.assertTrue(fs2.done())
         self.assertTrue(fs3.done())
         self.assertTrue(fs4.done())
+
+    def test_cancel_task(self):
+        fs1 = Future()
+        fs1.cancel()
+        q = Queue()
+        q.put({"fn": sleep_one, 'args': (), "kwargs": {"i": 1}, "future": fs1})
+        q.put({"shutdown": True})
+        cloudpickle_register(ind=1)
+        execute_serial_tasks(
+            future_queue=q,
+            cores=1,
+            oversubscribe=False,
+            enable_flux_backend=False
+        )
+        self.assertTrue(fs1.done())
+        self.assertTrue(fs1.cancelled())
