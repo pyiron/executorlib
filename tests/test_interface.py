@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 from pympipool.share.communication import SocketInterface
-from pympipool.share.serial import get_parallel_subprocess_command, _cloudpickle_update
+from pympipool.share.serial import get_parallel_subprocess_command, cloudpickle_register
 
 
 def calc(i):
@@ -10,7 +10,7 @@ def calc(i):
 
 class TestInterface(unittest.TestCase):
     def test_interface(self):
-        _cloudpickle_update(ind=1)
+        cloudpickle_register(ind=1)
         task_dict = {"fn": calc, 'args': (), "kwargs": {"i": 2}}
         interface = SocketInterface()
         interface.bootup(

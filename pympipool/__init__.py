@@ -1,5 +1,5 @@
 from pympipool.share.pool import Pool, PoolExtended
-from pympipool.share.executor import Executor
+from pympipool.share.executor import SingleTaskExecutor
 from pympipool.share.communication import SocketInterface
 
 from ._version import get_versions

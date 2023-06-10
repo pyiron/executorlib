@@ -134,6 +134,10 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         for k in done_dict.keys():
             del future_dict[k]
         return {"result": done_dict}
+    elif "cancel" in input_dict.keys():
+        for k in input_dict["cancel"]:
+            future_dict[k].cancel()
+        return {"result": True}
 
 
 def update_dict_delta(dict_input, dict_output, keys_possible_lst):

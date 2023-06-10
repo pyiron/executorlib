@@ -127,22 +127,29 @@ def execute_serial_tasks(
         except queue.Empty:
             pass
         else:
-            if "c" in task_dict.keys() and task_dict["c"] == "close":
+            if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
                 interface.shutdown(wait=True)
                 break
-            elif "f" in task_dict.keys() and "l" in task_dict.keys():
-                f = task_dict.pop("l")
+            elif "fn" in task_dict.keys() and "future" in task_dict.keys():
+                f = task_dict.pop("future")
                 future_hash = interface.send_and_receive_dict(input_dict=task_dict)
                 future_dict[future_hash] = f
         hash_to_update = [h for h, f in future_dict.items() if not f.done()]
+        hast_to_cancel = [h for h, f in future_dict.items() if f.cancelled()]
         if len(hash_to_update) > 0:
             for k, v in interface.send_and_receive_dict(
-                input_dict={"u": hash_to_update}
+                input_dict={"update": hash_to_update}
             ).items():
                 future_dict.pop(k).set_result(v)
+        if len(hast_to_cancel) > 0:
+            if interface.send_and_receive_dict(
+                input_dict={"cancel": hast_to_cancel}
+            ):
+                for h in hast_to_cancel:
+                    del future_dict[h]
 
 
-def _cloudpickle_update(ind=2):
+def cloudpickle_register(ind=2):
     # Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
     # be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
     # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs

@@ -1,9 +1,9 @@
 import unittest
 import numpy as np
 from queue import Queue
-from pympipool import Executor
+from pympipool import SingleTaskExecutor
 from pympipool.share.parallel import call_funct
-from pympipool.share.serial import execute_parallel_tasks, _cloudpickle_update
+from pympipool.share.serial import execute_parallel_tasks, cloudpickle_register
 from concurrent.futures import Future
 
 
@@ -17,7 +17,7 @@ def set_global():
 
 class TestWorkerMemory(unittest.TestCase):
     def test_internal_memory(self):
-        with Executor(cores=1, init_function=set_global) as p:
+        with SingleTaskExecutor(cores=1, init_function=set_global) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
@@ -35,7 +35,7 @@ class TestWorkerMemory(unittest.TestCase):
         q.put({"init": True, "fn": set_global, "args": (), "kwargs": {}})
         q.put({"fn": get_global, 'args': (), "kwargs": {}, "future": f})
         q.put({"shutdown": True})
-        _cloudpickle_update(ind=1)
+        cloudpickle_register(ind=1)
         execute_parallel_tasks(
             future_queue=q,
             cores=1,

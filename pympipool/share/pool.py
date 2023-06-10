@@ -1,14 +1,14 @@
 from concurrent.futures import Future
 
 from pympipool.share.communication import SocketInterface
-from pympipool.share.serial import get_parallel_subprocess_command, _cloudpickle_update
+from pympipool.share.serial import get_parallel_subprocess_command, cloudpickle_register
 
 
 class PoolBase(object):
     def __init__(self):
         self._future_dict = {}
         self._interface = SocketInterface()
-        _cloudpickle_update(ind=3)
+        cloudpickle_register(ind=3)
 
     def __enter__(self):
         return self
