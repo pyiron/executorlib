@@ -142,9 +142,7 @@ def execute_serial_tasks(
             ).items():
                 future_dict.pop(k).set_result(v)
         if len(hast_to_cancel) > 0:
-            if interface.send_and_receive_dict(
-                input_dict={"cancel": hast_to_cancel}
-            ):
+            if interface.send_and_receive_dict(input_dict={"cancel": hast_to_cancel}):
                 for h in hast_to_cancel:
                     del future_dict[h]
 
