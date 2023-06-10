@@ -2,7 +2,7 @@ import numpy as np
 import unittest
 from queue import Queue
 from time import sleep
-from pympipool import ParallelExecutor
+from pympipool import PoolExecutor
 from pympipool.share.serial import execute_serial_tasks, cloudpickle_register
 from concurrent.futures import Future
 
@@ -18,7 +18,7 @@ def sleep_one(i):
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with ParallelExecutor(cores=1) as p:
+        with PoolExecutor(cores=1) as p:
             output = p.submit(calc, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -43,7 +43,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(f.result(), np.array(4))
 
     def test_pool_cancel(self):
-        with ParallelExecutor(cores=2) as p:
+        with PoolExecutor(cores=2) as p:
             fs1 = p.submit(sleep_one, i=2)
             fs2 = p.submit(sleep_one, i=2)
             fs3 = p.submit(sleep_one, i=2)

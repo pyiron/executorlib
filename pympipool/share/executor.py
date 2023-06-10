@@ -109,7 +109,7 @@ class Executor(ExecutorBase):
             )
 
 
-class ParallelExecutor(ExecutorBase):
+class PoolExecutor(ExecutorBase):
     def __init__(
         self,
         cores,
