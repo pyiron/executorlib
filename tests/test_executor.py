@@ -115,6 +115,24 @@ class TestExecutor(unittest.TestCase):
             )
         self.assertEqual(result, {"result": {future_hash: 2}})
 
+    def test_parse_socket_communication_cancel(self):
+        future_dict = {}
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            output = parse_socket_communication(
+                executor=executor,
+                input_dict={"fn": sum, "args": [[1, 1]], "kwargs": {}},
+                future_dict=future_dict,
+                cores_per_task=1
+            )
+            future_hash = output["result"]
+            result = parse_socket_communication(
+                executor=executor,
+                input_dict={"cancel": [future_hash]},
+                future_dict=future_dict,
+                cores_per_task=1
+            )
+        self.assertEqual(result, {"result": True})
+
     def test_funct_call_default(self):
         self.assertEqual(call_funct(input_dict={
             "fn": sum,
