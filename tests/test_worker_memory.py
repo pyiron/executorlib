@@ -3,7 +3,7 @@ import numpy as np
 from queue import Queue
 from pympipool import Executor
 from pympipool.share.parallel import call_funct
-from pympipool.share.serial import execute_tasks, _cloudpickle_update
+from pympipool.share.serial import execute_parallel_tasks, _cloudpickle_update
 from concurrent.futures import Future
 
 
@@ -36,7 +36,7 @@ class TestWorkerMemory(unittest.TestCase):
         q.put({"f": get_global, 'a': (), "k": {}, "l": f})
         q.put({"c": "close"})
         _cloudpickle_update(ind=1)
-        execute_tasks(
+        execute_parallel_tasks(
             future_queue=q,
             cores=1,
             oversubscribe=False,
