@@ -136,7 +136,9 @@ def execute_serial_tasks(
                 future_dict[future_hash] = f
         hash_to_update = [h for h, f in future_dict.items() if not f.done()]
         if len(hash_to_update) > 0:
-            for k, v in interface.send_and_receive_dict(input_dict={"u": hash_to_update}).items():
+            for k, v in interface.send_and_receive_dict(
+                input_dict={"u": hash_to_update}
+            ).items():
                 future_dict.pop(k).set_result(v)
 
 
