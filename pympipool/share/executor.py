@@ -98,10 +98,3 @@ class Executor(FutureExecutor):
 
     def __len__(self):
         return self._future_queue.qsize()
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.shutdown()
-        return False
