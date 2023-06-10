@@ -2,11 +2,11 @@
 [![Unittests](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pyiron/pympipool/badge.svg?branch=main)](https://coveralls.io/github/pyiron/pympipool?branch=main)
 
-Up-scaling python programs for high performance computing (HPC) can be challenging. While the python standard library 
+Up-scaling python functions for high performance computing (HPC) can be challenging. While the python standard library 
 provides interfaces for multiprocessing and asynchronous task execution, namely [`multiprocessing`](https://docs.python.org/3/library/multiprocessing.html)
 and [`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures) both are
 limited to the execution on a single compute node. So a series of python libraries have been developed to address the 
-up-scaling of python programs for HPC. Starting in the datascience and machine learning community with solutions like 
+up-scaling of python functions for HPC. Starting in the datascience and machine learning community with solutions like 
 [dask](https://www.dask.org) over more HPC focused solutions like [parsl](http://parsl-project.org) up to Python bindings
 for the message passing interface (MPI) named [mpi4py](https://mpi4py.readthedocs.io). Each of these solutions has their
 advantages and disadvantages, in particular the mixing of MPI parallel python functions and serial python functions in
