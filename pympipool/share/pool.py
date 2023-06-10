@@ -30,7 +30,7 @@ class Pool(PoolBase):
     usability in particular when used in combination with Jupyter notebooks.
 
     Args:
-        cores (int): defines the total number of MPI ranks to use
+        max_workers (int): defines the total number of MPI ranks to use
         cores_per_task (int): defines the number of MPI ranks per task
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
 
@@ -49,7 +49,7 @@ class Pool(PoolBase):
 
     def __init__(
         self,
-        cores=1,
+        max_workers=1,
         oversubscribe=False,
         enable_flux_backend=False,
         cwd=None,
@@ -58,7 +58,7 @@ class Pool(PoolBase):
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
-                cores=cores,
+                cores=max_workers,
                 cores_per_task=1,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=enable_flux_backend,
@@ -125,8 +125,8 @@ class MPISpawnPool(PoolBase):
     usability in particular when used in combination with Jupyter notebooks.
 
     Args:
-        cores (int): defines the total number of MPI ranks to use
-        cores_per_task (int): defines the number of MPI ranks per task
+        max_workers (int): defines the total number of MPI ranks to use
+        ranks_per_task (int): defines the number of MPI ranks per task
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
 
     Simple example:
@@ -144,8 +144,8 @@ class MPISpawnPool(PoolBase):
 
     def __init__(
         self,
-        cores=1,
-        cores_per_task=1,
+        max_workers=1,
+        ranks_per_task=1,
         oversubscribe=False,
         cwd=None,
     ):
@@ -153,8 +153,8 @@ class MPISpawnPool(PoolBase):
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
-                cores=cores,
-                cores_per_task=cores_per_task,
+                cores=max_workers,
+                cores_per_task=ranks_per_task,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=False,
                 enable_mpi4py_backend=True,
