@@ -9,7 +9,7 @@ import versioneer
 setup(
     name='pympipool',
     version=versioneer.get_version(),
-    description='pympipool - scale functions over multiple compute nodes',
+    description='pympipool - scale python functions over multiple compute nodes',
     long_description=Path("README.md").read_text(),
     long_description_content_type='text/markdown',
     url='https://github.com/jan-janssen/pympipool',
