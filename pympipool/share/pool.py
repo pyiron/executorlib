@@ -116,7 +116,7 @@ class Pool(PoolBase):
         )
 
 
-class PoolExtended(PoolBase):
+class MPISpawnPool(PoolBase):
     """
     The pympipool.Pool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast to the
     mpi4py.futures.MPIPoolExecutor the pympipool.Pool can be executed in a serial python process and does not require
@@ -147,8 +147,6 @@ class PoolExtended(PoolBase):
         cores=1,
         cores_per_task=1,
         oversubscribe=False,
-        enable_flux_backend=False,
-        enable_mpi4py_backend=True,
         cwd=None,
     ):
         super().__init__()
@@ -158,8 +156,8 @@ class PoolExtended(PoolBase):
                 cores=cores,
                 cores_per_task=cores_per_task,
                 oversubscribe=oversubscribe,
-                enable_flux_backend=enable_flux_backend,
-                enable_mpi4py_backend=enable_mpi4py_backend,
+                enable_flux_backend=False,
+                enable_mpi4py_backend=True,
             ),
             cwd=cwd,
         )
@@ -211,23 +209,3 @@ class PoolExtended(PoolBase):
                 "map": False,
             }
         )
-
-    def submit(self, fn, *args, **kwargs):
-        future = Future()
-        future_hash = self._interface.send_and_receive_dict(
-            input_dict={"fn": fn, "args": args, "kwargs": kwargs}
-        )
-        self._future_dict[future_hash] = future
-        return future
-
-    def apply(self, fn, *args, **kwargs):
-        return self._interface.send_and_receive_dict(
-            input_dict={"fn": fn, "args": args, "kwargs": kwargs}
-        )
-
-    def update(self):
-        hash_to_update = [h for h, f in self._future_dict.items() if not f.done()]
-        if len(hash_to_update) > 0:
-            self._interface.send_dict(input_dict={"update": hash_to_update})
-            for k, v in self._interface.receive_dict().items():
-                self._future_dict[k].set_result(v)

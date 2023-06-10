@@ -109,7 +109,7 @@ class SingleTaskExecutor(TaskExecutor):
             )
 
 
-class MultiTaskExecutor(TaskExecutor):
+class MultiSerialTaskExecutor(TaskExecutor):
     def __init__(
         self,
         cores,
