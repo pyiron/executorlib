@@ -131,6 +131,7 @@ class PoolExtended(PoolBase):
             print(p.map(func=calc, iterable=[1, 2, 3, 4]))
         ```
     """
+
     def __init__(
         self,
         cores=1,
