@@ -50,6 +50,90 @@ class Pool(PoolBase):
     def __init__(
         self,
         cores=1,
+        oversubscribe=False,
+        enable_flux_backend=False,
+        cwd=None,
+    ):
+        super().__init__()
+        self._interface.bootup(
+            command_lst=get_parallel_subprocess_command(
+                port_selected=self._interface.bind_to_random_port(),
+                cores=cores,
+                cores_per_task=1,
+                oversubscribe=oversubscribe,
+                enable_flux_backend=enable_flux_backend,
+                enable_mpi4py_backend=True,
+            ),
+            cwd=cwd,
+        )
+
+    def map(self, func, iterable, chunksize=None):
+        """
+        Map a given function on a list of attributes.
+
+        Args:
+            func: function to be applied to each element of the following list
+            iterable (list): list of arguments the function should be applied on
+            chunksize (int/None):
+
+        Returns:
+            list: list of output generated from applying the function on the list of arguments
+        """
+        # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
+        if chunksize is None:
+            chunksize = 1
+        return self._interface.send_and_receive_dict(
+            input_dict={"f": func, "l": iterable, "s": chunksize, "m": True}
+        )
+
+    def starmap(self, func, iterable, chunksize=None):
+        """
+        Map a given function on a list of attributes.
+
+        Args:
+            func: function to be applied to each element of the following list
+            iterable (list): list of arguments the function should be applied on
+            chunksize (int/None):
+
+        Returns:
+            list: list of output generated from applying the function on the list of arguments
+        """
+        # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
+        if chunksize is None:
+            chunksize = 1
+        return self._interface.send_and_receive_dict(
+            input_dict={"f": func, "l": iterable, "s": chunksize, "m": False}
+        )
+
+
+class PoolExtended(PoolBase):
+    """
+    The pympipool.Pool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast to the
+    mpi4py.futures.MPIPoolExecutor the pympipool.Pool can be executed in a serial python process and does not require
+    the python script to be executed with MPI. Still internally the pympipool.Pool uses the
+    mpi4py.futures.MPIPoolExecutor, consequently it is primarily an abstraction of its functionality to improve the
+    usability in particular when used in combination with Jupyter notebooks.
+
+    Args:
+        cores (int): defines the total number of MPI ranks to use
+        cores_per_task (int): defines the number of MPI ranks per task
+        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
+
+    Simple example:
+        ```
+        import numpy as np
+        from pympipool import Pool
+
+        def calc(i):
+            return np.array(i ** 2)
+
+        with Pool(cores=2) as p:
+            print(p.map(func=calc, iterable=[1, 2, 3, 4]))
+        ```
+    """
+    def __init__(
+        self,
+        cores=1,
         cores_per_task=1,
         oversubscribe=False,
         enable_flux_backend=False,
