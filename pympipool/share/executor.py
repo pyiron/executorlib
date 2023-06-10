@@ -1,4 +1,4 @@
-from concurrent.futures import Executor, Future
+from concurrent.futures import Executor as FutureExecutor, Future
 from queue import Queue
 from threading import Thread
 
@@ -10,7 +10,7 @@ from pympipool.share.serial import (
 )
 
 
-class TaskExecutor(Executor):
+class ExecutorBase(FutureExecutor):
     def __init__(self):
         self._future_queue = Queue()
         self._process = None
@@ -52,7 +52,7 @@ class TaskExecutor(Executor):
         return self._future_queue.qsize()
 
 
-class SingleTaskExecutor(TaskExecutor):
+class Executor(ExecutorBase):
     """
     The pympipool.Executor behaves like the concurrent.futures.Executor but it uses mpi4py to execute parallel tasks.
     In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.Executor can be executed in a serial python process
@@ -109,7 +109,7 @@ class SingleTaskExecutor(TaskExecutor):
             )
 
 
-class MultiSerialTaskExecutor(TaskExecutor):
+class ParallelExecutor(ExecutorBase):
     def __init__(
         self,
         cores,
