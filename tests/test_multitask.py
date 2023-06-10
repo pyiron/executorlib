@@ -41,3 +41,19 @@ class TestFuturePool(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array(4))
+
+    def test_pool_cancel(self):
+        with MultiTaskExecutor(cores=2) as p:
+            fs1 = p.submit(sleep_one, i=2)
+            fs2 = p.submit(sleep_one, i=2)
+            fs3 = p.submit(sleep_one, i=2)
+            fs4 = p.submit(sleep_one, i=2)
+            sleep(1)
+            fs1.cancel()
+            fs2.cancel()
+            fs3.cancel()
+            fs4.cancel()
+        self.assertTrue(fs1.done())
+        self.assertTrue(fs2.done())
+        self.assertTrue(fs3.done())
+        self.assertTrue(fs4.done())
