@@ -77,7 +77,7 @@ def get_parallel_subprocess_command(
     return command_lst
 
 
-def execute_tasks(
+def execute_parallel_tasks(
     future_queue, cores, oversubscribe=False, enable_flux_backend=False, cwd=None
 ):
     interface = SocketInterface()

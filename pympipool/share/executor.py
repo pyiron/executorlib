@@ -3,7 +3,7 @@ from queue import Queue
 from threading import Thread
 
 from pympipool.share.serial import (
-    execute_tasks,
+    execute_parallel_tasks,
     _cloudpickle_update,
     cancel_items_in_queue,
 )
@@ -56,7 +56,7 @@ class Executor(FutureExecutor):
     ):
         self._future_queue = Queue()
         self._process = Thread(
-            target=execute_tasks,
+            target=execute_parallel_tasks,
             args=(self._future_queue, cores, oversubscribe, enable_flux_backend, cwd),
         )
         self._process.start()
