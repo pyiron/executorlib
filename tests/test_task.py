@@ -1,5 +1,5 @@
 import unittest
-from pympipool import PoolExtended
+from pympipool import SingleTaskExecutor
 
 
 def echo_funct(i):
@@ -15,27 +15,27 @@ def mpi_funct(i):
 
 class TestTask(unittest.TestCase):
     def test_echo(self):
-        with PoolExtended(cores=2, enable_mpi4py_backend=False) as p:
-            output = p.apply(echo_funct, 2)
+        with SingleTaskExecutor(cores=2) as p:
+            output = p.submit(echo_funct, 2).result()
         self.assertEqual(output, [2, 2])
 
     def test_mpi(self):
-        with PoolExtended(cores=2, enable_mpi4py_backend=False) as p:
-            output = p.apply(mpi_funct, 2)
+        with SingleTaskExecutor(cores=2) as p:
+            output = p.submit(mpi_funct, 2).result()
         self.assertEqual(output, [(2, 2, 0), (2, 2, 1)])
 
     def test_mpi_multiple(self):
-        with PoolExtended(cores=2, enable_mpi4py_backend=False) as p:
-            p._interface.send_dict(input_dict={"fn": mpi_funct, "args": [2], "kwargs": {}})
-            p._interface.send_dict(input_dict={"fn": mpi_funct, "args": [2], "kwargs": {}})
-            p._interface.send_dict(input_dict={"fn": mpi_funct, "args": [2], "kwargs": {}})
+        with SingleTaskExecutor(cores=2) as p:
+            fs1 = p.submit(mpi_funct, 1)
+            fs2 = p.submit(mpi_funct, 2)
+            fs3 = p.submit(mpi_funct, 3)
             output = [
-                p._interface.receive_dict(),
-                p._interface.receive_dict(),
-                p._interface.receive_dict(),
+                fs1.result(),
+                fs2.result(),
+                fs3.result(),
             ]
         self.assertEqual(output, [
+            [(1, 2, 0), (1, 2, 1)],
             [(2, 2, 0), (2, 2, 1)],
-            [(2, 2, 0), (2, 2, 1)],
-            [(2, 2, 0), (2, 2, 1)]
+            [(3, 2, 0), (3, 2, 1)]
         ])
