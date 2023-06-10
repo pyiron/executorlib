@@ -4,3 +4,9 @@ dependencies:
   - nbsphinx
   - sphinx
   - myst-parser
+  - numpy
+  - mpich
+  - cloudpickle
+  - mpi4py
+  - tqdm
+  - pyzmq
