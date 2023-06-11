@@ -18,7 +18,7 @@ def sleep_one(i):
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with PoolExecutor(cores=1) as p:
+        with PoolExecutor(max_workers=1) as p:
             output = p.submit(calc, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -43,7 +43,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(f.result(), np.array(4))
 
     def test_pool_cancel(self):
-        with PoolExecutor(cores=2) as p:
+        with PoolExecutor(max_workers=2) as p:
             fs1 = p.submit(sleep_one, i=2)
             fs2 = p.submit(sleep_one, i=2)
             fs3 = p.submit(sleep_one, i=2)

@@ -118,33 +118,32 @@ class Pool(PoolBase):
 
 class MPISpawnPool(PoolBase):
     """
-    The pympipool.Pool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast to the
-    mpi4py.futures.MPIPoolExecutor the pympipool.Pool can be executed in a serial python process and does not require
-    the python script to be executed with MPI. Still internally the pympipool.Pool uses the
+    The pympipool.MPISpawnPool behaves like the multiprocessing.Pool but it uses mpi4py to distribute tasks. In contrast
+    to the mpi4py.futures.MPIPoolExecutor the pympipool.MPISpawnPool can be executed in a serial python process and does
+    not require the python script to be executed with MPI. Still internally the pympipool.Pool uses the
     mpi4py.futures.MPIPoolExecutor, consequently it is primarily an abstraction of its functionality to improve the
     usability in particular when used in combination with Jupyter notebooks.
 
     Args:
-        max_workers (int): defines the total number of MPI ranks to use
+        max_ranks (int): defines the total number of MPI ranks to use
         ranks_per_task (int): defines the number of MPI ranks per task
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
 
     Simple example:
         ```
-        import numpy as np
-        from pympipool import Pool
+        from pympipool import MPISpawnPool
 
-        def calc(i):
-            return np.array(i ** 2)
+        def calc(i, comm):
+            return i, comm.Get_size(), comm.Get_rank()
 
-        with Pool(cores=2) as p:
+        with MPISpawnPool(max_ranks=4, ranks_per_task=2) as p:
             print(p.map(func=calc, iterable=[1, 2, 3, 4]))
         ```
     """
 
     def __init__(
         self,
-        max_workers=1,
+        max_ranks=1,
         ranks_per_task=1,
         oversubscribe=False,
         cwd=None,
@@ -153,7 +152,7 @@ class MPISpawnPool(PoolBase):
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
-                cores=max_workers,
+                cores=max_ranks,
                 cores_per_task=ranks_per_task,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=False,

@@ -112,7 +112,7 @@ class Executor(ExecutorBase):
 class PoolExecutor(ExecutorBase):
     def __init__(
         self,
-        cores,
+        max_workers=1,
         oversubscribe=False,
         enable_flux_backend=False,
         cwd=None,
@@ -120,6 +120,6 @@ class PoolExecutor(ExecutorBase):
         super().__init__()
         self._process = Thread(
             target=execute_serial_tasks,
-            args=(self._future_queue, cores, oversubscribe, enable_flux_backend, cwd),
+            args=(self._future_queue, max_workers, oversubscribe, enable_flux_backend, cwd),
         )
         self._process.start()
