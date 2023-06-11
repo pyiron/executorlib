@@ -12,7 +12,7 @@ for the message passing interface (MPI) named [mpi4py](https://mpi4py.readthedoc
 advantages and disadvantages, in particular the mixing of MPI parallel python functions and serial python functions in
 combined workflows remains challenging. 
 
-To address this challenges `pympipool` is developed with three goals in mind: 
+To address these challenges `pympipool` is developed with three goals in mind: 
 * Reimplement the standard python library interfaces namely [`multiprocessing.pool.Pool`](https://docs.python.org/3/library/multiprocessing.html)
 and [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures) 
 as closely as possible, to minimize the barrier of up-scaling an existing workflow to be used on HPC resources. 
