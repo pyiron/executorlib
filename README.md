@@ -67,17 +67,16 @@ enabled by setting `oversubscribe` to `True`. For more details on the `pympipool
 extended documentation is linked below. 
 
 # Documentation
-* Installation 
-  * pypi-based installation
-  * conda-based installation
-* Interfaces 
-  * Pool
-  * Executor
-  * ParallelExecutor
-  * MPISpawnPool
-  * SocketInterface
-* Comparison
-* Development 
+* [Installation](https://pympipool.readthedocs.io/en/latest/installation.html) 
+  * [pypi-based installation](https://pympipool.readthedocs.io/en/latest/installation.html#pypi-based-installation)
+  * [conda-based installation](https://pympipool.readthedocs.io/en/latest/installation.html#conda-based-installation)
+* [Interfaces](https://pympipool.readthedocs.io/en/latest/interfaces.html) 
+  * [Pool](https://pympipool.readthedocs.io/en/latest/interfaces.html#pool)
+  * [Executor](https://pympipool.readthedocs.io/en/latest/interfaces.html#executor)
+  * [ParallelExecutor](https://pympipool.readthedocs.io/en/latest/interfaces.html#poolexecutor)
+  * [MPISpawnPool](https://pympipool.readthedocs.io/en/latest/interfaces.html#mpispawnpool)
+  * [SocketInterface](https://pympipool.readthedocs.io/en/latest/interfaces.html#socketinterface)
+* [Development](https://pympipool.readthedocs.io/en/latest/development.html) 
 
 # License
 `pympipool` is released under the BSD license https://github.com/pyiron/pympipool/blob/main/LICENSE . It is a spin-off of the `pyiron` project https://github.com/pyiron/pyiron therefore if you use `pympipool` for calculation which result in a scientific publication, please cite: 
