@@ -94,8 +94,9 @@ def call_funct(input_dict, funct=None, memory=None):
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):
     if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
         executor.shutdown(wait=input_dict["wait"])
+        done_dict = update_futures(future_dict=future_dict)
         # If close "shutdown" is communicated the process is shutdown.
-        return {"exit": True}
+        return {"exit": True, "result": done_dict}
     elif "fn" in input_dict.keys() and "iterable" in input_dict.keys():
         # If a function "fn" and a list or arguments "iterable" are communicated,
         # pympipool uses the map() function to apply the function on the list.
@@ -127,18 +128,25 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
     elif "update" in input_dict.keys():
         # If update "update" is communicated pympipool checks for asynchronously submitted
         # functions which have completed in the meantime and communicates their results.
-        done_dict = {
-            k: f.result()
-            for k, f in {k: future_dict[k] for k in input_dict["update"]}.items()
-            if f.done()
-        }
-        for k in done_dict.keys():
-            del future_dict[k]
+        done_dict = update_futures(future_dict=future_dict, hash_lst=input_dict["update"])
         return {"result": done_dict}
     elif "cancel" in input_dict.keys():
         for k in input_dict["cancel"]:
             future_dict[k].cancel()
         return {"result": True}
+
+
+def update_futures(future_dict, hash_lst=None):
+    if hash_lst is None:
+        hash_lst = list(future_dict.keys())
+    done_dict = {
+        k: f.result()
+        for k, f in {k: future_dict[k] for k in hash_lst}.items()
+        if f.done()
+    }
+    for k in done_dict.keys():
+        del future_dict[k]
+    return done_dict
 
 
 def update_dict_delta(dict_input, dict_output, keys_possible_lst):
