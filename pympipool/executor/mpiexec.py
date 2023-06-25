@@ -38,6 +38,7 @@ def main():
         # Parse input
         if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             if mpi_rank_zero:
+                socket.send(cloudpickle.dumps({"result": True}))
                 socket.close()
                 context.term()
             break
