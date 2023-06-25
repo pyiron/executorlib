@@ -128,7 +128,9 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
     elif "update" in input_dict.keys():
         # If update "update" is communicated pympipool checks for asynchronously submitted
         # functions which have completed in the meantime and communicates their results.
-        done_dict = update_futures(future_dict=future_dict, hash_lst=input_dict["update"])
+        done_dict = update_futures(
+            future_dict=future_dict, hash_lst=input_dict["update"]
+        )
         return {"result": done_dict}
     elif "cancel" in input_dict.keys():
         for k in input_dict["cancel"]:
