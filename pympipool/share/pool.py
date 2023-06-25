@@ -1,5 +1,3 @@
-from concurrent.futures import Future
-
 from pympipool.share.communication import SocketInterface
 from pympipool.share.serial import get_parallel_subprocess_command, cloudpickle_register
 
@@ -17,7 +15,7 @@ class PoolBase(object):
         self.shutdown(wait=True)
         return False
 
-    def shutdown(self, wait=True, *, cancel_futures=False):
+    def shutdown(self, wait=True):
         self._interface.shutdown(wait=wait)
 
 
