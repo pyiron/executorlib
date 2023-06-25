@@ -39,7 +39,7 @@ class TestExecutor(unittest.TestCase):
                 future_dict={},
                 cores_per_task=1
             )
-        self.assertEqual(output, "exit")
+        self.assertEqual(output, {"exit": True})
 
     def test_parse_socket_communication_execute(self):
         with ThreadPoolExecutor(max_workers=1) as executor:
