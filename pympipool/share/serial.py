@@ -95,7 +95,6 @@ def execute_parallel_tasks(
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
-            interface.send_dict(input_dict=task_dict)
             interface.shutdown(wait=True)
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
