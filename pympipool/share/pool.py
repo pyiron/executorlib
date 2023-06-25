@@ -1,5 +1,3 @@
-from concurrent.futures import Future
-
 from pympipool.share.communication import SocketInterface
 from pympipool.share.serial import get_parallel_subprocess_command, cloudpickle_register
 
