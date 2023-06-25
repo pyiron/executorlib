@@ -34,7 +34,7 @@ class TestWorkerMemory(unittest.TestCase):
         q = Queue()
         q.put({"init": True, "fn": set_global, "args": (), "kwargs": {}})
         q.put({"fn": get_global, 'args': (), "kwargs": {}, "future": f})
-        q.put({"shutdown": True})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_parallel_tasks(
             future_queue=q,
