@@ -134,17 +134,21 @@ def execute_serial_tasks(
                 f = task_dict.pop("future")
                 future_hash = interface.send_and_receive_dict(input_dict=task_dict)
                 future_dict[future_hash] = f
-        hash_to_update = [h for h, f in future_dict.items() if not f.done()]
-        hast_to_cancel = [h for h, f in future_dict.items() if f.cancelled()]
-        if len(hash_to_update) > 0:
-            for k, v in interface.send_and_receive_dict(
+        update_future_dict(interface=interface, future_dict=future_dict)
+
+
+def update_future_dict(interface, future_dict):
+    hash_to_update = [h for h, f in future_dict.items() if not f.done()]
+    hast_to_cancel = [h for h, f in future_dict.items() if f.cancelled()]
+    if len(hash_to_update) > 0:
+        for k, v in interface.send_and_receive_dict(
                 input_dict={"update": hash_to_update}
-            ).items():
-                future_dict.pop(k).set_result(v)
-        if len(hast_to_cancel) > 0:
-            if interface.send_and_receive_dict(input_dict={"cancel": hast_to_cancel}):
-                for h in hast_to_cancel:
-                    del future_dict[h]
+        ).items():
+            future_dict.pop(k).set_result(v)
+    if len(hast_to_cancel) > 0:
+        if interface.send_and_receive_dict(input_dict={"cancel": hast_to_cancel}):
+            for h in hast_to_cancel:
+                del future_dict[h]
 
 
 def cloudpickle_register(ind=2):
