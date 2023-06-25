@@ -73,7 +73,7 @@ class TestFuturePool(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc, 'args': (), "kwargs": {}, "future": f})
-        q.put({"shutdown": True})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -87,7 +87,7 @@ class TestFuturePool(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc, 'args': (), "kwargs": {"j": 4}, "future": f})
-        q.put({"shutdown": True})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -101,7 +101,7 @@ class TestFuturePool(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
-        q.put({"shutdown": True})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_parallel_tasks(
             future_queue=q,
@@ -115,7 +115,7 @@ class TestFuturePool(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
-        q.put({"shutdown": True})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_parallel_tasks(
             future_queue=q,
