@@ -93,11 +93,14 @@ def call_funct(input_dict, funct=None, memory=None):
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):
     if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
-        executor.shutdown(wait=input_dict["wait"])
-        # If close "c" is communicated the process is shutdown.
+        if "wait" in input_dict.keys():
+            executor.shutdown(wait=input_dict["wait"])
+        else:
+            executor.shutdown(wait=True)
+        # If close "shutdown" is communicated the process is shutdown.
         return "exit"
     elif "fn" in input_dict.keys() and "iterable" in input_dict.keys():
-        # If a function "f" and a list or arguments "l" are communicated,
+        # If a function "fn" and a list or arguments "iterable" are communicated,
         # pympipool uses the map() function to apply the function on the list.
         try:
             output = map_funct(
@@ -117,7 +120,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         and "args" in input_dict.keys()
         and "kwargs" in input_dict.keys()
     ):
-        # If a function "f" and either arguments "a" or keyword arguments "k" are
+        # If a function "fn", arguments "args" and keyword arguments "kwargs" are
         # communicated pympipool uses submit() to asynchronously apply the function
         # on the arguments and or keyword arguments.
         future = call_funct(input_dict=input_dict, funct=executor.submit)
@@ -125,7 +128,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         future_dict[future_hash] = future
         return {"result": future_hash}
     elif "update" in input_dict.keys():
-        # If update "u" is communicated pympipool checks for asynchronously submitted
+        # If update "update" is communicated pympipool checks for asynchronously submitted
         # functions which have completed in the meantime and communicates their results.
         done_dict = {
             k: f.result()
