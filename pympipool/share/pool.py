@@ -17,7 +17,7 @@ class PoolBase(object):
         self.shutdown(wait=True)
         return False
 
-    def shutdown(self, wait=True, *, cancel_futures=False):
+    def shutdown(self, wait=True):
         self._interface.shutdown(wait=wait)
 
 
