@@ -129,9 +129,10 @@ def execute_serial_tasks(
         else:
             if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
                 done_dict = interface.shutdown(wait=task_dict["wait"])
-                for k, v in done_dict.items():
-                    if k in future_dict.keys():
-                        future_dict.pop(k).set_result(v)
+                if isinstance(done_dict, dict):
+                    for k, v in done_dict.items():
+                        if k in future_dict.keys() and not future_dict[k].cancelled():
+                            future_dict.pop(k).set_result(v)
                 break
             elif "fn" in task_dict.keys() and "future" in task_dict.keys():
                 f = task_dict.pop("future")
