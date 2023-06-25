@@ -143,7 +143,7 @@ def update_futures(interface, future_dict):
     hast_to_cancel = [h for h, f in future_dict.items() if f.cancelled()]
     if len(hash_to_update) > 0:
         for k, v in interface.send_and_receive_dict(
-                input_dict={"update": hash_to_update}
+            input_dict={"update": hash_to_update}
         ).items():
             future_dict.pop(k).set_result(v)
     if len(hast_to_cancel) > 0:
