@@ -35,6 +35,7 @@ def main():
                     cores_per_task=int(argument_dict["cores_per_task"]),
                 )
                 if isinstance(output, str) and output == "exit":
+                    socket.send(cloudpickle.dumps({"result": True}))
                     socket.close()
                     context.term()
                     break
