@@ -35,7 +35,7 @@ class TestExecutor(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=1) as executor:
             output = parse_socket_communication(
                 executor=executor,
-                input_dict={"shutdown": True},
+                input_dict={"shutdown": True, "wait": True},
                 future_dict={},
                 cores_per_task=1
             )

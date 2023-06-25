@@ -93,10 +93,7 @@ def call_funct(input_dict, funct=None, memory=None):
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):
     if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
-        if "wait" in input_dict.keys():
-            executor.shutdown(wait=input_dict["wait"])
-        else:
-            executor.shutdown(wait=True)
+        executor.shutdown(wait=input_dict["wait"])
         # If close "shutdown" is communicated the process is shutdown.
         return "exit"
     elif "fn" in input_dict.keys() and "iterable" in input_dict.keys():
