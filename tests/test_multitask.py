@@ -16,6 +16,11 @@ def sleep_one(i):
     return i
 
 
+def wait_and_calc(n):
+    sleep(5)
+    return n ** 2
+
+
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
         with PoolExecutor(max_workers=1) as p:
@@ -32,7 +37,7 @@ class TestFuturePool(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
-        q.put({"shutdown": True})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_serial_tasks(
             future_queue=q,
@@ -63,7 +68,7 @@ class TestFuturePool(unittest.TestCase):
         fs1.cancel()
         q = Queue()
         q.put({"fn": sleep_one, 'args': (), "kwargs": {"i": 1}, "future": fs1})
-        q.put({"shutdown": True})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_serial_tasks(
             future_queue=q,
@@ -73,3 +78,11 @@ class TestFuturePool(unittest.TestCase):
         )
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
+
+    def test_waiting(self):
+        exe = PoolExecutor(max_workers=4)
+        f1 = exe.submit(wait_and_calc, 42)
+        f2 = exe.submit(wait_and_calc, 84)
+        f1.add_done_callback(print)
+        f2.add_done_callback(print)
+        exe.shutdown(wait=True)
