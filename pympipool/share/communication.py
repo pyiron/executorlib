@@ -40,7 +40,9 @@ class SocketInterface(object):
     def shutdown(self, wait=True):
         result = None
         if self._process is not None and self._process.poll() is None:
-            result = self.send_and_receive_dict(input_dict={"shutdown": True, "wait": wait})
+            result = self.send_and_receive_dict(
+                input_dict={"shutdown": True, "wait": wait}
+            )
             self._process_close(wait=wait)
         if self._socket is not None:
             self._socket.close()
