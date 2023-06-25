@@ -87,7 +87,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertTrue(fs1.cancelled())
 
     def test_waiting(self):
-        exe = PoolExecutor(max_workers=4)
+        exe = PoolExecutor(max_workers=2)
         f1 = exe.submit(wait_and_calc, 42)
         f2 = exe.submit(wait_and_calc, 84)
         f1.add_done_callback(call_back)
