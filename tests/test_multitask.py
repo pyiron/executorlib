@@ -17,7 +17,7 @@ def sleep_one(i):
 
 
 def wait_and_calc(n):
-    sleep(5)
+    sleep(1)
     return n ** 2
 
 
