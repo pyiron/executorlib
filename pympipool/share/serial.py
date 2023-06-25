@@ -107,7 +107,12 @@ def execute_parallel_tasks(
 
 
 def execute_serial_tasks(
-    future_queue, cores, oversubscribe=False, enable_flux_backend=False, cwd=None, sleep_interval=0.1
+    future_queue,
+    cores,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    cwd=None,
+    sleep_interval=0.1,
 ):
     future_dict = {}
     interface = SocketInterface()
@@ -135,7 +140,9 @@ def execute_serial_tasks(
                 f = task_dict.pop("future")
                 future_hash = interface.send_and_receive_dict(input_dict=task_dict)
                 future_dict[future_hash] = f
-        update_future_dict(interface=interface, future_dict=future_dict, sleep_interval=sleep_interval)
+        update_future_dict(
+            interface=interface, future_dict=future_dict, sleep_interval=sleep_interval
+        )
 
 
 def update_future_dict(interface, future_dict, sleep_interval=0.1):
