@@ -116,6 +116,7 @@ class PoolExecutor(ExecutorBase):
         oversubscribe=False,
         enable_flux_backend=False,
         cwd=None,
+        sleep_interval=0.1,
     ):
         super().__init__()
         self._process = Thread(
@@ -126,6 +127,7 @@ class PoolExecutor(ExecutorBase):
                 oversubscribe,
                 enable_flux_backend,
                 cwd,
+                sleep_interval,
             ),
         )
         self._process.start()
