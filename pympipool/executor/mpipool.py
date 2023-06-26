@@ -34,8 +34,11 @@ def main():
                     future_dict=future_dict,
                     cores_per_task=int(argument_dict["cores_per_task"]),
                 )
-                if "exit" in output and output["exit"]:
-                    socket.send(cloudpickle.dumps({"result": True}))
+                if "exit" in output.keys() and output["exit"]:
+                    if "result" in output.keys():
+                        socket.send(cloudpickle.dumps({"result": output["result"]}))
+                    else:
+                        socket.send(cloudpickle.dumps({"result": True}))
                     socket.close()
                     context.term()
                     break
