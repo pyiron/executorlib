@@ -4,7 +4,7 @@ import sys
 import cloudpickle
 
 from pympipool.share.communication import connect_to_socket_interface
-from pympipool.share.parallel import call_funct,  parse_arguments
+from pympipool.share.parallel import call_funct, parse_arguments
 
 
 def main():
