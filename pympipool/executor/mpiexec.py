@@ -3,7 +3,8 @@ import sys
 
 import cloudpickle
 
-from pympipool.share.parallel import call_funct, initialize_zmq, parse_arguments
+from pympipool.share.communication import connect_to_socket_interface
+from pympipool.share.parallel import call_funct,  parse_arguments
 
 
 def main():
@@ -19,7 +20,7 @@ def main():
 
     argument_dict = parse_arguments(argument_lst=sys.argv)
     if mpi_rank_zero:
-        context, socket = initialize_zmq(
+        context, socket = connect_to_socket_interface(
             host=argument_dict["host"], port=argument_dict["zmqport"]
         )
     else:

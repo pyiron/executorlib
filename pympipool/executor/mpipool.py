@@ -3,8 +3,8 @@ import sys
 
 import cloudpickle
 
+from pympipool.share.communication import connect_to_socket_interface
 from pympipool.share.parallel import (
-    initialize_zmq,
     parse_arguments,
     parse_socket_communication,
 )
@@ -24,7 +24,7 @@ def main():
     argument_dict = parse_arguments(argument_lst=sys.argv)
     with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
         if executor is not None:
-            context, socket = initialize_zmq(
+            context, socket = connect_to_socket_interface(
                 host=argument_dict["host"], port=argument_dict["zmqport"]
             )
             while True:

@@ -63,3 +63,10 @@ class SocketInterface(object):
 
     def __del__(self):
         self.shutdown(wait=True)
+
+
+def connect_to_socket_interface(host, port):
+    context = zmq.Context()
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://" + host + ":" + port)
+    return context, socket
