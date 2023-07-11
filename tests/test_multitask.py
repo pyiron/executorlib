@@ -55,7 +55,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(f.result(), np.array(4))
 
     def test_pool_cancel(self):
-        with PoolExecutor(max_workers=2) as p:
+        with PoolExecutor(max_workers=2, sleep_interval=0) as p:
             fs1 = p.submit(sleep_one, i=2)
             fs2 = p.submit(sleep_one, i=2)
             fs3 = p.submit(sleep_one, i=2)
