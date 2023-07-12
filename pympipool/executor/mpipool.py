@@ -3,7 +3,12 @@ import sys
 
 import cloudpickle
 
-from pympipool.share.communication import connect_to_socket_interface
+from pympipool.share.communication import (
+    connect_to_socket_interface,
+    send_result,
+    close_connection,
+    receive_instruction,
+)
 from pympipool.share.parallel import (
     parse_arguments,
     parse_socket_communication,
@@ -30,20 +35,21 @@ def main():
             while True:
                 output = parse_socket_communication(
                     executor=executor,
-                    input_dict=cloudpickle.loads(socket.recv()),
+                    input_dict=receive_instruction(socket=socket),
                     future_dict=future_dict,
                     cores_per_task=int(argument_dict["cores_per_task"]),
                 )
                 if "exit" in output.keys() and output["exit"]:
                     if "result" in output.keys():
-                        socket.send(cloudpickle.dumps({"result": output["result"]}))
+                        send_result(
+                            socket=socket, result_dict={"result": output["result"]}
+                        )
                     else:
-                        socket.send(cloudpickle.dumps({"result": True}))
-                    socket.close()
-                    context.term()
+                        send_result(socket=socket, result_dict={"result": True})
+                    close_connection(socket=socket, context=context)
                     break
                 elif isinstance(output, dict):
-                    socket.send(cloudpickle.dumps(output))
+                    send_result(socket=socket, result_dict=output)
 
 
 if __name__ == "__main__":
