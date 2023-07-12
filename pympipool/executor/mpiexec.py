@@ -7,7 +7,7 @@ from pympipool.share.communication import (
     connect_to_socket_interface,
     send_result,
     close_connection,
-    receive_instruction
+    receive_instruction,
 )
 from pympipool.share.parallel import call_funct, parse_arguments
 
@@ -64,15 +64,12 @@ def main():
                 if mpi_rank_zero:
                     send_result(
                         socket=socket,
-                        result_dict={"error": error, "error_type": str(type(error))}
+                        result_dict={"error": error, "error_type": str(type(error))},
                     )
             else:
                 # Send output
                 if mpi_rank_zero:
-                    send_result(
-                        socket=socket,
-                        result_dict={"result": output_reply}
-                    )
+                    send_result(socket=socket, result_dict={"result": output_reply})
         elif (
             "init" in input_dict.keys()
             and input_dict["init"]

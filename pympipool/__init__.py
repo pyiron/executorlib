@@ -5,7 +5,7 @@ from pympipool.share.communication import (
     connect_to_socket_interface,
     send_result,
     close_connection,
-    receive_instruction
+    receive_instruction,
 )
 from pympipool.share.serial import cancel_items_in_queue
 

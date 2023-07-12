@@ -7,7 +7,7 @@ from pympipool.share.communication import (
     connect_to_socket_interface,
     send_result,
     close_connection,
-    receive_instruction
+    receive_instruction,
 )
 from pympipool.share.parallel import (
     parse_arguments,
@@ -41,7 +41,9 @@ def main():
                 )
                 if "exit" in output.keys() and output["exit"]:
                     if "result" in output.keys():
-                        send_result(socket=socket, result_dict={"result": output["result"]})
+                        send_result(
+                            socket=socket, result_dict={"result": output["result"]}
+                        )
                     else:
                         send_result(socket=socket, result_dict={"result": True})
                     close_connection(socket=socket, context=context)
