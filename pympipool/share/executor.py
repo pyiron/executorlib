@@ -100,7 +100,13 @@ class Executor(ExecutorBase):
         super().__init__()
         self._process = Thread(
             target=execute_parallel_tasks,
-            args=(self._future_queue, cores, oversubscribe, enable_flux_backend, cwd),
+            kwargs={
+                "future_queue": self._future_queue,
+                "cores": cores,
+                "oversubscribe": oversubscribe,
+                "enable_flux_backend": enable_flux_backend,
+                "cwd": cwd,
+            },
         )
         self._process.start()
         if init_function is not None:
@@ -121,13 +127,13 @@ class PoolExecutor(ExecutorBase):
         super().__init__()
         self._process = Thread(
             target=execute_serial_tasks,
-            args=(
-                self._future_queue,
-                max_workers,
-                oversubscribe,
-                enable_flux_backend,
-                cwd,
-                sleep_interval,
-            ),
+            kwargs={
+                "future_queue": self._future_queue,
+                "cores": max_workers,
+                "oversubscribe": oversubscribe,
+                "enable_flux_backend": enable_flux_backend,
+                "cwd": cwd,
+                "sleep_interval": sleep_interval,
+            },
         )
         self._process.start()
