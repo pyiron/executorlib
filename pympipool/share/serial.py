@@ -158,7 +158,7 @@ def execute_serial_tasks(
         interface=interface,
         future_queue=future_queue,
         future_dict=future_dict,
-        sleep_interval=sleep_interval
+        sleep_interval=sleep_interval,
     )
 
 
