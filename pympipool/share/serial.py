@@ -116,9 +116,17 @@ def execute_serial_tasks_loop(interface, future_queue, future_dict, sleep_interv
 
 
 def execute_parallel_tasks(
-    future_queue, cores, oversubscribe=False, enable_flux_backend=False, cwd=None
+    future_queue,
+    cores,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    cwd=None,
+    queue_adapter=None,
+    queue_adapter_kwargs=None,
 ):
-    interface = SocketInterface()
+    interface = SocketInterface(
+        queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+    )
     interface.bootup(
         command_lst=get_parallel_subprocess_command(
             port_selected=interface.bind_to_random_port(),
@@ -141,9 +149,13 @@ def execute_serial_tasks(
     enable_flux_backend=False,
     cwd=None,
     sleep_interval=0.1,
+    queue_adapter=None,
+    queue_adapter_kwargs=None,
 ):
     future_dict = {}
-    interface = SocketInterface()
+    interface = SocketInterface(
+        queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+    )
     interface.bootup(
         command_lst=get_parallel_subprocess_command(
             port_selected=interface.bind_to_random_port(),

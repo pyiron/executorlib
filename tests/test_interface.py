@@ -12,7 +12,7 @@ class TestInterface(unittest.TestCase):
     def test_interface(self):
         cloudpickle_register(ind=1)
         task_dict = {"fn": calc, 'args': (), "kwargs": {"i": 2}}
-        interface = SocketInterface()
+        interface = SocketInterface(queue_adapter=None, queue_adapter_kwargs=None)
         interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=interface.bind_to_random_port(),
