@@ -27,6 +27,7 @@ class Pool(PoolBase):
             print(p.map(func=calc, iterable=[1, 2, 3, 4]))
         ```
     """
+
     def __init__(
         self,
         max_workers=1,
@@ -49,7 +50,7 @@ class Pool(PoolBase):
             queue_adapter.submit(
                 working_directory=cwd,
                 cores=max_workers,
-                command=' '.join(command_lst),
+                command=" ".join(command_lst),
                 **queue_adapter_kwargs
             )
         else:
@@ -83,6 +84,7 @@ class MPISpawnPool(MPISpawnPoolBase):
             print(p.map(func=calc, iterable=[1, 2, 3, 4]))
         ```
     """
+
     def __init__(
         self,
         max_ranks=1,
@@ -105,7 +107,7 @@ class MPISpawnPool(MPISpawnPoolBase):
             queue_adapter.submit(
                 working_directory=cwd,
                 cores=max_ranks,
-                command=' '.join(command_lst),
+                command=" ".join(command_lst),
                 **queue_adapter_kwargs
             )
         else:

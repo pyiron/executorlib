@@ -31,7 +31,7 @@ def execute_parallel_tasks(
         queue_adapter.submit(
             working_directory=cwd,
             cores=cores,
-            command=' '.join(command_lst),
+            command=" ".join(command_lst),
             **queue_adapter_kwargs
         )
     else:
@@ -63,7 +63,7 @@ def execute_serial_tasks(
         queue_adapter.submit(
             working_directory=cwd,
             cores=cores,
-            command=' '.join(command_lst),
+            command=" ".join(command_lst),
             **queue_adapter_kwargs
         )
     else:
@@ -133,7 +133,7 @@ class QueueExecutor(ExecutorBase):
                 enable_flux_backend,
                 cwd,
                 queue_adapter,
-                queue_adapter_kwargs
+                queue_adapter_kwargs,
             ),
         )
         self._process.start()
