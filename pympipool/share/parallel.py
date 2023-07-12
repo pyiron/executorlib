@@ -21,13 +21,6 @@ def parse_arguments(argument_lst):
     return parse_dict
 
 
-def initialize_zmq(host, port):
-    context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
-    socket.connect("tcp://" + host + ":" + port)
-    return context, socket
-
-
 def wrap(funct, number_of_cores_per_communicator=1):
     def functwrapped(*args, **kwargs):
         from mpi4py import MPI
