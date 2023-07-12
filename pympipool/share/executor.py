@@ -109,7 +109,7 @@ class Executor(ExecutorBase):
                 "enable_flux_backend": enable_flux_backend,
                 "cwd": cwd,
                 "queue_adapter": queue_adapter,
-                "queue_adapter_kwargs": queue_adapter_kwargs
+                "queue_adapter_kwargs": queue_adapter_kwargs,
             },
         )
         self._process.start()
