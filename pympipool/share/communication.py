@@ -5,10 +5,12 @@ import zmq
 
 
 class SocketInterface(object):
-    def __init__(self):
+    def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
+        self._queue_adapter = queue_adapter
+        self._queue_adapter_kwargs = queue_adapter_kwargs
 
     def send_dict(self, input_dict):
         self._socket.send(cloudpickle.dumps(input_dict))
@@ -28,14 +30,22 @@ class SocketInterface(object):
     def bind_to_random_port(self):
         return self._socket.bind_to_random_port("tcp://*")
 
-    def bootup(self, command_lst, cwd=None):
-        self._process = subprocess.Popen(
-            args=command_lst,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            cwd=cwd,
-        )
+    def bootup(self, command_lst, cwd=None, cores=None):
+        if self._queue_adapter is not None:
+            self._queue_adapter.submit(
+                working_directory=cwd,
+                cores=cores,
+                command=" ".join(command_lst),
+                **self._queue_adapter_kwargs
+            )
+        else:
+            self._process = subprocess.Popen(
+                args=command_lst,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                cwd=cwd,
+            )
 
     def shutdown(self, wait=True):
         result = None

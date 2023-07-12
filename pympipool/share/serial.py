@@ -129,6 +129,7 @@ def execute_parallel_tasks(
             enable_mpi4py_backend=False,
         ),
         cwd=cwd,
+        cores=cores,
     )
     execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
@@ -153,6 +154,7 @@ def execute_serial_tasks(
             enable_mpi4py_backend=True,
         ),
         cwd=cwd,
+        cores=cores,
     )
     execute_serial_tasks_loop(
         interface=interface,
