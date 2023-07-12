@@ -3,7 +3,12 @@ import sys
 
 import cloudpickle
 
-from pympipool.share.communication import connect_to_socket_interface
+from pympipool.share.communication import (
+    connect_to_socket_interface,
+    send_result,
+    close_connection,
+    receive_instruction
+)
 from pympipool.share.parallel import call_funct, parse_arguments
 
 
@@ -31,7 +36,7 @@ def main():
     while True:
         # Read from socket
         if mpi_rank_zero:
-            input_dict = cloudpickle.loads(socket.recv())
+            input_dict = receive_instruction(socket=socket)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
@@ -39,9 +44,8 @@ def main():
         # Parse input
         if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             if mpi_rank_zero:
-                socket.send(cloudpickle.dumps({"result": True}))
-                socket.close()
-                context.term()
+                send_result(socket=socket, result_dict={"result": True})
+                close_connection(socket=socket, context=context)
             break
         elif (
             "fn" in input_dict.keys()
@@ -58,15 +62,17 @@ def main():
                     output_reply = output
             except Exception as error:
                 if mpi_rank_zero:
-                    socket.send(
-                        cloudpickle.dumps(
-                            {"error": error, "error_type": str(type(error))}
-                        )
+                    send_result(
+                        socket=socket,
+                        result_dict={"error": error, "error_type": str(type(error))}
                     )
             else:
                 # Send output
                 if mpi_rank_zero:
-                    socket.send(cloudpickle.dumps({"result": output_reply}))
+                    send_result(
+                        socket=socket,
+                        result_dict={"result": output_reply}
+                    )
         elif (
             "init" in input_dict.keys()
             and input_dict["init"]
