@@ -18,7 +18,7 @@ def command_line_options(
     oversubscribe=False,
     enable_flux_backend=False,
     enable_mpi4py_backend=True,
-    enable_multi_host=False
+    enable_multi_host=False,
 ):
     if enable_flux_backend:
         command_lst = ["flux", "run"]
