@@ -43,6 +43,7 @@ class Pool(PoolBase):
         max_workers (int): defines the total number of MPI ranks to use
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
         enable_flux_backend (bool): use the flux-framework as backend
+        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
         cwd (str/None): current working directory where the parallel python task is executed
         queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
         queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
@@ -65,6 +66,7 @@ class Pool(PoolBase):
         max_workers=1,
         oversubscribe=False,
         enable_flux_backend=False,
+        enable_slurm_backend=False,
         cwd=None,
         queue_adapter=None,
         queue_adapter_kwargs=None,
@@ -79,6 +81,7 @@ class Pool(PoolBase):
                 cores_per_task=1,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=enable_flux_backend,
+                enable_slurm_backend=enable_slurm_backend,
                 enable_mpi4py_backend=True,
                 enable_multi_host=queue_adapter is not None,
             ),
@@ -182,6 +185,7 @@ class MPISpawnPool(PoolBase):
                 cores_per_task=ranks_per_task,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=False,
+                enable_slurm_backend=False,
                 enable_mpi4py_backend=True,
                 enable_multi_host=queue_adapter is not None,
             ),

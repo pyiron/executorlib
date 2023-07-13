@@ -70,6 +70,7 @@ class Executor(ExecutorBase):
         cores (int): defines the number of MPI ranks to use for each function call
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         enable_flux_backend (bool): use the flux-framework as backend rather than just calling mpiexec
+        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
@@ -102,6 +103,7 @@ class Executor(ExecutorBase):
         cores,
         oversubscribe=False,
         enable_flux_backend=False,
+        enable_slurm_backend=False,
         init_function=None,
         cwd=None,
         queue_adapter=None,
@@ -115,6 +117,7 @@ class Executor(ExecutorBase):
                 "cores": cores,
                 "oversubscribe": oversubscribe,
                 "enable_flux_backend": enable_flux_backend,
+                "enable_slurm_backend": enable_slurm_backend,
                 "cwd": cwd,
                 "queue_adapter": queue_adapter,
                 "queue_adapter_kwargs": queue_adapter_kwargs,
@@ -140,6 +143,7 @@ class PoolExecutor(ExecutorBase):
         max_workers (int): defines the total number of MPI ranks to use
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         enable_flux_backend (bool): use the flux-framework as backend rather than just calling mpiexec
+        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
         cwd (str/None): current working directory where the parallel python task is executed
         sleep_interval (float):
         queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
@@ -166,6 +170,7 @@ class PoolExecutor(ExecutorBase):
         max_workers=1,
         oversubscribe=False,
         enable_flux_backend=False,
+        enable_slurm_backend=False,
         cwd=None,
         sleep_interval=0.1,
         queue_adapter=None,
@@ -179,6 +184,7 @@ class PoolExecutor(ExecutorBase):
                 "cores": max_workers,
                 "oversubscribe": oversubscribe,
                 "enable_flux_backend": enable_flux_backend,
+                "enable_slurm_backend": enable_slurm_backend,
                 "cwd": cwd,
                 "sleep_interval": sleep_interval,
                 "queue_adapter": queue_adapter,

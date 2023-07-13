@@ -105,10 +105,24 @@ def execute_parallel_tasks(
     cores,
     oversubscribe=False,
     enable_flux_backend=False,
+    enable_slurm_backend=False,
     cwd=None,
     queue_adapter=None,
     queue_adapter_kwargs=None,
 ):
+    """
+    Execute a single tasks in parallel using the message passing interface (MPI).
+
+    Args:
+       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+       cores (int): defines the total number of MPI ranks to use
+       oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
+       enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
+       enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
+       cwd (str/None): current working directory where the parallel python task is executed
+       queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
+       queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
+   """
     interface = SocketInterface(
         queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
     )
@@ -119,6 +133,7 @@ def execute_parallel_tasks(
             cores_per_task=1,
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
+            enable_slurm_backend=enable_slurm_backend,
             enable_mpi4py_backend=False,
             enable_multi_host=queue_adapter is not None,
         ),
@@ -133,11 +148,26 @@ def execute_serial_tasks(
     cores,
     oversubscribe=False,
     enable_flux_backend=False,
+    enable_slurm_backend=False,
     cwd=None,
     sleep_interval=0.1,
     queue_adapter=None,
     queue_adapter_kwargs=None,
 ):
+    """
+    Execute a single tasks in serial.
+
+    Args:
+       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+       cores (int): defines the total number of MPI ranks to use
+       oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
+       enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
+       enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
+       cwd (str/None): current working directory where the parallel python task is executed
+       sleep_interval (float):
+       queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
+       queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
+    """
     future_dict = {}
     interface = SocketInterface(
         queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
@@ -149,6 +179,7 @@ def execute_serial_tasks(
             cores_per_task=1,
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
+            enable_slurm_backend=enable_slurm_backend,
             enable_mpi4py_backend=True,
             enable_multi_host=queue_adapter is not None,
         ),
