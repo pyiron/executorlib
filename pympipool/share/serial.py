@@ -18,6 +18,7 @@ def command_line_options(
     oversubscribe=False,
     enable_flux_backend=False,
     enable_mpi4py_backend=True,
+    enable_multi_host=False
 ):
     if enable_flux_backend:
         command_lst = ["flux", "run"]
@@ -34,7 +35,7 @@ def command_line_options(
     else:
         command_lst += ["-n", str(cores), "python"]
     command_lst += [path]
-    if enable_flux_backend:
+    if enable_flux_backend or enable_multi_host:
         command_lst += [
             "--host",
             hostname,
@@ -60,6 +61,7 @@ def get_parallel_subprocess_command(
     oversubscribe=False,
     enable_flux_backend=False,
     enable_mpi4py_backend=True,
+    enable_multi_host=False,
 ):
     if enable_mpi4py_backend:
         executable = "mpipool.py"
@@ -74,6 +76,7 @@ def get_parallel_subprocess_command(
         oversubscribe=oversubscribe,
         enable_flux_backend=enable_flux_backend,
         enable_mpi4py_backend=enable_mpi4py_backend,
+        enable_multi_host=enable_multi_host,
     )
     return command_lst
 
@@ -135,6 +138,7 @@ def execute_parallel_tasks(
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
             enable_mpi4py_backend=False,
+            enable_multi_host=queue_adapter is not None,
         ),
         cwd=cwd,
         cores=cores,
@@ -164,6 +168,7 @@ def execute_serial_tasks(
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
             enable_mpi4py_backend=True,
+            enable_multi_host=queue_adapter is not None,
         ),
         cwd=cwd,
         cores=cores,
