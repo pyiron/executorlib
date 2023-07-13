@@ -3,9 +3,11 @@ from pympipool.share.serial import get_parallel_subprocess_command, cloudpickle_
 
 
 class PoolBase(object):
-    def __init__(self):
+    def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
         self._future_dict = {}
-        self._interface = SocketInterface()
+        self._interface = SocketInterface(
+            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+        )
         cloudpickle_register(ind=3)
 
     def __enter__(self):
@@ -51,8 +53,12 @@ class Pool(PoolBase):
         oversubscribe=False,
         enable_flux_backend=False,
         cwd=None,
+        queue_adapter=None,
+        queue_adapter_kwargs=None,
     ):
-        super().__init__()
+        super().__init__(
+            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+        )
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
@@ -61,8 +67,10 @@ class Pool(PoolBase):
                 oversubscribe=oversubscribe,
                 enable_flux_backend=enable_flux_backend,
                 enable_mpi4py_backend=True,
+                enable_multi_host=queue_adapter is not None,
             ),
             cwd=cwd,
+            cores=max_workers,
         )
 
     def map(self, func, iterable, chunksize=None):
@@ -145,8 +153,12 @@ class MPISpawnPool(PoolBase):
         ranks_per_task=1,
         oversubscribe=False,
         cwd=None,
+        queue_adapter=None,
+        queue_adapter_kwargs=None,
     ):
-        super().__init__()
+        super().__init__(
+            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+        )
         self._interface.bootup(
             command_lst=get_parallel_subprocess_command(
                 port_selected=self._interface.bind_to_random_port(),
@@ -155,8 +167,10 @@ class MPISpawnPool(PoolBase):
                 oversubscribe=oversubscribe,
                 enable_flux_backend=False,
                 enable_mpi4py_backend=True,
+                enable_multi_host=queue_adapter is not None,
             ),
             cwd=cwd,
+            cores=max_ranks,
         )
 
     def map(self, func, iterable, chunksize=None):

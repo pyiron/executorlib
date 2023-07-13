@@ -96,6 +96,8 @@ class Executor(ExecutorBase):
         enable_flux_backend=False,
         init_function=None,
         cwd=None,
+        queue_adapter=None,
+        queue_adapter_kwargs=None,
     ):
         super().__init__()
         self._process = Thread(
@@ -106,6 +108,8 @@ class Executor(ExecutorBase):
                 "oversubscribe": oversubscribe,
                 "enable_flux_backend": enable_flux_backend,
                 "cwd": cwd,
+                "queue_adapter": queue_adapter,
+                "queue_adapter_kwargs": queue_adapter_kwargs,
             },
         )
         self._process.start()
@@ -123,6 +127,8 @@ class PoolExecutor(ExecutorBase):
         enable_flux_backend=False,
         cwd=None,
         sleep_interval=0.1,
+        queue_adapter=None,
+        queue_adapter_kwargs=None,
     ):
         super().__init__()
         self._process = Thread(
@@ -134,6 +140,8 @@ class PoolExecutor(ExecutorBase):
                 "enable_flux_backend": enable_flux_backend,
                 "cwd": cwd,
                 "sleep_interval": sleep_interval,
+                "queue_adapter": queue_adapter,
+                "queue_adapter_kwargs": queue_adapter_kwargs,
             },
         )
         self._process.start()
