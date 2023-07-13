@@ -1,5 +1,3 @@
-from pympipool.external_interfaces.pool import Pool, MPISpawnPool
-from pympipool.external_interfaces.executor import Executor, PoolExecutor
 from pympipool.external_interfaces.communication import (
     SocketInterface,
     connect_to_socket_interface,
@@ -7,6 +5,8 @@ from pympipool.external_interfaces.communication import (
     close_connection,
     receive_instruction,
 )
+from pympipool.external_interfaces.executor import Executor, PoolExecutor
+from pympipool.external_interfaces.pool import Pool, MPISpawnPool
 from pympipool.shared_functions.serial import cancel_items_in_queue
 
 from ._version import get_versions
