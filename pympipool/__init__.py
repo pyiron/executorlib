@@ -1,4 +1,5 @@
 from pympipool.external_interfaces.pool import Pool, MPISpawnPool
+from pympipool.external_interfaces.executor import Executor, PoolExecutor
 from pympipool.external_interfaces.communication import (
     SocketInterface,
     connect_to_socket_interface,
