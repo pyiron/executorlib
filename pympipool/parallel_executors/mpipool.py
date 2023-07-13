@@ -9,7 +9,7 @@ from pympipool.external_interfaces.communication import (
     close_connection,
     receive_instruction,
 )
-from pympipool.shared_functions.parallel import (
+from pympipool.shared_functions.parallel_executors import (
     parse_arguments,
     parse_socket_communication,
 )

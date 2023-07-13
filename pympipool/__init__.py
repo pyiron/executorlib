@@ -7,7 +7,7 @@ from pympipool.external_interfaces.communication import (
 )
 from pympipool.external_interfaces.executor import Executor, PoolExecutor
 from pympipool.external_interfaces.pool import Pool, MPISpawnPool
-from pympipool.shared_functions.serial import cancel_items_in_queue
+from pympipool.shared_functions.external_interfaces import cancel_items_in_queue
 
 from ._version import get_versions
 

@@ -1,7 +1,7 @@
 from abc import ABC
 
 from pympipool.external_interfaces.communication import SocketInterface
-from pympipool.shared_functions.serial import (
+from pympipool.shared_functions.external_interfaces import (
     get_parallel_subprocess_command,
     cloudpickle_register,
 )

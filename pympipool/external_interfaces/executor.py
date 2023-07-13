@@ -3,7 +3,7 @@ from concurrent.futures import Executor as FutureExecutor, Future
 from queue import Queue
 from threading import Thread
 
-from pympipool.shared_functions.serial import (
+from pympipool.shared_functions.external_interfaces import (
     execute_parallel_tasks,
     execute_serial_tasks,
     cloudpickle_register,

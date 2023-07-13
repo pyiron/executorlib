@@ -9,7 +9,7 @@ from pympipool.external_interfaces.communication import (
     close_connection,
     receive_instruction,
 )
-from pympipool.shared_functions.parallel import call_funct, parse_arguments
+from pympipool.shared_functions.parallel_executors import call_funct, parse_arguments
 
 
 def main():
