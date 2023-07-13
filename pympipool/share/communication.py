@@ -32,7 +32,7 @@ class SocketInterface(object):
 
     def bootup(self, command_lst, cwd=None, cores=None):
         if self._queue_adapter is not None:
-            self._queue_adapter.submit(
+            self._queue_adapter.submit_job(
                 working_directory=cwd,
                 cores=cores,
                 command=" ".join(command_lst),
