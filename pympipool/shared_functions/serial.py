@@ -122,7 +122,7 @@ def execute_parallel_tasks(
        cwd (str/None): current working directory where the parallel python task is executed
        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
-   """
+    """
     interface = SocketInterface(
         queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
     )
