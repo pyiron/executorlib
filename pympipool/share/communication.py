@@ -54,6 +54,10 @@ class SocketInterface(object):
                 input_dict={"shutdown": True, "wait": wait}
             )
             self._process_close(wait=wait)
+        elif self._queue_adapter is not None and self._socket is not None:
+            result = self.send_and_receive_dict(
+                input_dict={"shutdown": True, "wait": wait}
+            )
         if self._socket is not None:
             self._socket.close()
         if self._context is not None:
