@@ -1,8 +1,18 @@
-from pympipool.share.communication import SocketInterface
-from pympipool.share.serial import get_parallel_subprocess_command, cloudpickle_register
+from abc import ABC
+
+from pympipool.external_interfaces.communication import SocketInterface
+from pympipool.shared_functions.serial import (
+    get_parallel_subprocess_command,
+    cloudpickle_register,
+)
 
 
-class PoolBase(object):
+class PoolBase(ABC):
+    """
+    Base class for the Pool and MPISpawnPool classes defined below. The PoolBase class is not intended to be used
+    alone. Rather it implements the __enter__(), __exit__() and shutdown() function shared between the derived classes.
+    """
+
     def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
         self._future_dict = {}
         self._interface = SocketInterface(
@@ -31,8 +41,11 @@ class Pool(PoolBase):
 
     Args:
         max_workers (int): defines the total number of MPI ranks to use
-        cores_per_task (int): defines the number of MPI ranks per task
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
+        enable_flux_backend (bool): use the flux-framework as backend
+        cwd (str/None): current working directory where the parallel python task is executed
+        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
+        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
     Simple example:
         ```
@@ -134,6 +147,9 @@ class MPISpawnPool(PoolBase):
         max_ranks (int): defines the total number of MPI ranks to use
         ranks_per_task (int): defines the number of MPI ranks per task
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
+        cwd (str/None): current working directory where the parallel python task is executed
+        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
+        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
     Simple example:
         ```

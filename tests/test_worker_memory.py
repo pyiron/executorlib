@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 from queue import Queue
 from pympipool import Executor
-from pympipool.share.parallel import call_funct
-from pympipool.share.serial import execute_parallel_tasks, cloudpickle_register
+from pympipool.shared_functions.parallel import call_funct
+from pympipool.shared_functions.serial import execute_parallel_tasks, cloudpickle_register
 from concurrent.futures import Future
 
 
