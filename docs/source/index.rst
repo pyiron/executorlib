@@ -36,3 +36,5 @@ Documentation
    installation
    interfaces
    development
+
+* :ref:`modindex`
