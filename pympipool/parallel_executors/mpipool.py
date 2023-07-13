@@ -3,13 +3,13 @@ import sys
 
 import cloudpickle
 
-from pympipool.share.communication import (
+from pympipool.external_interfaces.communication import (
     connect_to_socket_interface,
     send_result,
     close_connection,
     receive_instruction,
 )
-from pympipool.share.parallel import (
+from pympipool.shared_functions.parallel_executors import (
     parse_arguments,
     parse_socket_communication,
 )

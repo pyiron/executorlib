@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
-from pympipool.share.communication import SocketInterface
-from pympipool.share.serial import get_parallel_subprocess_command, cloudpickle_register
+from pympipool.external_interfaces.communication import SocketInterface
+from pympipool.shared_functions.external_interfaces import get_parallel_subprocess_command, cloudpickle_register
 
 
 def calc(i):

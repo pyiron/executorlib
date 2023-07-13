@@ -1,8 +1,65 @@
 import inspect
+
 from tqdm import tqdm
 
 
+def call_funct(input_dict, funct=None, memory=None):
+    if funct is None:
+
+        def funct(*args, **kwargs):
+            return args[0].__call__(*args[1:], **kwargs)
+
+    funct_args = inspect.getfullargspec(input_dict["fn"]).args
+    if memory is not None:
+        input_dict["kwargs"].update(
+            _update_dict_delta(
+                dict_input=memory,
+                dict_output=input_dict["kwargs"],
+                keys_possible_lst=funct_args,
+            )
+        )
+    return funct(input_dict["fn"], *input_dict["args"], **input_dict["kwargs"])
+
+
+def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True):
+    if cores_per_task == 1:
+        if map_flag:
+            results = executor.map(funct, lst, chunksize=chunksize)
+        else:
+            results = executor.starmap(funct, lst, chunksize=chunksize)
+        return list(tqdm(results, desc="Tasks", total=len(lst)))
+    else:
+        lst_parallel = []
+        for input_parameter in lst:
+            for _ in range(cores_per_task):
+                lst_parallel.append(input_parameter)
+        if map_flag:
+            results = executor.map(
+                _wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+                lst_parallel,
+                chunksize=chunksize,
+            )
+        else:
+            results = executor.starmap(
+                _wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
+                lst_parallel,
+                chunksize=chunksize,
+            )
+        return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
+            ::cores_per_task
+        ]
+
+
 def parse_arguments(argument_lst):
+    """
+    Simple function to parse command line arguments
+
+    Args:
+        argument_lst (list): list of arguments as strings
+
+    Returns:
+        dict: dictionary with the parsed arguments and their corresponding values
+    """
     argument_dict = {
         "total_cores": "--cores-total",
         "zmqport": "--zmqport",
@@ -20,73 +77,10 @@ def parse_arguments(argument_lst):
     return parse_dict
 
 
-def wrap(funct, number_of_cores_per_communicator=1):
-    def functwrapped(*args, **kwargs):
-        from mpi4py import MPI
-
-        MPI.COMM_WORLD.Barrier()
-        rank = MPI.COMM_WORLD.Get_rank()
-        comm_new = MPI.COMM_WORLD.Split(
-            rank // number_of_cores_per_communicator,
-            rank % number_of_cores_per_communicator,
-        )
-        comm_new.Barrier()
-        return funct(*args, comm=comm_new, **kwargs)
-
-    return functwrapped
-
-
-def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True):
-    if cores_per_task == 1:
-        if map_flag:
-            results = executor.map(funct, lst, chunksize=chunksize)
-        else:
-            results = executor.starmap(funct, lst, chunksize=chunksize)
-        return list(tqdm(results, desc="Tasks", total=len(lst)))
-    else:
-        lst_parallel = []
-        for input_parameter in lst:
-            for _ in range(cores_per_task):
-                lst_parallel.append(input_parameter)
-        if map_flag:
-            results = executor.map(
-                wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-                lst_parallel,
-                chunksize=chunksize,
-            )
-        else:
-            results = executor.starmap(
-                wrap(funct=funct, number_of_cores_per_communicator=cores_per_task),
-                lst_parallel,
-                chunksize=chunksize,
-            )
-        return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
-            ::cores_per_task
-        ]
-
-
-def call_funct(input_dict, funct=None, memory=None):
-    if funct is None:
-
-        def funct(*args, **kwargs):
-            return args[0].__call__(*args[1:], **kwargs)
-
-    funct_args = inspect.getfullargspec(input_dict["fn"]).args
-    if memory is not None:
-        input_dict["kwargs"].update(
-            update_dict_delta(
-                dict_input=memory,
-                dict_output=input_dict["kwargs"],
-                keys_possible_lst=funct_args,
-            )
-        )
-    return funct(input_dict["fn"], *input_dict["args"], **input_dict["kwargs"])
-
-
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):
     if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
         executor.shutdown(wait=input_dict["wait"])
-        done_dict = update_futures(future_dict=future_dict)
+        done_dict = _update_futures(future_dict=future_dict)
         # If close "shutdown" is communicated the process is shutdown.
         if done_dict is not None and len(done_dict) > 0:
             return {"exit": True, "result": done_dict}
@@ -123,7 +117,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
     elif "update" in input_dict.keys():
         # If update "update" is communicated pympipool checks for asynchronously submitted
         # functions which have completed in the meantime and communicates their results.
-        done_dict = update_futures(
+        done_dict = _update_futures(
             future_dict=future_dict, hash_lst=input_dict["update"]
         )
         return {"result": done_dict}
@@ -133,7 +127,7 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         return {"result": True}
 
 
-def update_dict_delta(dict_input, dict_output, keys_possible_lst):
+def _update_dict_delta(dict_input, dict_output, keys_possible_lst):
     return {
         k: v
         for k, v in dict_input.items()
@@ -141,7 +135,7 @@ def update_dict_delta(dict_input, dict_output, keys_possible_lst):
     }
 
 
-def update_futures(future_dict, hash_lst=None):
+def _update_futures(future_dict, hash_lst=None):
     if hash_lst is None:
         hash_lst = list(future_dict.keys())
     done_dict = {
@@ -152,3 +146,19 @@ def update_futures(future_dict, hash_lst=None):
     for k in done_dict.keys():
         del future_dict[k]
     return done_dict
+
+
+def _wrap(funct, number_of_cores_per_communicator=1):
+    def functwrapped(*args, **kwargs):
+        from mpi4py import MPI
+
+        MPI.COMM_WORLD.Barrier()
+        rank = MPI.COMM_WORLD.Get_rank()
+        comm_new = MPI.COMM_WORLD.Split(
+            rank // number_of_cores_per_communicator,
+            rank % number_of_cores_per_communicator,
+        )
+        comm_new.Barrier()
+        return funct(*args, comm=comm_new, **kwargs)
+
+    return functwrapped
