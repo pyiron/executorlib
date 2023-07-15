@@ -24,6 +24,10 @@ def mpi_funct(i):
     return i, size, rank
 
 
+def raise_error():
+    raise RuntimeError
+
+
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
         with Executor(cores=1) as p:
@@ -52,6 +56,11 @@ class TestFuturePool(unittest.TestCase):
         with Executor(cores=1) as p:
             output = p.map(calc, [1, 2, 3])
         self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
+
+    def test_executor_exception(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(cores=1) as p:
+                p.submit(raise_error)
 
     def test_pool_multi_core(self):
         with Executor(cores=2) as p:
