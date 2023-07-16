@@ -8,7 +8,7 @@ from pympipool.shared_functions.external_interfaces import (
     cloudpickle_register,
     cancel_items_in_queue,
 )
-from pympipool.shared_functions.thread import RaisingThread
+from pympipool.external_interfaces.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor, ABC):
