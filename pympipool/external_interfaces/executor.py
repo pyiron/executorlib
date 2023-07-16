@@ -2,13 +2,13 @@ from abc import ABC
 from concurrent.futures import Executor as FutureExecutor, Future
 from queue import Queue
 
+from pympipool.external_interfaces.thread import RaisingThread
 from pympipool.shared_functions.external_interfaces import (
     execute_parallel_tasks,
     execute_serial_tasks,
     cloudpickle_register,
     cancel_items_in_queue,
 )
-from pympipool.external_interfaces.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor, ABC):
