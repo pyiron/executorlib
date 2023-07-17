@@ -1,8 +1,8 @@
 from abc import ABC
 from concurrent.futures import Executor as FutureExecutor, Future
 from queue import Queue
-from threading import Thread
 
+from pympipool.external_interfaces.thread import RaisingThread
 from pympipool.shared_functions.external_interfaces import (
     execute_parallel_tasks,
     execute_serial_tasks,
@@ -110,7 +110,7 @@ class Executor(ExecutorBase):
         queue_adapter_kwargs=None,
     ):
         super().__init__()
-        self._process = Thread(
+        self._process = RaisingThread(
             target=execute_parallel_tasks,
             kwargs={
                 "future_queue": self._future_queue,
@@ -177,7 +177,7 @@ class PoolExecutor(ExecutorBase):
         queue_adapter_kwargs=None,
     ):
         super().__init__()
-        self._process = Thread(
+        self._process = RaisingThread(
             target=execute_serial_tasks,
             kwargs={
                 "future_queue": self._future_queue,
