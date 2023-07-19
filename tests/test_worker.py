@@ -62,6 +62,12 @@ class TestFuturePool(unittest.TestCase):
             with Executor(cores=1) as p:
                 p.submit(raise_error)
 
+    def test_executor_exception_future(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(cores=1) as p:
+                fs = p.submit(raise_error)
+                fs.result()
+
     def test_pool_multi_core(self):
         with Executor(cores=2) as p:
             output = p.submit(mpi_funct, i=2)

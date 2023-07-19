@@ -249,7 +249,11 @@ def _execute_parallel_tasks_loop(interface, future_queue):
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
-                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+                try:
+                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+                except Exception as thread_exeception:
+                    f.set_exception(exception=thread_exeception)
+                    raise thread_exeception
         elif "fn" in task_dict.keys() and "init" in task_dict.keys():
             interface.send_dict(input_dict=task_dict)
 
