@@ -54,9 +54,12 @@ python test_pool_map.py
 >>> [array(1), array(4), array(9), array(16)]
 ```
 Beyond the number of workers defined by `max_workers`, the additional parameters are `oversubscribe` to enable 
-[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` to switch from MPI as backend flux as 
-alternative backend. Finally, the `cwd` parameter specifies the current working directory where the python functions are
-executed.
+[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and `enable_slurm_backend` to switch from 
+MPI as backend to flux or SLURM as alternative backend. In addition, the parameters `queue_adapter` and 
+`queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the simple queue adapter for 
+python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` 
+parameter represents a dictionary of input arguments for the `submit_job()` function of the queue adapter. Finally, the
+`cwd` parameter specifies the current working directory where the python functions are executed.
 
 In addition to the `map()` function, the `pympipool.Pool` interface implements the `starmap()` function. The example is
 very similar to the one above. Just this time the `calc()` function accepts two arguments rather than one: 
@@ -145,9 +148,12 @@ python test_executor_init.py
 ```
 So the sum of `i`,`j` and `k` results in `10` rather than `9`. Beyond the number of cores defined by `cores` and the
 initialization function defined by `init_function` the additional parameters are `oversubscribe` to enable 
-[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` to switch from MPI as backend flux as 
-alternative backend. Finally, the `cwd` parameter specifies the current working directory where the python functions are
-executed. 
+[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and `enable_slurm_backend` to switch from 
+MPI as backend to flux or SLURM as alternative backend. In addition, the parameters `queue_adapter` and 
+`queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the simple queue adapter for 
+python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` 
+parameter represents a dictionary of input arguments for the `submit_job()` function of the queue adapter. Finally, the
+`cwd` parameter specifies the current working directory where the python functions are executed.
 
 When multiple functions are submitted to the `pympipool.Executor` class then they are executed following the first in
 first out principle. The `len()` function applied on the `pympipool.Executor` object can be used to list how many items
@@ -185,9 +191,12 @@ python test_pool_executor.py
 >>> 3 7 11 15
 ```
 Beyond the number of workers defined by `max_workers`, the additional parameters are `oversubscribe` to enable 
-[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` to switch from MPI as backend flux as 
-alternative backend. Finally, the `cwd` parameter specifies the current working directory where the python functions are
-executed.
+[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and `enable_slurm_backend` to switch from 
+MPI as backend to flux or SLURM as alternative backend. In addition, the parameters `queue_adapter` and 
+`queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the simple queue adapter for 
+python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` 
+parameter represents a dictionary of input arguments for the `submit_job()` function of the queue adapter. Finally, the
+`cwd` parameter specifies the current working directory where the python functions are executed.
 
 ## MPISpawnPool
 An alternative way to support MPI parallel functions in addition to the `pympipool.Executor` is the `pympipool.MPISpawnPool`. 
@@ -217,10 +226,13 @@ python test_mpispawnpool.py
 >>> [[1, 2, 0], [2, 2, 0], [3, 2, 0], [4, 2, 0]]
 ```
 Beyond the maximum number of ranks defined by `max_ranks` and the ranks per task defined by `ranks_per_task` the 
-additional parameters are `oversubscribe` to enable [OpenMPI](https://www.open-mpi.org) over-subscription and the `cwd` 
-parameter specifies the current working directory where the MPI parallel python functions are executed. The flux backend
-is not supported for the `pympipool.MPISpawnPool` as the `MPI_Spawn()` command is incompatible to the internal management
-of ranks inside flux. 
+additional parameters are `oversubscribe` to enable [OpenMPI](https://www.open-mpi.org) over-subscription. In addition,
+the parameters `queue_adapter` and `queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) 
+the simple queue adapter for python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the
+`queue_adapter_kwargs` parameter represents a dictionary of input arguments for the `submit_job()` function of the queue
+adapter. Finally, the `cwd` parameter specifies the current working directory  where the MPI parallel python functions 
+are executed. The flux backend as well as the SLURM backend are not supported for the `pympipool.MPISpawnPool` as the 
+`MPI_Spawn()` command is incompatible to the internal management of ranks inside flux and SLURM. 
 
 ## SocketInterface
 `pympipool.SocketInterface`: The key functionality of the `pympipool` package is the coupling of a serial python process
