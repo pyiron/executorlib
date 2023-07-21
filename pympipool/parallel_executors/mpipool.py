@@ -1,3 +1,4 @@
+from os.path import abspath
 import pickle
 import sys
 
@@ -27,6 +28,11 @@ def main():
 
     future_dict = {}
     argument_dict = parse_arguments(argument_lst=sys.argv)
+
+    cwd = abspath(".")
+    if cwd not in sys.path:
+        sys.path.insert(1, cwd)
+
     with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
         if executor is not None:
             context, socket = connect_to_socket_interface(

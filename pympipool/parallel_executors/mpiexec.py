@@ -1,3 +1,4 @@
+from os.path import abspath
 import pickle
 import sys
 
@@ -33,6 +34,11 @@ def main():
         socket = None
 
     memory = None
+
+    cwd = abspath(".")
+    if cwd not in sys.path:
+        sys.path.insert(1, cwd)
+
     while True:
         # Read from socket
         if mpi_rank_zero:
