@@ -29,12 +29,14 @@ def main():
     future_dict = {}
     argument_dict = parse_arguments(argument_lst=sys.argv)
 
+    # required for flux interface - otherwise the current path is not included in the python path
     cwd = abspath(".")
     if cwd not in sys.path:
         sys.path.insert(1, cwd)
 
     with MPIPoolExecutor(
-        max_workers=int(argument_dict["total_cores"]), path=sys.path
+        max_workers=int(argument_dict["total_cores"]),
+        path=sys.path,  # required for flux interface - otherwise the current path is not included in the python path
     ) as executor:
         if executor is not None:
             context, socket = connect_to_socket_interface(
