@@ -33,7 +33,9 @@ def main():
     if cwd not in sys.path:
         sys.path.insert(1, cwd)
 
-    with MPIPoolExecutor(int(argument_dict["total_cores"])) as executor:
+    with MPIPoolExecutor(
+        max_workers=int(argument_dict["total_cores"]), path=sys.path
+    ) as executor:
         if executor is not None:
             context, socket = connect_to_socket_interface(
                 host=argument_dict["host"], port=argument_dict["zmqport"]
