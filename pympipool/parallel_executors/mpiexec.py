@@ -35,6 +35,7 @@ def main():
 
     memory = None
 
+    # required for flux interface - otherwise the current path is not included in the python path
     cwd = abspath(".")
     if cwd not in sys.path:
         sys.path.insert(1, cwd)
