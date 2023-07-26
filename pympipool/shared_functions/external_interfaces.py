@@ -74,7 +74,7 @@ def command_line_options(
         command_lst = ["mpiexec"]
     if gpus_per_task > 0 and (enable_flux_backend or enable_slurm_backend):
         command_lst += ["--gpus-per-task=" + str(gpus_per_task)]
-    else:
+    elif gpus_per_task > 0:
         raise ValueError("GPU binding is only supported for flux and SLURM backend.")
     if oversubscribe:
         command_lst += ["--oversubscribe"]
