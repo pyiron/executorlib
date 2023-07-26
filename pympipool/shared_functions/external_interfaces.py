@@ -267,16 +267,20 @@ def _execute_parallel_tasks_loop(interface, future_queue):
                 break
             elif "fn" in task_dict.keys() and "future" in task_dict.keys():
                 f = task_dict.pop("future")
-                if f.set_running_or_notify_cancel():
+                if f.set_running_or_notify_cancel() and interface.is_alive():
                     try:
-                        f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+                        f.set_result(
+                            interface.send_and_receive_dict(input_dict=task_dict)
+                        )
                     except Exception as thread_exeception:
                         f.set_exception(exception=thread_exeception)
                         raise thread_exeception
+                elif not interface.is_alive():
+                    f.cancel()
+                    cancel_items_in_queue(que=future_queue)
+                    break
             elif "fn" in task_dict.keys() and "init" in task_dict.keys():
                 interface.send_dict(input_dict=task_dict)
-        if not interface.is_alive():
-            break
 
 
 def _execute_serial_tasks_loop(
@@ -303,6 +307,7 @@ def _execute_serial_tasks_loop(
             interface=interface, future_dict=future_dict, sleep_interval=sleep_interval
         )
         if not interface.is_alive():
+            cancel_items_in_queue(que=future_queue)
             break
 
 
