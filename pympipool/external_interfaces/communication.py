@@ -1,4 +1,5 @@
 import subprocess
+from time import sleep
 
 import cloudpickle
 import zmq
@@ -96,7 +97,10 @@ class SocketInterface(object):
             )
 
     def is_alive(self):
+        sleep(1)  # give the process time to start up
         if self._process is not None and self._process.poll() is None:
+            return True
+        elif self._queue_adapter is not None:
             return True
         elif self._process is None:
             return False
