@@ -257,20 +257,24 @@ def get_parallel_subprocess_command(
 
 def _execute_parallel_tasks_loop(interface, future_queue):
     while True:
-        task_dict = future_queue.get()
-        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
-            interface.shutdown(wait=task_dict["wait"])
-            break
-        elif "fn" in task_dict.keys() and "future" in task_dict.keys():
-            f = task_dict.pop("future")
-            if f.set_running_or_notify_cancel():
-                try:
-                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-                except Exception as thread_exeception:
-                    f.set_exception(exception=thread_exeception)
-                    raise thread_exeception
-        elif "fn" in task_dict.keys() and "init" in task_dict.keys():
-            interface.send_dict(input_dict=task_dict)
+        try:
+            task_dict = future_queue.get_nowait()
+        except queue.Empty:
+            pass
+        else:
+            if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+                interface.shutdown(wait=task_dict["wait"])
+                break
+            elif "fn" in task_dict.keys() and "future" in task_dict.keys():
+                f = task_dict.pop("future")
+                if f.set_running_or_notify_cancel():
+                    try:
+                        f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+                    except Exception as thread_exeception:
+                        f.set_exception(exception=thread_exeception)
+                        raise thread_exeception
+            elif "fn" in task_dict.keys() and "init" in task_dict.keys():
+                interface.send_dict(input_dict=task_dict)
         if not interface.is_alive():
             break
 
