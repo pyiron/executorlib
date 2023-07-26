@@ -95,6 +95,16 @@ class SocketInterface(object):
                 cwd=cwd,
             )
 
+    def is_alive(self):
+        if self._process is not None and self._process.poll() is None:
+            return True
+        elif self._process is None:
+            return False
+        else:
+            raise subprocess.SubprocessError(
+                "The subprocess exited with error code: ", self._process.returncode
+            )
+
     def shutdown(self, wait=True):
         result = None
         if self._process is not None and self._process.poll() is None:

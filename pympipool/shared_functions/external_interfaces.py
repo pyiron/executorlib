@@ -271,6 +271,8 @@ def _execute_parallel_tasks_loop(interface, future_queue):
                     raise thread_exeception
         elif "fn" in task_dict.keys() and "init" in task_dict.keys():
             interface.send_dict(input_dict=task_dict)
+        if not interface.is_alive():
+            break
 
 
 def _execute_serial_tasks_loop(
@@ -296,6 +298,8 @@ def _execute_serial_tasks_loop(
         _update_future_dict(
             interface=interface, future_dict=future_dict, sleep_interval=sleep_interval
         )
+        if not interface.is_alive():
+            break
 
 
 def _update_future_dict(interface, future_dict, sleep_interval=0.1):

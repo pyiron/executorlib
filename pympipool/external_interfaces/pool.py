@@ -1,4 +1,5 @@
 from abc import ABC
+import subprocess
 
 from pympipool.external_interfaces.communication import SocketInterface
 from pympipool.shared_functions.external_interfaces import (
@@ -107,14 +108,20 @@ class Pool(PoolBase):
         # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
         if chunksize is None:
             chunksize = 1
-        return self._interface.send_and_receive_dict(
-            input_dict={
-                "fn": func,
-                "iterable": iterable,
-                "chunksize": chunksize,
-                "map": True,
-            }
-        )
+        if self._interface.is_alive():
+            return self._interface.send_and_receive_dict(
+                input_dict={
+                    "fn": func,
+                    "iterable": iterable,
+                    "chunksize": chunksize,
+                    "map": True,
+                }
+            )
+        else:
+            raise subprocess.SubprocessError(
+                "The subprocess exited with error code: ",
+                self._interface._process.returncode,
+            )
 
     def starmap(self, func, iterable, chunksize=None):
         """
@@ -131,14 +138,20 @@ class Pool(PoolBase):
         # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
         if chunksize is None:
             chunksize = 1
-        return self._interface.send_and_receive_dict(
-            input_dict={
-                "fn": func,
-                "iterable": iterable,
-                "chunksize": chunksize,
-                "map": False,
-            }
-        )
+        if self._interface.is_alive():
+            return self._interface.send_and_receive_dict(
+                input_dict={
+                    "fn": func,
+                    "iterable": iterable,
+                    "chunksize": chunksize,
+                    "map": False,
+                }
+            )
+        else:
+            raise subprocess.SubprocessError(
+                "The subprocess exited with error code: ",
+                self._interface._process.returncode,
+            )
 
 
 class MPISpawnPool(PoolBase):
@@ -214,14 +227,20 @@ class MPISpawnPool(PoolBase):
         # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
         if chunksize is None:
             chunksize = 1
-        return self._interface.send_and_receive_dict(
-            input_dict={
-                "fn": func,
-                "iterable": iterable,
-                "chunksize": chunksize,
-                "map": True,
-            }
-        )
+        if self._interface.is_alive():
+            return self._interface.send_and_receive_dict(
+                input_dict={
+                    "fn": func,
+                    "iterable": iterable,
+                    "chunksize": chunksize,
+                    "map": True,
+                }
+            )
+        else:
+            raise subprocess.SubprocessError(
+                "The subprocess exited with error code: ",
+                self._interface._process.returncode,
+            )
 
     def starmap(self, func, iterable, chunksize=None):
         """
@@ -238,11 +257,17 @@ class MPISpawnPool(PoolBase):
         # multiprocessing.pool.Pool and mpi4py.future.ExecutorPool have different defaults
         if chunksize is None:
             chunksize = 1
-        return self._interface.send_and_receive_dict(
-            input_dict={
-                "fn": func,
-                "iterable": iterable,
-                "chunksize": chunksize,
-                "map": False,
-            }
-        )
+        if self._interface.is_alive():
+            return self._interface.send_and_receive_dict(
+                input_dict={
+                    "fn": func,
+                    "iterable": iterable,
+                    "chunksize": chunksize,
+                    "map": False,
+                }
+            )
+        else:
+            raise subprocess.SubprocessError(
+                "The subprocess exited with error code: ",
+                self._interface._process.returncode,
+            )
