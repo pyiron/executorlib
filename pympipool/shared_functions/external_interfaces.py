@@ -40,6 +40,7 @@ def command_line_options(
     path,
     cores,
     cores_per_task=1,
+    gpus_per_task=0,
     oversubscribe=False,
     enable_flux_backend=False,
     enable_slurm_backend=False,
@@ -55,6 +56,7 @@ def command_line_options(
         path (str): path to the python script which should be executed as client process.
         cores (int): defines the total number of MPI ranks to use
         cores_per_task (int): number of MPI ranks per task - defaults to 1
+        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
         enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
@@ -70,6 +72,10 @@ def command_line_options(
         command_lst = ["srun"]
     else:
         command_lst = ["mpiexec"]
+    if gpus_per_task > 0 and (enable_flux_backend or enable_slurm_backend):
+        command_lst += ["--gpus-per-task=" + str(gpus_per_task)]
+    elif gpus_per_task > 0:
+        raise ValueError("GPU binding is only supported for flux and SLURM backend.")
     if oversubscribe:
         command_lst += ["--oversubscribe"]
     if cores_per_task == 1 and enable_mpi4py_backend:
@@ -103,6 +109,7 @@ def command_line_options(
 def execute_parallel_tasks(
     future_queue,
     cores,
+    gpus_per_task=0,
     oversubscribe=False,
     enable_flux_backend=False,
     enable_slurm_backend=False,
@@ -116,6 +123,7 @@ def execute_parallel_tasks(
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
+       gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
        oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
        enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
@@ -131,6 +139,7 @@ def execute_parallel_tasks(
             port_selected=interface.bind_to_random_port(),
             cores=cores,
             cores_per_task=1,
+            gpus_per_task=gpus_per_task,
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
             enable_slurm_backend=enable_slurm_backend,
@@ -146,6 +155,7 @@ def execute_parallel_tasks(
 def execute_serial_tasks(
     future_queue,
     cores,
+    gpus_per_task=0,
     oversubscribe=False,
     enable_flux_backend=False,
     enable_slurm_backend=False,
@@ -160,6 +170,7 @@ def execute_serial_tasks(
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
+       gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
        oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
        enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
@@ -176,6 +187,7 @@ def execute_serial_tasks(
         command_lst=get_parallel_subprocess_command(
             port_selected=interface.bind_to_random_port(),
             cores=cores,
+            gpus_per_task=gpus_per_task,
             cores_per_task=1,
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
@@ -198,6 +210,7 @@ def get_parallel_subprocess_command(
     port_selected,
     cores,
     cores_per_task=1,
+    gpus_per_task=0,
     oversubscribe=False,
     enable_flux_backend=False,
     enable_slurm_backend=False,
@@ -211,6 +224,7 @@ def get_parallel_subprocess_command(
         port_selected (int): port the SocketInterface instance runs on.
         cores (int): defines the total number of MPI ranks to use
         cores_per_task (int): number of MPI ranks per task - defaults to 1
+        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
         enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
@@ -232,6 +246,7 @@ def get_parallel_subprocess_command(
         ),
         cores=cores,
         cores_per_task=cores_per_task,
+        gpus_per_task=gpus_per_task,
         oversubscribe=oversubscribe,
         enable_flux_backend=enable_flux_backend,
         enable_slurm_backend=enable_slurm_backend,

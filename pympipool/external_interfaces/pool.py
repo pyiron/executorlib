@@ -41,6 +41,7 @@ class Pool(PoolBase):
 
     Args:
         max_workers (int): defines the total number of MPI ranks to use
+        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
         enable_flux_backend (bool): use the flux-framework as backend
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
@@ -64,6 +65,7 @@ class Pool(PoolBase):
     def __init__(
         self,
         max_workers=1,
+        gpus_per_task=0,
         oversubscribe=False,
         enable_flux_backend=False,
         enable_slurm_backend=False,
@@ -79,6 +81,7 @@ class Pool(PoolBase):
                 port_selected=self._interface.bind_to_random_port(),
                 cores=max_workers,
                 cores_per_task=1,
+                gpus_per_task=gpus_per_task,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=enable_flux_backend,
                 enable_slurm_backend=enable_slurm_backend,
@@ -149,6 +152,7 @@ class MPISpawnPool(PoolBase):
     Args:
         max_ranks (int): defines the total number of MPI ranks to use
         ranks_per_task (int): defines the number of MPI ranks per task
+        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only)
         cwd (str/None): current working directory where the parallel python task is executed
         queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
@@ -170,6 +174,7 @@ class MPISpawnPool(PoolBase):
         self,
         max_ranks=1,
         ranks_per_task=1,
+        gpus_per_task=0,
         oversubscribe=False,
         cwd=None,
         queue_adapter=None,
@@ -183,6 +188,7 @@ class MPISpawnPool(PoolBase):
                 port_selected=self._interface.bind_to_random_port(),
                 cores=max_ranks,
                 cores_per_task=ranks_per_task,
+                gpus_per_task=gpus_per_task,
                 oversubscribe=oversubscribe,
                 enable_flux_backend=False,
                 enable_slurm_backend=False,

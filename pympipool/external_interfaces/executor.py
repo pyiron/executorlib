@@ -68,6 +68,7 @@ class Executor(ExecutorBase):
 
     Args:
         cores (int): defines the number of MPI ranks to use for each function call
+        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         enable_flux_backend (bool): use the flux-framework as backend rather than just calling mpiexec
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
@@ -101,6 +102,7 @@ class Executor(ExecutorBase):
     def __init__(
         self,
         cores,
+        gpus_per_task=0,
         oversubscribe=False,
         enable_flux_backend=False,
         enable_slurm_backend=False,
@@ -115,6 +117,7 @@ class Executor(ExecutorBase):
             kwargs={
                 "future_queue": self._future_queue,
                 "cores": cores,
+                "gpus_per_task": gpus_per_task,
                 "oversubscribe": oversubscribe,
                 "enable_flux_backend": enable_flux_backend,
                 "enable_slurm_backend": enable_slurm_backend,
@@ -141,6 +144,7 @@ class PoolExecutor(ExecutorBase):
 
     Args:
         max_workers (int): defines the total number of MPI ranks to use
+        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         enable_flux_backend (bool): use the flux-framework as backend rather than just calling mpiexec
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
@@ -168,6 +172,7 @@ class PoolExecutor(ExecutorBase):
     def __init__(
         self,
         max_workers=1,
+        gpus_per_task=0,
         oversubscribe=False,
         enable_flux_backend=False,
         enable_slurm_backend=False,
@@ -182,6 +187,7 @@ class PoolExecutor(ExecutorBase):
             kwargs={
                 "future_queue": self._future_queue,
                 "cores": max_workers,
+                "gpus_per_task": gpus_per_task,
                 "oversubscribe": oversubscribe,
                 "enable_flux_backend": enable_flux_backend,
                 "enable_slurm_backend": enable_slurm_backend,
