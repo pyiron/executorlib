@@ -17,6 +17,8 @@ class SocketInterface(object):
     def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
+        self._poller = zmq.Poller()
+        self._poller.register(self._socket, zmq.POLLIN)
         self._process = None
         self._queue_adapter = queue_adapter
         self._queue_adapter_kwargs = queue_adapter_kwargs
@@ -38,7 +40,12 @@ class SocketInterface(object):
         Returns:
             dict: dictionary with response received from the connected client
         """
-        output = cloudpickle.loads(self._socket.recv())
+        output = {}
+        while self.is_alive():
+            socks = dict(self._poller.poll(1000))
+            if socks and socks.get(self._socket) == zmq.POLLIN:
+                output = cloudpickle.loads(self._socket.recv(zmq.NOBLOCK))
+                break
         if "result" in output.keys():
             return output["result"]
         else:
@@ -97,7 +104,6 @@ class SocketInterface(object):
             )
 
     def is_alive(self):
-        sleep(1)  # give the process time to start up
         if self._process is not None and self._process.poll() is None:
             return True
         elif self._queue_adapter is not None:
