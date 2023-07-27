@@ -20,7 +20,7 @@ class TestInterface(unittest.TestCase):
             command_lst=command_line_options(
                 hostname=socket.gethostname(),
                 port_selected=interface.bind_to_random_port(),
-                path=os.path.abspath(os.path.join(__file__, "../../pympipool/backend/mpiexec.py")),
+                path=os.path.abspath(os.path.join(__file__, "..", "..", "pympipool", "backend", "mpiexec.py")),
                 cores=1,
                 gpus_per_task=0,
                 oversubscribe=False,
