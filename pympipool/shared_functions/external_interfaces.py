@@ -22,6 +22,7 @@ def cancel_items_in_queue(que):
             item = que.get_nowait()
             if isinstance(item, dict) and "future" in item.keys():
                 item["future"].cancel()
+                que.task_done()
         except queue.Empty:
             break
 
@@ -280,6 +281,7 @@ def _execute_parallel_tasks_loop(interface, future_queue):
                 try:
                     f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
                 except Exception as thread_exeception:
+                    interface.shutdown(wait=True)
                     future_queue.task_done()
                     f.set_exception(exception=thread_exeception)
                     raise thread_exeception
