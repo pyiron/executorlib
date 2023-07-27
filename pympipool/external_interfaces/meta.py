@@ -100,12 +100,6 @@ class MetaExecutor(FutureExecutor):
         self._process.join()
 
 
-def _get_future_done():
-    f = Future()
-    f.set_result(True)
-    return f
-
-
 def _executor_broker(
     future_queue,
     max_workers,
@@ -144,6 +138,19 @@ def _executor_broker(
                 break
 
 
+def _execute_task_dict(task_dict, meta_future_lst):
+    if "fn" in task_dict.keys():
+        meta_future = next(as_completed(meta_future_lst))
+        meta_future.submit(task_dict=task_dict)
+        return True
+    elif "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+        for meta in meta_future_lst:
+            meta.executor.shutdown(wait=task_dict["wait"])
+        return False
+    else:
+        raise ValueError("Unrecognized Task in task_dict: ", task_dict)
+
+
 def _get_executor_list(
     max_workers,
     cores_per_worker=1,
@@ -175,14 +182,7 @@ def _get_executor_list(
     ]
 
 
-def _execute_task_dict(task_dict, meta_future_lst):
-    if "fn" in task_dict.keys():
-        meta_future = next(as_completed(meta_future_lst))
-        meta_future.submit(task_dict=task_dict)
-        return True
-    elif "shutdown" in task_dict.keys() and task_dict["shutdown"]:
-        for meta in meta_future_lst:
-            meta.executor.shutdown(wait=task_dict["wait"])
-        return False
-    else:
-        raise ValueError("Unrecognized Task in task_dict: ", task_dict)
+def _get_future_done():
+    f = Future()
+    f.set_result(True)
+    return f
