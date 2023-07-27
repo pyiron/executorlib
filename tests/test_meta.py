@@ -1,6 +1,13 @@
-from concurrent.futures import as_completed, Future, ThreadPoolExecutor
+from concurrent.futures import as_completed, Future, Executor
+from queue import Queue
 import unittest
-from pympipool.external_interfaces.meta import _get_future_done, MetaExecutorFuture, MetaExecutor
+from pympipool.external_interfaces.meta import (
+    _executor_broker,
+    _execute_task_dict,
+    _get_future_done,
+    _get_executor_list,
+    MetaExecutor,
+)
 
 
 def calc(i):
@@ -16,11 +23,35 @@ class TestFutureCreation(unittest.TestCase):
 
 class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
-        meta_future = MetaExecutorFuture(future=_get_future_done(), executor=ThreadPoolExecutor(max_workers=1))
+        meta_future = _get_executor_list(max_workers=1)[0]
         self.assertTrue(isinstance(meta_future.future, Future))
-        self.assertTrue(isinstance(meta_future.executor, ThreadPoolExecutor))
-        self.assertTrue(meta_future.future.done())
+        self.assertTrue(isinstance(meta_future.executor, Executor))
+        self.assertTrue(meta_future.done())
         self.assertEqual(meta_future, next(as_completed([meta_future])))
+        meta_future.submit(task_dict={"shutdown": True, "wait": True, "future": _get_future_done()})
+
+    def test_execute_task_dict(self):
+        meta_future_lst = _get_executor_list(max_workers=1)
+        f = Future()
+        self.assertTrue(_execute_task_dict(
+            task_dict={"fn": calc, "args": (1,), "kwargs": {}, "future": f},
+            meta_future_lst=meta_future_lst
+        ))
+        self.assertEqual(f.result(), 1)
+        self.assertTrue(f.done())
+        self.assertFalse(_execute_task_dict(
+            task_dict={"shutdown": True, "wait": True},
+            meta_future_lst=meta_future_lst
+        ))
+
+    def test_executor_broker(self):
+        q = Queue()
+        f = Future()
+        q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
+        q.put({"shutdown": True, "wait": True})
+        _executor_broker(future_queue=q, max_workers=1)
+        self.assertTrue(f.done())
+        self.assertEqual(f.result(), 1)
 
 
 class TestMetaExecutor(unittest.TestCase):
