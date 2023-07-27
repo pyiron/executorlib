@@ -34,4 +34,4 @@ jobs:
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 30
-      run: python -m unittest discover tests
+      run: for f in $(ls tests/test_*.py); do python -m unittest $f; done
