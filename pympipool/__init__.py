@@ -7,8 +7,6 @@ from pympipool.shared.communication import (
 )
 from pympipool.interfaces.taskbroker import HPCExecutor
 from pympipool.interfaces.taskexecutor import Executor
-from pympipool.legacy.interfaces.executor import PoolExecutor
-from pympipool.legacy.interfaces.pool import Pool, MPISpawnPool
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.taskexecutor import cancel_items_in_queue
 
