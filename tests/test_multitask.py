@@ -53,6 +53,7 @@ class TestFuturePool(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array(4))
+        q.join()
 
     def test_pool_cancel(self):
         with PoolExecutor(max_workers=2, sleep_interval=0) as p:
@@ -85,6 +86,7 @@ class TestFuturePool(unittest.TestCase):
         )
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
+        q.join()
 
     def test_waiting(self):
         exe = PoolExecutor(max_workers=2)

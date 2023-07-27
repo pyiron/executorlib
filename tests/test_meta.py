@@ -52,6 +52,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         _executor_broker(future_queue=q, max_workers=1)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
+        q.join()
 
 
 class TestMetaExecutor(unittest.TestCase):

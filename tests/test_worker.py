@@ -97,6 +97,7 @@ class TestFuturePool(unittest.TestCase):
                 oversubscribe=False,
                 enable_flux_backend=False
             )
+        q.join()
 
     def test_execute_task_failed_wrong_argument(self):
         f = Future()
@@ -111,6 +112,7 @@ class TestFuturePool(unittest.TestCase):
                 oversubscribe=False,
                 enable_flux_backend=False
             )
+        q.join()
 
     def test_execute_task(self):
         f = Future()
@@ -125,6 +127,7 @@ class TestFuturePool(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array(4))
+        q.join()
 
     def test_execute_task_parallel(self):
         f = Future()
@@ -139,3 +142,4 @@ class TestFuturePool(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])
+        q.join()
