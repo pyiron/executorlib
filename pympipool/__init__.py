@@ -6,6 +6,7 @@ from pympipool.external_interfaces.communication import (
     receive_instruction,
 )
 from pympipool.external_interfaces.executor import Executor, PoolExecutor
+from pympipool.external_interfaces.meta import MetaExecutor
 from pympipool.external_interfaces.pool import Pool, MPISpawnPool
 from pympipool.external_interfaces.thread import RaisingThread
 from pympipool.shared_functions.external_interfaces import cancel_items_in_queue
