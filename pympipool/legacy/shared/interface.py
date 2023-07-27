@@ -108,7 +108,9 @@ def get_parallel_subprocess_command(
         list: list of strings to be executed on the command line
     """
     if enable_mpi4py_backend:
-        executable = os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpipool.py"))
+        executable = os.path.abspath(
+            os.path.join(__file__, "..", "..", "backend", "mpipool.py")
+        )
     else:
         executable = os.path.abspath(
             os.path.join(__file__, "..", "..", "..", "backend", "mpiexec.py")

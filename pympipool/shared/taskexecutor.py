@@ -133,7 +133,9 @@ def execute_parallel_tasks(
         command_lst=command_line_options(
             hostname=socket.gethostname(),
             port_selected=interface.bind_to_random_port(),
-            path=os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
+            path=os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+            ),
             cores=cores,
             gpus_per_task=gpus_per_task,
             oversubscribe=oversubscribe,
