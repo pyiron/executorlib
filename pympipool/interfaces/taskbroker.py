@@ -6,7 +6,7 @@ from pympipool.shared.broker import executor_broker
 from pympipool.shared.taskexecutor import cancel_items_in_queue
 
 
-class MetaExecutor(FutureExecutor):
+class HPCExecutor(FutureExecutor):
     def __init__(
         self,
         max_workers,

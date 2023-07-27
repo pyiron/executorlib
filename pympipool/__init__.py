@@ -5,7 +5,7 @@ from pympipool.shared.communication import (
     close_connection,
     receive_instruction,
 )
-from pympipool.interfaces.taskbroker import MetaExecutor
+from pympipool.interfaces.taskbroker import HPCExecutor
 from pympipool.interfaces.taskexecutor import Executor
 from pympipool.legacy.interfaces.executor import PoolExecutor
 from pympipool.legacy.interfaces.pool import Pool, MPISpawnPool

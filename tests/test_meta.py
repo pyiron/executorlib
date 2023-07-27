@@ -8,7 +8,7 @@ from pympipool.shared.broker import (
     _get_executor_list,
 )
 
-from pympipool.interfaces.taskbroker import MetaExecutor
+from pympipool.interfaces.taskbroker import HPCExecutor
 
 
 def calc(i):
@@ -58,7 +58,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
 
 class TestMetaExecutor(unittest.TestCase):
     def test_meta_executor(self):
-        with MetaExecutor(max_workers=2) as exe:
+        with HPCExecutor(max_workers=2) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
