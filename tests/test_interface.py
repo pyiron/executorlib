@@ -17,10 +17,8 @@ class TestInterface(unittest.TestCase):
             command_lst=get_parallel_subprocess_command(
                 port_selected=interface.bind_to_random_port(),
                 cores=1,
-                cores_per_task=1,
                 oversubscribe=False,
                 enable_flux_backend=False,
-                enable_mpi4py_backend=False,
             )
         )
         self.assertEqual(interface.send_and_receive_dict(input_dict=task_dict), np.array(4))
