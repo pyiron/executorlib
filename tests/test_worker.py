@@ -88,7 +88,6 @@ class TestFuturePool(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc, 'args': (), "kwargs": {}, "future": f})
-        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -97,12 +96,12 @@ class TestFuturePool(unittest.TestCase):
                 oversubscribe=False,
                 enable_flux_backend=False
             )
+        q.join()
 
     def test_execute_task_failed_wrong_argument(self):
         f = Future()
         q = Queue()
         q.put({"fn": calc, 'args': (), "kwargs": {"j": 4}, "future": f})
-        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -111,6 +110,7 @@ class TestFuturePool(unittest.TestCase):
                 oversubscribe=False,
                 enable_flux_backend=False
             )
+        q.join()
 
     def test_execute_task(self):
         f = Future()
@@ -125,6 +125,7 @@ class TestFuturePool(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array(4))
+        q.join()
 
     def test_execute_task_parallel(self):
         f = Future()
@@ -139,3 +140,4 @@ class TestFuturePool(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])
+        q.join()

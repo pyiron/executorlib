@@ -19,3 +19,4 @@ class TestQueue(unittest.TestCase):
         self.assertTrue(fs2.done())
         with self.assertRaises(CancelledError):
             self.assertTrue(fs2.result())
+        q.join()

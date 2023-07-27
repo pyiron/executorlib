@@ -43,3 +43,4 @@ class TestWorkerMemory(unittest.TestCase):
             enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array([5]))
+        q.join()
