@@ -10,8 +10,7 @@ from pympipool.shared.communication import (
     close_connection,
     receive_instruction,
 )
-from pympipool.shared.backend import parse_arguments
-from pympipool.legacy.shared.backend import parse_socket_communication
+from pympipool.legacy.shared.backend import parse_socket_communication, parse_arguments
 
 
 def main():

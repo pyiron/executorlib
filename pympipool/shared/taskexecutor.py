@@ -51,12 +51,10 @@ def command_line_options(
     port_selected,
     path,
     cores,
-    cores_per_task=1,
     gpus_per_task=0,
     oversubscribe=False,
     enable_flux_backend=False,
     enable_slurm_backend=False,
-    enable_mpi4py_backend=True,
     enable_multi_host=False,
 ):
     """
@@ -90,15 +88,7 @@ def command_line_options(
         raise ValueError("GPU binding is only supported for flux and SLURM backend.")
     if oversubscribe:
         command_lst += ["--oversubscribe"]
-    if cores_per_task == 1 and enable_mpi4py_backend:
-        command_lst += ["-n", str(cores), "python", "-m", "mpi4py.futures"]
-    elif cores_per_task > 1 and enable_mpi4py_backend:
-        # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
-        # https://github.com/mpi4py/mpi4py/issues/324
-        command_lst += ["-n", "1", "python"]
-    else:
-        command_lst += ["-n", str(cores), "python"]
-    command_lst += [path]
+    command_lst += ["-n", str(cores), "python", path]
     if enable_flux_backend or enable_slurm_backend or enable_multi_host:
         command_lst += [
             "--host",
@@ -108,13 +98,6 @@ def command_line_options(
         "--zmqport",
         str(port_selected),
     ]
-    if enable_mpi4py_backend:
-        command_lst += [
-            "--cores-per-task",
-            str(cores_per_task),
-            "--cores-total",
-            str(cores),
-        ]
     return command_lst
 
 
@@ -150,12 +133,10 @@ def execute_parallel_tasks(
         command_lst=get_parallel_subprocess_command(
             port_selected=interface.bind_to_random_port(),
             cores=cores,
-            cores_per_task=1,
             gpus_per_task=gpus_per_task,
             oversubscribe=oversubscribe,
             enable_flux_backend=enable_flux_backend,
             enable_slurm_backend=enable_slurm_backend,
-            enable_mpi4py_backend=False,
             enable_multi_host=queue_adapter is not None,
         ),
         cwd=cwd,
@@ -167,12 +148,10 @@ def execute_parallel_tasks(
 def get_parallel_subprocess_command(
     port_selected,
     cores,
-    cores_per_task=1,
     gpus_per_task=0,
     oversubscribe=False,
     enable_flux_backend=False,
     enable_slurm_backend=False,
-    enable_mpi4py_backend=True,
     enable_multi_host=False,
 ):
     """
@@ -181,34 +160,25 @@ def get_parallel_subprocess_command(
     Args:
         port_selected (int): port the SocketInterface instance runs on.
         cores (int): defines the total number of MPI ranks to use
-        cores_per_task (int): number of MPI ranks per task - defaults to 1
         gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
         enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
-        enable_mpi4py_backend (bool): enable the mpi4py.futures module - defaults to True
         enable_multi_host (bool): communicate the host to connect to - defaults to False
 
     Returns:
         list: list of strings to be executed on the command line
     """
-    if enable_mpi4py_backend:
-        executable = os.path.abspath(
-            os.path.join(__file__, "../../legacy/backend/mpipool.py")
-        )
-    else:
-        executable = os.path.abspath(os.path.join(__file__, "../../backend/mpiexec.py"))
+    executable = os.path.abspath(os.path.join(__file__, "../../backend/mpiexec.py"))
     return command_line_options(
         hostname=socket.gethostname(),
         port_selected=port_selected,
         path=executable,
         cores=cores,
-        cores_per_task=cores_per_task,
         gpus_per_task=gpus_per_task,
         oversubscribe=oversubscribe,
         enable_flux_backend=enable_flux_backend,
         enable_slurm_backend=enable_slurm_backend,
-        enable_mpi4py_backend=enable_mpi4py_backend,
         enable_multi_host=enable_multi_host,
     )
 

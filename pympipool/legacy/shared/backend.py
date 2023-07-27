@@ -1,6 +1,6 @@
 from tqdm import tqdm
 
-from pympipool.shared.backend import call_funct
+from pympipool.shared.backend import call_funct, _update_default_dict_from_arguments
 
 
 def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True):
@@ -30,6 +30,28 @@ def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True
         return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
             ::cores_per_task
         ]
+
+
+def parse_arguments(argument_lst):
+    """
+    Simple function to parse command line arguments
+
+    Args:
+        argument_lst (list): list of arguments as strings
+
+    Returns:
+        dict: dictionary with the parsed arguments and their corresponding values
+    """
+    return _update_default_dict_from_arguments(
+        argument_lst=argument_lst,
+        argument_dict={
+            "total_cores": "--cores-total",
+            "zmqport": "--zmqport",
+            "cores_per_task": "--cores-per-task",
+            "host": "--host",
+        },
+        default_dict={"host": "localhost"},
+    )
 
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):

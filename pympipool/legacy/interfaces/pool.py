@@ -1,10 +1,8 @@
 from abc import ABC
 
 from pympipool.shared.communication import SocketInterface
-from pympipool.shared.taskexecutor import (
-    get_parallel_subprocess_command,
-    cloudpickle_register,
-)
+from pympipool.shared.taskexecutor import cloudpickle_register
+from pympipool.legacy.shared.interface import get_parallel_subprocess_command
 
 
 class PoolBase(ABC):

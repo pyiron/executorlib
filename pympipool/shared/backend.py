@@ -29,21 +29,25 @@ def parse_arguments(argument_lst):
     Returns:
         dict: dictionary with the parsed arguments and their corresponding values
     """
-    argument_dict = {
-        "total_cores": "--cores-total",
-        "zmqport": "--zmqport",
-        "cores_per_task": "--cores-per-task",
-        "host": "--host",
-    }
-    parse_dict = {"host": "localhost"}
-    parse_dict.update(
+    return _update_default_dict_from_arguments(
+        argument_lst=argument_lst,
+        argument_dict={
+            "zmqport": "--zmqport",
+            "host": "--host",
+        },
+        default_dict={"host": "localhost"},
+    )
+
+
+def _update_default_dict_from_arguments(argument_lst, argument_dict, default_dict):
+    default_dict.update(
         {
             k: argument_lst[argument_lst.index(v) + 1]
             for k, v in argument_dict.items()
             if v in argument_lst
         }
     )
-    return parse_dict
+    return default_dict
 
 
 def _update_dict_delta(dict_input, dict_output, keys_possible_lst):
