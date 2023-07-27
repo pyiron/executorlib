@@ -272,6 +272,7 @@ def _execute_parallel_tasks_loop(interface, future_queue):
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
+            future_queue.task_done()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             f = task_dict.pop("future")
@@ -279,10 +280,14 @@ def _execute_parallel_tasks_loop(interface, future_queue):
                 try:
                     f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
                 except Exception as thread_exeception:
+                    future_queue.task_done()
                     f.set_exception(exception=thread_exeception)
                     raise thread_exeception
+                else:
+                    future_queue.task_done()
         elif "fn" in task_dict.keys() and "init" in task_dict.keys():
             interface.send_dict(input_dict=task_dict)
+            future_queue.task_done()
 
 
 def _execute_serial_tasks_loop(
@@ -300,11 +305,13 @@ def _execute_serial_tasks_loop(
                     for k, v in done_dict.items():
                         if k in future_dict.keys() and not future_dict[k].cancelled():
                             future_dict.pop(k).set_result(v)
+                future_queue.task_done()
                 break
             elif "fn" in task_dict.keys() and "future" in task_dict.keys():
                 f = task_dict.pop("future")
                 future_hash = interface.send_and_receive_dict(input_dict=task_dict)
                 future_dict[future_hash] = f
+                future_queue.task_done()
         _update_future_dict(
             interface=interface, future_dict=future_dict, sleep_interval=sleep_interval
         )
