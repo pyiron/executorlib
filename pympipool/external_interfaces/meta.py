@@ -63,7 +63,7 @@ class MetaExecutor(FutureExecutor):
                 "sleep_interval": sleep_interval,
                 "queue_adapter": queue_adapter,
                 "queue_adapter_kwargs": queue_adapter_kwargs,
-            }
+            },
         )
         self._process.start()
 
@@ -139,8 +139,7 @@ def _executor_broker(
             sleep(sleep_interval)
         else:
             if not _execute_task_dict(
-                task_dict=task_dict,
-                meta_future_lst=meta_future_lst
+                task_dict=task_dict, meta_future_lst=meta_future_lst
             ):
                 break
 
@@ -170,7 +169,7 @@ def _get_executor_list(
                 cwd=cwd,
                 queue_adapter=queue_adapter,
                 queue_adapter_kwargs=queue_adapter_kwargs,
-            )
+            ),
         )
         for _ in range(max_workers)
     ]
