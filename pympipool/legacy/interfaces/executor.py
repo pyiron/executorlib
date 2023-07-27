@@ -1,5 +1,5 @@
-from pympipool.external_interfaces.executor import ExecutorBase
-from pympipool.external_interfaces.thread import RaisingThread
+from pympipool.interfaces.taskexecutor import ExecutorBase
+from pympipool.shared.thread import RaisingThread
 from pympipool.legacy.shared.interface import execute_serial_tasks
 
 

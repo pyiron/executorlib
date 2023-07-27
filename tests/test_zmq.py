@@ -1,6 +1,6 @@
 import unittest
 import zmq
-from pympipool.external_interfaces.communication import (
+from pympipool.shared.communication import (
     connect_to_socket_interface,
     close_connection,
     send_result,

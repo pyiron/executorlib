@@ -4,7 +4,7 @@ from queue import Queue
 from time import sleep
 from concurrent.futures import CancelledError
 from pympipool import Executor
-from pympipool.shared_functions.external_interfaces import execute_parallel_tasks, cloudpickle_register
+from pympipool.shared.taskexecutor import execute_parallel_tasks, cloudpickle_register
 from concurrent.futures import Future
 
 

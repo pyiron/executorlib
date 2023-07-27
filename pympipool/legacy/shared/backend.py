@@ -1,6 +1,6 @@
 from tqdm import tqdm
 
-from pympipool.shared_functions.parallel_executors import call_funct
+from pympipool.shared.backend import call_funct
 
 
 def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True):
@@ -28,8 +28,8 @@ def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True
                 chunksize=chunksize,
             )
         return list(tqdm(results, desc="Tasks", total=len(lst_parallel)))[
-               ::cores_per_task
-               ]
+            ::cores_per_task
+        ]
 
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):

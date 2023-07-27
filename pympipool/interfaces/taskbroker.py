@@ -1,9 +1,9 @@
 from concurrent.futures import Executor as FutureExecutor, Future
 import queue
 
-from pympipool.external_interfaces.thread import RaisingThread
-from pympipool.shared_functions.broker import executor_broker
-from pympipool.shared_functions.external_interfaces import cancel_items_in_queue
+from pympipool.shared.thread import RaisingThread
+from pympipool.shared.broker import executor_broker
+from pympipool.shared.taskexecutor import cancel_items_in_queue
 
 
 class MetaExecutor(FutureExecutor):

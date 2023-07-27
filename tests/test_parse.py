@@ -1,6 +1,6 @@
 import unittest
 from pympipool.legacy.backend.mpipool import parse_arguments
-from pympipool.shared_functions.external_interfaces import command_line_options
+from pympipool.shared.taskexecutor import command_line_options
 
 
 class TestParser(unittest.TestCase):

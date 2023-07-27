@@ -1,8 +1,8 @@
 import time
 import queue
 
-from pympipool.shared_functions.external_interfaces import get_parallel_subprocess_command
-from pympipool.external_interfaces.communication import SocketInterface
+from pympipool.shared.taskexecutor import get_parallel_subprocess_command
+from pympipool.shared.communication import SocketInterface
 
 
 def execute_serial_tasks(

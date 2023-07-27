@@ -2,7 +2,7 @@ from concurrent.futures import as_completed, Future
 import queue
 from time import sleep
 
-from pympipool.external_interfaces.executor import Executor
+from pympipool.interfaces.taskexecutor import Executor
 
 
 class MetaExecutorFuture(object):

@@ -5,7 +5,7 @@ import queue
 
 import cloudpickle
 
-from pympipool.external_interfaces.communication import SocketInterface
+from pympipool.shared.communication import SocketInterface
 
 
 def cancel_items_in_queue(que):
@@ -197,9 +197,7 @@ def get_parallel_subprocess_command(
             os.path.join(__file__, "../../legacy/backend/mpipool.py")
         )
     else:
-        executable = os.path.abspath(
-            os.path.join(__file__, "../../backend/mpiexec.py")
-        )
+        executable = os.path.abspath(os.path.join(__file__, "../../backend/mpiexec.py"))
     return command_line_options(
         hostname=socket.gethostname(),
         port_selected=port_selected,
