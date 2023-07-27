@@ -132,9 +132,7 @@ def _executor_broker(
         except queue.Empty:
             sleep(sleep_interval)
         else:
-            if _execute_task_dict(
-                task_dict=task_dict, meta_future_lst=meta_future_lst
-            ):
+            if _execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
                 future_queue.task_done()
             else:
                 future_queue.task_done()
