@@ -130,8 +130,10 @@ def execute_parallel_tasks(
         queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
     )
     interface.bootup(
-        command_lst=get_parallel_subprocess_command(
+        command_lst=command_line_options(
+            hostname=socket.gethostname(),
             port_selected=interface.bind_to_random_port(),
+            path=os.path.abspath(os.path.join(__file__, "../../backend/mpiexec.py")),
             cores=cores,
             gpus_per_task=gpus_per_task,
             oversubscribe=oversubscribe,
@@ -143,44 +145,6 @@ def execute_parallel_tasks(
         cores=cores,
     )
     _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
-
-
-def get_parallel_subprocess_command(
-    port_selected,
-    cores,
-    gpus_per_task=0,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
-    enable_multi_host=False,
-):
-    """
-    Translate the individual parameters to command line options.
-
-    Args:
-        port_selected (int): port the SocketInterface instance runs on.
-        cores (int): defines the total number of MPI ranks to use
-        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-        oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
-        enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
-        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
-        enable_multi_host (bool): communicate the host to connect to - defaults to False
-
-    Returns:
-        list: list of strings to be executed on the command line
-    """
-    executable = os.path.abspath(os.path.join(__file__, "../../backend/mpiexec.py"))
-    return command_line_options(
-        hostname=socket.gethostname(),
-        port_selected=port_selected,
-        path=executable,
-        cores=cores,
-        gpus_per_task=gpus_per_task,
-        oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=enable_slurm_backend,
-        enable_multi_host=enable_multi_host,
-    )
 
 
 def _execute_parallel_tasks_loop(interface, future_queue):

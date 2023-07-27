@@ -2,6 +2,17 @@ import inspect
 
 
 def call_funct(input_dict, funct=None, memory=None):
+    """
+    Call function from dictionary
+
+    Args:
+        input_dict (dict): dictionary containing the function 'fn', its arguments 'args' and keyword arguments 'kwargs'
+        funct (None): function to be evaluated if it is not included in the input dictionary
+        memory (dict/ None): variables stored in memory which can be used as keyword arguments
+
+    Returns:
+        Result of the function
+    """
     if funct is None:
 
         def funct(*args, **kwargs):
