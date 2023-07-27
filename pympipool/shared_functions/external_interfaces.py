@@ -27,14 +27,19 @@ def cancel_items_in_queue(que):
 
 
 def cloudpickle_register(ind=2):
-    # Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
-    # be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
-    # https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
-    # inspect can help to find the module which is calling pympipool
-    # https://docs.python.org/3/library/inspect.html
-    # to learn more about inspect another good read is:
-    # http://pymotw.com/2/inspect/index.html#module-inspect
-    # 1 refers to 1 level higher than the map function
+    """
+    Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
+    be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
+    https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
+    inspect can help to find the module which is calling pympipool
+    https://docs.python.org/3/library/inspect.html
+    to learn more about inspect another good read is:
+    http://pymotw.com/2/inspect/index.html#module-inspect
+    1 refers to 1 level higher than the map function
+
+    Args:
+        ind (int): index of the level at which pickle by value starts while for the rest pickle by reference is used
+    """
     try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
         cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[ind][0]))
     except ValueError:
