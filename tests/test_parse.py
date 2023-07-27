@@ -1,5 +1,5 @@
 import unittest
-from pympipool.parallel_executors.mpipool import parse_arguments
+from pympipool.legacy.backend.mpipool import parse_arguments
 from pympipool.shared_functions.external_interfaces import command_line_options
 
 

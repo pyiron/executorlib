@@ -10,10 +10,8 @@ from pympipool.external_interfaces.communication import (
     close_connection,
     receive_instruction,
 )
-from pympipool.shared_functions.parallel_executors import (
-    parse_arguments,
-    parse_socket_communication,
-)
+from pympipool.shared_functions.parallel_executors import parse_arguments
+from pympipool.legacy.shared.backend import parse_socket_communication
 
 
 def main():

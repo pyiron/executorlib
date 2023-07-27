@@ -1,6 +1,6 @@
 from pympipool.external_interfaces.executor import ExecutorBase
 from pympipool.external_interfaces.thread import RaisingThread
-from pympipool.shared_functions.external_interfaces import execute_serial_tasks
+from pympipool.legacy.shared.interface import execute_serial_tasks
 
 
 class PoolExecutor(ExecutorBase):
