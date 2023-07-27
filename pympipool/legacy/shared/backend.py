@@ -1,24 +1,6 @@
-import inspect
-
 from tqdm import tqdm
 
-
-def call_funct(input_dict, funct=None, memory=None):
-    if funct is None:
-
-        def funct(*args, **kwargs):
-            return args[0].__call__(*args[1:], **kwargs)
-
-    funct_args = inspect.getfullargspec(input_dict["fn"]).args
-    if memory is not None:
-        input_dict["kwargs"].update(
-            _update_dict_delta(
-                dict_input=memory,
-                dict_output=input_dict["kwargs"],
-                keys_possible_lst=funct_args,
-            )
-        )
-    return funct(input_dict["fn"], *input_dict["args"], **input_dict["kwargs"])
+from pympipool.shared.backend import call_funct, _update_default_dict_from_arguments
 
 
 def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True):
@@ -60,21 +42,16 @@ def parse_arguments(argument_lst):
     Returns:
         dict: dictionary with the parsed arguments and their corresponding values
     """
-    argument_dict = {
-        "total_cores": "--cores-total",
-        "zmqport": "--zmqport",
-        "cores_per_task": "--cores-per-task",
-        "host": "--host",
-    }
-    parse_dict = {"host": "localhost"}
-    parse_dict.update(
-        {
-            k: argument_lst[argument_lst.index(v) + 1]
-            for k, v in argument_dict.items()
-            if v in argument_lst
-        }
+    return _update_default_dict_from_arguments(
+        argument_lst=argument_lst,
+        argument_dict={
+            "total_cores": "--cores-total",
+            "zmqport": "--zmqport",
+            "cores_per_task": "--cores-per-task",
+            "host": "--host",
+        },
+        default_dict={"host": "localhost"},
     )
-    return parse_dict
 
 
 def parse_socket_communication(executor, input_dict, future_dict, cores_per_task=1):
@@ -125,14 +102,6 @@ def parse_socket_communication(executor, input_dict, future_dict, cores_per_task
         for k in input_dict["cancel"]:
             future_dict[k].cancel()
         return {"result": True}
-
-
-def _update_dict_delta(dict_input, dict_output, keys_possible_lst):
-    return {
-        k: v
-        for k, v in dict_input.items()
-        if k in keys_possible_lst and k not in dict_output.keys()
-    }
 
 
 def _update_futures(future_dict, hash_lst=None):

@@ -1,6 +1,7 @@
 import unittest
 from concurrent.futures import ThreadPoolExecutor
-from pympipool.shared_functions.parallel_executors import map_funct, parse_socket_communication, call_funct
+from pympipool.legacy.shared.backend import map_funct, parse_socket_communication
+from pympipool.shared.backend import call_funct
 
 
 def function_multi_args(a, b):

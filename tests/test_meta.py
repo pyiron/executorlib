@@ -1,13 +1,14 @@
 from concurrent.futures import as_completed, Future, Executor
 from queue import Queue
 import unittest
-from pympipool.external_interfaces.meta import (
-    _executor_broker,
+from pympipool.shared.broker import (
+    executor_broker,
     _execute_task_dict,
     _get_future_done,
     _get_executor_list,
-    MetaExecutor,
 )
+
+from pympipool.interfaces.taskbroker import HPCExecutor
 
 
 def calc(i):
@@ -49,7 +50,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        _executor_broker(future_queue=q, max_workers=1)
+        executor_broker(future_queue=q, max_workers=1)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
         q.join()
@@ -57,7 +58,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
 
 class TestMetaExecutor(unittest.TestCase):
     def test_meta_executor(self):
-        with MetaExecutor(max_workers=2) as exe:
+        with HPCExecutor(max_workers=2) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
