@@ -37,7 +37,7 @@ setup(
     entry_points={
             "console_scripts": [
                 'pympipool=pympipool.backend.mpiexec:main',
-                'pympipool-legacy=pympipool.legacy.backend:main'
+                'pympipool-legacy=pympipool.legacy.backend.mpipool:main'
             ]
     }
 )
