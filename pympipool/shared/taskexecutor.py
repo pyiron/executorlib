@@ -88,7 +88,7 @@ def command_line_options(
         raise ValueError("GPU binding is only supported for flux and SLURM backend.")
     if oversubscribe:
         command_lst += ["--oversubscribe"]
-    command_lst += ["-n", str(cores), "python", path]
+    command_lst += ["-n", str(cores), "pympipool"]
     if enable_flux_backend or enable_slurm_backend or enable_multi_host:
         command_lst += [
             "--host",

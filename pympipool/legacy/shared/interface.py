@@ -52,13 +52,13 @@ def command_line_options(
     if oversubscribe:
         command_lst += ["--oversubscribe"]
     if cores_per_task == 1 and enable_mpi4py_backend:
-        command_lst += ["-n", str(cores), "python", "-m", "mpi4py.futures"]
+        command_lst += ["-n", str(cores), "python", "-m", "mpi4py.futures", "-c"]
     elif cores_per_task > 1 and enable_mpi4py_backend:
         # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
         # https://github.com/mpi4py/mpi4py/issues/324
-        command_lst += ["-n", "1", "python"]
+        command_lst += ["-n", "1"]
     else:
-        command_lst += ["-n", str(cores), "python"]
+        command_lst += ["-n", str(cores)]
     command_lst += [path]
     if enable_flux_backend or enable_slurm_backend or enable_multi_host:
         command_lst += [
@@ -108,13 +108,9 @@ def get_parallel_subprocess_command(
         list: list of strings to be executed on the command line
     """
     if enable_mpi4py_backend:
-        executable = os.path.abspath(
-            os.path.join(__file__, "..", "..", "backend", "mpipool.py")
-        )
+        executable = "pympipool-legacy"
     else:
-        executable = os.path.abspath(
-            os.path.join(__file__, "..", "..", "..", "backend", "mpiexec.py")
-        )
+        executable = "pympipool"
     return command_line_options(
         hostname=socket.gethostname(),
         port_selected=port_selected,
