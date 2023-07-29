@@ -41,7 +41,13 @@ these [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent
 asynchronous workflows can be constructed which periodically check if the computation is completed `done()` and then
 query the results using the `result()` function. The limitation of the `pympipool.Executor` is lack of load balancing, 
 each `pympipool.Executor` acts as a serial first in first out (FIFO) queue. So it is the task of the user to balance the
-load of many different tasks over multiple `pympipool.Executor` instances. 
+load of many different tasks over multiple `pympipool.Executor` instances.
+* [`pympipool.HPCExecutor`](https://pympipool.readthedocs.io/en/latest/interfaces.html#hpcexecutor>): To address the 
+limitation of the `pympipool.Executor` that only a single task is executed at any time, the `pympipool.HPCExecutor` 
+provides a wrapper around multiple `pympipool.Executor` objects. It balances the queues of the individual 
+`pympipool.Executor` objects to maximize the throughput for the given resources. This functionality comes with an 
+additional overhead of another thread, acting as a broker between the task queue of the `pympipool.HPCExecutor` and the
+individual `pympipool.Executor` objects. 
 * [`pympipool.PoolExecutor`](https://pympipool.readthedocs.io/en/latest/interfaces.html#poolexecutor): To combine the 
 functionality of the `pympipool.Pool` and the `pympipool.Executor` the `pympipool.PoolExecutor` again connects to the
 [`mpi4py.futures.MPIPoolExecutor`](https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html#mpipoolexecutor).
@@ -79,13 +85,16 @@ extended documentation is linked below.
 * [Interfaces](https://pympipool.readthedocs.io/en/latest/interfaces.html) 
   * [Pool](https://pympipool.readthedocs.io/en/latest/interfaces.html#pool)
   * [Executor](https://pympipool.readthedocs.io/en/latest/interfaces.html#executor)
+  * [HPCExecutor](https://pympipool.readthedocs.io/en/latest/interfaces.html#hpcexecutor>)
   * [ParallelExecutor](https://pympipool.readthedocs.io/en/latest/interfaces.html#poolexecutor)
   * [MPISpawnPool](https://pympipool.readthedocs.io/en/latest/interfaces.html#mpispawnpool)
   * [SocketInterface](https://pympipool.readthedocs.io/en/latest/interfaces.html#socketinterface)
 * [Development](https://pympipool.readthedocs.io/en/latest/development.html) 
 
 # License
-`pympipool` is released under the BSD license https://github.com/pyiron/pympipool/blob/main/LICENSE . It is a spin-off of the `pyiron` project https://github.com/pyiron/pyiron therefore if you use `pympipool` for calculation which result in a scientific publication, please cite: 
+`pympipool` is released under the BSD license https://github.com/pyiron/pympipool/blob/main/LICENSE . It is a spin-off 
+of the `pyiron` project https://github.com/pyiron/pyiron therefore if you use `pympipool` for calculation which result 
+in a scientific publication, please cite: 
 
     @article{pyiron-paper,
       title = {pyiron: An integrated development environment for computational materials science},
