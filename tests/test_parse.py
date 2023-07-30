@@ -1,7 +1,7 @@
 import os
 import unittest
 from pympipool.shared.backend import parse_arguments
-from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface
+from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface, SlurmSubprocessInterface
 
 
 class TestParser(unittest.TestCase):
@@ -37,6 +37,25 @@ class TestParser(unittest.TestCase):
             '--zmqport', result_dict['zmqport']
         ]
         interface = FluxCmdInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=0, oversubscribe=False)
+        self.assertEqual(
+            command_lst,
+            interface.generate_command(command_lst=['python', '/', '--host', result_dict['host'], '--zmqport', result_dict['zmqport']])
+        )
+        self.assertEqual(result_dict, parse_arguments(command_lst))
+
+    def test_command_slurm(self):
+        result_dict = {
+            'host': "127.0.0.1",
+            'zmqport': '22',
+        }
+        command_lst = [
+            'srun', '-n', '2',
+            "-D", os.path.abspath("."),
+            'python', '/',
+            '--host', result_dict['host'],
+            '--zmqport', result_dict['zmqport']
+        ]
+        interface = SlurmSubprocessInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=0, oversubscribe=False)
         self.assertEqual(
             command_lst,
             interface.generate_command(command_lst=['python', '/', '--host', result_dict['host'], '--zmqport', result_dict['zmqport']])
