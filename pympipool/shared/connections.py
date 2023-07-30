@@ -214,6 +214,23 @@ def get_connection_interface(
     queue_type=None,
     queue_adapter_kwargs=None,
 ):
+    """
+    Backwards compatibility adapter to get the connection interface
+
+    Args:
+        cwd (str/None): current working directory where the parallel python task is executed
+        cores (int): defines the total number of MPI ranks to use
+        gpus_per_core (int): number of GPUs per MPI rank - defaults to 0
+        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
+        enable_flux_backend (bool): use the flux-framework as backend rather than just calling mpiexec
+        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
+        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
+        queue_type (str): type of the queuing system
+        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
+
+    Returns:
+        pympipool.shared.connections.BaseInterface: Connection interface
+    """
     if queue_adapter is not None:
         connections = PysqaInterface(
             cwd=cwd,
