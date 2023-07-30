@@ -40,7 +40,7 @@ jobs:
         environment-file: ${{ matrix.environment-file }}
     - name: Install flux
       shell: bash -l {0}
-      run: mamba install -y flux-core coverage coveralls =3.3.1
+      run: mamba install -y flux-core coverage coveralls=3.3.1
     - name: Setup
       shell: bash -l {0}
       run: pip install --no-deps .
