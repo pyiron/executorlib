@@ -59,7 +59,7 @@ jobs:
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
     - name: Test Flux
-      shell: 'script -q -e -c "bash {0}"'
+      shell: 'script -q -e -c "bash -l {0}"'
       timeout-minutes: 5
       run: |
         flux start
