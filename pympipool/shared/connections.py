@@ -178,7 +178,8 @@ class FluxPythonInterface(BaseInterface):
             num_nodes=None,
             exclusive=False,
         )
-        jobspec.cwd = self._cwd
+        if self._cwd is not None:
+            jobspec.cwd = self._cwd
         self._future = self._executor.submit(jobspec)
 
     def shutdown(self, wait=True):
