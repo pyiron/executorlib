@@ -71,10 +71,7 @@ class Pool(PoolBase):
     ):
         super().__init__()
         self._interface = interface_bootup(
-            command_lst=get_pool_command(
-                cores_total=max_workers,
-                ranks_per_task=1
-            )[0],
+            command_lst=get_pool_command(cores_total=max_workers, ranks_per_task=1)[0],
             cwd=cwd,
             cores=max_workers,
             gpus_per_core=gpus_per_task,
@@ -175,8 +172,7 @@ class MPISpawnPool(PoolBase):
     ):
         super().__init__()
         command_lst, cores = get_pool_command(
-            cores_total=max_ranks,
-            ranks_per_task=ranks_per_task
+            cores_total=max_ranks, ranks_per_task=ranks_per_task
         )
         self._interface = interface_bootup(
             command_lst=command_lst,

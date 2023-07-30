@@ -34,10 +34,7 @@ def execute_serial_tasks(
     """
     future_dict = {}
     interface = interface_bootup(
-        command_lst=get_pool_command(
-            cores_total=cores,
-            ranks_per_task=1
-        )[0],
+        command_lst=get_pool_command(cores_total=cores, ranks_per_task=1)[0],
         cwd=cwd,
         cores=cores,
         gpus_per_core=gpus_per_task,
