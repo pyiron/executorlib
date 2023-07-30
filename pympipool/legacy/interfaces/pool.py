@@ -185,12 +185,15 @@ class MPISpawnPool(PoolBase):
         queue_adapter_kwargs=None,
     ):
         super().__init__()
-        command_lst = [
-            "python",
-            os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpipool.py")
-            ),
-        ]
+        executable = os.path.abspath(
+            os.path.join(__file__, "..", "..", "backend", "mpipool.py")
+        )
+        if ranks_per_task == 1:
+            command_lst = ["python", "-m", "mpi4py.futures", executable]
+        else:
+            # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
+            # https://github.com/mpi4py/mpi4py/issues/324
+            command_lst = ["-n", "1", "python", executable]
         self._interface, command_lst = interface_init(
             command_lst=command_lst,
             cwd=cwd,
