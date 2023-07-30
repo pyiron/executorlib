@@ -188,7 +188,7 @@ class FluxPythonInterface(BaseInterface):
         self._executor.shutdown(wait=wait)
 
     def poll(self):
-        return self._executor is not None
+        return self._future is not None and not self._future.done()
 
 
 def generate_slurm_command(cores, cwd, gpus_per_core=0, oversubscribe=False):
