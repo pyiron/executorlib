@@ -133,7 +133,7 @@ def interface_bootup(
     return interface
 
 
-def connect_to_socket_interface(host, port):
+def interface_connect(host, port):
     """
     Connect to an existing SocketInterface instance by providing the hostname and the port as strings.
 
@@ -147,7 +147,7 @@ def connect_to_socket_interface(host, port):
     return context, socket
 
 
-def send_result(socket, result_dict):
+def interface_send(socket, result_dict):
     """
     Send results to a SocketInterface instance.
 
@@ -158,7 +158,7 @@ def send_result(socket, result_dict):
     socket.send(cloudpickle.dumps(result_dict))
 
 
-def receive_instruction(socket):
+def interface_receive(socket):
     """
     Receive instructions from a SocketInterface instance.
 
@@ -168,7 +168,7 @@ def receive_instruction(socket):
     return cloudpickle.loads(socket.recv())
 
 
-def close_connection(socket, context):
+def interface_shutdown(socket, context):
     """
     Close the connection to a SocketInterface instance.
 
