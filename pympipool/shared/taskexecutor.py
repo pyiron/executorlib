@@ -76,7 +76,7 @@ def execute_parallel_tasks(
         "python",
         os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
     ]
-    interface, command_lst = interface_init(
+    interface = interface_bootup(
         command_lst=command_lst,
         cwd=cwd,
         cores=cores,
@@ -87,11 +87,10 @@ def execute_parallel_tasks(
         queue_adapter=queue_adapter,
         queue_adapter_kwargs=queue_adapter_kwargs,
     )
-    interface.bootup(command_lst=command_lst)
     _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
 
-def interface_init(
+def interface_bootup(
     command_lst,
     cwd,
     cores=1,
@@ -124,7 +123,8 @@ def interface_init(
         "--zmqport",
         str(interface.bind_to_random_port()),
     ]
-    return interface, command_lst
+    interface.bootup(command_lst=command_lst)
+    return interface
 
 
 def _execute_parallel_tasks_loop(interface, future_queue):

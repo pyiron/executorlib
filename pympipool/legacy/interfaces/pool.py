@@ -1,7 +1,7 @@
 from abc import ABC
 import os
 
-from pympipool.shared.taskexecutor import cloudpickle_register, interface_init
+from pympipool.shared.taskexecutor import cloudpickle_register, interface_bootup
 
 
 class PoolBase(ABC):
@@ -76,8 +76,12 @@ class Pool(PoolBase):
             os.path.abspath(
                 os.path.join(__file__, "..", "..", "backend", "mpipool.py")
             ),
+            "--cores-per-task",
+            str(1),
+            "--cores-total",
+            str(max_workers),
         ]
-        self._interface, command_lst = interface_init(
+        self._interface = interface_bootup(
             command_lst=command_lst,
             cwd=cwd,
             cores=max_workers,
@@ -88,13 +92,6 @@ class Pool(PoolBase):
             queue_adapter=queue_adapter,
             queue_adapter_kwargs=queue_adapter_kwargs,
         )
-        command_lst += [
-            "--cores-per-task",
-            str(1),
-            "--cores-total",
-            str(max_workers),
-        ]
-        self._interface.bootup(command_lst=command_lst)
 
     def map(self, func, iterable, chunksize=None):
         """
@@ -190,14 +187,22 @@ class MPISpawnPool(PoolBase):
         )
         if ranks_per_task == 1:
             command_lst = ["python", "-m", "mpi4py.futures", executable]
+            cores = max_ranks
         else:
             # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
             # https://github.com/mpi4py/mpi4py/issues/324
             command_lst = ["-n", "1", "python", executable]
-        self._interface, command_lst = interface_init(
+            cores = 1
+        command_lst += [
+            "--cores-per-task",
+            str(ranks_per_task),
+            "--cores-total",
+            str(max_ranks),
+        ]
+        self._interface = interface_bootup(
             command_lst=command_lst,
             cwd=cwd,
-            cores=1,
+            cores=cores,
             gpus_per_core=gpus_per_task,
             oversubscribe=oversubscribe,
             enable_flux_backend=False,
@@ -205,13 +210,6 @@ class MPISpawnPool(PoolBase):
             queue_adapter=queue_adapter,
             queue_adapter_kwargs=queue_adapter_kwargs,
         )
-        command_lst += [
-            "--cores-per-task",
-            str(ranks_per_task),
-            "--cores-total",
-            str(max_ranks),
-        ]
-        self._interface.bootup(command_lst=command_lst)
 
     def map(self, func, iterable, chunksize=None):
         """

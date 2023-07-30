@@ -2,7 +2,7 @@ import os
 import queue
 import time
 
-from pympipool.shared.taskexecutor import interface_init
+from pympipool.shared.taskexecutor import interface_bootup
 
 
 def execute_serial_tasks(
@@ -38,8 +38,12 @@ def execute_serial_tasks(
         "-m",
         "mpi4py.futures",
         os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpipool.py")),
+        "--cores-per-task",
+        str(1),
+        "--cores-total",
+        str(cores),
     ]
-    interface, command_lst = interface_init(
+    interface = interface_bootup(
         command_lst=command_lst,
         cwd=cwd,
         cores=cores,
@@ -50,13 +54,6 @@ def execute_serial_tasks(
         queue_adapter=queue_adapter,
         queue_adapter_kwargs=queue_adapter_kwargs,
     )
-    command_lst += [
-        "--cores-per-task",
-        str(1),
-        "--cores-total",
-        str(cores),
-    ]
-    interface.bootup(command_lst=command_lst)
     _execute_serial_tasks_loop(
         interface=interface,
         future_queue=future_queue,
