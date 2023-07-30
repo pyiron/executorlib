@@ -3,9 +3,16 @@ from queue import Queue
 
 import numpy as np
 import unittest
-from flux.job import FluxExecutor
+
 from pympipool.shared.taskexecutor import cloudpickle_register
 from pympipool.interfaces.fluxbroker import SingleTaskExecutor, PyFluxExecutor, execute_parallel_tasks, executor_broker
+
+
+try:
+    from flux.job import FluxExecutor
+    skip_flux_test = False
+except ImportError:
+    skip_flux_test = True
 
 
 def calc(i):
@@ -19,6 +26,7 @@ def mpi_funct(i):
     return i, size, rank
 
 
+@unittest.skipIf(skip_flux_test, "Flux is not installed, so the flux tests are skipped.")
 class TestFlux(unittest.TestCase):
     def setUp(self):
         self.executor = FluxExecutor()
