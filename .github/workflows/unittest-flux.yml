@@ -61,7 +61,7 @@ jobs:
     - name: Test Flux
       shell: 'script -q -e -c "bash -l {0}"'
       timeout-minutes: 5
-      run: |
+      run: >
         flux start
         coverage run --omit pympipool/_version.py -m unittest $f;
       env:
