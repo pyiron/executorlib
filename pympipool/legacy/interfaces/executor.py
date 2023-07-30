@@ -1,6 +1,7 @@
-from pympipool.interfaces.taskexecutor import ExecutorBase
+from pympipool.interfaces.base import ExecutorBase
 from pympipool.shared.thread import RaisingThread
 from pympipool.legacy.shared.interface import execute_serial_tasks
+from pympipool.shared.taskexecutor import cloudpickle_register
 
 
 class PoolExecutor(ExecutorBase):
@@ -68,3 +69,4 @@ class PoolExecutor(ExecutorBase):
             },
         )
         self._process.start()
+        cloudpickle_register(ind=3)
