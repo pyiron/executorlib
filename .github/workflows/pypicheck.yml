@@ -13,11 +13,13 @@ jobs:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-        auto-update-conda: true
         python-version: '3.11'
-        channel-priority: strict
-        environment-file: .ci_support/environment-openmpi.yml
+        mamba-version: "*"
+        channels: conda-forge
         miniforge-variant: Mambaforge
+        channel-priority: strict
+        auto-update-conda: true
+        environment-file: .ci_support/environment-openmpi.yml
     - name: Setup
       shell: bash -l {0}
       run: |
