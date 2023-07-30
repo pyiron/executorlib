@@ -14,8 +14,6 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, macos-latest]
-        python-version: ['3.11']
         include:
         - operating-system: macos-latest
           python-version: '3.11'
