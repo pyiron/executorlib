@@ -3,12 +3,16 @@ import queue
 import socket
 from time import sleep
 
-from pympipool.shared.broker import MetaExecutorFuture, _get_future_done, _execute_task_dict
+from pympipool.shared.broker import (
+    MetaExecutorFuture,
+    _get_future_done,
+    _execute_task_dict,
+)
 from pympipool.interfaces.base import ExecutorBase
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.taskexecutor import (
     cloudpickle_register,
-    _execute_parallel_tasks_loop
+    _execute_parallel_tasks_loop,
 )
 from pympipool.shared.connections import FluxPythonInterface
 from pympipool.shared.communication import SocketInterface
