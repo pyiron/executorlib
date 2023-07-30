@@ -26,7 +26,7 @@ def mpi_funct(i):
     return i, size, rank
 
 
-# @unittest.skipIf(skip_flux_test, "Flux is not installed, so the flux tests are skipped.")
+@unittest.skipIf(skip_flux_test, "Flux is not installed, so the flux tests are skipped.")
 class TestFlux(unittest.TestCase):
     def setUp(self):
         # self.executor = FluxExecutor()
