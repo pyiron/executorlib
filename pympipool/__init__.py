@@ -12,11 +12,12 @@ from pympipool.legacy.interfaces.pool import Pool, MPISpawnPool
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.taskexecutor import cancel_items_in_queue
 from pympipool.shared.connections import (
-    MpiExecInterface,
-    SlurmSubprocessInterface,
-    FluxPythonInterface,
+    get_connection_interface,
     FluxCmdInterface,
+    FluxPythonInterface,
+    MpiExecInterface,
     PysqaInterface,
+    SlurmSubprocessInterface,
 )
 
 from ._version import get_versions
