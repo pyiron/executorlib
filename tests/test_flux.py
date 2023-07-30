@@ -29,22 +29,21 @@ def mpi_funct(i):
 @unittest.skipIf(skip_flux_test, "Flux is not installed, so the flux tests are skipped.")
 class TestFlux(unittest.TestCase):
     def setUp(self):
-        # self.executor = FluxExecutor()
-        self.executor = None
+        self.executor = FluxExecutor()
 
-    # def test_flux_executor(self):
-    #     with PyFluxExecutor(max_workers=2, executor=self.executor) as exe:
-    #         fs_1 = exe.submit(calc, 1)
-    #         fs_2 = exe.submit(calc, 2)
-    #         self.assertEqual(fs_1.result(), 1)
-    #         self.assertEqual(fs_2.result(), 2)
-    #         self.assertTrue(fs_1.done())
-    #         self.assertTrue(fs_2.done())
+    def test_flux_executor(self):
+        with PyFluxExecutor(max_workers=2, executor=self.executor) as exe:
+            fs_1 = exe.submit(calc, 1)
+            fs_2 = exe.submit(calc, 2)
+            self.assertEqual(fs_1.result(), 1)
+            self.assertEqual(fs_2.result(), 2)
+            self.assertTrue(fs_1.done())
+            self.assertTrue(fs_2.done())
 
-    # def test_single_task(self):
-    #     with SingleTaskExecutor(cores=2, executor=self.executor) as p:
-    #         output = p.map(mpi_funct, [1, 2, 3])
-    #     self.assertEqual(list(output), [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]])
+    def test_single_task(self):
+        with SingleTaskExecutor(cores=2, executor=self.executor) as p:
+            output = p.map(mpi_funct, [1, 2, 3])
+        self.assertEqual(list(output), [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]])
 
     def test_execute_task(self):
         f = Future()
@@ -60,12 +59,12 @@ class TestFlux(unittest.TestCase):
         self.assertEqual(f.result(), np.array(4))
         q.join()
 
-    # def test_executor_broker(self):
-    #     q = Queue()
-    #     f = Future()
-    #     q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
-    #     q.put({"shutdown": True, "wait": True})
-    #     executor_broker(future_queue=q, max_workers=1, executor=self.executor)
-    #     self.assertTrue(f.done())
-    #     self.assertEqual(f.result(), 1)
-    #     q.join()
+    def test_executor_broker(self):
+        q = Queue()
+        f = Future()
+        q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
+        q.put({"shutdown": True, "wait": True})
+        executor_broker(future_queue=q, max_workers=1, executor=self.executor)
+        self.assertTrue(f.done())
+        self.assertEqual(f.result(), 1)
+        q.join()

@@ -170,7 +170,6 @@ class FluxPythonInterface(BaseInterface):
             )
         if self._executor is None:
             self._executor = flux.job.FluxExecutor()
-        print("Debug flux command:", command_lst)
         jobspec = flux.job.JobspecV1.from_command(
             command=command_lst,
             num_tasks=1,
