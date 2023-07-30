@@ -173,8 +173,8 @@ class FluxPythonInterface(BaseInterface):
             self._executor = flux.job.FluxExecutor()
         jobspec = flux.job.JobspecV1.from_command(
             command=command_lst,
-            num_tasks=1,
-            cores_per_task=self._cores,
+            num_tasks=self._cores,
+            cores_per_task=1,
             gpus_per_task=self._gpus_per_core,
             num_nodes=None,
             exclusive=False,

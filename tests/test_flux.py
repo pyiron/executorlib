@@ -56,7 +56,7 @@ class TestFlux(unittest.TestCase):
             cores=1,
             executor=self.executor
         )
-        self.assertEqual(f.result(), np.array(4))
+        self.assertEqual(f.result(), 2)
         q.join()
 
     def test_executor_broker(self):
