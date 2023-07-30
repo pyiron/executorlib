@@ -191,7 +191,7 @@ class MPISpawnPool(PoolBase):
         else:
             # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
             # https://github.com/mpi4py/mpi4py/issues/324
-            command_lst = ["-n", "1", "python", executable]
+            command_lst = ["python", executable]
             cores = 1
         command_lst += [
             "--cores-per-task",
