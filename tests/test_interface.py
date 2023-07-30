@@ -1,4 +1,5 @@
 import os
+import sys
 
 import numpy as np
 import unittest
@@ -24,7 +25,7 @@ class TestInterface(unittest.TestCase):
             )
         )
         interface.bootup(command_lst=[
-            "python",
+            sys.executable,
             os.path.abspath(os.path.join(__file__, "..", "..", "pympipool", "backend", "mpiexec.py")),
             "--zmqport",
             str(interface.bind_to_random_port()),

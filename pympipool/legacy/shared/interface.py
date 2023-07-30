@@ -1,5 +1,6 @@
 import os
 import queue
+import sys
 import time
 
 from pympipool.shared.communication import interface_bootup
@@ -57,12 +58,12 @@ def get_pool_command(cores_total, ranks_per_task=1):
         os.path.join(__file__, "..", "..", "backend", "mpipool.py")
     )
     if ranks_per_task == 1:
-        command_lst = ["python", "-m", "mpi4py.futures", executable]
+        command_lst = [sys.executable, "-m", "mpi4py.futures", executable]
         cores = cores_total
     else:
         # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
         # https://github.com/mpi4py/mpi4py/issues/324
-        command_lst = ["python", executable]
+        command_lst = [sys.executable, executable]
         cores = 1
     command_lst += [
         "--cores-per-task",
