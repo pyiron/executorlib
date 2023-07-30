@@ -1,7 +1,7 @@
 from abc import ABC
-import os
 
-from pympipool.shared.taskexecutor import cloudpickle_register, interface_bootup
+from pympipool.shared.communication import interface_bootup
+from pympipool.shared.taskexecutor import cloudpickle_register
 from pympipool.legacy.shared.interface import get_pool_command
 
 

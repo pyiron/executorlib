@@ -1,12 +1,10 @@
 import inspect
 import os
-import socket
 import queue
 
 import cloudpickle
 
-from pympipool.shared.communication import SocketInterface
-from pympipool.shared.connections import get_connection_interface
+from pympipool.shared.communication import interface_bootup
 
 
 def cancel_items_in_queue(que):
@@ -88,43 +86,6 @@ def execute_parallel_tasks(
         queue_adapter_kwargs=queue_adapter_kwargs,
     )
     _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
-
-
-def interface_bootup(
-    command_lst,
-    cwd=None,
-    cores=1,
-    gpus_per_core=0,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
-    queue_adapter=None,
-    queue_type=None,
-    queue_adapter_kwargs=None,
-):
-    if enable_flux_backend or enable_slurm_backend or queue_adapter is not None:
-        command_lst += [
-            "--host",
-            socket.gethostname(),
-        ]
-    connections = get_connection_interface(
-        cwd=cwd,
-        cores=cores,
-        gpus_per_core=gpus_per_core,
-        oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=enable_slurm_backend,
-        queue_adapter=queue_adapter,
-        queue_type=queue_type,
-        queue_adapter_kwargs=queue_adapter_kwargs,
-    )
-    interface = SocketInterface(interface=connections)
-    command_lst += [
-        "--zmqport",
-        str(interface.bind_to_random_port()),
-    ]
-    interface.bootup(command_lst=command_lst)
-    return interface
 
 
 def _execute_parallel_tasks_loop(interface, future_queue):

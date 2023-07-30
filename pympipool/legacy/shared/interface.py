@@ -2,7 +2,7 @@ import os
 import queue
 import time
 
-from pympipool.shared.taskexecutor import interface_bootup
+from pympipool.shared.communication import interface_bootup
 
 
 def execute_serial_tasks(
