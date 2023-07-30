@@ -21,10 +21,21 @@ class TestParser(unittest.TestCase):
             '--cores-per-task', result_dict['cores_per_task'],
             '--cores-total', result_dict['total_cores']
         ]
-        interface = MpiExecInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=0, oversubscribe=True)
+        interface = MpiExecInterface(
+            cwd=os.path.abspath("."),
+            cores=2,
+            gpus_per_core=0,
+            oversubscribe=True
+        )
         self.assertEqual(
             command_lst,
-            interface.generate_command(command_lst=['python', '-m', 'mpi4py.futures', '/', '--zmqport', result_dict['zmqport'], '--cores-per-task', '1', '--cores-total', '2'])
+            interface.generate_command(
+                command_lst=[
+                    'python', '-m', 'mpi4py.futures', '/',
+                    '--zmqport', result_dict['zmqport'],
+                    '--cores-per-task', '1', '--cores-total', '2'
+                ]
+            )
         )
         self.assertEqual(result_dict, parse_arguments(command_lst))
 
@@ -44,10 +55,20 @@ class TestParser(unittest.TestCase):
             '--cores-per-task', result_dict['cores_per_task'],
             '--cores-total', result_dict['total_cores']
         ]
-        interface = FluxCmdInterface(cwd=os.path.abspath("."), cores=1, gpus_per_core=0, oversubscribe=False)
+        interface = FluxCmdInterface(
+            cwd=os.path.abspath("."),
+            cores=1,
+            gpus_per_core=0,
+            oversubscribe=False
+        )
         self.assertEqual(
             command_lst,
             interface.generate_command(
-                command_lst=['python', '/', '--host', result_dict['host'], '--zmqport', result_dict['zmqport'], '--cores-per-task', '2', '--cores-total', '2'])
+                command_lst=[
+                    'python', '/', '--host', result_dict['host'],
+                    '--zmqport', result_dict['zmqport'],
+                    '--cores-per-task', '2', '--cores-total', '2'
+                ]
+            )
         )
         self.assertEqual(result_dict, parse_arguments(command_lst))
