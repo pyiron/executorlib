@@ -58,7 +58,7 @@ jobs:
       run: pip install --no-deps .
     - name: Test
       shell: bash -l {0}
-      timeout-minutes: 30
+      timeout-minutes: 5
       run: for f in $(ls tests/test_*.py); do echo $f; coverage run --omit pympipool/_version.py -m unittest $f; done
       env:
         OMPI_MCA_plm: 'isolated'

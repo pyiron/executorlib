@@ -65,12 +65,10 @@ def command_line_options(
         port_selected (int): port the SocketInterface instance runs on.
         path (str): path to the python script which should be executed as client process.
         cores (int): defines the total number of MPI ranks to use
-        cores_per_task (int): number of MPI ranks per task - defaults to 1
         gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
         enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
-        enable_mpi4py_backend (bool): enable the mpi4py.futures module - defaults to True
         enable_multi_host (bool): communicate the host to connect to - defaults to False
 
     Returns:
