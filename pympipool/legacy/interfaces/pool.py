@@ -2,6 +2,7 @@ from abc import ABC
 import os
 
 from pympipool.shared.taskexecutor import cloudpickle_register, interface_bootup
+from pympipool.legacy.shared.interface import get_pool_command
 
 
 class PoolBase(ABC):
@@ -69,20 +70,11 @@ class Pool(PoolBase):
         queue_adapter_kwargs=None,
     ):
         super().__init__()
-        command_lst = [
-            "python",
-            "-m",
-            "mpi4py.futures",
-            os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpipool.py")
-            ),
-            "--cores-per-task",
-            str(1),
-            "--cores-total",
-            str(max_workers),
-        ]
         self._interface = interface_bootup(
-            command_lst=command_lst,
+            command_lst=get_pool_command(
+                cores_total=max_workers,
+                ranks_per_task=1
+            )[0],
             cwd=cwd,
             cores=max_workers,
             gpus_per_core=gpus_per_task,
@@ -182,23 +174,10 @@ class MPISpawnPool(PoolBase):
         queue_adapter_kwargs=None,
     ):
         super().__init__()
-        executable = os.path.abspath(
-            os.path.join(__file__, "..", "..", "backend", "mpipool.py")
+        command_lst, cores = get_pool_command(
+            cores_total=max_ranks,
+            ranks_per_task=ranks_per_task
         )
-        if ranks_per_task == 1:
-            command_lst = ["python", "-m", "mpi4py.futures", executable]
-            cores = max_ranks
-        else:
-            # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
-            # https://github.com/mpi4py/mpi4py/issues/324
-            command_lst = ["python", executable]
-            cores = 1
-        command_lst += [
-            "--cores-per-task",
-            str(ranks_per_task),
-            "--cores-total",
-            str(max_ranks),
-        ]
         self._interface = interface_bootup(
             command_lst=command_lst,
             cwd=cwd,

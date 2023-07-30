@@ -33,18 +33,11 @@ def execute_serial_tasks(
        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
     """
     future_dict = {}
-    command_lst = [
-        "python",
-        "-m",
-        "mpi4py.futures",
-        os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpipool.py")),
-        "--cores-per-task",
-        str(1),
-        "--cores-total",
-        str(cores),
-    ]
     interface = interface_bootup(
-        command_lst=command_lst,
+        command_lst=get_pool_command(
+            cores_total=cores,
+            ranks_per_task=1
+        )[0],
         cwd=cwd,
         cores=cores,
         gpus_per_core=gpus_per_task,
@@ -60,6 +53,27 @@ def execute_serial_tasks(
         future_dict=future_dict,
         sleep_interval=sleep_interval,
     )
+
+
+def get_pool_command(cores_total, ranks_per_task=1):
+    executable = os.path.abspath(
+        os.path.join(__file__, "..", "..", "backend", "mpipool.py")
+    )
+    if ranks_per_task == 1:
+        command_lst = ["python", "-m", "mpi4py.futures", executable]
+        cores = cores_total
+    else:
+        # Running MPI parallel tasks within the map() requires mpi4py to use mpi spawn:
+        # https://github.com/mpi4py/mpi4py/issues/324
+        command_lst = ["python", executable]
+        cores = 1
+    command_lst += [
+        "--cores-per-task",
+        str(ranks_per_task),
+        "--cores-total",
+        str(cores_total),
+    ]
+    return command_lst, cores
 
 
 def _execute_serial_tasks_loop(
