@@ -63,7 +63,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        coverage run --omit pympipool/_version.py -m unittest $f;
+        coverage run --omit pympipool/_version.py -m unittest tests/test_flux.py;
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
