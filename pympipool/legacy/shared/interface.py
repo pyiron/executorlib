@@ -50,6 +50,12 @@ def execute_serial_tasks(
         queue_adapter=queue_adapter,
         queue_adapter_kwargs=queue_adapter_kwargs,
     )
+    command_lst += [
+        "--cores-per-task",
+        str(1),
+        "--cores-total",
+        str(cores),
+    ]
     interface.bootup(command_lst=command_lst)
     _execute_serial_tasks_loop(
         interface=interface,

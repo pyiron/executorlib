@@ -1,5 +1,4 @@
 import os
-import socket
 
 import numpy as np
 import unittest
@@ -26,7 +25,9 @@ class TestInterface(unittest.TestCase):
         )
         interface.bootup(command_lst=[
             "python",
-            os.path.abspath(os.path.join(__file__, "..", "..", "pympipool", "backend", "mpiexec.py"))
+            os.path.abspath(os.path.join(__file__, "..", "..", "pympipool", "backend", "mpiexec.py")),
+            "--zmqport",
+            str(interface.bind_to_random_port()),
         ])
         self.assertEqual(interface.send_and_receive_dict(input_dict=task_dict), np.array(4))
         interface.shutdown(wait=True)

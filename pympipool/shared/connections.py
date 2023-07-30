@@ -88,7 +88,7 @@ class PysqaInterface(BaseInterface):
         oversubscribe=False,
         queue_adapter=None,
         queue_type=None,
-        queue_adapter_kwargs={},
+        queue_adapter_kwargs=None,
     ):
         super().__init__(
             cwd=cwd,

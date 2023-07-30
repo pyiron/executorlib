@@ -88,6 +88,12 @@ class Pool(PoolBase):
             queue_adapter=queue_adapter,
             queue_adapter_kwargs=queue_adapter_kwargs,
         )
+        command_lst += [
+            "--cores-per-task",
+            str(1),
+            "--cores-total",
+            str(max_workers),
+        ]
         self._interface.bootup(command_lst=command_lst)
 
     def map(self, func, iterable, chunksize=None):
@@ -181,8 +187,6 @@ class MPISpawnPool(PoolBase):
         super().__init__()
         command_lst = [
             "python",
-            "-m",
-            "mpi4py.futures",
             os.path.abspath(
                 os.path.join(__file__, "..", "..", "backend", "mpipool.py")
             ),
