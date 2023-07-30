@@ -6,12 +6,7 @@ import queue
 import cloudpickle
 
 from pympipool.shared.communication import SocketInterface
-from pympipool.shared.connections import (
-    MpiExecInterface,
-    SlurmSubprocessInterface,
-    FluxCmdInterface,
-    PysqaInterface,
-)
+from pympipool.shared.connections import get_connection_interface
 
 
 def cancel_items_in_queue(que):
@@ -81,49 +76,55 @@ def execute_parallel_tasks(
         "python",
         os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
     ]
-    if enable_flux_backend or enable_slurm_backend:
+    interface, command_lst = interface_init(
+        command_lst=command_lst,
+        cwd=cwd,
+        cores=cores,
+        gpus_per_core=gpus_per_task,
+        oversubscribe=oversubscribe,
+        enable_flux_backend=enable_flux_backend,
+        enable_slurm_backend=enable_slurm_backend,
+        queue_adapter=queue_adapter,
+        queue_adapter_kwargs=queue_adapter_kwargs,
+    )
+    interface.bootup(command_lst=command_lst)
+    _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
+
+
+def interface_init(
+    command_lst,
+    cwd,
+    cores=1,
+    gpus_per_core=0,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    enable_slurm_backend=False,
+    queue_adapter=None,
+    queue_type=None,
+    queue_adapter_kwargs=None,
+):
+    if enable_flux_backend or enable_slurm_backend or queue_adapter is not None:
         command_lst += [
             "--host",
             socket.gethostname(),
         ]
-    if queue_adapter is not None:
-        connections = PysqaInterface(
-            cwd=cwd,
-            cores=cores,
-            gpus_per_core=gpus_per_task,
-            oversubscribe=oversubscribe,
-            queue_adapter=queue_adapter,
-            queue_type=None,
-            queue_adapter_kwargs=queue_adapter_kwargs,
-        )
-    elif enable_flux_backend:
-        connections = FluxCmdInterface(
-            cwd=cwd,
-            cores=cores,
-            gpus_per_core=gpus_per_task,
-            oversubscribe=oversubscribe,
-        )
-    elif enable_slurm_backend:
-        connections = SlurmSubprocessInterface(
-            cwd=cwd,
-            cores=cores,
-            gpus_per_core=gpus_per_task,
-            oversubscribe=oversubscribe,
-        )
-    else:
-        connections = MpiExecInterface(
-            cwd=cwd,
-            cores=cores,
-            gpus_per_core=gpus_per_task,
-            oversubscribe=oversubscribe,
-        )
+    connections = get_connection_interface(
+        cwd=cwd,
+        cores=cores,
+        gpus_per_core=gpus_per_core,
+        oversubscribe=oversubscribe,
+        enable_flux_backend=enable_flux_backend,
+        enable_slurm_backend=enable_slurm_backend,
+        queue_adapter=queue_adapter,
+        queue_type=queue_type,
+        queue_adapter_kwargs=queue_adapter_kwargs,
+    )
     interface = SocketInterface(interface=connections)
     command_lst += [
         "--zmqport",
         str(interface.bind_to_random_port()),
     ]
-    interface.bootup(command_lst=command_lst)
-    _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
+    return interface, command_lst
 
 
 def _execute_parallel_tasks_loop(interface, future_queue):

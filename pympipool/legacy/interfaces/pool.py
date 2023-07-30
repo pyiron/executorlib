@@ -1,8 +1,7 @@
 from abc import ABC
+import os
 
-from pympipool.shared.communication import SocketInterface
-from pympipool.shared.taskexecutor import cloudpickle_register
-from pympipool.legacy.shared.interface import get_parallel_subprocess_command
+from pympipool.shared.taskexecutor import cloudpickle_register, interface_init
 
 
 class PoolBase(ABC):
@@ -11,11 +10,9 @@ class PoolBase(ABC):
     alone. Rather it implements the __enter__(), __exit__() and shutdown() function shared between the derived classes.
     """
 
-    def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
+    def __init__(self):
         self._future_dict = {}
-        self._interface = SocketInterface(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
-        )
+        self._interface = None
         cloudpickle_register(ind=3)
 
     def __enter__(self):
@@ -71,24 +68,27 @@ class Pool(PoolBase):
         queue_adapter=None,
         queue_adapter_kwargs=None,
     ):
-        super().__init__(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
-        )
-        self._interface.bootup(
-            command_lst=get_parallel_subprocess_command(
-                port_selected=self._interface.bind_to_random_port(),
-                cores=max_workers,
-                cores_per_task=1,
-                gpus_per_task=gpus_per_task,
-                oversubscribe=oversubscribe,
-                enable_flux_backend=enable_flux_backend,
-                enable_slurm_backend=enable_slurm_backend,
-                enable_mpi4py_backend=True,
-                enable_multi_host=queue_adapter is not None,
+        super().__init__()
+        command_lst = [
+            "python",
+            "-m",
+            "mpi4py.futures",
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpipool.py")
             ),
+        ]
+        self._interface, command_lst = interface_init(
+            command_lst=command_lst,
             cwd=cwd,
             cores=max_workers,
+            gpus_per_core=gpus_per_task,
+            oversubscribe=oversubscribe,
+            enable_flux_backend=enable_flux_backend,
+            enable_slurm_backend=enable_slurm_backend,
+            queue_adapter=queue_adapter,
+            queue_adapter_kwargs=queue_adapter_kwargs,
         )
+        self._interface.bootup(command_lst=command_lst)
 
     def map(self, func, iterable, chunksize=None):
         """
@@ -178,24 +178,33 @@ class MPISpawnPool(PoolBase):
         queue_adapter=None,
         queue_adapter_kwargs=None,
     ):
-        super().__init__(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
-        )
-        self._interface.bootup(
-            command_lst=get_parallel_subprocess_command(
-                port_selected=self._interface.bind_to_random_port(),
-                cores=max_ranks,
-                cores_per_task=ranks_per_task,
-                gpus_per_task=gpus_per_task,
-                oversubscribe=oversubscribe,
-                enable_flux_backend=False,
-                enable_slurm_backend=False,
-                enable_mpi4py_backend=True,
-                enable_multi_host=queue_adapter is not None,
+        super().__init__()
+        command_lst = [
+            "python",
+            "-m",
+            "mpi4py.futures",
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpipool.py")
             ),
+        ]
+        self._interface, command_lst = interface_init(
+            command_lst=command_lst,
             cwd=cwd,
-            cores=max_ranks,
+            cores=1,
+            gpus_per_core=gpus_per_task,
+            oversubscribe=oversubscribe,
+            enable_flux_backend=False,
+            enable_slurm_backend=False,
+            queue_adapter=queue_adapter,
+            queue_adapter_kwargs=queue_adapter_kwargs,
         )
+        command_lst += [
+            "--cores-per-task",
+            str(ranks_per_task),
+            "--cores-total",
+            str(max_ranks),
+        ]
+        self._interface.bootup(command_lst=command_lst)
 
     def map(self, func, iterable, chunksize=None):
         """

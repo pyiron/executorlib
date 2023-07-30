@@ -201,3 +201,48 @@ def generate_mpiexec_command(cores, gpus_per_core=0, oversubscribe=False):
     if gpus_per_core > 0:
         raise ValueError()
     return command_prepend_lst
+
+
+def get_connection_interface(
+    cwd,
+    cores=1,
+    gpus_per_core=0,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    enable_slurm_backend=False,
+    queue_adapter=None,
+    queue_type=None,
+    queue_adapter_kwargs=None,
+):
+    if queue_adapter is not None:
+        connections = PysqaInterface(
+            cwd=cwd,
+            cores=cores,
+            gpus_per_core=gpus_per_core,
+            oversubscribe=oversubscribe,
+            queue_adapter=queue_adapter,
+            queue_type=queue_type,
+            queue_adapter_kwargs=queue_adapter_kwargs,
+        )
+    elif enable_flux_backend:
+        connections = FluxCmdInterface(
+            cwd=cwd,
+            cores=cores,
+            gpus_per_core=gpus_per_core,
+            oversubscribe=oversubscribe,
+        )
+    elif enable_slurm_backend:
+        connections = SlurmSubprocessInterface(
+            cwd=cwd,
+            cores=cores,
+            gpus_per_core=gpus_per_core,
+            oversubscribe=oversubscribe,
+        )
+    else:
+        connections = MpiExecInterface(
+            cwd=cwd,
+            cores=cores,
+            gpus_per_core=gpus_per_core,
+            oversubscribe=oversubscribe,
+        )
+    return connections
