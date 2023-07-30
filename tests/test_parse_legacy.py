@@ -1,5 +1,7 @@
 import unittest
 import os
+import sys
+
 from pympipool.legacy.shared.backend import parse_arguments
 from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface
 
@@ -16,7 +18,7 @@ class TestParser(unittest.TestCase):
             'mpiexec',
             '-n', result_dict['total_cores'],
             '--oversubscribe',
-            'python', '-m', 'mpi4py.futures', '/',
+            sys.executable, '-m', 'mpi4py.futures', '/',
             '--zmqport', result_dict['zmqport'],
             '--cores-per-task', result_dict['cores_per_task'],
             '--cores-total', result_dict['total_cores']
@@ -31,7 +33,7 @@ class TestParser(unittest.TestCase):
             command_lst,
             interface.generate_command(
                 command_lst=[
-                    'python', '-m', 'mpi4py.futures', '/',
+                    sys.executable, '-m', 'mpi4py.futures', '/',
                     '--zmqport', result_dict['zmqport'],
                     '--cores-per-task', '1', '--cores-total', '2'
                 ]
@@ -49,7 +51,7 @@ class TestParser(unittest.TestCase):
         command_lst = [
             'flux', 'run', '-n', '1',
             "--cwd=" + os.path.abspath("."),
-            'python', '/',
+            sys.executable, '/',
             '--host', result_dict['host'],
             '--zmqport', result_dict['zmqport'],
             '--cores-per-task', result_dict['cores_per_task'],
@@ -65,7 +67,7 @@ class TestParser(unittest.TestCase):
             command_lst,
             interface.generate_command(
                 command_lst=[
-                    'python', '/', '--host', result_dict['host'],
+                    sys.executable, '/', '--host', result_dict['host'],
                     '--zmqport', result_dict['zmqport'],
                     '--cores-per-task', '2', '--cores-total', '2'
                 ]

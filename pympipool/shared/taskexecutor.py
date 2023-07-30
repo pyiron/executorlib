@@ -1,6 +1,7 @@
 import inspect
 import os
 import queue
+import sys
 
 import cloudpickle
 
@@ -71,7 +72,7 @@ def execute_parallel_tasks(
        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
     """
     command_lst = [
-        "python",
+        sys.executable,
         os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
     ]
     interface = interface_bootup(
