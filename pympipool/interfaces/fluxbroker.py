@@ -1,6 +1,7 @@
 import os
 import queue
 import socket
+import sys
 from time import sleep
 
 from pympipool.shared.broker import (
@@ -132,7 +133,7 @@ def execute_parallel_tasks(
        executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
     """
     command_lst = [
-        "python",
+        sys.executable,
         os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
     ]
     interface = interface_bootup(
