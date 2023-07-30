@@ -1,5 +1,3 @@
-import subprocess
-
 import cloudpickle
 import zmq
 
@@ -9,16 +7,14 @@ class SocketInterface(object):
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
-        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
+        interface (pympipool.shared.connections.BaseInterface): Interface for starting the parallel process
     """
 
-    def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
+    def __init__(self, interface=None):
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
-        self._queue_adapter = queue_adapter
-        self._queue_adapter_kwargs = queue_adapter_kwargs
+        self._interface = interface
 
     def send_dict(self, input_dict):
         """
@@ -68,44 +64,22 @@ class SocketInterface(object):
         """
         return self._socket.bind_to_random_port("tcp://*")
 
-    def bootup(self, command_lst, cwd=None, cores=None):
+    def bootup(self, command_lst):
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
-            cwd (str/None): current working directory where the parallel python task is executed
-            cores (str/ None): if the job is submitted to a queuing system using the pysqa.queueadapter.QueueAdapter
-                then cores defines the number of cores to be used for the specific queuing system allocation to execute
-                the client process.
         """
-        if self._queue_adapter is not None:
-            self._queue_adapter.submit_job(
-                working_directory=cwd,
-                cores=cores,
-                command=" ".join(command_lst),
-                **self._queue_adapter_kwargs
-            )
-        else:
-            self._process = subprocess.Popen(
-                args=command_lst,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                cwd=cwd,
-            )
+        self._interface.bootup(command_lst=command_lst)
 
     def shutdown(self, wait=True):
         result = None
-        if self._process is not None and self._process.poll() is None:
+        if self._interface.poll():
             result = self.send_and_receive_dict(
                 input_dict={"shutdown": True, "wait": wait}
             )
-            self._process_close(wait=wait)
-        elif self._queue_adapter is not None and self._socket is not None:
-            result = self.send_and_receive_dict(
-                input_dict={"shutdown": True, "wait": wait}
-            )
+            self._interface.shutdown(wait=wait)
         if self._socket is not None:
             self._socket.close()
         if self._context is not None:
@@ -114,14 +88,6 @@ class SocketInterface(object):
         self._socket = None
         self._context = None
         return result
-
-    def _process_close(self, wait=True):
-        self._process.terminate()
-        self._process.stdout.close()
-        self._process.stdin.close()
-        self._process.stderr.close()
-        if wait:
-            self._process.wait()
 
     def __del__(self):
         self.shutdown(wait=True)

@@ -1,6 +1,7 @@
+import os
 import unittest
 from pympipool.shared.backend import parse_arguments
-from pympipool.shared.taskexecutor import command_line_options
+from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface
 
 
 class TestParser(unittest.TestCase):
@@ -10,19 +11,17 @@ class TestParser(unittest.TestCase):
             'zmqport': '22',
         }
         command_lst = [
-            'mpiexec', '--oversubscribe',
+            'mpiexec',
             '-n', '2',
+            '--oversubscribe',
             'python', '/',
             '--zmqport', result_dict['zmqport']
         ]
-        self.assertEqual(command_lst, command_line_options(
-            hostname=result_dict['host'],
-            port_selected=result_dict['zmqport'],
-            path="/",
-            cores=2,
-            oversubscribe=True,
-            enable_flux_backend=False,
-        ))
+        interface = MpiExecInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=0, oversubscribe=True)
+        self.assertEqual(
+            command_lst,
+            interface.generate_command(command_lst=['python', '/', '--zmqport', result_dict['zmqport']])
+        )
         self.assertEqual(result_dict, parse_arguments(command_lst))
 
     def test_command_flux(self):
@@ -31,16 +30,15 @@ class TestParser(unittest.TestCase):
             'zmqport': '22',
         }
         command_lst = [
-            'flux', 'run', '-n', '2', 'python', '/',
+            'flux', 'run', '-n', '2',
+            "--cwd=" + os.path.abspath("."),
+            'python', '/',
             '--host', result_dict['host'],
             '--zmqport', result_dict['zmqport']
         ]
-        self.assertEqual(command_lst, command_line_options(
-            hostname=result_dict['host'],
-            port_selected=result_dict['zmqport'],
-            path="/",
-            cores=2,
-            oversubscribe=False,
-            enable_flux_backend=True,
-        ))
+        interface = FluxCmdInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=0, oversubscribe=False)
+        self.assertEqual(
+            command_lst,
+            interface.generate_command(command_lst=['python', '/', '--host', result_dict['host'], '--zmqport', result_dict['zmqport']])
+        )
         self.assertEqual(result_dict, parse_arguments(command_lst))
