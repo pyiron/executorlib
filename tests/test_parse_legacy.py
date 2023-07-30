@@ -1,6 +1,7 @@
 import unittest
+import os
 from pympipool.legacy.shared.backend import parse_arguments
-from pympipool.legacy.shared.interface import command_line_options
+from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface
 
 
 class TestParser(unittest.TestCase):
@@ -12,22 +13,30 @@ class TestParser(unittest.TestCase):
             'cores_per_task': '1'
         }
         command_lst = [
-            'mpiexec', '--oversubscribe',
+            'mpiexec',
             '-n', result_dict['total_cores'],
+            '--oversubscribe',
             'python', '-m', 'mpi4py.futures', '/',
             '--zmqport', result_dict['zmqport'],
             '--cores-per-task', result_dict['cores_per_task'],
             '--cores-total', result_dict['total_cores']
         ]
-        self.assertEqual(command_lst, command_line_options(
-            hostname=result_dict['host'],
-            port_selected=result_dict['zmqport'],
-            path="/",
-            cores=int(result_dict['total_cores']),
-            cores_per_task=int(result_dict['cores_per_task']),
-            oversubscribe=True,
-            enable_flux_backend=False,
-        ))
+        interface = MpiExecInterface(
+            cwd=None,
+            cores=2,
+            gpus_per_core=0,
+            oversubscribe=True
+        )
+        self.assertEqual(
+            command_lst,
+            interface.generate_command(
+                command_lst=[
+                    'python', '-m', 'mpi4py.futures', '/',
+                    '--zmqport', result_dict['zmqport'],
+                    '--cores-per-task', '1', '--cores-total', '2'
+                ]
+            )
+        )
         self.assertEqual(result_dict, parse_arguments(command_lst))
 
     def test_command_flux(self):
@@ -38,19 +47,28 @@ class TestParser(unittest.TestCase):
             'cores_per_task': '2'
         }
         command_lst = [
-            'flux', 'run', '-n', '1', 'python', '/',
+            'flux', 'run', '-n', '1',
+            "--cwd=" + os.path.abspath("."),
+            'python', '/',
             '--host', result_dict['host'],
             '--zmqport', result_dict['zmqport'],
             '--cores-per-task', result_dict['cores_per_task'],
             '--cores-total', result_dict['total_cores']
         ]
-        self.assertEqual(command_lst, command_line_options(
-            hostname=result_dict['host'],
-            port_selected=result_dict['zmqport'],
-            path="/",
-            cores=int(result_dict['total_cores']),
-            cores_per_task=int(result_dict['cores_per_task']),
-            oversubscribe=False,
-            enable_flux_backend=True,
-        ))
+        interface = FluxCmdInterface(
+            cwd=os.path.abspath("."),
+            cores=1,
+            gpus_per_core=0,
+            oversubscribe=False
+        )
+        self.assertEqual(
+            command_lst,
+            interface.generate_command(
+                command_lst=[
+                    'python', '/', '--host', result_dict['host'],
+                    '--zmqport', result_dict['zmqport'],
+                    '--cores-per-task', '2', '--cores-total', '2'
+                ]
+            )
+        )
         self.assertEqual(result_dict, parse_arguments(command_lst))

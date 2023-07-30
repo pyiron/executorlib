@@ -1,8 +1,8 @@
 from abc import ABC
 
-from pympipool.shared.communication import SocketInterface
+from pympipool.shared.communication import interface_bootup
 from pympipool.shared.taskexecutor import cloudpickle_register
-from pympipool.legacy.shared.interface import get_parallel_subprocess_command
+from pympipool.legacy.shared.interface import get_pool_command
 
 
 class PoolBase(ABC):
@@ -11,11 +11,9 @@ class PoolBase(ABC):
     alone. Rather it implements the __enter__(), __exit__() and shutdown() function shared between the derived classes.
     """
 
-    def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
+    def __init__(self):
         self._future_dict = {}
-        self._interface = SocketInterface(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
-        )
+        self._interface = None
         cloudpickle_register(ind=3)
 
     def __enter__(self):
@@ -71,23 +69,17 @@ class Pool(PoolBase):
         queue_adapter=None,
         queue_adapter_kwargs=None,
     ):
-        super().__init__(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
-        )
-        self._interface.bootup(
-            command_lst=get_parallel_subprocess_command(
-                port_selected=self._interface.bind_to_random_port(),
-                cores=max_workers,
-                cores_per_task=1,
-                gpus_per_task=gpus_per_task,
-                oversubscribe=oversubscribe,
-                enable_flux_backend=enable_flux_backend,
-                enable_slurm_backend=enable_slurm_backend,
-                enable_mpi4py_backend=True,
-                enable_multi_host=queue_adapter is not None,
-            ),
+        super().__init__()
+        self._interface = interface_bootup(
+            command_lst=get_pool_command(cores_total=max_workers, ranks_per_task=1)[0],
             cwd=cwd,
             cores=max_workers,
+            gpus_per_core=gpus_per_task,
+            oversubscribe=oversubscribe,
+            enable_flux_backend=enable_flux_backend,
+            enable_slurm_backend=enable_slurm_backend,
+            queue_adapter=queue_adapter,
+            queue_adapter_kwargs=queue_adapter_kwargs,
         )
 
     def map(self, func, iterable, chunksize=None):
@@ -178,23 +170,20 @@ class MPISpawnPool(PoolBase):
         queue_adapter=None,
         queue_adapter_kwargs=None,
     ):
-        super().__init__(
-            queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
+        super().__init__()
+        command_lst, cores = get_pool_command(
+            cores_total=max_ranks, ranks_per_task=ranks_per_task
         )
-        self._interface.bootup(
-            command_lst=get_parallel_subprocess_command(
-                port_selected=self._interface.bind_to_random_port(),
-                cores=max_ranks,
-                cores_per_task=ranks_per_task,
-                gpus_per_task=gpus_per_task,
-                oversubscribe=oversubscribe,
-                enable_flux_backend=False,
-                enable_slurm_backend=False,
-                enable_mpi4py_backend=True,
-                enable_multi_host=queue_adapter is not None,
-            ),
+        self._interface = interface_bootup(
+            command_lst=command_lst,
             cwd=cwd,
-            cores=max_ranks,
+            cores=cores,
+            gpus_per_core=gpus_per_task,
+            oversubscribe=oversubscribe,
+            enable_flux_backend=False,
+            enable_slurm_backend=False,
+            queue_adapter=queue_adapter,
+            queue_adapter_kwargs=queue_adapter_kwargs,
         )
 
     def map(self, func, iterable, chunksize=None):
