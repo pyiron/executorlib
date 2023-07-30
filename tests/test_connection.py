@@ -23,7 +23,7 @@ class Interface(BaseInterface):
 class TestExecutor(unittest.TestCase):
     def setUp(self):
         self.interface = Interface(
-            cwd=os.path.abspath("."),
+            cwd=None,
             cores=1,
             gpus_per_core=0,
             oversubscribe=False
@@ -45,7 +45,7 @@ class TestExecutor(unittest.TestCase):
 class TestInterfaceConnection(unittest.TestCase):
     def test_mpiexec(self):
         interface = get_connection_interface(
-            cwd=os.path.abspath("."),
+            cwd=None,
             cores=1,
             gpus_per_core=0,
             oversubscribe=False,
@@ -59,7 +59,7 @@ class TestInterfaceConnection(unittest.TestCase):
 
     def test_slurm(self):
         interface = get_connection_interface(
-            cwd=os.path.abspath("."),
+            cwd=None,
             cores=1,
             gpus_per_core=0,
             oversubscribe=False,
@@ -73,7 +73,7 @@ class TestInterfaceConnection(unittest.TestCase):
 
     def test_pysqa(self):
         interface = get_connection_interface(
-            cwd=os.path.abspath("."),
+            cwd=None,
             cores=1,
             gpus_per_core=0,
             oversubscribe=False,
@@ -87,7 +87,7 @@ class TestInterfaceConnection(unittest.TestCase):
 
     def test_flux_cmd(self):
         interface = get_connection_interface(
-            cwd=os.path.abspath("."),
+            cwd=None,
             cores=1,
             gpus_per_core=0,
             oversubscribe=False,

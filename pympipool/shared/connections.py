@@ -20,7 +20,7 @@ class BaseInterface(ABC):
 
 
 class SubprocessInterface(BaseInterface):
-    def __init__(self, cwd, cores=1, gpus_per_core=0, oversubscribe=False):
+    def __init__(self, cwd=None, cores=1, gpus_per_core=0, oversubscribe=False):
         super().__init__(
             cwd=cwd,
             cores=cores,
@@ -82,7 +82,7 @@ class SlurmSubprocessInterface(SubprocessInterface):
 class PysqaInterface(BaseInterface):
     def __init__(
         self,
-        cwd,
+        cwd=None,
         cores=1,
         gpus_per_core=0,
         oversubscribe=False,
@@ -136,8 +136,11 @@ class FluxCmdInterface(SubprocessInterface):
             "run",
             "-n",
             str(self._cores),
-            "--cwd=" + self._cwd,
         ]
+        if self._cwd is not None:
+            command_prepend_lst += [
+                "--cwd=" + self._cwd,
+            ]
         if self._gpus_per_core > 0:
             command_prepend_lst += ["--gpus-per-task=" + str(self._gpus_per_core)]
         return super().generate_command(
@@ -147,7 +150,7 @@ class FluxCmdInterface(SubprocessInterface):
 
 class FluxPythonInterface(BaseInterface):
     def __init__(
-        self, cwd, cores=1, gpus_per_core=0, oversubscribe=False, executor=None
+        self, cwd=None, cores=1, gpus_per_core=0, oversubscribe=False, executor=None
     ):
         super().__init__(
             cwd=cwd,
@@ -204,7 +207,7 @@ def generate_mpiexec_command(cores, gpus_per_core=0, oversubscribe=False):
 
 
 def get_connection_interface(
-    cwd,
+    cwd=None,
     cores=1,
     gpus_per_core=0,
     oversubscribe=False,

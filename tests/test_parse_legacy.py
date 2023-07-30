@@ -22,7 +22,7 @@ class TestParser(unittest.TestCase):
             '--cores-total', result_dict['total_cores']
         ]
         interface = MpiExecInterface(
-            cwd=os.path.abspath("."),
+            cwd=None,
             cores=2,
             gpus_per_core=0,
             oversubscribe=True

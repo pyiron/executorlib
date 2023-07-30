@@ -92,7 +92,7 @@ def execute_parallel_tasks(
 
 def interface_bootup(
     command_lst,
-    cwd,
+    cwd=None,
     cores=1,
     gpus_per_core=0,
     oversubscribe=False,

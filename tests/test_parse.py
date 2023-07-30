@@ -17,7 +17,7 @@ class TestParser(unittest.TestCase):
             'python', '/',
             '--zmqport', result_dict['zmqport']
         ]
-        interface = MpiExecInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=0, oversubscribe=True)
+        interface = MpiExecInterface(cwd=None, cores=2, gpus_per_core=0, oversubscribe=True)
         self.assertEqual(
             command_lst,
             interface.generate_command(command_lst=['python', '/', '--zmqport', result_dict['zmqport']])
