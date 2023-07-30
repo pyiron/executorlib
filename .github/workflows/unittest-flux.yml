@@ -52,7 +52,7 @@ jobs:
           echo $f;
           if [[ $f -eq tests/test_flux.py ]]; then
             flux start coverage run --omit pympipool/_version.py -m unittest $f;
-          else;
+          else
             coverage run --omit pympipool/_version.py -m unittest $f;
           fi
         done
