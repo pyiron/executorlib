@@ -1,4 +1,5 @@
 from abc import ABC
+import os
 import subprocess
 
 
@@ -178,6 +179,7 @@ class FluxPythonInterface(BaseInterface):
             num_nodes=None,
             exclusive=False,
         )
+        jobspec.environment = dict(os.environ)
         if self._cwd is not None:
             jobspec.cwd = self._cwd
         self._future = self._executor.submit(jobspec)
