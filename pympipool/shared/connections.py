@@ -1,4 +1,5 @@
 from abc import ABC
+import os
 import subprocess
 
 
@@ -171,21 +172,28 @@ class FluxPythonInterface(BaseInterface):
         if self._executor is None:
             self._executor = flux.job.FluxExecutor()
         jobspec = flux.job.JobspecV1.from_command(
-            command=" ".join(command_lst),
-            num_tasks=1,
-            cores_per_task=self._cores,
+            command=command_lst,
+            num_tasks=self._cores,
+            cores_per_task=1,
             gpus_per_task=self._gpus_per_core,
             num_nodes=None,
             exclusive=False,
         )
-        jobspec.cwd = self._cwd
+        jobspec.environment = dict(os.environ)
+        if self._cwd is not None:
+            jobspec.cwd = self._cwd
         self._future = self._executor.submit(jobspec)
 
     def shutdown(self, wait=True):
-        self._executor.shutdown(wait=wait)
+        if self.poll():
+            self._future.cancel()
+        # The flux future objects are not instantly updated,
+        # still showing running after cancel was called,
+        # so we wait until the execution is completed.
+        self._future.result()
 
     def poll(self):
-        return self._executor is not None
+        return self._future is not None and not self._future.done()
 
 
 def generate_slurm_command(cores, cwd, gpus_per_core=0, oversubscribe=False):

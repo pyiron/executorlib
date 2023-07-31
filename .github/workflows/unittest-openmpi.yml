@@ -57,16 +57,8 @@ jobs:
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
-      run: for f in $(ls tests/test_*.py); do echo $f; coverage run --omit pympipool/_version.py -m unittest $f; done
+      run: for f in $(ls tests/test_*.py); do echo $f; python -m unittest $f; done
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
-    - name: Coverage
-      if:  matrix.label == 'linux-64-py-3-10-openmpi'
-      continue-on-error: True
-      shell: bash -l {0}
-      run: |
-        coverage combine
-        coveralls
-        coverage xml

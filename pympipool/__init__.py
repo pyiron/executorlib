@@ -7,6 +7,7 @@ from pympipool.shared.communication import (
     interface_receive,
 )
 from pympipool.interfaces.taskbroker import HPCExecutor
+from pympipool.interfaces.fluxbroker import PyFluxExecutor
 from pympipool.interfaces.taskexecutor import Executor
 from pympipool.legacy.interfaces.executor import PoolExecutor
 from pympipool.legacy.interfaces.pool import Pool, MPISpawnPool
