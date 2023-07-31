@@ -1,28 +1,29 @@
 # Interfaces
-The `pympipool` class provides four different interfaces to scale python functions over multiple compute nodes. They are
+The `pympipool` class provides five different interfaces to scale python functions over multiple compute nodes. They are
 briefly summarized here and explained in more detail below. 
 
-|        Feature         | Pool | Executor | PoolExecutor | MPISpawnPool | 
-|:----------------------:|:----:|:--------:|:------------:|:------------:|
-|        `map()`         | yes  |   yes    |     yes      |     yes      |
-|      `starmap()`       | yes  |    no    |      no      |     yes      |
-|       `submit()`       |  no  |   yes    |     yes      |      no      | 
-|   parallel execution   | yes  |    no    |     yes      |     yes      | 
-| MPI parallel functions |  no  |   yes    |      no      |     yes      |
-| flux framework support | yes  |   yes    |     yes      |      no      |
-|    internal storage    |  no  |   yes    |      no      |      no      |
+|        Feature         | Pool | Executor | HPCExecutor | PoolExecutor | MPISpawnPool |
+|:----------------------:|:----:|:--------:|:-----------:|:------------:|:------------:|
+|        `map()`         | yes  |   yes    |     yes     |     yes      |     yes      |
+|      `starmap()`       | yes  |    no    |     no      |      no      |     yes      |
+|       `submit()`       |  no  |   yes    |     yes     |     yes      |      no      |
+|   parallel execution   | yes  |    no    |     yes     |     yes      |     yes      |
+| MPI parallel functions |  no  |   yes    |     yes     |      no      |     yes      |
+| flux framework support | yes  |   yes    |     yes     |     yes      |      no      |
+|    internal storage    |  no  |   yes    |     yes     |      no      |      no      | 
 
-While all four interfaces implement the `map()` function, only half of them implement the `starmap()` function while the
-other half implements the asynchronous `sumbit()` function which returns [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#future-objects).
+While all four interfaces implement the `map()` function, only two of them implement the `starmap()` function while the
+rest implements the asynchronous `sumbit()` function which returns [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#future-objects).
 In terms of the execution it is important to differentiate between parallel execution, meaning multiple individual 
 functions are executed in parallel and MPI parallel functions, which each require multiple MPI ranks to be executed. 
-Furthermore, most interfaces are integrated with the [flux-framework](https://flux-framework.org) so rather than using
-MPI ranks to distribute functions over multiple compute nodes, they can also use the flux-framework for this purpose. 
-Finally, the `pympipool.Executor` is currently the only interface which implements an internal storage, so data can
-remain in the executor process while applying multiple functions which interact with this data. 
+Furthermore, most interfaces are integrated with the [flux-framework](https://flux-framework.org) and the 
+[SLURM queuing system](https://slurm.schedmd.com) so rather than using MPI ranks to distribute functions over multiple
+compute nodes, they can also use the flux-framework or the SLURM queuing system for this purpose. Finally, the 
+`pympipool.Executor` and `pympipool.HPCExecutor` are currently the only interfaces which implements an internal storage,
+so data can remain in the executor process while applying multiple functions which interact with this data. 
 
-The fifth interface is the `SocketInterface`. This interface connects two python processes to transfer python objects 
-between them. It is used for all the above interfaces to connect the serial python process the user interacts with, with
+The sixth interface is the `SocketInterface`. This interface connects two python processes to transfer python objects 
+between them. It is used for all the above interfaces to connect the serial python process of the user interacts, with
 the MPI parallel python process, which executes the python functions over multiple compute nodes.  
 
 ## Pool
@@ -146,18 +147,76 @@ parameter is used rather than the parameter from internal memory.
 python test_executor_init.py
 >>> 10
 ```
-So the sum of `i`,`j` and `k` results in `10` rather than `9`. Beyond the number of cores defined by `cores` and the
-initialization function defined by `init_function` the additional parameters are `oversubscribe` to enable 
-[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and `enable_slurm_backend` to switch from 
-MPI as backend to flux or SLURM as alternative backend. In addition, the parameters `queue_adapter` and 
-`queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the simple queue adapter for 
-python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` 
-parameter represents a dictionary of input arguments for the `submit_job()` function of the queue adapter. Finally, the
-`cwd` parameter specifies the current working directory where the python functions are executed.
+So the sum of `i`,`j` and `k` results in `10` rather than `9`. Beyond the number of cores defined by `cores`, the number
+of GPUs defined by `gpus_per_task` and the initialization function defined by `init_function` the additional parameters
+are `oversubscribe` to enable [OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and 
+`enable_slurm_backend` to switch from MPI as backend to flux or SLURM as alternative backend. In addition, the 
+parameters `queue_adapter` and `queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the
+simple queue adapter for python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the 
+`queue_adapter_kwargs` parameter represents a dictionary of input arguments for the `submit_job()` function of the queue
+adapter. Finally, the `cwd` parameter specifies the current working directory where the python functions are executed.
 
 When multiple functions are submitted to the `pympipool.Executor` class then they are executed following the first in
 first out principle. The `len()` function applied on the `pympipool.Executor` object can be used to list how many items
 are still waiting to be executed. 
+
+## HPCExecutor
+To address the limitation of the `pympipool.Executor` that only a single task is executed at any time, the 
+`pympipool.HPCExecutor` provides a wrapper around multiple `pympipool.Executor` objects. It balances the queues of the 
+individual `pympipool.Executor` objects to maximize the throughput for the given resources. This functionality comes 
+with an additional overhead of another thread, acting as a broker between the task queue of the `pympipool.HPCExecutor`
+and the individual `pympipool.Executor` objects. 
+
+Example how to use the `pympipool.HPCExecutor` class. This can be executed inside a jupyter notebook, interactive python 
+shell or as a python script. For the example a python script is used. Write a python test script named `test_hpc_gpu.py`: 
+```
+import socket
+from pympipool import HPCExecutor
+from tensorflow.python.client import device_lib
+
+def get_available_gpus():
+    local_device_protos = device_lib.list_local_devices()
+    return [
+        (x.name, x.physical_device_desc, socket.gethostname()) 
+        for x in local_device_protos if x.device_type == 'GPU'
+    ]
+
+with HPCExecutor(
+    max_workers=2, 
+    cores_per_worker=1, 
+    gpus_per_worker=1, 
+    enable_flux_backend=True,
+) as exe:
+    fs_1 = exe.submit(get_available_gpus)
+    fs_2 = exe.submit(get_available_gpus)
+
+print(fs_1.result())
+print(fs_2.result())
+```
+The example demonstrates how one GPU is assigned to each of the two tasks which are executed in parallel. To access the
+GPUs the `tensorflow` package is used in the `get_available_gpus()` function to return a brief summary of the available 
+GPU. The initialization of the `pympipool.HPCExecutor` then follows the same scheme as the initialization of the 
+`pympipool.Executor`. The `max_workers` argument defines the number of `pympipool.Executor` objects the 
+`pympipool.HPCExecutor` is managing internally. Then for each of these `pympipool.Executor` objects the number of cores
+is defined by `cores_per_worker` and the number of GPUs is defined by `gpus_per_worker`. By default the number of GPUs 
+is set to zero, as assigning GPUs to tasks requires an advanced scheduling backend like the flux-framework enabled by 
+the `enable_flux_backend` option or the SLURM queuing system backend enabled by the `enable_slurm_backend` option. In
+addition, the parameters `queue_adapter` and `queue_adapter_kwargs` provide an interface to 
+[pysqa](https://pysqa.readthedocs.org) the simple queue adapter for python. The `queue_adapter` can be set as 
+`pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` parameter represents a dictionary of input 
+arguments for the `submit_job()` function of the queue adapter. Finally, the `cwd` parameter specifies the current 
+working directory where the python functions are executed.
+
+The submission of the individual tasks follows the definition of the `pympipool.HPCExecutor` in analogy to the example
+above for the `pympipool.Executor`. Finally, the results are printed to the standard output:
+```
+python test_hpc_gpu.py
+>>> [('/device:GPU:0', 'device: 0, name: Tesla V100S-PCIE-32GB, pci bus id: 0000:84:00.0, compute capability: 7.0', 'cn138')]
+>>> [('/device:GPU:0', 'device: 0, name: Tesla V100S-PCIE-32GB, pci bus id: 0000:84:00.0, compute capability: 7.0', 'cn139')]
+```
+The output highlights that for each of the two workers there is only a single GPU visible. This applies to the example
+case where only one GPU is available on each of the two hosts, as well as to hosts with multiple GPUs. Consequently, 
+the `pympipool.HPCExecutor` drastically simplifies the scheduling of `GPU` and their assignment for python tasks. 
 
 ## PoolExecutor
 To combine the functionality of the `pympipool.Pool` and the `pympipool.Executor` the `pympipool.PoolExecutor` again

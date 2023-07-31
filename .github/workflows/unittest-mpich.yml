@@ -14,8 +14,6 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, macos-latest]
-        python-version: ['3.11']
         include:
         - operating-system: macos-latest
           python-version: '3.11'
@@ -58,5 +56,5 @@ jobs:
       run: pip install --no-deps .
     - name: Test
       shell: bash -l {0}
-      timeout-minutes: 30
-      run: for f in $(ls tests/test_*.py); do python -m unittest $f; done
+      timeout-minutes: 5
+      run: for f in $(ls tests/test_*.py); do echo $f; python -m unittest $f; done

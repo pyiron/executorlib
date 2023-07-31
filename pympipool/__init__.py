@@ -1,11 +1,13 @@
 from pympipool.shared.communication import (
     SocketInterface,
-    connect_to_socket_interface,
-    send_result,
-    close_connection,
-    receive_instruction,
+    interface_connect,
+    interface_bootup,
+    interface_send,
+    interface_shutdown,
+    interface_receive,
 )
 from pympipool.interfaces.taskbroker import HPCExecutor
+from pympipool.interfaces.fluxbroker import PyFluxExecutor
 from pympipool.interfaces.taskexecutor import Executor
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.taskexecutor import cancel_items_in_queue
