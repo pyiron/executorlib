@@ -185,7 +185,12 @@ class FluxPythonInterface(BaseInterface):
         self._future = self._executor.submit(jobspec)
 
     def shutdown(self, wait=True):
-        self._executor.shutdown(wait=wait)
+        if self.poll():
+            self._future.cancel()
+        # The flux future objects are not instantly updated,
+        # still showing running after cancel was called,
+        # so we wait until the execution is completed.
+        self._future.result()
 
     def poll(self):
         return self._future is not None and not self._future.done()
