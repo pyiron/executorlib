@@ -26,6 +26,14 @@ def mpi_funct(i):
     return i, size, rank
 
 
+def get_global(memory=None):
+    return memory
+
+
+def set_global():
+    return {"memory": np.array([5])}
+
+
 @unittest.skipIf(skip_flux_test, "Flux is not installed, so the flux tests are skipped.")
 class TestFlux(unittest.TestCase):
     def setUp(self):
@@ -58,6 +66,13 @@ class TestFlux(unittest.TestCase):
         )
         self.assertEqual(f.result(), 2)
         q.join()
+
+    def test_internal_memory(self):
+        with SingleTaskExecutor(cores=1, init_function=set_global, executor=self.executor) as p:
+            f = p.submit(get_global)
+            self.assertFalse(f.done())
+            self.assertEqual(f.result(), np.array([5]))
+            self.assertTrue(f.done())
 
     def test_executor_broker(self):
         q = Queue()
