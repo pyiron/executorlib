@@ -63,6 +63,7 @@ class SingleTaskExecutor(ExecutorBase):
     def __init__(
         self,
         cores,
+        threads_per_core=1,
         gpus_per_task=0,
         init_function=None,
         cwd=None,
@@ -74,6 +75,7 @@ class SingleTaskExecutor(ExecutorBase):
             kwargs={
                 "future_queue": self._future_queue,
                 "cores": cores,
+                "threads_per_core": threads_per_core,
                 "gpus_per_task": gpus_per_task,
                 "cwd": cwd,
                 "executor": executor,
@@ -92,6 +94,7 @@ class PyFluxExecutor(ExecutorBase):
         self,
         max_workers,
         cores_per_worker=1,
+        threads_per_core=1,
         gpus_per_worker=0,
         init_function=None,
         cwd=None,
@@ -105,6 +108,7 @@ class PyFluxExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
                 "cores_per_worker": cores_per_worker,
+                "threads_per_core": threads_per_core,
                 "gpus_per_worker": gpus_per_worker,
                 "init_function": init_function,
                 "cwd": cwd,
@@ -118,6 +122,7 @@ class PyFluxExecutor(ExecutorBase):
 def execute_parallel_tasks(
     future_queue,
     cores,
+    threads_per_core=1,
     gpus_per_task=0,
     cwd=None,
     executor=None,
@@ -140,6 +145,7 @@ def execute_parallel_tasks(
         command_lst=command_lst,
         cwd=cwd,
         cores=cores,
+        threads_per_core=threads_per_core,
         gpus_per_core=gpus_per_task,
         executor=executor,
     )
@@ -150,6 +156,7 @@ def interface_bootup(
     command_lst,
     cwd=None,
     cores=1,
+    threads_per_core=1,
     gpus_per_core=0,
     executor=None,
 ):
@@ -160,6 +167,7 @@ def interface_bootup(
     connections = FluxPythonInterface(
         cwd=cwd,
         cores=cores,
+        threads_per_core=threads_per_core,
         gpus_per_core=gpus_per_core,
         oversubscribe=False,
         executor=executor,
@@ -177,6 +185,7 @@ def executor_broker(
     future_queue,
     max_workers,
     cores_per_worker=1,
+    threads_per_core=1,
     gpus_per_worker=0,
     init_function=None,
     cwd=None,
@@ -186,6 +195,7 @@ def executor_broker(
     meta_future_lst = _get_executor_list(
         max_workers=max_workers,
         cores_per_worker=cores_per_worker,
+        threads_per_core=threads_per_core,
         gpus_per_worker=gpus_per_worker,
         init_function=init_function,
         cwd=cwd,
@@ -207,6 +217,7 @@ def executor_broker(
 def _get_executor_list(
     max_workers,
     cores_per_worker=1,
+    threads_per_core=1,
     gpus_per_worker=0,
     init_function=None,
     cwd=None,
@@ -217,6 +228,7 @@ def _get_executor_list(
             future=_get_future_done(),
             executor=SingleTaskExecutor(
                 cores=cores_per_worker,
+                threads_per_core=threads_per_core,
                 gpus_per_task=int(gpus_per_worker / cores_per_worker),
                 init_function=init_function,
                 cwd=cwd,
