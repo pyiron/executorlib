@@ -4,7 +4,9 @@ import subprocess
 
 
 class BaseInterface(ABC):
-    def __init__(self, cwd, cores=1, threads_per_core=1, gpus_per_core=0, oversubscribe=False):
+    def __init__(
+        self, cwd, cores=1, threads_per_core=1, gpus_per_core=0, oversubscribe=False
+    ):
         self._cwd = cwd
         self._cores = cores
         self._threads_per_core = threads_per_core
@@ -22,7 +24,14 @@ class BaseInterface(ABC):
 
 
 class SubprocessInterface(BaseInterface):
-    def __init__(self, cwd=None, cores=1, threads_per_core=1, gpus_per_core=0, oversubscribe=False):
+    def __init__(
+        self,
+        cwd=None,
+        cores=1,
+        threads_per_core=1,
+        gpus_per_core=0,
+        oversubscribe=False,
+    ):
         super().__init__(
             cwd=cwd,
             cores=cores,
@@ -156,7 +165,13 @@ class FluxCmdInterface(SubprocessInterface):
 
 class FluxPythonInterface(BaseInterface):
     def __init__(
-        self, cwd=None, cores=1, threads_per_core=1, gpus_per_core=0, oversubscribe=False, executor=None
+        self,
+        cwd=None,
+        cores=1,
+        threads_per_core=1,
+        gpus_per_core=0,
+        oversubscribe=False,
+        executor=None,
     ):
         super().__init__(
             cwd=cwd,
@@ -202,7 +217,9 @@ class FluxPythonInterface(BaseInterface):
         return self._future is not None and not self._future.done()
 
 
-def generate_slurm_command(cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False):
+def generate_slurm_command(
+    cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False
+):
     command_prepend_lst = ["srun", "-n", str(cores), "-D", cwd]
     if threads_per_core > 1:
         command_prepend_lst += ["--cpus-per-task" + str(threads_per_core)]
