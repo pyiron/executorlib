@@ -135,7 +135,9 @@ def execute_parallel_tasks(
     command_lst = [sys.executable]
     if cores > 1:
         command_lst += [
-            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+            ),
         ]
     else:
         command_lst += [

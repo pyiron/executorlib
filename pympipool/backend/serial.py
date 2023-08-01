@@ -11,7 +11,6 @@ from pympipool.shared.backend import call_funct, parse_arguments
 
 
 def main():
-
     argument_dict = parse_arguments(argument_lst=sys.argv)
     context, socket = interface_connect(
         host=argument_dict["host"], port=argument_dict["zmqport"]
