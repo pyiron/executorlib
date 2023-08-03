@@ -43,7 +43,7 @@ def cloudpickle_register(ind=2):
     try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
         cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[ind][0]))
     except IndexError:
-        cloudpickle_register(ind=ind-1)
+        cloudpickle_register(ind=ind - 1)
     except ValueError:
         pass
 
