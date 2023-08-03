@@ -132,10 +132,17 @@ def execute_parallel_tasks(
        cwd (str/None): current working directory where the parallel python task is executed
        executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
     """
-    command_lst = [
-        sys.executable,
-        os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
-    ]
+    command_lst = [sys.executable]
+    if cores > 1:
+        command_lst += [
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+            ),
+        ]
+    else:
+        command_lst += [
+            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
+        ]
     interface = interface_bootup(
         command_lst=command_lst,
         cwd=cwd,
