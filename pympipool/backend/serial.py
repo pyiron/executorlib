@@ -10,8 +10,10 @@ from pympipool.shared.communication import (
 from pympipool.shared.backend import call_funct, parse_arguments
 
 
-def main():
-    argument_dict = parse_arguments(argument_lst=sys.argv)
+def main(argument_lst=None):
+    if argument_lst is None:
+        argument_lst = sys.argv
+    argument_dict = parse_arguments(argument_lst=argument_lst)
     context, socket = interface_connect(
         host=argument_dict["host"], port=argument_dict["zmqport"]
     )
@@ -59,4 +61,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(argument_lst=sys.argv)
