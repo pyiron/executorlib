@@ -4,13 +4,13 @@ from queue import Queue
 import numpy as np
 import unittest
 
-from pympipool.flux.fluxbroker import FluxExecutor, _flux_executor_broker
-from pympipool.flux.fluxtask import _flux_execute_parallel_tasks, FluxSingleTaskExecutor
 from pympipool.shared.executorbase import cloudpickle_register
 
 
 try:
     from flux.job import FluxExecutor
+    from pympipool.flux.fluxbroker import FluxExecutor, _flux_executor_broker
+    from pympipool.flux.fluxtask import _flux_execute_parallel_tasks, FluxSingleTaskExecutor
 
     skip_flux_test = False
 except ImportError:
