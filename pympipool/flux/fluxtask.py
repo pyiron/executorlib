@@ -2,6 +2,8 @@ import os
 import sys
 from socket import gethostname
 
+import flux.job
+
 from pympipool.shared.executorbase import (
     cloudpickle_register,
     ExecutorBase,
@@ -99,8 +101,6 @@ class FluxPythonInterface(BaseInterface):
         self._future = None
 
     def bootup(self, command_lst):
-        import flux.job
-
         if self._oversubscribe:
             raise ValueError(
                 "Oversubscribing is currently not supported for the Flux adapter."
