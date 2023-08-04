@@ -5,7 +5,6 @@ import sys
 from time import sleep
 
 from pympipool.shared.broker import (
-    MetaExecutorFuture,
     _get_future_done,
     _execute_task_dict,
 )
@@ -219,16 +218,13 @@ def _get_executor_list(
     cwd=None,
     executor=None,
 ):
-    return [
-        MetaExecutorFuture(
-            future=_get_future_done(),
-            executor=SingleTaskExecutor(
-                cores=cores_per_worker,
-                gpus_per_task=int(gpus_per_worker / cores_per_worker),
-                init_function=init_function,
-                cwd=cwd,
-                executor=executor,
-            ),
+    return {
+        _get_future_done(): SingleTaskExecutor(
+            cores=cores_per_worker,
+            gpus_per_task=int(gpus_per_worker / cores_per_worker),
+            init_function=init_function,
+            cwd=cwd,
+            executor=executor,
         )
         for _ in range(max_workers)
-    ]
+    }

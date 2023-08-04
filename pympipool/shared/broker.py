@@ -5,31 +5,6 @@ from time import sleep
 from pympipool.interfaces.taskexecutor import Executor
 
 
-class MetaExecutorFuture(object):
-    def __init__(self, future, executor):
-        self.future = future
-        self.executor = executor
-
-    @property
-    def _condition(self):
-        return self.future._condition
-
-    @property
-    def _state(self):
-        return self.future._state
-
-    @property
-    def _waiters(self):
-        return self.future._waiters
-
-    def done(self):
-        return self.future.done()
-
-    def submit(self, task_dict):
-        self.future = task_dict["future"]
-        self.executor._future_queue.put(task_dict)
-
-
 def executor_broker(
     future_queue,
     max_workers,
@@ -71,12 +46,14 @@ def executor_broker(
 
 def _execute_task_dict(task_dict, meta_future_lst):
     if "fn" in task_dict.keys():
-        meta_future = next(as_completed(meta_future_lst))
-        meta_future.submit(task_dict=task_dict)
+        meta_future = next(as_completed(meta_future_lst.keys()))
+        executor = meta_future_lst.pop(meta_future)
+        executor._future_queue.put(task_dict)
+        meta_future_lst[task_dict["future"]] = executor
         return True
     elif "shutdown" in task_dict.keys() and task_dict["shutdown"]:
-        for meta in meta_future_lst:
-            meta.executor.shutdown(wait=task_dict["wait"])
+        for executor in meta_future_lst.values():
+            executor.shutdown(wait=task_dict["wait"])
         return False
     else:
         raise ValueError("Unrecognized Task in task_dict: ", task_dict)
@@ -94,23 +71,20 @@ def _get_executor_list(
     queue_adapter=None,
     queue_adapter_kwargs=None,
 ):
-    return [
-        MetaExecutorFuture(
-            future=_get_future_done(),
-            executor=Executor(
-                cores=cores_per_worker,
-                gpus_per_task=int(gpus_per_worker / cores_per_worker),
-                oversubscribe=oversubscribe,
-                enable_flux_backend=enable_flux_backend,
-                enable_slurm_backend=enable_slurm_backend,
-                init_function=init_function,
-                cwd=cwd,
-                queue_adapter=queue_adapter,
-                queue_adapter_kwargs=queue_adapter_kwargs,
-            ),
+    return {
+        _get_future_done(): Executor(
+            cores=cores_per_worker,
+            gpus_per_task=int(gpus_per_worker / cores_per_worker),
+            oversubscribe=oversubscribe,
+            enable_flux_backend=enable_flux_backend,
+            enable_slurm_backend=enable_slurm_backend,
+            init_function=init_function,
+            cwd=cwd,
+            queue_adapter=queue_adapter,
+            queue_adapter_kwargs=queue_adapter_kwargs,
         )
         for _ in range(max_workers)
-    ]
+    }
 
 
 def _get_future_done():
