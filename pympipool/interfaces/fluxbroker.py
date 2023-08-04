@@ -1,18 +1,18 @@
 import os
 import queue
-import socket
+from socket import gethostname
 import sys
 from time import sleep
 
 from pympipool.shared.broker import (
-    _get_future_done,
-    _execute_task_dict,
+    get_future_done,
+    execute_task_dict,
 )
 from pympipool.interfaces.base import ExecutorBase
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.taskexecutor import (
     cloudpickle_register,
-    _execute_parallel_tasks_loop,
+    execute_parallel_tasks_loop,
 )
 from pympipool.shared.connections import FluxPythonInterface
 from pympipool.shared.communication import SocketInterface
@@ -29,13 +29,8 @@ class SingleTaskExecutor(ExecutorBase):
     Args:
         cores (int): defines the number of MPI ranks to use for each function call
         gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
-        enable_flux_backend (bool): use the flux-framework as backend rather than just calling mpiexec
-        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
-        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
     Simple example:
         ```
@@ -149,7 +144,7 @@ def execute_parallel_tasks(
         gpus_per_core=gpus_per_task,
         executor=executor,
     )
-    _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
+    execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
 
 def interface_bootup(
@@ -161,7 +156,7 @@ def interface_bootup(
 ):
     command_lst += [
         "--host",
-        socket.gethostname(),
+        gethostname(),
     ]
     connections = FluxPythonInterface(
         cwd=cwd,
@@ -203,7 +198,7 @@ def executor_broker(
         except queue.Empty:
             sleep(sleep_interval)
         else:
-            if _execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
+            if execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
                 future_queue.task_done()
             else:
                 future_queue.task_done()
@@ -219,7 +214,7 @@ def _get_executor_list(
     executor=None,
 ):
     return {
-        _get_future_done(): SingleTaskExecutor(
+        get_future_done(): SingleTaskExecutor(
             cores=cores_per_worker,
             gpus_per_task=int(gpus_per_worker / cores_per_worker),
             init_function=init_function,
