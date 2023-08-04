@@ -119,7 +119,7 @@ class TestFlux(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        executor_broker(future_queue=q, max_workers=1, cores_per_worker=2, executor=self.executor)
+        executor_broker(future_queue=q, max_workers=1, threads_per_core=2, executor=self.executor)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
         q.join()
