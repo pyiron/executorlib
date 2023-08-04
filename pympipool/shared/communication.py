@@ -1,5 +1,5 @@
 import cloudpickle
-import socket
+from socket import gethostname
 import zmq
 
 from pympipool.shared.connections import get_connection_interface
@@ -111,7 +111,7 @@ def interface_bootup(
     if enable_flux_backend or enable_slurm_backend or queue_adapter is not None:
         command_lst += [
             "--host",
-            socket.gethostname(),
+            gethostname(),
         ]
     connections = get_connection_interface(
         cwd=cwd,

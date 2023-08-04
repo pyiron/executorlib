@@ -9,6 +9,9 @@ class ExecutorBase(FutureExecutor):
         self._future_queue = queue.Queue()
         self._process = None
 
+    def future_queue(self):
+        return self._future_queue
+
     def submit(self, fn, *args, **kwargs):
         """Submits a callable to be executed with the given arguments.
 
