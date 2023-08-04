@@ -10,7 +10,7 @@ from concurrent.futures import Future
 
 
 def calc(i):
-    return np.array(i ** 2)
+    return np.array(i**2)
 
 
 def sleep_one(i):
@@ -20,6 +20,7 @@ def sleep_one(i):
 
 def mpi_funct(i):
     from mpi4py import MPI
+
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
@@ -92,12 +93,15 @@ class TestFuturePool(unittest.TestCase):
     def test_pool_multi_core_map(self):
         with MPISingleTaskExecutor(cores=2) as p:
             output = p.map(mpi_funct, [1, 2, 3])
-        self.assertEqual(list(output), [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]])
+        self.assertEqual(
+            list(output),
+            [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
+        )
 
     def test_execute_task_failed_no_argument(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, 'args': (), "kwargs": {}, "future": f})
+        q.put({"fn": calc, "args": (), "kwargs": {}, "future": f})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -110,7 +114,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_failed_wrong_argument(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, 'args': (), "kwargs": {"j": 4}, "future": f})
+        q.put({"fn": calc, "args": (), "kwargs": {"j": 4}, "future": f})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -123,7 +127,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
+        q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_parallel_tasks(
@@ -137,7 +141,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_parallel(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
+        q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_parallel_tasks(

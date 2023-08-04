@@ -4,7 +4,7 @@ from pympipool import Pool
 
 
 def calc(i):
-    return np.array(i ** 2)
+    return np.array(i**2)
 
 
 def calc_add(i, j):

@@ -18,6 +18,7 @@ def calc(i):
 
 def mpi_funct(i):
     from mpi4py import MPI
+
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
@@ -44,16 +45,20 @@ class TestMetaExecutorFuture(unittest.TestCase):
     def test_execute_task_dict(self):
         meta_future_lst = get_executor_list(max_workers=1)
         f = Future()
-        self.assertTrue(execute_task_dict(
-            task_dict={"fn": calc, "args": (1,), "kwargs": {}, "future": f},
-            meta_future_lst=meta_future_lst
-        ))
+        self.assertTrue(
+            execute_task_dict(
+                task_dict={"fn": calc, "args": (1,), "kwargs": {}, "future": f},
+                meta_future_lst=meta_future_lst,
+            )
+        )
         self.assertEqual(f.result(), 1)
         self.assertTrue(f.done())
-        self.assertFalse(execute_task_dict(
-            task_dict={"shutdown": True, "wait": True},
-            meta_future_lst=meta_future_lst
-        ))
+        self.assertFalse(
+            execute_task_dict(
+                task_dict={"shutdown": True, "wait": True},
+                meta_future_lst=meta_future_lst,
+            )
+        )
 
     def test_execute_task_dict_error(self):
         meta_future_lst = get_executor_list(max_workers=1)

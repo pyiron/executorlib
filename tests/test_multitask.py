@@ -9,7 +9,7 @@ from concurrent.futures import Future
 
 
 def calc(i):
-    return np.array(i ** 2)
+    return np.array(i**2)
 
 
 def sleep_one(i):
@@ -19,7 +19,7 @@ def sleep_one(i):
 
 def wait_and_calc(n):
     sleep(1)
-    return n ** 2
+    return n**2
 
 
 def call_back(future):
@@ -44,14 +44,11 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
+        q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_serial_tasks(
-            future_queue=q,
-            cores=1,
-            oversubscribe=False,
-            enable_flux_backend=False
+            future_queue=q, cores=1, oversubscribe=False, enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array(4))
         q.join()
@@ -76,14 +73,11 @@ class TestFuturePool(unittest.TestCase):
         fs1 = Future()
         fs1.cancel()
         q = Queue()
-        q.put({"fn": sleep_one, 'args': (), "kwargs": {"i": 1}, "future": fs1})
+        q.put({"fn": sleep_one, "args": (), "kwargs": {"i": 1}, "future": fs1})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_serial_tasks(
-            future_queue=q,
-            cores=1,
-            oversubscribe=False,
-            enable_flux_backend=False
+            future_queue=q, cores=1, oversubscribe=False, enable_flux_backend=False
         )
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())

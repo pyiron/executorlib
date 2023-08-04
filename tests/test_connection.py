@@ -4,7 +4,7 @@ from pympipool.legacy.shared.connections import (
     MpiExecInterface,
     PysqaInterface,
     FluxCmdInterface,
-    get_connection_interface
+    get_connection_interface,
 )
 
 
@@ -21,10 +21,7 @@ class Interface(BaseInterface):
 class TestExecutor(unittest.TestCase):
     def setUp(self):
         self.interface = Interface(
-            cwd=None,
-            cores=1,
-            gpus_per_core=0,
-            oversubscribe=False
+            cwd=None, cores=1, gpus_per_core=0, oversubscribe=False
         )
 
     def test_bootup(self):

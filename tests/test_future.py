@@ -6,7 +6,7 @@ from concurrent.futures import Future
 
 
 def calc(i):
-    return np.array(i ** 2)
+    return np.array(i**2)
 
 
 class TestFuture(unittest.TestCase):

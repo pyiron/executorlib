@@ -4,6 +4,7 @@ from pympipool import MPISpawnPool
 
 def get_ranks(input_parameter, comm=None):
     from mpi4py import MPI
+
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     if comm is not None:
@@ -17,6 +18,7 @@ def get_ranks(input_parameter, comm=None):
 
 def get_ranks_multi_input(input_parameter1, input_parameter2, comm=None):
     from mpi4py import MPI
+
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     if comm is not None:
@@ -47,8 +49,7 @@ class TestCommunicator(unittest.TestCase):
     def test_starmap_serial(self):
         with MPISpawnPool(max_ranks=2, ranks_per_task=1) as p:
             output = p.starmap(
-                func=get_ranks_multi_input,
-                iterable=[[1, 1], [2, 2], [3, 3]]
+                func=get_ranks_multi_input, iterable=[[1, 1], [2, 2], [3, 3]]
             )
         self.assertEqual(output[0], (2, 1, 0, 0, 1, 1))
         self.assertEqual(output[1], (2, 1, 0, 0, 2, 2))
@@ -57,8 +58,7 @@ class TestCommunicator(unittest.TestCase):
     def test_starmap_parallel(self):
         with MPISpawnPool(max_ranks=2, ranks_per_task=2) as p:
             output = p.starmap(
-                func=get_ranks_multi_input,
-                iterable=[[1, 1], [2, 2], [3, 3], [4, 4]]
+                func=get_ranks_multi_input, iterable=[[1, 1], [2, 2], [3, 3], [4, 4]]
             )
         self.assertEqual(output[0][::2], (2, 2, 1))
         self.assertEqual(output[1][::2], (2, 2, 2))

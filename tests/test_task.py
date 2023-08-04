@@ -8,6 +8,7 @@ def echo_funct(i):
 
 def mpi_funct(i):
     from mpi4py import MPI
+
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
@@ -34,8 +35,7 @@ class TestTask(unittest.TestCase):
                 fs2.result(),
                 fs3.result(),
             ]
-        self.assertEqual(output, [
-            [(1, 2, 0), (1, 2, 1)],
-            [(2, 2, 0), (2, 2, 1)],
-            [(3, 2, 0), (3, 2, 1)]
-        ])
+        self.assertEqual(
+            output,
+            [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
+        )
