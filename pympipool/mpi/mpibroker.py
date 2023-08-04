@@ -27,13 +27,13 @@ class MPIExecutor(ExecutorBase):
         if not enable_slurm_backend:
             if threads_per_core != 1:
                 raise ValueError(
-                    "The MPI backend only supports threads_per_core=1, " +
-                    "to manage threads use the SLURM queuing system enable_slurm_backend=True ."
+                    "The MPI backend only supports threads_per_core=1, "
+                    + "to manage threads use the SLURM queuing system enable_slurm_backend=True ."
                 )
             elif gpus_per_core != 0:
                 raise ValueError(
-                    "The MPI backend only supports gpus_per_core=0, " +
-                    "to manage GPUs use the SLURM queuing system enable_slurm_backend=True ."
+                    "The MPI backend only supports gpus_per_core=0, "
+                    + "to manage GPUs use the SLURM queuing system enable_slurm_backend=True ."
                 )
         self._process = RaisingThread(
             target=_mpi_executor_broker,
