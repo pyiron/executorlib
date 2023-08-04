@@ -9,7 +9,7 @@ from pympipool.shared.executorbase import (
 )
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.communication import SocketInterface
-from pympipool.shared.interface import MpiExecInterface
+from pympipool.shared.interface import MpiExecInterface, SlurmSubprocessInterface
 
 
 class MPISingleTaskExecutor(ExecutorBase):
@@ -50,9 +50,12 @@ class MPISingleTaskExecutor(ExecutorBase):
     def __init__(
         self,
         cores,
+        threads_per_core=1,
+        gpus_per_core=1,
         oversubscribe=False,
         init_function=None,
         cwd=None,
+        enable_slurm_backend=False,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -60,8 +63,11 @@ class MPISingleTaskExecutor(ExecutorBase):
             kwargs={
                 "future_queue": self._future_queue,
                 "cores": cores,
+                "threads_per_core": threads_per_core,
+                "gpus_per_core": gpus_per_core,
                 "cwd": cwd,
                 "oversubscribe": oversubscribe,
+                "enable_slurm_backend": enable_slurm_backend,
             },
         )
         self._process.start()
@@ -75,8 +81,11 @@ class MPISingleTaskExecutor(ExecutorBase):
 def execute_parallel_tasks(
     future_queue,
     cores,
+    threads_per_core=1,
+    gpus_per_core=1,
     cwd=None,
     oversubscribe=False,
+    enable_slurm_backend=False,
 ):
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
@@ -94,8 +103,11 @@ def execute_parallel_tasks(
     interface = interface_bootup(
         command_lst=command_lst,
         cores=cores,
+        threads_per_core=threads_per_core,
+        gpus_per_core=gpus_per_core,
         cwd=cwd,
         oversubscribe=oversubscribe,
+        enable_slurm_backend=enable_slurm_backend,
     )
     execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
@@ -103,20 +115,32 @@ def execute_parallel_tasks(
 def interface_bootup(
     command_lst,
     cores=1,
+    threads_per_core=1,
+    gpus_per_core=1,
     cwd=None,
     oversubscribe=False,
+    enable_slurm_backend=False,
 ):
     command_lst += [
         "--host",
         gethostname(),
     ]
-    connections = MpiExecInterface(
-        cwd=cwd,
-        cores=cores,
-        threads_per_core=1,
-        gpus_per_core=0,
-        oversubscribe=oversubscribe,
-    )
+    if not enable_slurm_backend:
+        connections = MpiExecInterface(
+            cwd=cwd,
+            cores=cores,
+            threads_per_core=threads_per_core,
+            gpus_per_core=gpus_per_core,
+            oversubscribe=oversubscribe,
+        )
+    else:
+        connections = SlurmSubprocessInterface(
+            cwd=cwd,
+            cores=cores,
+            threads_per_core=threads_per_core,
+            gpus_per_core=gpus_per_core,
+            oversubscribe=oversubscribe,
+        )
     interface = SocketInterface(interface=connections)
     command_lst += [
         "--zmqport",

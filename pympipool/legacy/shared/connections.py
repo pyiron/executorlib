@@ -3,24 +3,12 @@ from socket import gethostname
 from pympipool.shared.interface import (
     BaseInterface,
     MpiExecInterface,
+    SlurmSubprocessInterface,
     SubprocessInterface,
     generate_mpiexec_command,
+    generate_slurm_command,
 )
 from pympipool.shared.communication import SocketInterface
-
-
-class SlurmSubprocessInterface(SubprocessInterface):
-    def generate_command(self, command_lst):
-        command_prepend_lst = generate_slurm_command(
-            cores=self._cores,
-            cwd=self._cwd,
-            threads_per_core=self._threads_per_core,
-            gpus_per_core=self._gpus_per_core,
-            oversubscribe=self._oversubscribe,
-        )
-        return super().generate_command(
-            command_lst=command_prepend_lst + command_lst,
-        )
 
 
 class PysqaInterface(BaseInterface):
@@ -92,19 +80,6 @@ class FluxCmdInterface(SubprocessInterface):
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,
         )
-
-
-def generate_slurm_command(
-    cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False
-):
-    command_prepend_lst = ["srun", "-n", str(cores), "-D", cwd]
-    if threads_per_core > 1:
-        command_prepend_lst += ["--cpus-per-task" + str(threads_per_core)]
-    if gpus_per_core > 0:
-        command_prepend_lst += ["--gpus-per-task=" + str(gpus_per_core)]
-    if oversubscribe:
-        command_prepend_lst += ["--oversubscribe"]
-    return command_prepend_lst
 
 
 def get_connection_interface(

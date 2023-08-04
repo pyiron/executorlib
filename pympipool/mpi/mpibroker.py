@@ -15,10 +15,13 @@ class MPIExecutor(ExecutorBase):
         self,
         max_workers,
         cores_per_worker=1,
+        threads_per_core=1,
+        gpus_per_core=1,
         oversubscribe=False,
         init_function=None,
         cwd=None,
         sleep_interval=0.1,
+        enable_slurm_backend=False,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -27,10 +30,13 @@ class MPIExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
                 "cores_per_worker": cores_per_worker,
+                "threads_per_core": threads_per_core,
+                "gpus_per_core": gpus_per_core,
                 "oversubscribe": oversubscribe,
                 "init_function": init_function,
                 "cwd": cwd,
                 "sleep_interval": sleep_interval,
+                "enable_slurm_backend": enable_slurm_backend,
             },
         )
         self._process.start()
@@ -40,17 +46,23 @@ def executor_broker(
     future_queue,
     max_workers,
     cores_per_worker=1,
+    threads_per_core=1,
+    gpus_per_core=1,
     oversubscribe=False,
     init_function=None,
     cwd=None,
     sleep_interval=0.1,
+    enable_slurm_backend=False,
 ):
     meta_future_lst = get_executor_list(
         max_workers=max_workers,
         cores_per_worker=cores_per_worker,
+        threads_per_core=threads_per_core,
+        gpus_per_core=gpus_per_core,
         oversubscribe=oversubscribe,
         init_function=init_function,
         cwd=cwd,
+        enable_slurm_backend=enable_slurm_backend,
     )
     while True:
         try:
@@ -68,16 +80,22 @@ def executor_broker(
 def get_executor_list(
     max_workers,
     cores_per_worker=1,
+    threads_per_core=1,
+    gpus_per_core=1,
     oversubscribe=False,
     init_function=None,
     cwd=None,
+    enable_slurm_backend=False,
 ):
     return {
         get_future_done(): MPISingleTaskExecutor(
             cores=cores_per_worker,
+            threads_per_core=threads_per_core,
+            gpus_per_core=gpus_per_core,
             oversubscribe=oversubscribe,
             init_function=init_function,
             cwd=cwd,
+            enable_slurm_backend=enable_slurm_backend,
         )
         for _ in range(max_workers)
     }
