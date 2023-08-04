@@ -7,8 +7,8 @@ from pympipool.shared.executorbase import (
 )
 from pympipool.mpi.mpibroker import (
     MPIExecutor,
-    executor_broker,
-    get_executor_list,
+    _mpi_executor_broker,
+    _mpi_get_executor_dict,
 )
 
 
@@ -33,7 +33,7 @@ class TestFutureCreation(unittest.TestCase):
 
 class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
-        meta_future = get_executor_list(max_workers=1)
+        meta_future = _mpi_get_executor_dict(max_workers=1)
         future_obj = list(meta_future.keys())[0]
         executor_obj = list(meta_future.values())[0]
         self.assertTrue(isinstance(future_obj, Future))
@@ -43,7 +43,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         executor_obj.shutdown(wait=True)
 
     def test_execute_task_dict(self):
-        meta_future_lst = get_executor_list(max_workers=1)
+        meta_future_lst = _mpi_get_executor_dict(max_workers=1)
         f = Future()
         self.assertTrue(
             execute_task_dict(
@@ -61,7 +61,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         )
 
     def test_execute_task_dict_error(self):
-        meta_future_lst = get_executor_list(max_workers=1)
+        meta_future_lst = _mpi_get_executor_dict(max_workers=1)
         with self.assertRaises(ValueError):
             execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
         list(meta_future_lst.values())[0].shutdown(wait=True)
@@ -71,7 +71,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        executor_broker(future_queue=q, max_workers=1)
+        _mpi_executor_broker(future_queue=q, max_workers=1)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
         q.join()
@@ -101,3 +101,9 @@ class TestMetaExecutor(unittest.TestCase):
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
+
+    def test_errors(self):
+        with self.assertRaises(ValueError):
+            MPIExecutor(max_workers=1, cores_per_worker=1, threads_per_core=2)
+        with self.assertRaises(ValueError):
+            MPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_core=1)

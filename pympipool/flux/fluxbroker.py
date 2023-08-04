@@ -21,7 +21,7 @@ class FluxExecutor(ExecutorBase):
     ):
         super().__init__()
         self._process = RaisingThread(
-            target=executor_broker,
+            target=_flux_executor_broker,
             kwargs={
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
@@ -37,7 +37,7 @@ class FluxExecutor(ExecutorBase):
         self._process.start()
 
 
-def executor_broker(
+def _flux_executor_broker(
     future_queue,
     max_workers,
     cores_per_worker=1,
@@ -48,7 +48,7 @@ def executor_broker(
     sleep_interval=0.1,
     executor=None,
 ):
-    meta_future_lst = _get_executor_list(
+    meta_future_lst = _flux_get_executor_dict(
         max_workers=max_workers,
         cores_per_worker=cores_per_worker,
         threads_per_core=threads_per_core,
@@ -70,7 +70,7 @@ def executor_broker(
                 break
 
 
-def _get_executor_list(
+def _flux_get_executor_dict(
     max_workers,
     cores_per_worker=1,
     threads_per_core=1,

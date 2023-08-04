@@ -4,7 +4,7 @@ from queue import Queue
 from pympipool import MPISingleTaskExecutor
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import cloudpickle_register
-from pympipool.mpi.mpitask import execute_parallel_tasks
+from pympipool.mpi.mpitask import _mpi_execute_parallel_tasks
 from concurrent.futures import Future
 
 
@@ -40,7 +40,7 @@ class TestWorkerMemory(unittest.TestCase):
         q.put({"fn": get_global, "args": (), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_parallel_tasks(
+        _mpi_execute_parallel_tasks(
             future_queue=q,
             cores=1,
             oversubscribe=False,

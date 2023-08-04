@@ -4,8 +4,8 @@ from queue import Queue
 import numpy as np
 import unittest
 
-from pympipool.flux.fluxbroker import FluxExecutor, executor_broker
-from pympipool.flux.fluxtask import execute_parallel_tasks_flux, FluxSingleTaskExecutor
+from pympipool.flux.fluxbroker import FluxExecutor, _flux_executor_broker
+from pympipool.flux.fluxtask import _flux_execute_parallel_tasks, FluxSingleTaskExecutor
 from pympipool.shared.executorbase import cloudpickle_register
 
 
@@ -86,7 +86,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_parallel_tasks_flux(future_queue=q, cores=1, executor=self.executor)
+        _flux_execute_parallel_tasks(future_queue=q, cores=1, executor=self.executor)
         self.assertEqual(f.result(), 2)
         q.join()
 
@@ -96,7 +96,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_parallel_tasks_flux(
+        _flux_execute_parallel_tasks(
             future_queue=q, cores=1, threads_per_core=1, executor=self.executor
         )
         self.assertEqual(f.result(), 2)
@@ -116,7 +116,7 @@ class TestFlux(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        executor_broker(future_queue=q, max_workers=1, executor=self.executor)
+        _flux_executor_broker(future_queue=q, max_workers=1, executor=self.executor)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
         q.join()
@@ -126,7 +126,7 @@ class TestFlux(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        executor_broker(
+        _flux_executor_broker(
             future_queue=q, max_workers=1, threads_per_core=2, executor=self.executor
         )
         self.assertTrue(f.done())

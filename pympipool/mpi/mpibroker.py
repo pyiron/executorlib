@@ -16,7 +16,7 @@ class MPIExecutor(ExecutorBase):
         max_workers,
         cores_per_worker=1,
         threads_per_core=1,
-        gpus_per_core=1,
+        gpus_per_core=0,
         oversubscribe=False,
         init_function=None,
         cwd=None,
@@ -24,8 +24,19 @@ class MPIExecutor(ExecutorBase):
         enable_slurm_backend=False,
     ):
         super().__init__()
+        if not enable_slurm_backend:
+            if threads_per_core != 1:
+                raise ValueError(
+                    "The MPI backend only supports threads_per_core=1, " +
+                    "to manage threads use the SLURM queuing system enable_slurm_backend=True ."
+                )
+            elif gpus_per_core != 0:
+                raise ValueError(
+                    "The MPI backend only supports gpus_per_core=0, " +
+                    "to manage GPUs use the SLURM queuing system enable_slurm_backend=True ."
+                )
         self._process = RaisingThread(
-            target=executor_broker,
+            target=_mpi_executor_broker,
             kwargs={
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
@@ -42,19 +53,19 @@ class MPIExecutor(ExecutorBase):
         self._process.start()
 
 
-def executor_broker(
+def _mpi_executor_broker(
     future_queue,
     max_workers,
     cores_per_worker=1,
     threads_per_core=1,
-    gpus_per_core=1,
+    gpus_per_core=0,
     oversubscribe=False,
     init_function=None,
     cwd=None,
     sleep_interval=0.1,
     enable_slurm_backend=False,
 ):
-    meta_future_lst = get_executor_list(
+    meta_future_lst = _mpi_get_executor_dict(
         max_workers=max_workers,
         cores_per_worker=cores_per_worker,
         threads_per_core=threads_per_core,
@@ -77,11 +88,11 @@ def executor_broker(
                 break
 
 
-def get_executor_list(
+def _mpi_get_executor_dict(
     max_workers,
     cores_per_worker=1,
     threads_per_core=1,
-    gpus_per_core=1,
+    gpus_per_core=0,
     oversubscribe=False,
     init_function=None,
     cwd=None,

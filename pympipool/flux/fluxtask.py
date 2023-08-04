@@ -60,7 +60,7 @@ class FluxSingleTaskExecutor(ExecutorBase):
     ):
         super().__init__()
         self._process = RaisingThread(
-            target=execute_parallel_tasks_flux,
+            target=_flux_execute_parallel_tasks,
             kwargs={
                 "future_queue": self._future_queue,
                 "cores": cores,
@@ -132,7 +132,7 @@ class FluxPythonInterface(BaseInterface):
         return self._future is not None and not self._future.done()
 
 
-def execute_parallel_tasks_flux(
+def _flux_execute_parallel_tasks(
     future_queue,
     cores,
     threads_per_core=1,
@@ -162,7 +162,7 @@ def execute_parallel_tasks_flux(
         command_lst += [
             os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
         ]
-    interface = interface_bootup_flux(
+    interface = _flux_interface_bootup(
         command_lst=command_lst,
         cwd=cwd,
         cores=cores,
@@ -173,7 +173,7 @@ def execute_parallel_tasks_flux(
     execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
 
-def interface_bootup_flux(
+def _flux_interface_bootup(
     command_lst,
     cwd=None,
     cores=1,
