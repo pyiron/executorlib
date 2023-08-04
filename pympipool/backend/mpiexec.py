@@ -5,10 +5,10 @@ import sys
 import cloudpickle
 
 from pympipool.shared.communication import (
-    connect_to_socket_interface,
-    send_result,
-    close_connection,
-    receive_instruction,
+    interface_connect,
+    interface_send,
+    interface_shutdown,
+    interface_receive,
 )
 from pympipool.shared.backend import call_funct, parse_arguments
 
@@ -26,7 +26,7 @@ def main():
 
     argument_dict = parse_arguments(argument_lst=sys.argv)
     if mpi_rank_zero:
-        context, socket = connect_to_socket_interface(
+        context, socket = interface_connect(
             host=argument_dict["host"], port=argument_dict["zmqport"]
         )
     else:
@@ -43,7 +43,7 @@ def main():
     while True:
         # Read from socket
         if mpi_rank_zero:
-            input_dict = receive_instruction(socket=socket)
+            input_dict = interface_receive(socket=socket)
         else:
             input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
@@ -51,8 +51,8 @@ def main():
         # Parse input
         if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
             if mpi_rank_zero:
-                send_result(socket=socket, result_dict={"result": True})
-                close_connection(socket=socket, context=context)
+                interface_send(socket=socket, result_dict={"result": True})
+                interface_shutdown(socket=socket, context=context)
             break
         elif (
             "fn" in input_dict.keys()
@@ -69,14 +69,14 @@ def main():
                     output_reply = output
             except Exception as error:
                 if mpi_rank_zero:
-                    send_result(
+                    interface_send(
                         socket=socket,
                         result_dict={"error": error, "error_type": str(type(error))},
                     )
             else:
                 # Send output
                 if mpi_rank_zero:
-                    send_result(socket=socket, result_dict={"result": output_reply})
+                    interface_send(socket=socket, result_dict={"result": output_reply})
         elif (
             "init" in input_dict.keys()
             and input_dict["init"]

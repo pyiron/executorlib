@@ -14,11 +14,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-        auto-update-conda: true
-        python-version: 3.9
+        python-version: '3.11'
+        mamba-version: "*"
+        channels: conda-forge
+        miniforge-variant: Mambaforge
         channel-priority: strict
+        auto-update-conda: true
+        environment-file: .ci_support/environment-openmpi.yml
     - name: Setup
       shell: bash -l {0}
       run: |

@@ -14,8 +14,6 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: [ubuntu-latest, macos-latest]
-        python-version: ['3.11']
         include:
         - operating-system: macos-latest
           python-version: '3.11'
@@ -58,17 +56,9 @@ jobs:
       run: pip install --no-deps .
     - name: Test
       shell: bash -l {0}
-      timeout-minutes: 30
-      run: for f in $(ls tests/test_*.py); do coverage run --omit pympipool/_version.py -m unittest $f; done
+      timeout-minutes: 5
+      run: for f in $(ls tests/test_*.py); do echo $f; python -m unittest $f; done
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
-    - name: Coverage
-      if:  matrix.label == 'linux-64-py-3-10-openmpi'
-      continue-on-error: True
-      shell: bash -l {0}
-      run: |
-        coverage combine
-        coveralls
-        coverage xml

@@ -1,11 +1,11 @@
 import inspect
 import os
-import socket
 import queue
+import sys
 
 import cloudpickle
 
-from pympipool.shared.communication import SocketInterface
+from pympipool.shared.communication import interface_bootup
 
 
 def cancel_items_in_queue(que):
@@ -42,63 +42,10 @@ def cloudpickle_register(ind=2):
     """
     try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
         cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[ind][0]))
+    except IndexError:
+        cloudpickle_register(ind=ind - 1)
     except ValueError:
         pass
-
-
-def command_line_options(
-    hostname,
-    port_selected,
-    path,
-    cores,
-    gpus_per_task=0,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
-    enable_multi_host=False,
-):
-    """
-    Translate the individual parameters to command line options.
-
-    Args:
-        hostname (str): name of the host where the SocketInterface instance runs the client process should conenct to.
-        port_selected (int): port the SocketInterface instance runs on.
-        path (str): path to the python script which should be executed as client process.
-        cores (int): defines the total number of MPI ranks to use
-        cores_per_task (int): number of MPI ranks per task - defaults to 1
-        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-        oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
-        enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
-        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
-        enable_mpi4py_backend (bool): enable the mpi4py.futures module - defaults to True
-        enable_multi_host (bool): communicate the host to connect to - defaults to False
-
-    Returns:
-        list: list of strings to be executed on the command line
-    """
-    if enable_flux_backend:
-        command_lst = ["flux", "run"]
-    elif enable_slurm_backend:
-        command_lst = ["srun"]
-    else:
-        command_lst = ["mpiexec"]
-    if gpus_per_task > 0 and (enable_flux_backend or enable_slurm_backend):
-        command_lst += ["--gpus-per-task=" + str(gpus_per_task)]
-    elif gpus_per_task > 0:
-        raise ValueError("GPU binding is only supported for flux and SLURM backend.")
-    if oversubscribe:
-        command_lst += ["--oversubscribe"]
-    command_lst += ["-n", str(cores), "python", path]
-    if enable_flux_backend or enable_slurm_backend or enable_multi_host:
-        command_lst += [
-            "--host",
-            hostname,
-        ]
-    command_lst += [
-        "--zmqport",
-        str(port_selected),
-    ]
-    return command_lst
 
 
 def execute_parallel_tasks(
@@ -126,30 +73,25 @@ def execute_parallel_tasks(
        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
     """
-    interface = SocketInterface(
-        queue_adapter=queue_adapter, queue_adapter_kwargs=queue_adapter_kwargs
-    )
-    interface.bootup(
-        command_lst=command_line_options(
-            hostname=socket.gethostname(),
-            port_selected=interface.bind_to_random_port(),
-            path=os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
-            ),
-            cores=cores,
-            gpus_per_task=gpus_per_task,
-            oversubscribe=oversubscribe,
-            enable_flux_backend=enable_flux_backend,
-            enable_slurm_backend=enable_slurm_backend,
-            enable_multi_host=queue_adapter is not None,
-        ),
+    command_lst = [
+        sys.executable,
+        os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
+    ]
+    interface = interface_bootup(
+        command_lst=command_lst,
         cwd=cwd,
         cores=cores,
+        gpus_per_core=gpus_per_task,
+        oversubscribe=oversubscribe,
+        enable_flux_backend=enable_flux_backend,
+        enable_slurm_backend=enable_slurm_backend,
+        queue_adapter=queue_adapter,
+        queue_adapter_kwargs=queue_adapter_kwargs,
     )
-    _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
+    execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
 
-def _execute_parallel_tasks_loop(interface, future_queue):
+def execute_parallel_tasks_loop(interface, future_queue):
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:

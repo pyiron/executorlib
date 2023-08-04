@@ -1,7 +1,8 @@
-import subprocess
-
 import cloudpickle
+from socket import gethostname
 import zmq
+
+from pympipool.shared.connections import get_connection_interface
 
 
 class SocketInterface(object):
@@ -9,16 +10,14 @@ class SocketInterface(object):
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
-        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
+        interface (pympipool.shared.connections.BaseInterface): Interface for starting the parallel process
     """
 
-    def __init__(self, queue_adapter=None, queue_adapter_kwargs=None):
+    def __init__(self, interface=None):
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
-        self._queue_adapter = queue_adapter
-        self._queue_adapter_kwargs = queue_adapter_kwargs
+        self._interface = interface
 
     def send_dict(self, input_dict):
         """
@@ -68,44 +67,22 @@ class SocketInterface(object):
         """
         return self._socket.bind_to_random_port("tcp://*")
 
-    def bootup(self, command_lst, cwd=None, cores=None):
+    def bootup(self, command_lst):
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
-            cwd (str/None): current working directory where the parallel python task is executed
-            cores (str/ None): if the job is submitted to a queuing system using the pysqa.queueadapter.QueueAdapter
-                then cores defines the number of cores to be used for the specific queuing system allocation to execute
-                the client process.
         """
-        if self._queue_adapter is not None:
-            self._queue_adapter.submit_job(
-                working_directory=cwd,
-                cores=cores,
-                command=" ".join(command_lst),
-                **self._queue_adapter_kwargs
-            )
-        else:
-            self._process = subprocess.Popen(
-                args=command_lst,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                stdin=subprocess.PIPE,
-                cwd=cwd,
-            )
+        self._interface.bootup(command_lst=command_lst)
 
     def shutdown(self, wait=True):
         result = None
-        if self._process is not None and self._process.poll() is None:
+        if self._interface.poll():
             result = self.send_and_receive_dict(
                 input_dict={"shutdown": True, "wait": wait}
             )
-            self._process_close(wait=wait)
-        elif self._queue_adapter is not None and self._socket is not None:
-            result = self.send_and_receive_dict(
-                input_dict={"shutdown": True, "wait": wait}
-            )
+            self._interface.shutdown(wait=wait)
         if self._socket is not None:
             self._socket.close()
         if self._context is not None:
@@ -115,19 +92,48 @@ class SocketInterface(object):
         self._context = None
         return result
 
-    def _process_close(self, wait=True):
-        self._process.terminate()
-        self._process.stdout.close()
-        self._process.stdin.close()
-        self._process.stderr.close()
-        if wait:
-            self._process.wait()
-
     def __del__(self):
         self.shutdown(wait=True)
 
 
-def connect_to_socket_interface(host, port):
+def interface_bootup(
+    command_lst,
+    cwd=None,
+    cores=1,
+    gpus_per_core=0,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    enable_slurm_backend=False,
+    queue_adapter=None,
+    queue_type=None,
+    queue_adapter_kwargs=None,
+):
+    if enable_flux_backend or enable_slurm_backend or queue_adapter is not None:
+        command_lst += [
+            "--host",
+            gethostname(),
+        ]
+    connections = get_connection_interface(
+        cwd=cwd,
+        cores=cores,
+        gpus_per_core=gpus_per_core,
+        oversubscribe=oversubscribe,
+        enable_flux_backend=enable_flux_backend,
+        enable_slurm_backend=enable_slurm_backend,
+        queue_adapter=queue_adapter,
+        queue_type=queue_type,
+        queue_adapter_kwargs=queue_adapter_kwargs,
+    )
+    interface = SocketInterface(interface=connections)
+    command_lst += [
+        "--zmqport",
+        str(interface.bind_to_random_port()),
+    ]
+    interface.bootup(command_lst=command_lst)
+    return interface
+
+
+def interface_connect(host, port):
     """
     Connect to an existing SocketInterface instance by providing the hostname and the port as strings.
 
@@ -141,7 +147,7 @@ def connect_to_socket_interface(host, port):
     return context, socket
 
 
-def send_result(socket, result_dict):
+def interface_send(socket, result_dict):
     """
     Send results to a SocketInterface instance.
 
@@ -152,7 +158,7 @@ def send_result(socket, result_dict):
     socket.send(cloudpickle.dumps(result_dict))
 
 
-def receive_instruction(socket):
+def interface_receive(socket):
     """
     Receive instructions from a SocketInterface instance.
 
@@ -162,7 +168,7 @@ def receive_instruction(socket):
     return cloudpickle.loads(socket.recv())
 
 
-def close_connection(socket, context):
+def interface_shutdown(socket, context):
     """
     Close the connection to a SocketInterface instance.
 
