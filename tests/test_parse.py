@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 from pympipool.shared.backend import parse_arguments
-from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface, SlurmSubprocessInterface
+from pympipool.legacy.shared.connections import MpiExecInterface, FluxCmdInterface, SlurmSubprocessInterface
 
 
 class TestParser(unittest.TestCase):

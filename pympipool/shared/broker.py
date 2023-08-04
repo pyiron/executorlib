@@ -1,35 +1,30 @@
-from concurrent.futures import as_completed, Future
 import queue
 from time import sleep
 
-from pympipool.interfaces.taskexecutor import Executor
+from concurrent.futures import as_completed, Future
+
+from pympipool.shared.base import SingleTaskExecutor
 
 
 def executor_broker(
     future_queue,
     max_workers,
     cores_per_worker=1,
+    threads_per_core=1,
     gpus_per_worker=0,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
     init_function=None,
     cwd=None,
     sleep_interval=0.1,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
+    executor=None,
 ):
     meta_future_lst = _get_executor_list(
         max_workers=max_workers,
         cores_per_worker=cores_per_worker,
+        threads_per_core=threads_per_core,
         gpus_per_worker=gpus_per_worker,
-        oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=enable_slurm_backend,
         init_function=init_function,
         cwd=cwd,
-        queue_adapter=queue_adapter,
-        queue_adapter_kwargs=queue_adapter_kwargs,
+        executor=executor,
     )
     while True:
         try:
@@ -59,35 +54,29 @@ def execute_task_dict(task_dict, meta_future_lst):
         raise ValueError("Unrecognized Task in task_dict: ", task_dict)
 
 
-def _get_executor_list(
-    max_workers,
-    cores_per_worker=1,
-    gpus_per_worker=0,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
-    init_function=None,
-    cwd=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
-):
-    return {
-        get_future_done(): Executor(
-            cores=cores_per_worker,
-            gpus_per_task=int(gpus_per_worker / cores_per_worker),
-            oversubscribe=oversubscribe,
-            enable_flux_backend=enable_flux_backend,
-            enable_slurm_backend=enable_slurm_backend,
-            init_function=init_function,
-            cwd=cwd,
-            queue_adapter=queue_adapter,
-            queue_adapter_kwargs=queue_adapter_kwargs,
-        )
-        for _ in range(max_workers)
-    }
-
-
 def get_future_done():
     f = Future()
     f.set_result(True)
     return f
+
+
+def _get_executor_list(
+    max_workers,
+    cores_per_worker=1,
+    threads_per_core=1,
+    gpus_per_worker=0,
+    init_function=None,
+    cwd=None,
+    executor=None,
+):
+    return {
+        get_future_done(): SingleTaskExecutor(
+            cores=cores_per_worker,
+            threads_per_core=threads_per_core,
+            gpus_per_task=int(gpus_per_worker / cores_per_worker),
+            init_function=init_function,
+            cwd=cwd,
+            executor=executor,
+        )
+        for _ in range(max_workers)
+    }

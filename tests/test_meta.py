@@ -2,13 +2,11 @@ from concurrent.futures import as_completed, Future, Executor
 from queue import Queue
 import unittest
 from pympipool.shared.broker import (
-    executor_broker,
     execute_task_dict,
     get_future_done,
-    _get_executor_list,
 )
-
-from pympipool.interfaces.taskbroker import HPCExecutor
+from pympipool.legacy.shared.broker import executor_broker, get_executor_list
+from pympipool.legacy.interfaces.taskbroker import HPCExecutor
 
 
 def calc(i):
@@ -31,7 +29,7 @@ class TestFutureCreation(unittest.TestCase):
 
 class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
-        meta_future = _get_executor_list(max_workers=1)
+        meta_future = get_executor_list(max_workers=1)
         future_obj = list(meta_future.keys())[0]
         executor_obj = list(meta_future.values())[0]
         self.assertTrue(isinstance(future_obj, Future))
@@ -41,7 +39,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         executor_obj.shutdown(wait=True)
 
     def test_execute_task_dict(self):
-        meta_future_lst = _get_executor_list(max_workers=1)
+        meta_future_lst = get_executor_list(max_workers=1)
         f = Future()
         self.assertTrue(execute_task_dict(
             task_dict={"fn": calc, "args": (1,), "kwargs": {}, "future": f},
@@ -55,7 +53,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         ))
 
     def test_execute_task_dict_error(self):
-        meta_future_lst = _get_executor_list(max_workers=1)
+        meta_future_lst = get_executor_list(max_workers=1)
         with self.assertRaises(ValueError):
             execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
         list(meta_future_lst.values())[0].shutdown(wait=True)

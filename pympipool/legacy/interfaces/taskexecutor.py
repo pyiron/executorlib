@@ -1,9 +1,7 @@
 from pympipool.shared.base import ExecutorBase
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.taskexecutor import (
-    execute_parallel_tasks,
-    cloudpickle_register,
-)
+from pympipool.shared.taskexecutor import cloudpickle_register
+from pympipool.legacy.shared.interface import execute_parallel_tasks
 
 
 class Executor(ExecutorBase):

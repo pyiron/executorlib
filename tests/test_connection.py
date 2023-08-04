@@ -1,7 +1,6 @@
-import os
 import unittest
-from pympipool.shared.connections import (
-    BaseInterface,
+from pympipool.shared.connections import BaseInterface
+from pympipool.legacy.shared.connections import (
     MpiExecInterface,
     SlurmSubprocessInterface,
     PysqaInterface,

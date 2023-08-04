@@ -3,7 +3,7 @@ import os
 import sys
 
 from pympipool.legacy.shared.backend import parse_arguments
-from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface
+from pympipool.legacy.shared.connections import MpiExecInterface, FluxCmdInterface
 
 
 class TestParser(unittest.TestCase):

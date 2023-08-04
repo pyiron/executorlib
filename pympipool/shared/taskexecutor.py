@@ -51,13 +51,10 @@ def cloudpickle_register(ind=2):
 def execute_parallel_tasks(
     future_queue,
     cores,
+    threads_per_core=1,
     gpus_per_task=0,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
     cwd=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
+    executor=None,
 ):
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
@@ -65,28 +62,29 @@ def execute_parallel_tasks(
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
+       threads_per_core (int): number of OpenMP threads to be used for each function call
        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-       oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
-       enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
-       enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
        cwd (str/None): current working directory where the parallel python task is executed
-       queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
-       queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
+       executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
     """
-    command_lst = [
-        sys.executable,
-        os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
-    ]
+    command_lst = [sys.executable]
+    if cores > 1:
+        command_lst += [
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+            ),
+        ]
+    else:
+        command_lst += [
+            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
+        ]
     interface = interface_bootup(
         command_lst=command_lst,
         cwd=cwd,
         cores=cores,
+        threads_per_core=threads_per_core,
         gpus_per_core=gpus_per_task,
-        oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=enable_slurm_backend,
-        queue_adapter=queue_adapter,
-        queue_adapter_kwargs=queue_adapter_kwargs,
+        executor=executor,
     )
     execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
@@ -103,11 +101,11 @@ def execute_parallel_tasks_loop(interface, future_queue):
             if f.set_running_or_notify_cancel():
                 try:
                     f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-                except Exception as thread_exeception:
+                except Exception as thread_exception:
                     interface.shutdown(wait=True)
                     future_queue.task_done()
-                    f.set_exception(exception=thread_exeception)
-                    raise thread_exeception
+                    f.set_exception(exception=thread_exception)
+                    raise thread_exception
                 else:
                     future_queue.task_done()
         elif "fn" in task_dict.keys() and "init" in task_dict.keys():

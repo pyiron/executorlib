@@ -1,6 +1,6 @@
 from pympipool.shared.base import ExecutorBase
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.broker import executor_broker
+from pympipool.legacy.shared.broker import executor_broker
 
 
 class HPCExecutor(ExecutorBase):
