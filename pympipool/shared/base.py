@@ -9,6 +9,7 @@ class ExecutorBase(FutureExecutor):
         self._future_queue = queue.Queue()
         self._process = None
 
+    @property
     def future_queue(self):
         return self._future_queue
 

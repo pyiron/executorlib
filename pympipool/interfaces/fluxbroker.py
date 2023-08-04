@@ -1,6 +1,6 @@
 import os
 import queue
-import socket
+from socket import gethostname
 import sys
 from time import sleep
 
@@ -156,7 +156,7 @@ def interface_bootup(
 ):
     command_lst += [
         "--host",
-        socket.gethostname(),
+        gethostname(),
     ]
     connections = FluxPythonInterface(
         cwd=cwd,
