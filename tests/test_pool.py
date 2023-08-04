@@ -1,6 +1,6 @@
 import numpy as np
 import unittest
-from pympipool import Pool
+from pympipool.legacy.interfaces.pool import Pool
 
 
 def calc(i):

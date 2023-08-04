@@ -1,5 +1,5 @@
 import unittest
-from pympipool import MPISpawnPool
+from pympipool.legacy.interfaces.pool import MPISpawnPool
 
 
 def get_ranks(input_parameter, comm=None):

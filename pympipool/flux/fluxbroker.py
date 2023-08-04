@@ -1,10 +1,13 @@
 import queue
 from time import sleep
 
-from pympipool.shared.executorbase import ExecutorBase
+from pympipool.shared.executorbase import (
+    ExecutorBase,
+    execute_task_dict,
+    get_future_done,
+)
 from pympipool.shared.thread import RaisingThread
 from pympipool.flux.fluxtask import FluxSingleTaskExecutor
-from pympipool.shared.executorbase import execute_task_dict, get_future_done
 
 
 class FluxExecutor(ExecutorBase):

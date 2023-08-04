@@ -23,7 +23,7 @@ class MPISingleTaskExecutor(ExecutorBase):
     Args:
         cores (int): defines the number of MPI ranks to use for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
-        gpus_per_core (int): number of GPUs per MPI rank - defaults to 0
+        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
@@ -54,7 +54,7 @@ class MPISingleTaskExecutor(ExecutorBase):
         self,
         cores,
         threads_per_core=1,
-        gpus_per_core=0,
+        gpus_per_task=0,
         oversubscribe=False,
         init_function=None,
         cwd=None,
@@ -67,7 +67,7 @@ class MPISingleTaskExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "cores": cores,
                 "threads_per_core": threads_per_core,
-                "gpus_per_core": gpus_per_core,
+                "gpus_per_task": gpus_per_task,
                 "cwd": cwd,
                 "oversubscribe": oversubscribe,
                 "enable_slurm_backend": enable_slurm_backend,
@@ -85,7 +85,7 @@ def _mpi_execute_parallel_tasks(
     future_queue,
     cores,
     threads_per_core=1,
-    gpus_per_core=0,
+    gpus_per_task=0,
     cwd=None,
     oversubscribe=False,
     enable_slurm_backend=False,
@@ -97,20 +97,27 @@ def _mpi_execute_parallel_tasks(
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
        threads_per_core (int): number of OpenMP threads to be used for each function call
-       gpus_per_core (int): number of GPUs per MPI rank - defaults to 0
+       gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
        cwd (str/None): current working directory where the parallel python task is executed
        oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
     """
-    command_lst = [
-        sys.executable,
-        os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
-    ]
+    command_lst = [sys.executable]
+    if cores > 1:
+        command_lst += [
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+            ),
+        ]
+    else:
+        command_lst += [
+            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
+        ]
     interface = _mpi_interface_bootup(
         command_lst=command_lst,
         cores=cores,
         threads_per_core=threads_per_core,
-        gpus_per_core=gpus_per_core,
+        gpus_per_task=gpus_per_task,
         cwd=cwd,
         oversubscribe=oversubscribe,
         enable_slurm_backend=enable_slurm_backend,
@@ -122,7 +129,7 @@ def _mpi_interface_bootup(
     command_lst,
     cores=1,
     threads_per_core=1,
-    gpus_per_core=0,
+    gpus_per_task=0,
     cwd=None,
     oversubscribe=False,
     enable_slurm_backend=False,
@@ -136,7 +143,7 @@ def _mpi_interface_bootup(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_core,
+            gpus_per_core=gpus_per_task,
             oversubscribe=oversubscribe,
         )
     else:
@@ -144,7 +151,7 @@ def _mpi_interface_bootup(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_core,
+            gpus_per_core=gpus_per_task,
             oversubscribe=oversubscribe,
         )
     interface = SocketInterface(interface=connections)

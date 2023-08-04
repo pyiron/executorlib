@@ -1,10 +1,9 @@
 import unittest
 import numpy as np
 from queue import Queue
-from pympipool import MPISingleTaskExecutor
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import cloudpickle_register
-from pympipool.mpi.mpitask import _mpi_execute_parallel_tasks
+from pympipool.mpi.mpitask import MPISingleTaskExecutor, _mpi_execute_parallel_tasks
 from concurrent.futures import Future
 
 
