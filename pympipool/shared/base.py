@@ -5,7 +5,7 @@ from pympipool.shared.thread import RaisingThread
 from pympipool.shared.taskexecutor import (
     cancel_items_in_queue,
     cloudpickle_register,
-    execute_parallel_tasks
+    execute_parallel_tasks,
 )
 
 

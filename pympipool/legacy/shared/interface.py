@@ -34,7 +34,9 @@ def execute_parallel_tasks(
     """
     command_lst = [
         sys.executable,
-        os.path.abspath(os.path.join(__file__, "..", "..", "..", "backend", "mpiexec.py")),
+        os.path.abspath(
+            os.path.join(__file__, "..", "..", "..", "backend", "mpiexec.py")
+        ),
     ]
     interface = interface_bootup(
         command_lst=command_lst,
