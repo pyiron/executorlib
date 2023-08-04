@@ -88,10 +88,10 @@ def execute_parallel_tasks(
         queue_adapter=queue_adapter,
         queue_adapter_kwargs=queue_adapter_kwargs,
     )
-    _execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
+    execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
 
-def _execute_parallel_tasks_loop(interface, future_queue):
+def execute_parallel_tasks_loop(interface, future_queue):
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:

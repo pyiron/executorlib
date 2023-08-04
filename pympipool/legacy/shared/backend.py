@@ -1,6 +1,6 @@
 from tqdm import tqdm
 
-from pympipool.shared.backend import call_funct, _update_default_dict_from_arguments
+from pympipool.shared.backend import call_funct, update_default_dict_from_arguments
 
 
 def map_funct(executor, funct, lst, chunksize=1, cores_per_task=1, map_flag=True):
@@ -42,7 +42,7 @@ def parse_arguments(argument_lst):
     Returns:
         dict: dictionary with the parsed arguments and their corresponding values
     """
-    return _update_default_dict_from_arguments(
+    return update_default_dict_from_arguments(
         argument_lst=argument_lst,
         argument_dict={
             "total_cores": "--cores-total",

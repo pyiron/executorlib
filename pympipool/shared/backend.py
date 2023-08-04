@@ -40,7 +40,7 @@ def parse_arguments(argument_lst):
     Returns:
         dict: dictionary with the parsed arguments and their corresponding values
     """
-    return _update_default_dict_from_arguments(
+    return update_default_dict_from_arguments(
         argument_lst=argument_lst,
         argument_dict={
             "zmqport": "--zmqport",
@@ -50,7 +50,7 @@ def parse_arguments(argument_lst):
     )
 
 
-def _update_default_dict_from_arguments(argument_lst, argument_dict, default_dict):
+def update_default_dict_from_arguments(argument_lst, argument_dict, default_dict):
     default_dict.update(
         {
             k: argument_lst[argument_lst.index(v) + 1]
