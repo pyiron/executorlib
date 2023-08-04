@@ -99,7 +99,7 @@ class FluxPythonInterface(BaseInterface):
         self._future = None
 
     def bootup(self, command_lst):
-        import fluxtask.job
+        import flux.job
 
         if self._oversubscribe:
             raise ValueError(
