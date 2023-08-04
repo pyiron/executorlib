@@ -2,7 +2,7 @@ import cloudpickle
 from socket import gethostname
 import zmq
 
-from pympipool.shared.connections import FluxPythonInterface, SubprocessInterface
+from pympipool.shared.connections import FluxPythonInterface
 
 
 class SocketInterface(object):
