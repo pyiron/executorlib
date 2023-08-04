@@ -28,14 +28,10 @@ class SingleTaskExecutor(ExecutorBase):
 
     Args:
         cores (int): defines the number of MPI ranks to use for each function call
+        threads_per_core (int): number of OpenMP threads to be used for each function call
         gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
-        enable_flux_backend (bool): use the flux-framework as backend rather than just calling mpiexec
-        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
-        queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
     Simple example:
         ```
@@ -132,6 +128,7 @@ def execute_parallel_tasks(
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
+       threads_per_core (int): number of OpenMP threads to be used for each function call
        gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
        cwd (str/None): current working directory where the parallel python task is executed
        executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
