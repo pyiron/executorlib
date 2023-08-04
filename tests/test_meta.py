@@ -4,7 +4,7 @@ import unittest
 from pympipool.shared.broker import (
     executor_broker,
     _execute_task_dict,
-    _get_future_done,
+    get_future_done,
     _get_executor_list,
 )
 
@@ -24,7 +24,7 @@ def mpi_funct(i):
 
 class TestFutureCreation(unittest.TestCase):
     def test_get_future_done(self):
-        f = _get_future_done()
+        f = get_future_done()
         self.assertTrue(isinstance(f, Future))
         self.assertTrue(f.done())
 
