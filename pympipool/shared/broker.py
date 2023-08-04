@@ -48,7 +48,7 @@ def _execute_task_dict(task_dict, meta_future_lst):
     if "fn" in task_dict.keys():
         meta_future = next(as_completed(meta_future_lst.keys()))
         executor = meta_future_lst.pop(meta_future)
-        executor._future_queue.put(task_dict)
+        executor.future_queue.put(task_dict)
         meta_future_lst[task_dict["future"]] = executor
         return True
     elif "shutdown" in task_dict.keys() and task_dict["shutdown"]:
@@ -72,7 +72,7 @@ def _get_executor_list(
     queue_adapter_kwargs=None,
 ):
     return {
-        _get_future_done(): Executor(
+        get_future_done(): Executor(
             cores=cores_per_worker,
             gpus_per_task=int(gpus_per_worker / cores_per_worker),
             oversubscribe=oversubscribe,
@@ -87,7 +87,7 @@ def _get_executor_list(
     }
 
 
-def _get_future_done():
+def get_future_done():
     f = Future()
     f.set_result(True)
     return f
