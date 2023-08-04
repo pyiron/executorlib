@@ -24,19 +24,19 @@ class PoolExecutor(ExecutorBase):
         queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
         queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
-    Simple example:
+    Examples:
         ```
-        from pympipool import PoolExecutor
-
-        def calc(i, j):
-            return i + j
-
-        with PoolExecutor(max_workers=2) as p:
-            fs1 = p.submit(calc, 1, 2)
-            fs2 = p.submit(calc, 3, 4)
-            fs3 = p.submit(calc, 5, 6)
-            fs4 = p.submit(calc, 7, 8)
-            print(fs1.result(), fs2.result(), fs3.result(), fs4.result()
+        >>> from pympipool import PoolExecutor
+        >>>
+        >>> def calc(i, j):
+        >>>     return i + j
+        >>>
+        >>> with PoolExecutor(max_workers=2) as p:
+        >>>     fs1 = p.submit(calc, 1, 2)
+        >>>     fs2 = p.submit(calc, 3, 4)
+        >>>     fs3 = p.submit(calc, 5, 6)
+        >>>     fs4 = p.submit(calc, 7, 8)
+        >>>     print(fs1.result(), fs2.result(), fs3.result(), fs4.result()
         ```
     """
 

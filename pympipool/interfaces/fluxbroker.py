@@ -33,25 +33,25 @@ class SingleTaskExecutor(ExecutorBase):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
 
-    Simple example:
+    Examples:
         ```
-        import numpy as np
-        from pympipool import Executor
+        >>> import numpy as np
+        >>> from pympipool import Executor
+        >>>
+        >>> def calc(i, j, k):
+        >>>     from mpi4py import MPI
+        >>>     size = MPI.COMM_WORLD.Get_size()
+        >>>     rank = MPI.COMM_WORLD.Get_rank()
+        >>>     return np.array([i, j, k]), size, rank
+        >>>
+        >>> def init_k():
+        >>>     return {"k": 3}
+        >>>
+        >>> with Executor(cores=2, init_function=init_k) as p:
+        >>>     fs = p.submit(calc, 2, j=4)
+        >>>     print(fs.result())
 
-        def calc(i, j, k):
-            from mpi4py import MPI
-            size = MPI.COMM_WORLD.Get_size()
-            rank = MPI.COMM_WORLD.Get_rank()
-            return np.array([i, j, k]), size, rank
-
-        def init_k():
-            return {"k": 3}
-
-        with Executor(cores=2, init_function=init_k) as p:
-            fs = p.submit(calc, 2, j=4)
-            print(fs.result())
-
-        >>> [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
+        [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
         ```
     """
 
