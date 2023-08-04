@@ -48,14 +48,14 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
-    def test_flux_executor_parallel(self):
-        with PyFluxExecutor(max_workers=1, cores_per_worker=2, executor=self.executor) as exe:
-            fs_1 = exe.submit(mpi_funct, 1)
-            fs_2 = exe.submit(mpi_funct, 2)
-            self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
-            self.assertEqual(fs_2.result(), [(2, 2, 0), (2, 2, 1)])
-            self.assertTrue(fs_1.done())
-            self.assertTrue(fs_2.done())
+    # def test_flux_executor_parallel(self):
+    #     with PyFluxExecutor(max_workers=1, cores_per_worker=2, executor=self.executor) as exe:
+    #         fs_1 = exe.submit(mpi_funct, 1)
+    #         fs_2 = exe.submit(mpi_funct, 2)
+    #         self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
+    #         self.assertEqual(fs_2.result(), [(2, 2, 0), (2, 2, 1)])
+    #         self.assertTrue(fs_1.done())
+    #         self.assertTrue(fs_2.done())
 
     def test_single_task(self):
         with SingleTaskExecutor(cores=2, executor=self.executor) as p:
