@@ -19,11 +19,11 @@ def calc(i):
     return i
 
 
-def mpi_funct(i):
-    from mpi4py import MPI
-    size = MPI.COMM_WORLD.Get_size()
-    rank = MPI.COMM_WORLD.Get_rank()
-    return i, size, rank
+# def mpi_funct(i):
+#     from mpi4py import MPI
+#     size = MPI.COMM_WORLD.Get_size()
+#     rank = MPI.COMM_WORLD.Get_rank()
+#     return i, size, rank
 
 
 def get_global(memory=None):
