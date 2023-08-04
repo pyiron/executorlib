@@ -5,7 +5,6 @@ import sys
 from time import sleep
 
 from pympipool.shared.broker import (
-    MetaExecutorFuture,
     _get_future_done,
     _execute_task_dict,
 )
@@ -137,10 +136,17 @@ def execute_parallel_tasks(
        cwd (str/None): current working directory where the parallel python task is executed
        executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
     """
-    command_lst = [
-        sys.executable,
-        os.path.abspath(os.path.join(__file__, "..", "..", "backend", "mpiexec.py")),
-    ]
+    command_lst = [sys.executable]
+    if cores > 1:
+        command_lst += [
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+            ),
+        ]
+    else:
+        command_lst += [
+            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
+        ]
     interface = interface_bootup(
         command_lst=command_lst,
         cwd=cwd,
@@ -223,17 +229,14 @@ def _get_executor_list(
     cwd=None,
     executor=None,
 ):
-    return [
-        MetaExecutorFuture(
-            future=_get_future_done(),
-            executor=SingleTaskExecutor(
-                cores=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_task=int(gpus_per_worker / cores_per_worker),
-                init_function=init_function,
-                cwd=cwd,
-                executor=executor,
-            ),
+    return {
+        _get_future_done(): SingleTaskExecutor(
+            cores=cores_per_worker,
+            threads_per_core=threads_per_core,
+            gpus_per_task=int(gpus_per_worker / cores_per_worker),
+            init_function=init_function,
+            cwd=cwd,
+            executor=executor,
         )
         for _ in range(max_workers)
-    ]
+    }
