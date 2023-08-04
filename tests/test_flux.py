@@ -4,8 +4,9 @@ from queue import Queue
 import numpy as np
 import unittest
 
-from pympipool.shared.taskexecutor import cloudpickle_register
-from pympipool.interfaces.fluxbroker import SingleTaskExecutor, PyFluxExecutor, execute_parallel_tasks, executor_broker
+from pympipool.interfaces.fluxbroker import PyFluxExecutor, executor_broker
+from pympipool.shared.base import SingleTaskExecutor
+from pympipool.shared.taskexecutor import cloudpickle_register, execute_parallel_tasks
 
 
 try:
