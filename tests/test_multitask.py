@@ -3,8 +3,8 @@ import unittest
 from queue import Queue
 from time import sleep
 from pympipool import PoolExecutor
-from pympipool.legacy.shared.interface import execute_serial_tasks
-from pympipool.shared.taskexecutor import cloudpickle_register
+from pympipool.legacy.interfaces.poolexecutor import execute_serial_tasks
+from pympipool.shared.executorbase import cloudpickle_register
 from concurrent.futures import Future
 
 

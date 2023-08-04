@@ -1,12 +1,15 @@
 from concurrent.futures import as_completed, Future, Executor
 from queue import Queue
 import unittest
-from pympipool.shared.broker import (
+from pympipool.shared.executorbase import (
     execute_task_dict,
     get_future_done,
 )
-from pympipool.legacy.shared.broker import executor_broker, get_executor_list
-from pympipool.legacy.interfaces.taskbroker import HPCExecutor
+from pympipool.legacy.interfaces.taskbroker import (
+    HPCExecutor,
+    executor_broker,
+    get_executor_list,
+)
 
 
 def calc(i):

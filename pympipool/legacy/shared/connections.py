@@ -1,7 +1,7 @@
 from socket import gethostname
 import subprocess
 
-from pympipool.shared.connections import BaseInterface
+from pympipool.shared.innterface import BaseInterface
 from pympipool.shared.communication import SocketInterface
 
 
@@ -193,7 +193,7 @@ def get_connection_interface(
         queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
     Returns:
-        pympipool.shared.connections.BaseInterface: Connection interface
+        pympipool.shared.innterface.BaseInterface: Connection interface
     """
     if queue_adapter is not None:
         connections = PysqaInterface(

@@ -6,13 +6,13 @@ from pympipool.shared.communication import (
     interface_receive,
 )
 from pympipool.interfaces.fluxbroker import PyFluxExecutor
-from pympipool.shared.taskexecutor import cancel_items_in_queue
+from pympipool.shared.executorbase import cancel_items_in_queue
 from pympipool.shared.thread import RaisingThread
 
 from pympipool.legacy.shared.connections import interface_bootup
 from pympipool.legacy.interfaces.taskbroker import HPCExecutor
 from pympipool.legacy.interfaces.taskexecutor import Executor
-from pympipool.legacy.interfaces.executor import PoolExecutor
+from pympipool.legacy.interfaces.poolexecutor import PoolExecutor
 from pympipool.legacy.interfaces.pool import Pool, MPISpawnPool
 
 from ._version import get_versions

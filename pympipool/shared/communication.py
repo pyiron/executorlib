@@ -1,8 +1,5 @@
 import cloudpickle
-from socket import gethostname
 import zmq
-
-from pympipool.shared.connections import FluxPythonInterface
 
 
 class SocketInterface(object):
@@ -10,7 +7,7 @@ class SocketInterface(object):
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        interface (pympipool.shared.connections.BaseInterface): Interface for starting the parallel process
+        interface (pympipool.shared.innterface.BaseInterface): Interface for starting the parallel process
     """
 
     def __init__(self, interface=None):
@@ -94,35 +91,6 @@ class SocketInterface(object):
 
     def __del__(self):
         self.shutdown(wait=True)
-
-
-def interface_bootup(
-    command_lst,
-    cwd=None,
-    cores=1,
-    threads_per_core=1,
-    gpus_per_core=0,
-    executor=None,
-):
-    command_lst += [
-        "--host",
-        gethostname(),
-    ]
-    connections = FluxPythonInterface(
-        cwd=cwd,
-        cores=cores,
-        threads_per_core=threads_per_core,
-        gpus_per_core=gpus_per_core,
-        oversubscribe=False,
-        executor=executor,
-    )
-    interface = SocketInterface(interface=connections)
-    command_lst += [
-        "--zmqport",
-        str(interface.bind_to_random_port()),
-    ]
-    interface.bootup(command_lst=command_lst)
-    return interface
 
 
 def interface_connect(host, port):

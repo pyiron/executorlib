@@ -4,7 +4,7 @@ import sys
 import numpy as np
 import unittest
 from pympipool.shared.communication import SocketInterface
-from pympipool.shared.taskexecutor import cloudpickle_register
+from pympipool.shared.executorbase import cloudpickle_register
 from pympipool.legacy.shared.connections import MpiExecInterface
 
 

@@ -5,8 +5,8 @@ import numpy as np
 import unittest
 
 from pympipool.interfaces.fluxbroker import PyFluxExecutor, executor_broker
-from pympipool.shared.base import SingleTaskExecutor
-from pympipool.shared.taskexecutor import cloudpickle_register, execute_parallel_tasks
+from pympipool.interfaces.fluxtask import execute_parallel_tasks_flux, FluxSingleTaskExecutor
+from pympipool.shared.executorbase import cloudpickle_register
 
 
 try:
@@ -65,7 +65,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with SingleTaskExecutor(cores=2, executor=self.executor) as p:
+        with FluxSingleTaskExecutor(cores=2, executor=self.executor) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(list(output), [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]])
 
@@ -75,7 +75,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_parallel_tasks(
+        execute_parallel_tasks_flux(
             future_queue=q,
             cores=1,
             executor=self.executor
@@ -89,7 +89,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, 'args': (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_parallel_tasks(
+        execute_parallel_tasks_flux(
             future_queue=q,
             cores=1,
             threads_per_core=1,
@@ -99,7 +99,7 @@ class TestFlux(unittest.TestCase):
         q.join()
 
     def test_internal_memory(self):
-        with SingleTaskExecutor(cores=1, init_function=set_global, executor=self.executor) as p:
+        with FluxSingleTaskExecutor(cores=1, init_function=set_global, executor=self.executor) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))

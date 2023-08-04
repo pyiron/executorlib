@@ -1,11 +1,57 @@
+from concurrent.futures import (
+    as_completed,
+    Executor as FutureExecutor,
+    Future,
+)
 import inspect
-import os
 import queue
-import sys
 
 import cloudpickle
 
-from pympipool.shared.communication import interface_bootup
+
+class ExecutorBase(FutureExecutor):
+    def __init__(self):
+        self._future_queue = queue.Queue()
+        self._process = None
+
+    @property
+    def future_queue(self):
+        return self._future_queue
+
+    def submit(self, fn, *args, **kwargs):
+        """Submits a callable to be executed with the given arguments.
+
+        Schedules the callable to be executed as fn(*args, **kwargs) and returns
+        a Future instance representing the execution of the callable.
+
+        Returns:
+            A Future representing the given call.
+        """
+        f = Future()
+        self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
+        return f
+
+    def shutdown(self, wait=True, *, cancel_futures=False):
+        """Clean-up the resources associated with the Executor.
+
+        It is safe to call this method several times. Otherwise, no other
+        methods can be called after this one.
+
+        Args:
+            wait: If True then shutdown will not return until all running
+                futures have finished executing and the resources used by the
+                parallel_executors have been reclaimed.
+            cancel_futures: If True then shutdown will cancel all pending
+                futures. Futures that are completed or running will not be
+                cancelled.
+        """
+        if cancel_futures:
+            cancel_items_in_queue(que=self._future_queue)
+        self._future_queue.put({"shutdown": True, "wait": wait})
+        self._process.join()
+
+    def __len__(self):
+        return self._future_queue.qsize()
 
 
 def cancel_items_in_queue(que):
@@ -48,47 +94,6 @@ def cloudpickle_register(ind=2):
         pass
 
 
-def execute_parallel_tasks(
-    future_queue,
-    cores,
-    threads_per_core=1,
-    gpus_per_task=0,
-    cwd=None,
-    executor=None,
-):
-    """
-    Execute a single tasks in parallel using the message passing interface (MPI).
-
-    Args:
-       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
-       cores (int): defines the total number of MPI ranks to use
-       threads_per_core (int): number of OpenMP threads to be used for each function call
-       gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-       cwd (str/None): current working directory where the parallel python task is executed
-       executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
-    """
-    command_lst = [sys.executable]
-    if cores > 1:
-        command_lst += [
-            os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
-            ),
-        ]
-    else:
-        command_lst += [
-            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
-        ]
-    interface = interface_bootup(
-        command_lst=command_lst,
-        cwd=cwd,
-        cores=cores,
-        threads_per_core=threads_per_core,
-        gpus_per_core=gpus_per_task,
-        executor=executor,
-    )
-    execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
-
-
 def execute_parallel_tasks_loop(interface, future_queue):
     while True:
         task_dict = future_queue.get()
@@ -111,3 +116,24 @@ def execute_parallel_tasks_loop(interface, future_queue):
         elif "fn" in task_dict.keys() and "init" in task_dict.keys():
             interface.send_dict(input_dict=task_dict)
             future_queue.task_done()
+
+
+def execute_task_dict(task_dict, meta_future_lst):
+    if "fn" in task_dict.keys():
+        meta_future = next(as_completed(meta_future_lst.keys()))
+        executor = meta_future_lst.pop(meta_future)
+        executor.future_queue.put(task_dict)
+        meta_future_lst[task_dict["future"]] = executor
+        return True
+    elif "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+        for executor in meta_future_lst.values():
+            executor.shutdown(wait=task_dict["wait"])
+        return False
+    else:
+        raise ValueError("Unrecognized Task in task_dict: ", task_dict)
+
+
+def get_future_done():
+    f = Future()
+    f.set_result(True)
+    return f

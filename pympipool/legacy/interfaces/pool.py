@@ -1,6 +1,6 @@
 from abc import ABC
 
-from pympipool.shared.taskexecutor import cloudpickle_register
+from pympipool.shared.executorbase import cloudpickle_register
 from pympipool.legacy.shared.interface import get_pool_command
 from pympipool.legacy.shared.connections import interface_bootup
 
