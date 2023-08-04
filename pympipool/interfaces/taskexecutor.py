@@ -25,25 +25,24 @@ class Executor(ExecutorBase):
         queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
         queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
-    Simple example:
+    Examples:
         ```
-        import numpy as np
-        from pympipool import Executor
-
-        def calc(i, j, k):
-            from mpi4py import MPI
-            size = MPI.COMM_WORLD.Get_size()
-            rank = MPI.COMM_WORLD.Get_rank()
-            return np.array([i, j, k]), size, rank
-
-        def init_k():
-            return {"k": 3}
-
-        with Executor(cores=2, init_function=init_k) as p:
-            fs = p.submit(calc, 2, j=4)
-            print(fs.result())
-
-        >>> [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
+        >>> import numpy as np
+        >>> from pympipool import Executor
+        >>>
+        >>> def calc(i, j, k):
+        >>>     from mpi4py import MPI
+        >>>     size = MPI.COMM_WORLD.Get_size()
+        >>>     rank = MPI.COMM_WORLD.Get_rank()
+        >>>     return np.array([i, j, k]), size, rank
+        >>>
+        >>> def init_k():
+        >>>     return {"k": 3}
+        >>>
+        >>> with Executor(cores=2, init_function=init_k) as p:
+        >>>     fs = p.submit(calc, 2, j=4)
+        >>>     print(fs.result())
+        [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
         ```
     """
 

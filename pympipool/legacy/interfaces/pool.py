@@ -45,16 +45,16 @@ class Pool(PoolBase):
         queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
         queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
 
-    Simple example:
+    Examples:
         ```
-        import numpy as np
-        from pympipool import Pool
-
-        def calc(i):
-            return np.array(i ** 2)
-
-        with Pool(cores=2) as p:
-            print(p.map(func=calc, iterable=[1, 2, 3, 4]))
+        >>> import numpy as np
+        >>> from pympipool import Pool
+        >>>
+        >>> def calc(i):
+        >>>     return np.array(i ** 2)
+        >>>
+        >>> with Pool(cores=2) as p:
+        >>>     print(p.map(func=calc, iterable=[1, 2, 3, 4]))
         ```
     """
 

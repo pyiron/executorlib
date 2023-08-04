@@ -4,9 +4,12 @@ import subprocess
 
 
 class BaseInterface(ABC):
-    def __init__(self, cwd, cores=1, gpus_per_core=0, oversubscribe=False):
+    def __init__(
+        self, cwd, cores=1, threads_per_core=1, gpus_per_core=0, oversubscribe=False
+    ):
         self._cwd = cwd
         self._cores = cores
+        self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
         self._oversubscribe = oversubscribe
 
@@ -21,10 +24,18 @@ class BaseInterface(ABC):
 
 
 class SubprocessInterface(BaseInterface):
-    def __init__(self, cwd=None, cores=1, gpus_per_core=0, oversubscribe=False):
+    def __init__(
+        self,
+        cwd=None,
+        cores=1,
+        threads_per_core=1,
+        gpus_per_core=0,
+        oversubscribe=False,
+    ):
         super().__init__(
             cwd=cwd,
             cores=cores,
+            threads_per_core=threads_per_core,
             gpus_per_core=gpus_per_core,
             oversubscribe=oversubscribe,
         )
@@ -72,6 +83,7 @@ class SlurmSubprocessInterface(SubprocessInterface):
         command_prepend_lst = generate_slurm_command(
             cores=self._cores,
             cwd=self._cwd,
+            threads_per_core=self._threads_per_core,
             gpus_per_core=self._gpus_per_core,
             oversubscribe=self._oversubscribe,
         )
@@ -142,6 +154,8 @@ class FluxCmdInterface(SubprocessInterface):
             command_prepend_lst += [
                 "--cwd=" + self._cwd,
             ]
+        if self._threads_per_core > 1:
+            command_prepend_lst += ["--cores-per-task=" + str(self._threads_per_core)]
         if self._gpus_per_core > 0:
             command_prepend_lst += ["--gpus-per-task=" + str(self._gpus_per_core)]
         return super().generate_command(
@@ -151,12 +165,19 @@ class FluxCmdInterface(SubprocessInterface):
 
 class FluxPythonInterface(BaseInterface):
     def __init__(
-        self, cwd=None, cores=1, gpus_per_core=0, oversubscribe=False, executor=None
+        self,
+        cwd=None,
+        cores=1,
+        threads_per_core=1,
+        gpus_per_core=0,
+        oversubscribe=False,
+        executor=None,
     ):
         super().__init__(
             cwd=cwd,
             cores=cores,
             gpus_per_core=gpus_per_core,
+            threads_per_core=threads_per_core,
             oversubscribe=oversubscribe,
         )
         self._executor = executor
@@ -174,7 +195,7 @@ class FluxPythonInterface(BaseInterface):
         jobspec = flux.job.JobspecV1.from_command(
             command=command_lst,
             num_tasks=self._cores,
-            cores_per_task=1,
+            cores_per_task=self._threads_per_core,
             gpus_per_task=self._gpus_per_core,
             num_nodes=None,
             exclusive=False,
@@ -196,8 +217,12 @@ class FluxPythonInterface(BaseInterface):
         return self._future is not None and not self._future.done()
 
 
-def generate_slurm_command(cores, cwd, gpus_per_core=0, oversubscribe=False):
+def generate_slurm_command(
+    cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False
+):
     command_prepend_lst = ["srun", "-n", str(cores), "-D", cwd]
+    if threads_per_core > 1:
+        command_prepend_lst += ["--cpus-per-task" + str(threads_per_core)]
     if gpus_per_core > 0:
         command_prepend_lst += ["--gpus-per-task=" + str(gpus_per_core)]
     if oversubscribe:
