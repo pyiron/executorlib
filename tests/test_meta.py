@@ -54,6 +54,11 @@ class TestMetaExecutorFuture(unittest.TestCase):
             meta_future_lst=meta_future_lst
         ))
 
+    def test_execute_task_dict_error(self):
+        meta_future_lst = _get_executor_list(max_workers=1)
+        with self.assertRaises(ValueError):
+            _execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
+
     def test_executor_broker(self):
         q = Queue()
         f = Future()
