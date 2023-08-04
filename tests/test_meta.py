@@ -3,7 +3,7 @@ from queue import Queue
 import unittest
 from pympipool.shared.broker import (
     executor_broker,
-    _execute_task_dict,
+    execute_task_dict,
     get_future_done,
     _get_executor_list,
 )
@@ -43,13 +43,13 @@ class TestMetaExecutorFuture(unittest.TestCase):
     def test_execute_task_dict(self):
         meta_future_lst = _get_executor_list(max_workers=1)
         f = Future()
-        self.assertTrue(_execute_task_dict(
+        self.assertTrue(execute_task_dict(
             task_dict={"fn": calc, "args": (1,), "kwargs": {}, "future": f},
             meta_future_lst=meta_future_lst
         ))
         self.assertEqual(f.result(), 1)
         self.assertTrue(f.done())
-        self.assertFalse(_execute_task_dict(
+        self.assertFalse(execute_task_dict(
             task_dict={"shutdown": True, "wait": True},
             meta_future_lst=meta_future_lst
         ))
@@ -57,7 +57,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
     def test_execute_task_dict_error(self):
         meta_future_lst = _get_executor_list(max_workers=1)
         with self.assertRaises(ValueError):
-            _execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
+            execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
         list(meta_future_lst.values())[0].shutdown(wait=True)
 
     def test_executor_broker(self):

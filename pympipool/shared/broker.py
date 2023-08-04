@@ -37,14 +37,14 @@ def executor_broker(
         except queue.Empty:
             sleep(sleep_interval)
         else:
-            if _execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
+            if execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
                 future_queue.task_done()
             else:
                 future_queue.task_done()
                 break
 
 
-def _execute_task_dict(task_dict, meta_future_lst):
+def execute_task_dict(task_dict, meta_future_lst):
     if "fn" in task_dict.keys():
         meta_future = next(as_completed(meta_future_lst.keys()))
         executor = meta_future_lst.pop(meta_future)
