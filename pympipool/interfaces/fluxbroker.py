@@ -8,7 +8,7 @@ from pympipool.shared.broker import (
     get_future_done,
     execute_task_dict,
 )
-from pympipool.interfaces.base import ExecutorBase
+from pympipool.shared.base import ExecutorBase
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.taskexecutor import (
     cloudpickle_register,

@@ -1,4 +1,4 @@
-from pympipool.interfaces.base import ExecutorBase
+from pympipool.shared.base import ExecutorBase
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.broker import executor_broker
 
