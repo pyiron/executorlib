@@ -31,12 +31,14 @@ class TestFutureCreation(unittest.TestCase):
 
 class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
-        meta_future = _get_executor_list(max_workers=1)[0]
-        self.assertTrue(isinstance(meta_future.future, Future))
-        self.assertTrue(isinstance(meta_future.executor, Executor))
-        self.assertTrue(meta_future.done())
-        self.assertEqual(meta_future, next(as_completed([meta_future])))
-        meta_future.submit(task_dict={"shutdown": True, "wait": True, "future": _get_future_done()})
+        meta_future = _get_executor_list(max_workers=1)
+        future_obj = list(meta_future.keys())[0]
+        executor_obj = list(meta_future.values())[0]
+        self.assertTrue(isinstance(future_obj, Future))
+        self.assertTrue(isinstance(executor_obj, Executor))
+        self.assertTrue(future_obj.done())
+        self.assertEqual(future_obj, next(as_completed(meta_future.keys())))
+        executor_obj.shutdown(wait=True)
 
     def test_execute_task_dict(self):
         meta_future_lst = _get_executor_list(max_workers=1)
@@ -52,6 +54,12 @@ class TestMetaExecutorFuture(unittest.TestCase):
             meta_future_lst=meta_future_lst
         ))
 
+    def test_execute_task_dict_error(self):
+        meta_future_lst = _get_executor_list(max_workers=1)
+        with self.assertRaises(ValueError):
+            _execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
+        list(meta_future_lst.values())[0].shutdown(wait=True)
+
     def test_executor_broker(self):
         q = Queue()
         f = Future()
@@ -66,6 +74,15 @@ class TestMetaExecutorFuture(unittest.TestCase):
 class TestMetaExecutor(unittest.TestCase):
     def test_meta_executor_serial(self):
         with HPCExecutor(max_workers=2) as exe:
+            fs_1 = exe.submit(calc, 1)
+            fs_2 = exe.submit(calc, 2)
+            self.assertEqual(fs_1.result(), 1)
+            self.assertEqual(fs_2.result(), 2)
+            self.assertTrue(fs_1.done())
+            self.assertTrue(fs_2.done())
+
+    def test_meta_executor_single(self):
+        with HPCExecutor(max_workers=1) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)

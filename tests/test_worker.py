@@ -40,6 +40,15 @@ class TestFuturePool(unittest.TestCase):
             self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), np.array(4))
 
+    def test_executor_multi_submission(self):
+        with Executor(cores=1) as p:
+            fs_1 = p.submit(calc, i=2)
+            fs_2 = p.submit(calc, i=2)
+            self.assertEqual(fs_1.result(), np.array(4))
+            self.assertEqual(fs_2.result(), np.array(4))
+            self.assertTrue(fs_1.done())
+            self.assertTrue(fs_2.done())
+
     def test_shutdown(self):
         p = Executor(cores=1)
         fs1 = p.submit(sleep_one, i=2)
