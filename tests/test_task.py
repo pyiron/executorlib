@@ -1,5 +1,5 @@
 import unittest
-from pympipool import Executor
+from pympipool import MPISingleTaskExecutor
 
 
 def echo_funct(i):
@@ -15,17 +15,17 @@ def mpi_funct(i):
 
 class TestTask(unittest.TestCase):
     def test_echo(self):
-        with Executor(cores=2) as p:
+        with MPISingleTaskExecutor(cores=2) as p:
             output = p.submit(echo_funct, 2).result()
         self.assertEqual(output, [2, 2])
 
     def test_mpi(self):
-        with Executor(cores=2) as p:
+        with MPISingleTaskExecutor(cores=2) as p:
             output = p.submit(mpi_funct, 2).result()
         self.assertEqual(output, [(2, 2, 0), (2, 2, 1)])
 
     def test_mpi_multiple(self):
-        with Executor(cores=2) as p:
+        with MPISingleTaskExecutor(cores=2) as p:
             fs1 = p.submit(mpi_funct, 1)
             fs2 = p.submit(mpi_funct, 2)
             fs3 = p.submit(mpi_funct, 3)

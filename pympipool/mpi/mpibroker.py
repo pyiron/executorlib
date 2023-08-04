@@ -1,25 +1,24 @@
 from time import sleep
 import queue
 
-from pympipool.shared.executorbase import ExecutorBase, get_future_done, execute_task_dict
+from pympipool.shared.executorbase import (
+    ExecutorBase,
+    get_future_done,
+    execute_task_dict,
+)
 from pympipool.shared.thread import RaisingThread
-from pympipool.legacy.interfaces.taskexecutor import Executor
+from pympipool.mpi.mpitask import MPISingleTaskExecutor
 
 
-class HPCExecutor(ExecutorBase):
+class MPIExecutor(ExecutorBase):
     def __init__(
         self,
         max_workers,
         cores_per_worker=1,
-        gpus_per_worker=0,
         oversubscribe=False,
-        enable_flux_backend=False,
-        enable_slurm_backend=False,
         init_function=None,
         cwd=None,
         sleep_interval=0.1,
-        queue_adapter=None,
-        queue_adapter_kwargs=None,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -28,15 +27,10 @@ class HPCExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
                 "cores_per_worker": cores_per_worker,
-                "gpus_per_worker": gpus_per_worker,
                 "oversubscribe": oversubscribe,
-                "enable_flux_backend": enable_flux_backend,
-                "enable_slurm_backend": enable_slurm_backend,
                 "init_function": init_function,
                 "cwd": cwd,
                 "sleep_interval": sleep_interval,
-                "queue_adapter": queue_adapter,
-                "queue_adapter_kwargs": queue_adapter_kwargs,
             },
         )
         self._process.start()
@@ -46,27 +40,17 @@ def executor_broker(
     future_queue,
     max_workers,
     cores_per_worker=1,
-    gpus_per_worker=0,
     oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
     init_function=None,
     cwd=None,
     sleep_interval=0.1,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
 ):
     meta_future_lst = get_executor_list(
         max_workers=max_workers,
         cores_per_worker=cores_per_worker,
-        gpus_per_worker=gpus_per_worker,
         oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=enable_slurm_backend,
         init_function=init_function,
         cwd=cwd,
-        queue_adapter=queue_adapter,
-        queue_adapter_kwargs=queue_adapter_kwargs,
     )
     while True:
         try:
@@ -84,26 +68,16 @@ def executor_broker(
 def get_executor_list(
     max_workers,
     cores_per_worker=1,
-    gpus_per_worker=0,
     oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
     init_function=None,
     cwd=None,
-    queue_adapter=None,
-    queue_adapter_kwargs=None,
 ):
     return {
-        get_future_done(): Executor(
+        get_future_done(): MPISingleTaskExecutor(
             cores=cores_per_worker,
-            gpus_per_task=int(gpus_per_worker / cores_per_worker),
             oversubscribe=oversubscribe,
-            enable_flux_backend=enable_flux_backend,
-            enable_slurm_backend=enable_slurm_backend,
             init_function=init_function,
             cwd=cwd,
-            queue_adapter=queue_adapter,
-            queue_adapter_kwargs=queue_adapter_kwargs,
         )
         for _ in range(max_workers)
     }

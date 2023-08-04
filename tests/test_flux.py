@@ -4,8 +4,8 @@ from queue import Queue
 import numpy as np
 import unittest
 
-from pympipool.interfaces.fluxbroker import PyFluxExecutor, executor_broker
-from pympipool.interfaces.fluxtask import execute_parallel_tasks_flux, FluxSingleTaskExecutor
+from pympipool.flux.fluxbroker import FluxExecutor, executor_broker
+from pympipool.flux.fluxtask import execute_parallel_tasks_flux, FluxSingleTaskExecutor
 from pympipool.shared.executorbase import cloudpickle_register
 
 
@@ -41,7 +41,7 @@ class TestFlux(unittest.TestCase):
         self.executor = FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with PyFluxExecutor(max_workers=2, executor=self.executor) as exe:
+        with FluxExecutor(max_workers=2, executor=self.executor) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -50,7 +50,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_threads(self):
-        with PyFluxExecutor(max_workers=1, threads_per_core=2, executor=self.executor) as exe:
+        with FluxExecutor(max_workers=1, threads_per_core=2, executor=self.executor) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -59,7 +59,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_parallel(self):
-        with PyFluxExecutor(max_workers=1, cores_per_worker=2, executor=self.executor) as exe:
+        with FluxExecutor(max_workers=1, cores_per_worker=2, executor=self.executor) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())

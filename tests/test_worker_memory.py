@@ -1,10 +1,10 @@
 import unittest
 import numpy as np
 from queue import Queue
-from pympipool import Executor
+from pympipool import MPISingleTaskExecutor
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import cloudpickle_register
-from pympipool.legacy.interfaces.taskexecutor import execute_parallel_tasks
+from pympipool.mpi.mpitask import execute_parallel_tasks
 from concurrent.futures import Future
 
 
@@ -18,7 +18,7 @@ def set_global():
 
 class TestWorkerMemory(unittest.TestCase):
     def test_internal_memory(self):
-        with Executor(cores=1, init_function=set_global) as p:
+        with MPISingleTaskExecutor(cores=1, init_function=set_global) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
@@ -41,7 +41,6 @@ class TestWorkerMemory(unittest.TestCase):
             future_queue=q,
             cores=1,
             oversubscribe=False,
-            enable_flux_backend=False
         )
         self.assertEqual(f.result(), np.array([5]))
         q.join()

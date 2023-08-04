@@ -3,11 +3,11 @@ from time import sleep
 
 from pympipool.shared.executorbase import ExecutorBase
 from pympipool.shared.thread import RaisingThread
-from pympipool.interfaces.fluxtask import FluxSingleTaskExecutor
+from pympipool.flux.fluxtask import FluxSingleTaskExecutor
 from pympipool.shared.executorbase import execute_task_dict, get_future_done
 
 
-class PyFluxExecutor(ExecutorBase):
+class FluxExecutor(ExecutorBase):
     def __init__(
         self,
         max_workers,

@@ -7,7 +7,7 @@ from pympipool.shared.executorbase import (
     ExecutorBase,
     execute_parallel_tasks_loop,
 )
-from pympipool.shared.innterface import BaseInterface
+from pympipool.shared.interface import BaseInterface
 from pympipool.shared.communication import SocketInterface
 from pympipool.shared.thread import RaisingThread
 
@@ -30,7 +30,7 @@ class FluxSingleTaskExecutor(ExecutorBase):
     Examples:
         ```
         >>> import numpy as np
-        >>> from pympipool.interfaces.fluxtask import FluxSingleTaskExecutor
+        >>> from pympipool.flux.fluxtask import FluxSingleTaskExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI

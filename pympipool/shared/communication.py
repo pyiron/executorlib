@@ -7,7 +7,7 @@ class SocketInterface(object):
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        interface (pympipool.shared.innterface.BaseInterface): Interface for starting the parallel process
+        interface (pympipool.shared.interface.BaseInterface): Interface for starting the parallel process
     """
 
     def __init__(self, interface=None):

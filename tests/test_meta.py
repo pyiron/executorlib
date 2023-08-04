@@ -5,8 +5,8 @@ from pympipool.shared.executorbase import (
     execute_task_dict,
     get_future_done,
 )
-from pympipool.legacy.interfaces.taskbroker import (
-    HPCExecutor,
+from pympipool.mpi.mpibroker import (
+    MPIExecutor,
     executor_broker,
     get_executor_list,
 )
@@ -74,7 +74,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
 
 class TestMetaExecutor(unittest.TestCase):
     def test_meta_executor_serial(self):
-        with HPCExecutor(max_workers=2) as exe:
+        with MPIExecutor(max_workers=2) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -83,7 +83,7 @@ class TestMetaExecutor(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_single(self):
-        with HPCExecutor(max_workers=1) as exe:
+        with MPIExecutor(max_workers=1) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -92,7 +92,7 @@ class TestMetaExecutor(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_parallel(self):
-        with HPCExecutor(max_workers=1, cores_per_worker=2) as exe:
+        with MPIExecutor(max_workers=1, cores_per_worker=2) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
