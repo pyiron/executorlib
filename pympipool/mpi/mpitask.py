@@ -49,7 +49,7 @@ class MPISingleTaskExecutor(ExecutorBase):
 
     def __init__(
         self,
-        cores,
+        cores=1,
         threads_per_core=1,
         gpus_per_task=0,
         oversubscribe=False,

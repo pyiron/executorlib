@@ -166,6 +166,7 @@ def get_backend_path(cores):
         command_lst += [
             os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
         ]
+    return command_lst
 
 
 def get_executor_dict(max_workers, executor_class, **kwargs):

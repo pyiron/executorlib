@@ -53,7 +53,7 @@ def _flux_executor_broker(
         meta_future_lst=get_executor_dict(
             max_workers=max_workers,
             executor_class=FluxSingleTaskExecutor,
-            cores_per_worker=cores_per_worker,
+            cores=cores_per_worker,
             threads_per_core=threads_per_core,
             gpus_per_task=int(gpus_per_worker / cores_per_worker),
             init_function=init_function,

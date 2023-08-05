@@ -3,12 +3,13 @@ from queue import Queue
 import unittest
 from pympipool.shared.executorbase import (
     execute_task_dict,
+    get_executor_dict,
     get_future_done,
 )
+from pympipool.mpi.mpitask import MPISingleTaskExecutor
 from pympipool.mpi.mpibroker import (
     MPIExecutor,
     _mpi_executor_broker,
-    _mpi_get_executor_dict,
 )
 
 
@@ -33,7 +34,10 @@ class TestFutureCreation(unittest.TestCase):
 
 class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
-        meta_future = _mpi_get_executor_dict(max_workers=1)
+        meta_future = get_executor_dict(
+            max_workers=1,
+            executor_class=MPISingleTaskExecutor,
+        )
         future_obj = list(meta_future.keys())[0]
         executor_obj = list(meta_future.values())[0]
         self.assertTrue(isinstance(future_obj, Future))
@@ -43,7 +47,10 @@ class TestMetaExecutorFuture(unittest.TestCase):
         executor_obj.shutdown(wait=True)
 
     def test_execute_task_dict(self):
-        meta_future_lst = _mpi_get_executor_dict(max_workers=1)
+        meta_future_lst = get_executor_dict(
+            max_workers=1,
+            executor_class=MPISingleTaskExecutor,
+        )
         f = Future()
         self.assertTrue(
             execute_task_dict(
@@ -61,7 +68,10 @@ class TestMetaExecutorFuture(unittest.TestCase):
         )
 
     def test_execute_task_dict_error(self):
-        meta_future_lst = _mpi_get_executor_dict(max_workers=1)
+        meta_future_lst = get_executor_dict(
+            max_workers=1,
+            executor_class=MPISingleTaskExecutor,
+        )
         with self.assertRaises(ValueError):
             execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
         list(meta_future_lst.values())[0].shutdown(wait=True)
@@ -106,4 +116,4 @@ class TestMetaExecutor(unittest.TestCase):
         with self.assertRaises(ValueError):
             MPIExecutor(max_workers=1, cores_per_worker=1, threads_per_core=2)
         with self.assertRaises(ValueError):
-            MPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_core=1)
+            MPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_worker=1)

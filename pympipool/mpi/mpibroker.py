@@ -1,6 +1,3 @@
-from time import sleep
-import queue
-
 from pympipool.shared.executorbase import (
     ExecutorBase,
     executor_broker,
@@ -16,7 +13,7 @@ class MPIExecutor(ExecutorBase):
         max_workers,
         cores_per_worker=1,
         threads_per_core=1,
-        gpus_per_core=0,
+        gpus_per_worker=0,
         oversubscribe=False,
         init_function=None,
         cwd=None,
@@ -30,7 +27,7 @@ class MPIExecutor(ExecutorBase):
                     "The MPI backend only supports threads_per_core=1, "
                     + "to manage threads use the SLURM queuing system enable_slurm_backend=True ."
                 )
-            elif gpus_per_core != 0:
+            elif gpus_per_worker != 0:
                 raise ValueError(
                     "The MPI backend only supports gpus_per_core=0, "
                     + "to manage GPUs use the SLURM queuing system enable_slurm_backend=True ."
@@ -42,7 +39,7 @@ class MPIExecutor(ExecutorBase):
                 "max_workers": max_workers,
                 "cores_per_worker": cores_per_worker,
                 "threads_per_core": threads_per_core,
-                "gpus_per_core": gpus_per_core,
+                "gpus_per_worker": gpus_per_worker,
                 "oversubscribe": oversubscribe,
                 "init_function": init_function,
                 "cwd": cwd,
@@ -70,9 +67,9 @@ def _mpi_executor_broker(
         meta_future_lst=get_executor_dict(
             max_workers=max_workers,
             executor_class=MPISingleTaskExecutor,
-            cores_per_worker=cores_per_worker,
+            cores=cores_per_worker,
             threads_per_core=threads_per_core,
-            gpus_per_core=int(gpus_per_worker / cores_per_worker),
+            gpus_per_task=int(gpus_per_worker / cores_per_worker),
             oversubscribe=oversubscribe,
             init_function=init_function,
             cwd=cwd,

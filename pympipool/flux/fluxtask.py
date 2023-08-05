@@ -52,7 +52,7 @@ class FluxSingleTaskExecutor(ExecutorBase):
 
     def __init__(
         self,
-        cores,
+        cores=1,
         threads_per_core=1,
         gpus_per_task=0,
         init_function=None,
@@ -162,5 +162,5 @@ def _flux_execute_parallel_tasks(
                 executor=executor,
             ),
         ),
-        future_queue=future_queue
+        future_queue=future_queue,
     )
