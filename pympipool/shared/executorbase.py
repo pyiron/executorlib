@@ -4,7 +4,10 @@ from concurrent.futures import (
     Future,
 )
 import inspect
+import os
 import queue
+import sys
+from time import sleep
 
 import cloudpickle
 
@@ -118,6 +121,24 @@ def execute_parallel_tasks_loop(interface, future_queue):
             future_queue.task_done()
 
 
+def executor_broker(
+    future_queue,
+    meta_future_lst,
+    sleep_interval=0.1,
+):
+    while True:
+        try:
+            task_dict = future_queue.get_nowait()
+        except queue.Empty:
+            sleep(sleep_interval)
+        else:
+            if execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
+                future_queue.task_done()
+            else:
+                future_queue.task_done()
+                break
+
+
 def execute_task_dict(task_dict, meta_future_lst):
     if "fn" in task_dict.keys():
         meta_future = next(as_completed(meta_future_lst.keys()))
@@ -131,6 +152,24 @@ def execute_task_dict(task_dict, meta_future_lst):
         return False
     else:
         raise ValueError("Unrecognized Task in task_dict: ", task_dict)
+
+
+def get_backend_path(cores):
+    command_lst = [sys.executable]
+    if cores > 1:
+        command_lst += [
+            os.path.abspath(
+                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+            ),
+        ]
+    else:
+        command_lst += [
+            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
+        ]
+
+
+def get_executor_dict(max_workers, executor_class, **kwargs):
+    return {get_future_done(): executor_class(**kwargs) for _ in range(max_workers)}
 
 
 def get_future_done():

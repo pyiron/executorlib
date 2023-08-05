@@ -1,3 +1,5 @@
+from socket import gethostname
+
 import cloudpickle
 import zmq
 
@@ -91,6 +93,23 @@ class SocketInterface(object):
 
     def __del__(self):
         self.shutdown(wait=True)
+
+
+def interface_bootup(
+    command_lst,
+    connections,
+):
+    command_lst += [
+        "--host",
+        gethostname(),
+    ]
+    interface = SocketInterface(interface=connections)
+    command_lst += [
+        "--zmqport",
+        str(interface.bind_to_random_port()),
+    ]
+    interface.bootup(command_lst=command_lst)
+    return interface
 
 
 def interface_connect(host, port):

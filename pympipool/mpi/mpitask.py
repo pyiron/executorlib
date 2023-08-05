@@ -1,14 +1,11 @@
-import os
-from socket import gethostname
-import sys
-
 from pympipool.shared.executorbase import (
     cloudpickle_register,
     execute_parallel_tasks_loop,
     ExecutorBase,
+    get_backend_path,
 )
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.communication import SocketInterface
+from pympipool.shared.communication import interface_bootup
 from pympipool.shared.interface import MpiExecInterface, SlurmSubprocessInterface
 
 
@@ -32,7 +29,7 @@ class MPISingleTaskExecutor(ExecutorBase):
     Examples:
         ```
         >>> import numpy as np
-        >>> from pympipool import MPISingleTaskExecutor
+        >>> from pympipool.mpi.mpitask import MPISingleTaskExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -102,31 +99,23 @@ def _mpi_execute_parallel_tasks(
        oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
     """
-    command_lst = [sys.executable]
-    if cores > 1:
-        command_lst += [
-            os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+    execute_parallel_tasks_loop(
+        interface=interface_bootup(
+            command_lst=get_backend_path(cores=cores),
+            connections=get_interface(
+                cores=cores,
+                threads_per_core=threads_per_core,
+                gpus_per_task=gpus_per_task,
+                cwd=cwd,
+                oversubscribe=oversubscribe,
+                enable_slurm_backend=enable_slurm_backend,
             ),
-        ]
-    else:
-        command_lst += [
-            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
-        ]
-    interface = _mpi_interface_bootup(
-        command_lst=command_lst,
-        cores=cores,
-        threads_per_core=threads_per_core,
-        gpus_per_task=gpus_per_task,
-        cwd=cwd,
-        oversubscribe=oversubscribe,
-        enable_slurm_backend=enable_slurm_backend,
+        ),
+        future_queue=future_queue,
     )
-    execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
 
 
-def _mpi_interface_bootup(
-    command_lst,
+def get_interface(
     cores=1,
     threads_per_core=1,
     gpus_per_task=0,
@@ -134,12 +123,8 @@ def _mpi_interface_bootup(
     oversubscribe=False,
     enable_slurm_backend=False,
 ):
-    command_lst += [
-        "--host",
-        gethostname(),
-    ]
     if not enable_slurm_backend:
-        connections = MpiExecInterface(
+        return MpiExecInterface(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
@@ -147,17 +132,10 @@ def _mpi_interface_bootup(
             oversubscribe=oversubscribe,
         )
     else:
-        connections = SlurmSubprocessInterface(
+        return SlurmSubprocessInterface(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
             gpus_per_core=gpus_per_task,
             oversubscribe=oversubscribe,
         )
-    interface = SocketInterface(interface=connections)
-    command_lst += [
-        "--zmqport",
-        str(interface.bind_to_random_port()),
-    ]
-    interface.bootup(command_lst=command_lst)
-    return interface

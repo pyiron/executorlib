@@ -1,6 +1,4 @@
 import os
-import sys
-from socket import gethostname
 
 import flux.job
 
@@ -8,9 +6,10 @@ from pympipool.shared.executorbase import (
     cloudpickle_register,
     ExecutorBase,
     execute_parallel_tasks_loop,
+    get_backend_path,
 )
 from pympipool.shared.interface import BaseInterface
-from pympipool.shared.communication import SocketInterface
+from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
 
 
@@ -151,52 +150,17 @@ def _flux_execute_parallel_tasks(
        cwd (str/None): current working directory where the parallel python task is executed
        executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
     """
-    command_lst = [sys.executable]
-    if cores > 1:
-        command_lst += [
-            os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
+    execute_parallel_tasks_loop(
+        interface=interface_bootup(
+            command_lst=get_backend_path(cores=cores),
+            connections=FluxPythonInterface(
+                cwd=cwd,
+                cores=cores,
+                threads_per_core=threads_per_core,
+                gpus_per_core=gpus_per_task,
+                oversubscribe=False,
+                executor=executor,
             ),
-        ]
-    else:
-        command_lst += [
-            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
-        ]
-    interface = _flux_interface_bootup(
-        command_lst=command_lst,
-        cwd=cwd,
-        cores=cores,
-        threads_per_core=threads_per_core,
-        gpus_per_core=gpus_per_task,
-        executor=executor,
+        ),
+        future_queue=future_queue
     )
-    execute_parallel_tasks_loop(interface=interface, future_queue=future_queue)
-
-
-def _flux_interface_bootup(
-    command_lst,
-    cwd=None,
-    cores=1,
-    threads_per_core=1,
-    gpus_per_core=0,
-    executor=None,
-):
-    command_lst += [
-        "--host",
-        gethostname(),
-    ]
-    connections = FluxPythonInterface(
-        cwd=cwd,
-        cores=cores,
-        threads_per_core=threads_per_core,
-        gpus_per_core=gpus_per_core,
-        oversubscribe=False,
-        executor=executor,
-    )
-    interface = SocketInterface(interface=connections)
-    command_lst += [
-        "--zmqport",
-        str(interface.bind_to_random_port()),
-    ]
-    interface.bootup(command_lst=command_lst)
-    return interface
