@@ -9,7 +9,7 @@ from pympipool.shared.communication import interface_bootup
 from pympipool.shared.interface import MpiExecInterface, SlurmSubprocessInterface
 
 
-class MPISingleTaskExecutor(ExecutorBase):
+class PyMPISingleTaskExecutor(ExecutorBase):
     """
     The pympipool.Executor behaves like the concurrent.futures.Executor but it uses mpi4py to execute parallel tasks.
     In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.Executor can be executed in a serial python process
@@ -29,7 +29,7 @@ class MPISingleTaskExecutor(ExecutorBase):
     Examples:
         ```
         >>> import numpy as np
-        >>> from pympipool.mpi.mpitask import MPISingleTaskExecutor
+        >>> from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -40,7 +40,7 @@ class MPISingleTaskExecutor(ExecutorBase):
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with MPISingleTaskExecutor(cores=2, init_function=init_k) as p:
+        >>> with PyMPISingleTaskExecutor(cores=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]

@@ -3,7 +3,7 @@ import unittest
 from queue import Queue
 from time import sleep
 from concurrent.futures import CancelledError
-from pympipool.mpi.mpitask import MPISingleTaskExecutor, _mpi_execute_parallel_tasks
+from pympipool.mpi.mpitask import PyMPISingleTaskExecutor, _mpi_execute_parallel_tasks
 from pympipool.shared.executorbase import cloudpickle_register
 from concurrent.futures import Future
 
@@ -31,7 +31,7 @@ def raise_error():
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with MPISingleTaskExecutor(cores=1) as p:
+        with PyMPISingleTaskExecutor(cores=1) as p:
             output = p.submit(calc, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -42,7 +42,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_executor_multi_submission(self):
-        with MPISingleTaskExecutor(cores=1) as p:
+        with PyMPISingleTaskExecutor(cores=1) as p:
             fs_1 = p.submit(calc, i=2)
             fs_2 = p.submit(calc, i=2)
             self.assertEqual(fs_1.result(), np.array(4))
@@ -51,7 +51,7 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_shutdown(self):
-        p = MPISingleTaskExecutor(cores=1)
+        p = PyMPISingleTaskExecutor(cores=1)
         fs1 = p.submit(sleep_one, i=2)
         fs2 = p.submit(sleep_one, i=4)
         sleep(1)
@@ -63,23 +63,23 @@ class TestFuturePool(unittest.TestCase):
             fs2.result()
 
     def test_pool_serial_map(self):
-        with MPISingleTaskExecutor(cores=1) as p:
+        with PyMPISingleTaskExecutor(cores=1) as p:
             output = p.map(calc, [1, 2, 3])
         self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
 
     def test_executor_exception(self):
         with self.assertRaises(RuntimeError):
-            with MPISingleTaskExecutor(cores=1) as p:
+            with PyMPISingleTaskExecutor(cores=1) as p:
                 p.submit(raise_error)
 
     def test_executor_exception_future(self):
         with self.assertRaises(RuntimeError):
-            with MPISingleTaskExecutor(cores=1) as p:
+            with PyMPISingleTaskExecutor(cores=1) as p:
                 fs = p.submit(raise_error)
                 fs.result()
 
     def test_pool_multi_core(self):
-        with MPISingleTaskExecutor(cores=2) as p:
+        with PyMPISingleTaskExecutor(cores=2) as p:
             output = p.submit(mpi_funct, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -90,7 +90,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
 
     def test_pool_multi_core_map(self):
-        with MPISingleTaskExecutor(cores=2) as p:
+        with PyMPISingleTaskExecutor(cores=2) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
             list(output),

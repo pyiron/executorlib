@@ -6,9 +6,9 @@ from pympipool.shared.executorbase import (
     get_executor_dict,
     get_future_done,
 )
-from pympipool.mpi.mpitask import MPISingleTaskExecutor
+from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
 from pympipool.mpi.mpibroker import (
-    MPIExecutor,
+    PyMPIExecutor,
     _mpi_executor_broker,
 )
 
@@ -36,7 +36,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
         meta_future = get_executor_dict(
             max_workers=1,
-            executor_class=MPISingleTaskExecutor,
+            executor_class=PyMPISingleTaskExecutor,
         )
         future_obj = list(meta_future.keys())[0]
         executor_obj = list(meta_future.values())[0]
@@ -49,7 +49,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
     def test_execute_task_dict(self):
         meta_future_lst = get_executor_dict(
             max_workers=1,
-            executor_class=MPISingleTaskExecutor,
+            executor_class=PyMPISingleTaskExecutor,
         )
         f = Future()
         self.assertTrue(
@@ -70,7 +70,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
     def test_execute_task_dict_error(self):
         meta_future_lst = get_executor_dict(
             max_workers=1,
-            executor_class=MPISingleTaskExecutor,
+            executor_class=PyMPISingleTaskExecutor,
         )
         with self.assertRaises(ValueError):
             execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
@@ -89,7 +89,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
 
 class TestMetaExecutor(unittest.TestCase):
     def test_meta_executor_serial(self):
-        with MPIExecutor(max_workers=2) as exe:
+        with PyMPIExecutor(max_workers=2) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -98,7 +98,7 @@ class TestMetaExecutor(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_single(self):
-        with MPIExecutor(max_workers=1) as exe:
+        with PyMPIExecutor(max_workers=1) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -107,13 +107,13 @@ class TestMetaExecutor(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_parallel(self):
-        with MPIExecutor(max_workers=1, cores_per_worker=2) as exe:
+        with PyMPIExecutor(max_workers=1, cores_per_worker=2) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
     def test_errors(self):
         with self.assertRaises(ValueError):
-            MPIExecutor(max_workers=1, cores_per_worker=1, threads_per_core=2)
+            PyMPIExecutor(max_workers=1, cores_per_worker=1, threads_per_core=2)
         with self.assertRaises(ValueError):
-            MPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_worker=1)
+            PyMPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_worker=1)

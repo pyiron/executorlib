@@ -1,1 +1,1 @@
-from pympipool.flux.fluxbroker import FluxExecutor
+from pympipool.flux.fluxbroker import PyFluxExecutor

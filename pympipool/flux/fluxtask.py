@@ -13,7 +13,7 @@ from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
 
 
-class FluxSingleTaskExecutor(ExecutorBase):
+class PyFluxSingleTaskExecutor(ExecutorBase):
     """
     The pympipool.Executor behaves like the concurrent.futures.Executor but it uses mpi4py to execute parallel tasks.
     In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.Executor can be executed in a serial python process
@@ -31,7 +31,7 @@ class FluxSingleTaskExecutor(ExecutorBase):
     Examples:
         ```
         >>> import numpy as np
-        >>> from pympipool.flux.fluxtask import FluxSingleTaskExecutor
+        >>> from pympipool.flux.fluxtask import PyFluxSingleTaskExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -42,7 +42,7 @@ class FluxSingleTaskExecutor(ExecutorBase):
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with FluxSingleTaskExecutor(cores=2, init_function=init_k) as p:
+        >>> with PyFluxSingleTaskExecutor(cores=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
 

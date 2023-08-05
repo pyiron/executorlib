@@ -4,10 +4,10 @@ from pympipool.shared.executorbase import (
     get_executor_dict,
 )
 from pympipool.shared.thread import RaisingThread
-from pympipool.mpi.mpitask import MPISingleTaskExecutor
+from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
 
 
-class MPIExecutor(ExecutorBase):
+class PyMPIExecutor(ExecutorBase):
     def __init__(
         self,
         max_workers,
@@ -66,7 +66,7 @@ def _mpi_executor_broker(
         future_queue=future_queue,
         meta_future_lst=get_executor_dict(
             max_workers=max_workers,
-            executor_class=MPISingleTaskExecutor,
+            executor_class=PyMPISingleTaskExecutor,
             cores=cores_per_worker,
             threads_per_core=threads_per_core,
             gpus_per_task=int(gpus_per_worker / cores_per_worker),
