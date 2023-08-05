@@ -2,71 +2,115 @@ import os
 import sys
 import unittest
 from pympipool.shared.backend import parse_arguments
-from pympipool.shared.connections import MpiExecInterface, FluxCmdInterface, SlurmSubprocessInterface
+from pympipool.shared.interface import SlurmSubprocessInterface
+from pympipool.legacy.shared.connections import MpiExecInterface, FluxCmdInterface
 
 
 class TestParser(unittest.TestCase):
     def test_command_local(self):
         result_dict = {
-            'host': 'localhost',
-            'zmqport': '22',
+            "host": "localhost",
+            "zmqport": "22",
         }
         command_lst = [
-            'mpiexec',
-            '-n', '2',
-            '--oversubscribe',
-            sys.executable, '/',
-            '--zmqport', result_dict['zmqport']
+            "mpiexec",
+            "-n",
+            "2",
+            "--oversubscribe",
+            sys.executable,
+            "/",
+            "--zmqport",
+            result_dict["zmqport"],
         ]
-        interface = MpiExecInterface(cwd=None, cores=2, gpus_per_core=0, oversubscribe=True)
+        interface = MpiExecInterface(
+            cwd=None, cores=2, gpus_per_core=0, oversubscribe=True
+        )
         self.assertEqual(
             command_lst,
-            interface.generate_command(command_lst=[sys.executable, '/', '--zmqport', result_dict['zmqport']])
+            interface.generate_command(
+                command_lst=[sys.executable, "/", "--zmqport", result_dict["zmqport"]]
+            ),
         )
         self.assertEqual(result_dict, parse_arguments(command_lst))
 
     def test_command_flux(self):
         result_dict = {
-            'host': "127.0.0.1",
-            'zmqport': '22',
+            "host": "127.0.0.1",
+            "zmqport": "22",
         }
         command_lst = [
-            'flux', 'run', '-n', '2',
+            "flux",
+            "run",
+            "-n",
+            "2",
             "--cwd=" + os.path.abspath("."),
-            '--gpus-per-task=1',
-            sys.executable, '/',
-            '--host', result_dict['host'],
-            '--zmqport', result_dict['zmqport']
+            "--gpus-per-task=1",
+            sys.executable,
+            "/",
+            "--host",
+            result_dict["host"],
+            "--zmqport",
+            result_dict["zmqport"],
         ]
-        interface = FluxCmdInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=False)
+        interface = FluxCmdInterface(
+            cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=False
+        )
         self.assertEqual(
             command_lst,
-            interface.generate_command(command_lst=[sys.executable, '/', '--host', result_dict['host'], '--zmqport', result_dict['zmqport']])
+            interface.generate_command(
+                command_lst=[
+                    sys.executable,
+                    "/",
+                    "--host",
+                    result_dict["host"],
+                    "--zmqport",
+                    result_dict["zmqport"],
+                ]
+            ),
         )
         self.assertEqual(result_dict, parse_arguments(command_lst))
 
     def test_mpiexec_gpu(self):
-        interface = MpiExecInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True)
+        interface = MpiExecInterface(
+            cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True
+        )
         with self.assertRaises(ValueError):
             interface.bootup(command_lst=[])
 
     def test_command_slurm(self):
         result_dict = {
-            'host': "127.0.0.1",
-            'zmqport': '22',
+            "host": "127.0.0.1",
+            "zmqport": "22",
         }
         command_lst = [
-            'srun', '-n', '2',
-            "-D", os.path.abspath("."),
-            '--gpus-per-task=1',
-            '--oversubscribe',
-            sys.executable, '/',
-            '--host', result_dict['host'],
-            '--zmqport', result_dict['zmqport']
+            "srun",
+            "-n",
+            "2",
+            "-D",
+            os.path.abspath("."),
+            "--gpus-per-task=1",
+            "--oversubscribe",
+            sys.executable,
+            "/",
+            "--host",
+            result_dict["host"],
+            "--zmqport",
+            result_dict["zmqport"],
         ]
-        interface = SlurmSubprocessInterface(cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True)
+        interface = SlurmSubprocessInterface(
+            cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True
+        )
         self.assertEqual(
             command_lst,
-            interface.generate_command(command_lst=[sys.executable, '/', '--host', result_dict['host'], '--zmqport', result_dict['zmqport']])
+            interface.generate_command(
+                command_lst=[
+                    sys.executable,
+                    "/",
+                    "--host",
+                    result_dict["host"],
+                    "--zmqport",
+                    result_dict["zmqport"],
+                ]
+            ),
         )
         self.assertEqual(result_dict, parse_arguments(command_lst))

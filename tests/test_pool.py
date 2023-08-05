@@ -1,10 +1,10 @@
 import numpy as np
 import unittest
-from pympipool import Pool
+from pympipool.legacy.interfaces.pool import Pool
 
 
 def calc(i):
-    return np.array(i ** 2)
+    return np.array(i**2)
 
 
 def calc_add(i, j):

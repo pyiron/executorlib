@@ -4,7 +4,7 @@ from pympipool.shared.communication import (
     interface_connect,
     interface_shutdown,
     interface_send,
-    interface_receive
+    interface_receive,
 )
 
 

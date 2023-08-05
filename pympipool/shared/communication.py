@@ -1,8 +1,7 @@
-import cloudpickle
 from socket import gethostname
-import zmq
 
-from pympipool.shared.connections import get_connection_interface
+import cloudpickle
+import zmq
 
 
 class SocketInterface(object):
@@ -10,7 +9,7 @@ class SocketInterface(object):
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        interface (pympipool.shared.connections.BaseInterface): Interface for starting the parallel process
+        interface (pympipool.shared.interface.BaseInterface): Interface for starting the parallel process
     """
 
     def __init__(self, interface=None):
@@ -98,32 +97,12 @@ class SocketInterface(object):
 
 def interface_bootup(
     command_lst,
-    cwd=None,
-    cores=1,
-    gpus_per_core=0,
-    oversubscribe=False,
-    enable_flux_backend=False,
-    enable_slurm_backend=False,
-    queue_adapter=None,
-    queue_type=None,
-    queue_adapter_kwargs=None,
+    connections,
 ):
-    if enable_flux_backend or enable_slurm_backend or queue_adapter is not None:
-        command_lst += [
-            "--host",
-            gethostname(),
-        ]
-    connections = get_connection_interface(
-        cwd=cwd,
-        cores=cores,
-        gpus_per_core=gpus_per_core,
-        oversubscribe=oversubscribe,
-        enable_flux_backend=enable_flux_backend,
-        enable_slurm_backend=enable_slurm_backend,
-        queue_adapter=queue_adapter,
-        queue_type=queue_type,
-        queue_adapter_kwargs=queue_adapter_kwargs,
-    )
+    command_lst += [
+        "--host",
+        gethostname(),
+    ]
     interface = SocketInterface(interface=connections)
     command_lst += [
         "--zmqport",

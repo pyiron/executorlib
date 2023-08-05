@@ -1,7 +1,10 @@
-from pympipool.shared.base import ExecutorBase
+from pympipool.shared.executorbase import cloudpickle_register, ExecutorBase
 from pympipool.shared.thread import RaisingThread
-from pympipool.legacy.shared.interface import execute_serial_tasks
-from pympipool.shared.taskexecutor import cloudpickle_register
+from pympipool.legacy.shared.connections import interface_bootup
+from pympipool.legacy.shared.interface import (
+    get_pool_command,
+    _execute_serial_tasks_loop,
+)
 
 
 class PoolExecutor(ExecutorBase):
@@ -70,3 +73,50 @@ class PoolExecutor(ExecutorBase):
         )
         self._process.start()
         cloudpickle_register(ind=3)
+
+
+def execute_serial_tasks(
+    future_queue,
+    cores,
+    gpus_per_task=0,
+    oversubscribe=False,
+    enable_flux_backend=False,
+    enable_slurm_backend=False,
+    cwd=None,
+    sleep_interval=0.1,
+    queue_adapter=None,
+    queue_adapter_kwargs=None,
+):
+    """
+    Execute a single tasks in serial.
+
+    Args:
+       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+       cores (int): defines the total number of MPI ranks to use
+       gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
+       oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
+       enable_flux_backend (bool): enable the flux-framework as backend - defaults to False
+       enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
+       cwd (str/None): current working directory where the parallel python task is executed
+       sleep_interval (float):
+       queue_adapter (pysqa.queueadapter.QueueAdapter): generalized interface to various queuing systems
+       queue_adapter_kwargs (dict/None): keyword arguments for the submit_job() function of the queue adapter
+    """
+    future_dict = {}
+    interface = interface_bootup(
+        command_lst=get_pool_command(cores_total=cores, ranks_per_task=1)[0],
+        cwd=cwd,
+        cores=cores,
+        gpus_per_core=gpus_per_task,
+        oversubscribe=oversubscribe,
+        enable_flux_backend=enable_flux_backend,
+        enable_slurm_backend=enable_slurm_backend,
+        queue_adapter=queue_adapter,
+        queue_adapter_kwargs=queue_adapter_kwargs,
+    )
+    _execute_serial_tasks_loop(
+        interface=interface,
+        future_queue=future_queue,
+        future_dict=future_dict,
+        sleep_interval=sleep_interval,
+    )
