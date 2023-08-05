@@ -5,7 +5,7 @@ import numpy as np
 import unittest
 from pympipool.shared.communication import SocketInterface
 from pympipool.shared.executorbase import cloudpickle_register
-from pympipool.legacy.shared.connections import MpiExecInterface
+from pympipool.shared.interface import MpiExecInterface
 
 
 def calc(i):
