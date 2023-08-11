@@ -3,8 +3,8 @@ from queue import Queue
 import unittest
 from pympipool.shared.executorbase import (
     execute_task_dict,
-    get_executor_dict,
-    get_future_done,
+    _get_executor_dict,
+    _get_future_done,
 )
 from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
 from pympipool.mpi.mpibroker import (
@@ -27,14 +27,14 @@ def mpi_funct(i):
 
 class TestFutureCreation(unittest.TestCase):
     def test_get_future_done(self):
-        f = get_future_done()
+        f = _get_future_done()
         self.assertTrue(isinstance(f, Future))
         self.assertTrue(f.done())
 
 
 class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
-        meta_future = get_executor_dict(
+        meta_future = _get_executor_dict(
             max_workers=1,
             executor_class=PyMPISingleTaskExecutor,
         )
@@ -47,7 +47,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         executor_obj.shutdown(wait=True)
 
     def test_execute_task_dict(self):
-        meta_future_lst = get_executor_dict(
+        meta_future_lst = _get_executor_dict(
             max_workers=1,
             executor_class=PyMPISingleTaskExecutor,
         )
@@ -68,7 +68,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         )
 
     def test_execute_task_dict_error(self):
-        meta_future_lst = get_executor_dict(
+        meta_future_lst = _get_executor_dict(
             max_workers=1,
             executor_class=PyMPISingleTaskExecutor,
         )

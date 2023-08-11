@@ -123,9 +123,16 @@ def execute_parallel_tasks_loop(interface, future_queue):
 
 def executor_broker(
     future_queue,
-    meta_future_lst,
+    max_workers,
+    executor_class,
+    executor_kwargs,
     sleep_interval=0.1,
 ):
+    meta_future_lst = _get_executor_dict(
+        max_workers=max_workers,
+        executor_class=executor_class,
+        executor_kwargs=executor_kwargs,
+    )
     while True:
         try:
             task_dict = future_queue.get_nowait()
@@ -154,10 +161,6 @@ def execute_task_dict(task_dict, meta_future_lst):
         raise ValueError("Unrecognized Task in task_dict: ", task_dict)
 
 
-def _get_command_path(executable):
-    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
-
-
 def get_backend_path(cores):
     command_lst = [sys.executable]
     if cores > 1:
@@ -167,11 +170,18 @@ def get_backend_path(cores):
     return command_lst
 
 
-def get_executor_dict(max_workers, executor_class, **kwargs):
-    return {get_future_done(): executor_class(**kwargs) for _ in range(max_workers)}
+def _get_command_path(executable):
+    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def get_future_done():
+def _get_executor_dict(max_workers, executor_class, executor_kwargs):
+    return {
+        _get_future_done(): executor_class(**executor_kwargs)
+        for _ in range(max_workers)
+    }
+
+
+def _get_future_done():
     f = Future()
     f.set_result(True)
     return f
