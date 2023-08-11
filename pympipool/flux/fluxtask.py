@@ -58,7 +58,6 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
         super().__init__()
         executor_kwargs = {
             "future_queue": self._future_queue,
-            "init_function": init_function,
         }
         executor_kwargs.update(kwargs)
         self._process = RaisingThread(
@@ -74,14 +73,8 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
 
 
 class FluxPythonInterface(BaseInterface):
-    def __init__(
-        self,
-        executor=None,
-        **kwargs
-    ):
-        super().__init__(
-            **kwargs
-        )
+    def __init__(self, executor=None, **kwargs):
+        super().__init__(**kwargs)
         self._executor = executor
         self._future = None
 
@@ -136,10 +129,7 @@ def _flux_execute_parallel_tasks(
     execute_parallel_tasks_loop(
         interface=interface_bootup(
             command_lst=get_backend_path(cores=cores),
-            connections=FluxPythonInterface(
-                cores=cores,
-                **kwargs
-            ),
+            connections=FluxPythonInterface(cores=cores, **kwargs),
         ),
         future_queue=future_queue,
     )

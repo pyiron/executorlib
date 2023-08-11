@@ -55,7 +55,6 @@ class PyMPISingleTaskExecutor(ExecutorBase):
         super().__init__()
         executor_kwargs = {
             "future_queue": self._future_queue,
-            "init_function": init_function,
         }
         executor_kwargs.update(kwargs)
         self._process = RaisingThread(
