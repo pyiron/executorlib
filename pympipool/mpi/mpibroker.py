@@ -52,7 +52,6 @@ class PyMPIExecutor(ExecutorBase):
                 "max_workers": max_workers,
                 "sleep_interval": sleep_interval,
                 "executor_class": PyMPISingleTaskExecutor,
-
                 # Executor Arguments
                 "cores": cores_per_worker,
                 "threads_per_core": threads_per_core,

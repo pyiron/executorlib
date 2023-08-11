@@ -175,10 +175,7 @@ def _get_command_path(executable):
 
 
 def _get_executor_dict(max_workers, executor_class, **kwargs):
-    return {
-        _get_future_done(): executor_class(**kwargs)
-        for _ in range(max_workers)
-    }
+    return {_get_future_done(): executor_class(**kwargs) for _ in range(max_workers)}
 
 
 def _get_future_done():
