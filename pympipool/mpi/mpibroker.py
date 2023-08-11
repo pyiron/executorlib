@@ -45,35 +45,22 @@ class PyMPIExecutor(ExecutorBase):
                     + "to manage GPUs use the SLURM queuing system enable_slurm_backend=True ."
                 )
         self._process = RaisingThread(
-            target=_mpi_executor_broker,
+            target=executor_broker,
             kwargs={
+                # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
                 "sleep_interval": sleep_interval,
-                "executor_kwargs": {
-                    "cores": cores_per_worker,
-                    "threads_per_core": threads_per_core,
-                    "gpus_per_task": int(gpus_per_worker / cores_per_worker),
-                    "oversubscribe": oversubscribe,
-                    "init_function": init_function,
-                    "cwd": cwd,
-                    "enable_slurm_backend": enable_slurm_backend,
-                },
+                "executor_class": PyMPISingleTaskExecutor,
+
+                # Executor Arguments
+                "cores": cores_per_worker,
+                "threads_per_core": threads_per_core,
+                "gpus_per_task": int(gpus_per_worker / cores_per_worker),
+                "oversubscribe": oversubscribe,
+                "init_function": init_function,
+                "cwd": cwd,
+                "enable_slurm_backend": enable_slurm_backend,
             },
         )
         self._process.start()
-
-
-def _mpi_executor_broker(
-    future_queue,
-    max_workers,
-    executor_kwargs,
-    sleep_interval=0.1,
-):
-    executor_broker(
-        future_queue=future_queue,
-        max_workers=max_workers,
-        executor_class=PyMPISingleTaskExecutor,
-        sleep_interval=sleep_interval,
-        **executor_kwargs,
-    )

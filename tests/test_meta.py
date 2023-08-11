@@ -2,15 +2,13 @@ from concurrent.futures import as_completed, Future, Executor
 from queue import Queue
 import unittest
 from pympipool.shared.executorbase import (
+    executor_broker,
     execute_task_dict,
     _get_executor_dict,
     _get_future_done,
 )
 from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
-from pympipool.mpi.mpibroker import (
-    PyMPIExecutor,
-    _mpi_executor_broker,
-)
+from pympipool.mpi.mpibroker import PyMPIExecutor
 
 
 def calc(i):
@@ -81,7 +79,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        _mpi_executor_broker(future_queue=q, max_workers=1)
+        executor_broker(future_queue=q, max_workers=1, executor_class=PyMPISingleTaskExecutor)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
         q.join()

@@ -32,34 +32,21 @@ class PyFluxExecutor(ExecutorBase):
     ):
         super().__init__()
         self._process = RaisingThread(
-            target=_flux_executor_broker,
+            target=executor_broker,
             kwargs={
+                # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
                 "sleep_interval": sleep_interval,
-                "executor_kwargs": {
-                    "cores": cores_per_worker,
-                    "threads_per_core": threads_per_core,
-                    "gpus_per_task": int(gpus_per_worker / cores_per_worker),
-                    "init_function": init_function,
-                    "cwd": cwd,
-                    "executor": executor,
-                },
+                "executor_class": PyFluxSingleTaskExecutor,
+
+                # Executor Arguments
+                "cores": cores_per_worker,
+                "threads_per_core": threads_per_core,
+                "gpus_per_task": int(gpus_per_worker / cores_per_worker),
+                "init_function": init_function,
+                "cwd": cwd,
+                "executor": executor,
             },
         )
         self._process.start()
-
-
-def _flux_executor_broker(
-    future_queue,
-    max_workers,
-    executor_kwargs,
-    sleep_interval=0.1,
-):
-    executor_broker(
-        future_queue=future_queue,
-        max_workers=max_workers,
-        executor_class=PyFluxSingleTaskExecutor,
-        executor_kwargs=executor_kwargs,
-        sleep_interval=sleep_interval,
-    )
