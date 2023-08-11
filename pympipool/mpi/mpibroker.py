@@ -20,6 +20,7 @@ class PyMPIExecutor(ExecutorBase):
         sleep_interval (float): synchronization interval - default 0.1
         enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
     """
+
     def __init__(
         self,
         max_workers,

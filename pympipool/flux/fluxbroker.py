@@ -19,6 +19,7 @@ class PyFluxExecutor(ExecutorBase):
         sleep_interval (float): synchronization interval - default 0.1
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
     """
+
     def __init__(
         self,
         max_workers,
