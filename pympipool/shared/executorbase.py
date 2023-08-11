@@ -154,18 +154,16 @@ def execute_task_dict(task_dict, meta_future_lst):
         raise ValueError("Unrecognized Task in task_dict: ", task_dict)
 
 
+def _get_command_path(executable):
+    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
+
+
 def get_backend_path(cores):
     command_lst = [sys.executable]
     if cores > 1:
-        command_lst += [
-            os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
-            ),
-        ]
+        command_lst += [_get_command_path(executable="mpiexec.py")]
     else:
-        command_lst += [
-            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
-        ]
+        command_lst += [_get_command_path(executable="serial.py")]
     return command_lst
 
 
