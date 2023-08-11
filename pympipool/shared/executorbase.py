@@ -125,13 +125,13 @@ def executor_broker(
     future_queue,
     max_workers,
     executor_class,
-    executor_kwargs,
     sleep_interval=0.1,
+    **kwargs,
 ):
     meta_future_lst = _get_executor_dict(
         max_workers=max_workers,
         executor_class=executor_class,
-        executor_kwargs=executor_kwargs,
+        **kwargs,
     )
     while True:
         try:
@@ -174,9 +174,9 @@ def _get_command_path(executable):
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def _get_executor_dict(max_workers, executor_class, executor_kwargs):
+def _get_executor_dict(max_workers, executor_class, **kwargs):
     return {
-        _get_future_done(): executor_class(**executor_kwargs)
+        _get_future_done(): executor_class(**kwargs)
         for _ in range(max_workers)
     }
 

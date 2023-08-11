@@ -74,6 +74,6 @@ def _mpi_executor_broker(
         future_queue=future_queue,
         max_workers=max_workers,
         executor_class=PyMPISingleTaskExecutor,
-        executor_kwargs=executor_kwargs,
         sleep_interval=sleep_interval,
+        **executor_kwargs,
     )
