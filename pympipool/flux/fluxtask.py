@@ -52,24 +52,18 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
 
     def __init__(
         self,
-        cores=1,
-        threads_per_core=1,
-        gpus_per_task=0,
         init_function=None,
-        cwd=None,
-        executor=None,
+        **kwargs,
     ):
         super().__init__()
+        executor_kwargs = {
+            "future_queue": self._future_queue,
+            "init_function": init_function,
+        }
+        executor_kwargs.update(kwargs)
         self._process = RaisingThread(
             target=_flux_execute_parallel_tasks,
-            kwargs={
-                "future_queue": self._future_queue,
-                "cores": cores,
-                "threads_per_core": threads_per_core,
-                "gpus_per_task": gpus_per_task,
-                "cwd": cwd,
-                "executor": executor,
-            },
+            kwargs=executor_kwargs,
         )
         self._process.start()
         if init_function is not None:
@@ -82,19 +76,11 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
 class FluxPythonInterface(BaseInterface):
     def __init__(
         self,
-        cwd=None,
-        cores=1,
-        threads_per_core=1,
-        gpus_per_core=0,
-        oversubscribe=False,
         executor=None,
+        **kwargs
     ):
         super().__init__(
-            cwd=cwd,
-            cores=cores,
-            gpus_per_core=gpus_per_core,
-            threads_per_core=threads_per_core,
-            oversubscribe=oversubscribe,
+            **kwargs
         )
         self._executor = executor
         self._future = None
@@ -134,10 +120,7 @@ class FluxPythonInterface(BaseInterface):
 def _flux_execute_parallel_tasks(
     future_queue,
     cores,
-    threads_per_core=1,
-    gpus_per_task=0,
-    cwd=None,
-    executor=None,
+    **kwargs,
 ):
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
@@ -154,12 +137,8 @@ def _flux_execute_parallel_tasks(
         interface=interface_bootup(
             command_lst=get_backend_path(cores=cores),
             connections=FluxPythonInterface(
-                cwd=cwd,
                 cores=cores,
-                threads_per_core=threads_per_core,
-                gpus_per_core=gpus_per_task,
-                oversubscribe=False,
-                executor=executor,
+                **kwargs
             ),
         ),
         future_queue=future_queue,

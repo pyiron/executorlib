@@ -49,26 +49,18 @@ class PyMPISingleTaskExecutor(ExecutorBase):
 
     def __init__(
         self,
-        cores=1,
-        threads_per_core=1,
-        gpus_per_task=0,
-        oversubscribe=False,
         init_function=None,
-        cwd=None,
-        enable_slurm_backend=False,
+        **kwargs,
     ):
         super().__init__()
+        executor_kwargs = {
+            "future_queue": self._future_queue,
+            "init_function": init_function,
+        }
+        executor_kwargs.update(kwargs)
         self._process = RaisingThread(
             target=_mpi_execute_parallel_tasks,
-            kwargs={
-                "future_queue": self._future_queue,
-                "cores": cores,
-                "threads_per_core": threads_per_core,
-                "gpus_per_task": gpus_per_task,
-                "cwd": cwd,
-                "oversubscribe": oversubscribe,
-                "enable_slurm_backend": enable_slurm_backend,
-            },
+            kwargs=executor_kwargs,
         )
         self._process.start()
         if init_function is not None:
@@ -81,11 +73,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
 def _mpi_execute_parallel_tasks(
     future_queue,
     cores,
-    threads_per_core=1,
-    gpus_per_task=0,
-    cwd=None,
-    oversubscribe=False,
-    enable_slurm_backend=False,
+    **kwargs,
 ):
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
@@ -104,11 +92,7 @@ def _mpi_execute_parallel_tasks(
             command_lst=get_backend_path(cores=cores),
             connections=get_interface(
                 cores=cores,
-                threads_per_core=threads_per_core,
-                gpus_per_task=gpus_per_task,
-                cwd=cwd,
-                oversubscribe=oversubscribe,
-                enable_slurm_backend=enable_slurm_backend,
+                **kwargs,
             ),
         ),
         future_queue=future_queue,
@@ -116,26 +100,10 @@ def _mpi_execute_parallel_tasks(
 
 
 def get_interface(
-    cores=1,
-    threads_per_core=1,
-    gpus_per_task=0,
-    cwd=None,
-    oversubscribe=False,
     enable_slurm_backend=False,
+    **kwargs,
 ):
     if not enable_slurm_backend:
-        return MpiExecInterface(
-            cwd=cwd,
-            cores=cores,
-            threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_task,
-            oversubscribe=oversubscribe,
-        )
+        return MpiExecInterface(**kwargs)
     else:
-        return SlurmSubprocessInterface(
-            cwd=cwd,
-            cores=cores,
-            threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_task,
-            oversubscribe=oversubscribe,
-        )
+        return SlurmSubprocessInterface(**kwargs)
