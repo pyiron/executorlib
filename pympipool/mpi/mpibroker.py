@@ -8,6 +8,19 @@ from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
 
 
 class PyMPIExecutor(ExecutorBase):
+    """
+    Args:
+        max_workers (int): defines the number workers which can execute functions in parallel
+        cores_per_worker (int): number of MPI cores to be used for each function call
+        threads_per_core (int): number of OpenMP threads to be used for each function call
+        gpus_per_worker (int): number of GPUs per worker - defaults to 0
+        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
+        init_function (None): optional function to preset arguments for functions which are submitted later
+        cwd (str/None): current working directory where the parallel python task is executed
+        sleep_interval (float): synchronization interval - default 0.1
+        enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
+    """
+
     def __init__(
         self,
         max_workers,

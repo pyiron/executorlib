@@ -8,6 +8,18 @@ from pympipool.flux.fluxtask import PyFluxSingleTaskExecutor
 
 
 class PyFluxExecutor(ExecutorBase):
+    """
+    Args:
+        max_workers (int): defines the number workers which can execute functions in parallel
+        cores_per_worker (int): number of MPI cores to be used for each function call
+        threads_per_core (int): number of OpenMP threads to be used for each function call
+        gpus_per_worker (int): number of GPUs per worker - defaults to 0
+        init_function (None): optional function to preset arguments for functions which are submitted later
+        cwd (str/None): current working directory where the parallel python task is executed
+        sleep_interval (float): synchronization interval - default 0.1
+        executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
+    """
+
     def __init__(
         self,
         max_workers,
