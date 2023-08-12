@@ -5,11 +5,9 @@ import flux.job
 from pympipool.shared.executorbase import (
     cloudpickle_register,
     ExecutorBase,
-    execute_parallel_tasks_loop,
-    get_backend_path,
+    execute_parallel_tasks,
 )
 from pympipool.shared.interface import BaseInterface
-from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
 
 
@@ -61,10 +59,13 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
     ):
         super().__init__()
         self._process = RaisingThread(
-            target=_flux_execute_parallel_tasks,
+            target=execute_parallel_tasks,
             kwargs={
+                # Executor Arguments
                 "future_queue": self._future_queue,
                 "cores": cores,
+                "interface_class": FluxPythonInterface,
+                # Interface Arguments
                 "threads_per_core": threads_per_core,
                 "gpus_per_task": gpus_per_task,
                 "cwd": cwd,
@@ -129,38 +130,3 @@ class FluxPythonInterface(BaseInterface):
 
     def poll(self):
         return self._future is not None and not self._future.done()
-
-
-def _flux_execute_parallel_tasks(
-    future_queue,
-    cores,
-    threads_per_core=1,
-    gpus_per_task=0,
-    cwd=None,
-    executor=None,
-):
-    """
-    Execute a single tasks in parallel using the message passing interface (MPI).
-
-    Args:
-       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
-       cores (int): defines the total number of MPI ranks to use
-       threads_per_core (int): number of OpenMP threads to be used for each function call
-       gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-       cwd (str/None): current working directory where the parallel python task is executed
-       executor (flux.job.FluxExecutor/None): flux executor to submit tasks to - optional
-    """
-    execute_parallel_tasks_loop(
-        interface=interface_bootup(
-            command_lst=get_backend_path(cores=cores),
-            connections=FluxPythonInterface(
-                cwd=cwd,
-                cores=cores,
-                threads_per_core=threads_per_core,
-                gpus_per_core=gpus_per_task,
-                oversubscribe=False,
-                executor=executor,
-            ),
-        ),
-        future_queue=future_queue,
-    )
