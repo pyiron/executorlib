@@ -116,10 +116,7 @@ def execute_parallel_tasks(
     execute_parallel_tasks_loop(
         interface=interface_bootup(
             command_lst=_get_backend_path(cores=cores),
-            connections=interface_class(
-                cores=cores,
-                **kwargs
-            ),
+            connections=interface_class(cores=cores, **kwargs),
         ),
         future_queue=future_queue,
     )
