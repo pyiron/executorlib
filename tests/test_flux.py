@@ -4,12 +4,12 @@ from queue import Queue
 import numpy as np
 import unittest
 
-from pympipool.shared.executorbase import cloudpickle_register
+from pympipool.shared.executorbase import cloudpickle_register, executor_broker
 
 
 try:
     import flux.job
-    from pympipool.flux.fluxbroker import PyFluxExecutor, _flux_executor_broker
+    from pympipool.flux.fluxbroker import PyFluxExecutor
     from pympipool.flux.fluxtask import (
         _flux_execute_parallel_tasks,
         PyFluxSingleTaskExecutor,
@@ -119,7 +119,12 @@ class TestFlux(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        _flux_executor_broker(future_queue=q, max_workers=1, executor=self.executor)
+        executor_broker(
+            future_queue=q,
+            max_workers=1,
+            executor=self.executor,
+            executor_class=PyFluxSingleTaskExecutor,
+        )
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
         q.join()
@@ -129,8 +134,12 @@ class TestFlux(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        _flux_executor_broker(
-            future_queue=q, max_workers=1, threads_per_core=2, executor=self.executor
+        executor_broker(
+            future_queue=q,
+            max_workers=1,
+            threads_per_core=2,
+            executor=self.executor,
+            executor_class=PyFluxSingleTaskExecutor,
         )
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
