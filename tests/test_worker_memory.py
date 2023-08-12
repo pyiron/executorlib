@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 from queue import Queue
 from pympipool.shared.backend import call_funct
-from pympipool.shared.executorbase import cloudpickle_register
-from pympipool.mpi.mpitask import PyMPISingleTaskExecutor, _mpi_execute_parallel_tasks
+from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
+from pympipool.mpi.mpitask import PyMPISingleTaskExecutor, get_interface
 from concurrent.futures import Future
 
 
@@ -39,10 +39,11 @@ class TestWorkerMemory(unittest.TestCase):
         q.put({"fn": get_global, "args": (), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        _mpi_execute_parallel_tasks(
+        execute_parallel_tasks(
             future_queue=q,
             cores=1,
             oversubscribe=False,
+            interface_class=get_interface,
         )
         self.assertEqual(f.result(), np.array([5]))
         q.join()

@@ -2,15 +2,13 @@ from concurrent.futures import as_completed, Future, Executor
 from queue import Queue
 import unittest
 from pympipool.shared.executorbase import (
+    executor_broker,
     execute_task_dict,
-    get_executor_dict,
-    get_future_done,
+    _get_executor_dict,
+    _get_future_done,
 )
 from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
-from pympipool.mpi.mpibroker import (
-    PyMPIExecutor,
-    _mpi_executor_broker,
-)
+from pympipool.mpi.mpibroker import PyMPIExecutor
 
 
 def calc(i):
@@ -27,14 +25,14 @@ def mpi_funct(i):
 
 class TestFutureCreation(unittest.TestCase):
     def test_get_future_done(self):
-        f = get_future_done()
+        f = _get_future_done()
         self.assertTrue(isinstance(f, Future))
         self.assertTrue(f.done())
 
 
 class TestMetaExecutorFuture(unittest.TestCase):
     def test_meta_executor_future(self):
-        meta_future = get_executor_dict(
+        meta_future = _get_executor_dict(
             max_workers=1,
             executor_class=PyMPISingleTaskExecutor,
         )
@@ -47,7 +45,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         executor_obj.shutdown(wait=True)
 
     def test_execute_task_dict(self):
-        meta_future_lst = get_executor_dict(
+        meta_future_lst = _get_executor_dict(
             max_workers=1,
             executor_class=PyMPISingleTaskExecutor,
         )
@@ -68,7 +66,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         )
 
     def test_execute_task_dict_error(self):
-        meta_future_lst = get_executor_dict(
+        meta_future_lst = _get_executor_dict(
             max_workers=1,
             executor_class=PyMPISingleTaskExecutor,
         )
@@ -81,7 +79,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
         f = Future()
         q.put({"fn": calc, "args": (1,), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
-        _mpi_executor_broker(future_queue=q, max_workers=1)
+        executor_broker(future_queue=q, max_workers=1, executor_class=PyMPISingleTaskExecutor)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 1)
         q.join()

@@ -1,11 +1,9 @@
 from pympipool.shared.executorbase import (
     cloudpickle_register,
-    execute_parallel_tasks_loop,
+    execute_parallel_tasks,
     ExecutorBase,
-    get_backend_path,
 )
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.communication import interface_bootup
 from pympipool.shared.interface import MpiExecInterface, SlurmSubprocessInterface
 
 
@@ -59,12 +57,15 @@ class PyMPISingleTaskExecutor(ExecutorBase):
     ):
         super().__init__()
         self._process = RaisingThread(
-            target=_mpi_execute_parallel_tasks,
+            target=execute_parallel_tasks,
             kwargs={
+                # Executor Arguments
                 "future_queue": self._future_queue,
                 "cores": cores,
+                "interface_class": get_interface,
+                # Interface Arguments
                 "threads_per_core": threads_per_core,
-                "gpus_per_task": gpus_per_task,
+                "gpus_per_core": gpus_per_task,
                 "cwd": cwd,
                 "oversubscribe": oversubscribe,
                 "enable_slurm_backend": enable_slurm_backend,
@@ -78,47 +79,10 @@ class PyMPISingleTaskExecutor(ExecutorBase):
         cloudpickle_register(ind=3)
 
 
-def _mpi_execute_parallel_tasks(
-    future_queue,
-    cores,
-    threads_per_core=1,
-    gpus_per_task=0,
-    cwd=None,
-    oversubscribe=False,
-    enable_slurm_backend=False,
-):
-    """
-    Execute a single tasks in parallel using the message passing interface (MPI).
-
-    Args:
-       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
-       cores (int): defines the total number of MPI ranks to use
-       threads_per_core (int): number of OpenMP threads to be used for each function call
-       gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
-       cwd (str/None): current working directory where the parallel python task is executed
-       oversubscribe (bool): enable of disable the oversubscribe feature of OpenMPI - defaults to False
-       enable_slurm_backend (bool): enable the SLURM queueing system as backend - defaults to False
-    """
-    execute_parallel_tasks_loop(
-        interface=interface_bootup(
-            command_lst=get_backend_path(cores=cores),
-            connections=get_interface(
-                cores=cores,
-                threads_per_core=threads_per_core,
-                gpus_per_task=gpus_per_task,
-                cwd=cwd,
-                oversubscribe=oversubscribe,
-                enable_slurm_backend=enable_slurm_backend,
-            ),
-        ),
-        future_queue=future_queue,
-    )
-
-
 def get_interface(
     cores=1,
     threads_per_core=1,
-    gpus_per_task=0,
+    gpus_per_core=0,
     cwd=None,
     oversubscribe=False,
     enable_slurm_backend=False,
@@ -128,7 +92,7 @@ def get_interface(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_task,
+            gpus_per_core=gpus_per_core,
             oversubscribe=oversubscribe,
         )
     else:
@@ -136,6 +100,6 @@ def get_interface(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_task,
+            gpus_per_core=gpus_per_core,
             oversubscribe=oversubscribe,
         )
