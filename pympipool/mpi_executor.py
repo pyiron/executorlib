@@ -125,7 +125,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
                 "interface_class": get_interface,
                 # Interface Arguments
                 "threads_per_core": threads_per_core,
-                "gpus_per_task": gpus_per_task,
+                "gpus_per_core": gpus_per_task,
                 "cwd": cwd,
                 "oversubscribe": oversubscribe,
                 "enable_slurm_backend": enable_slurm_backend,
@@ -142,7 +142,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
 def get_interface(
     cores=1,
     threads_per_core=1,
-    gpus_per_task=0,
+    gpus_per_core=0,
     cwd=None,
     oversubscribe=False,
     enable_slurm_backend=False,
@@ -152,7 +152,7 @@ def get_interface(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_task,
+            gpus_per_core=gpus_per_core,
             oversubscribe=oversubscribe,
         )
     else:
@@ -160,6 +160,6 @@ def get_interface(
             cwd=cwd,
             cores=cores,
             threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_task,
+            gpus_per_core=gpus_per_core,
             oversubscribe=oversubscribe,
         )
