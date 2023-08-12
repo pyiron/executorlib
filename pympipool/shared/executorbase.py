@@ -58,6 +58,12 @@ class ExecutorBase(FutureExecutor):
     def __len__(self):
         return self._future_queue.qsize()
 
+    def _set_init_function(self, init_function):
+        if init_function is not None:
+            self._future_queue.put(
+                {"init": True, "fn": init_function, "args": (), "kwargs": {}}
+            )
+
 
 def cancel_items_in_queue(que):
     """
