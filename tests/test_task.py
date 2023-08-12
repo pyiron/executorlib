@@ -1,5 +1,5 @@
 import unittest
-from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
+from pympipool.mpi.executor import PyMPISingleTaskExecutor
 
 
 def echo_funct(i):
