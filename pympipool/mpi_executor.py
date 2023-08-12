@@ -87,7 +87,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
     Examples:
         ```
         >>> import numpy as np
-        >>> from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
+        >>> from pympipool.mpi_executor import PyMPISingleTaskExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI

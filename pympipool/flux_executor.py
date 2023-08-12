@@ -75,7 +75,7 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
     Examples:
         ```
         >>> import numpy as np
-        >>> from pympipool.flux.fluxtask import PyFluxSingleTaskExecutor
+        >>> from pympipool.flux_executor import PyFluxSingleTaskExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
