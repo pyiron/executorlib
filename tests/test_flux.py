@@ -9,8 +9,11 @@ from pympipool.shared.executorbase import cloudpickle_register, executor_broker,
 
 try:
     import flux.job
-    from pympipool.flux.fluxbroker import PyFluxExecutor
-    from pympipool.flux.fluxtask import PyFluxSingleTaskExecutor, FluxPythonInterface
+    from pympipool.flux.executor import (
+        PyFluxExecutor,
+        PyFluxSingleTaskExecutor,
+        FluxPythonInterface,
+    )
 
     skip_flux_test = False
 except ImportError:

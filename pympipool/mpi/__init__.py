@@ -1,1 +1,1 @@
-from pympipool.mpi.mpibroker import PyMPIExecutor
+from pympipool.mpi.executor import PyMPIExecutor

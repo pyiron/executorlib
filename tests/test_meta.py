@@ -7,8 +7,7 @@ from pympipool.shared.executorbase import (
     _get_executor_dict,
     _get_future_done,
 )
-from pympipool.mpi.mpitask import PyMPISingleTaskExecutor
-from pympipool.mpi.mpibroker import PyMPIExecutor
+from pympipool.mpi.executor import PyMPIExecutor, PyMPISingleTaskExecutor
 
 
 def calc(i):
