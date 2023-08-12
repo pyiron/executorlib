@@ -3,7 +3,7 @@ import numpy as np
 from queue import Queue
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
-from pympipool.mpi import PyMPISingleTaskExecutor, get_interface
+from pympipool.mpi_executor import PyMPISingleTaskExecutor, get_interface
 from concurrent.futures import Future
 
 

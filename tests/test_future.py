@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
 from time import sleep
-from pympipool.mpi import PyMPISingleTaskExecutor
+from pympipool.mpi_executor import PyMPISingleTaskExecutor
 from concurrent.futures import Future
 
 

@@ -3,7 +3,7 @@ import unittest
 from queue import Queue
 from time import sleep
 from concurrent.futures import CancelledError
-from pympipool.mpi import PyMPISingleTaskExecutor, get_interface
+from pympipool.mpi_executor import PyMPISingleTaskExecutor, get_interface
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
 from concurrent.futures import Future
 
