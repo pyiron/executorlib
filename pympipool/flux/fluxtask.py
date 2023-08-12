@@ -67,7 +67,7 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
                 "interface_class": FluxPythonInterface,
                 # Interface Arguments
                 "threads_per_core": threads_per_core,
-                "gpus_per_task": gpus_per_task,
+                "gpus_per_core": gpus_per_task,
                 "cwd": cwd,
                 "executor": executor,
             },
