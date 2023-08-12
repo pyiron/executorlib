@@ -4,16 +4,12 @@ from queue import Queue
 import numpy as np
 import unittest
 
-from pympipool.shared.executorbase import cloudpickle_register, executor_broker
+from pympipool.shared.executorbase import cloudpickle_register, executor_broker, execute_parallel_tasks
 
 
 try:
     import flux.job
-    from pympipool.flux.fluxbroker import PyFluxExecutor
-    from pympipool.flux.fluxtask import (
-        _flux_execute_parallel_tasks,
-        PyFluxSingleTaskExecutor,
-    )
+    from pympipool.flux import PyFluxExecutor, PyFluxSingleTaskExecutor, FluxPythonInterface
 
     skip_flux_test = False
 except ImportError:
@@ -89,7 +85,12 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        _flux_execute_parallel_tasks(future_queue=q, cores=1, executor=self.executor)
+        execute_parallel_tasks(
+            future_queue=q,
+            cores=1,
+            interface_class=FluxPythonInterface,
+            executor=self.executor,
+        )
         self.assertEqual(f.result(), 2)
         q.join()
 
@@ -99,8 +100,12 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        _flux_execute_parallel_tasks(
-            future_queue=q, cores=1, threads_per_core=1, executor=self.executor
+        execute_parallel_tasks(
+            future_queue=q,
+            cores=1,
+            threads_per_core=1,
+            interface_class=FluxPythonInterface,
+            executor=self.executor,
         )
         self.assertEqual(f.result(), 2)
         q.join()

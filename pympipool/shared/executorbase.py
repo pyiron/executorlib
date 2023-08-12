@@ -11,6 +11,8 @@ from time import sleep
 
 import cloudpickle
 
+from pympipool.shared.communication import interface_bootup
+
 
 class ExecutorBase(FutureExecutor):
     def __init__(self):
@@ -97,6 +99,32 @@ def cloudpickle_register(ind=2):
         pass
 
 
+def execute_parallel_tasks(
+    future_queue,
+    cores,
+    interface_class,
+    **kwargs,
+):
+    """
+    Execute a single tasks in parallel using the message passing interface (MPI).
+
+    Args:
+       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+       cores (int): defines the total number of MPI ranks to use
+       interface_class:
+    """
+    execute_parallel_tasks_loop(
+        interface=interface_bootup(
+            command_lst=_get_backend_path(cores=cores),
+            connections=interface_class(
+                cores=cores,
+                **kwargs
+            ),
+        ),
+        future_queue=future_queue,
+    )
+
+
 def execute_parallel_tasks_loop(interface, future_queue):
     while True:
         task_dict = future_queue.get()
@@ -161,7 +189,7 @@ def execute_task_dict(task_dict, meta_future_lst):
         raise ValueError("Unrecognized Task in task_dict: ", task_dict)
 
 
-def get_backend_path(cores):
+def _get_backend_path(cores):
     command_lst = [sys.executable]
     if cores > 1:
         command_lst += [_get_command_path(executable="mpiexec.py")]
