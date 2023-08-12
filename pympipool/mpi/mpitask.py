@@ -72,10 +72,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
             },
         )
         self._process.start()
-        if init_function is not None:
-            self._future_queue.put(
-                {"init": True, "fn": init_function, "args": (), "kwargs": {}}
-            )
+        self._set_init_function(init_function=init_function)
         cloudpickle_register(ind=3)
 
 
