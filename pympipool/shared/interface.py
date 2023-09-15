@@ -43,9 +43,6 @@ class SubprocessInterface(BaseInterface):
     def bootup(self, command_lst):
         self._process = subprocess.Popen(
             args=self.generate_command(command_lst=command_lst),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
             cwd=self._cwd,
         )
 
@@ -54,9 +51,6 @@ class SubprocessInterface(BaseInterface):
 
     def shutdown(self, wait=True):
         self._process.terminate()
-        self._process.stdout.close()
-        self._process.stdin.close()
-        self._process.stderr.close()
         if wait:
             self._process.wait()
         self._process = None
