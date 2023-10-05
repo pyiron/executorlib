@@ -64,15 +64,11 @@ jobs:
       run: >
         flux start
         coverage run --omit pympipool/_version.py -m unittest tests/test_flux.py;
+        coverage combine
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
-    - name: Coverage
+    - name: Coveralls
       if:  matrix.label == 'linux-64-py-3-11-openmpi'
-      continue-on-error: True
-      shell: bash -l {0}
-      run: |
-        coverage combine
-        coveralls
-        coverage xml
+      uses: coverallsapp/github-action@v2
