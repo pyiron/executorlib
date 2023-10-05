@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [windows-latest]
-        python-version: ['3.11']
+        python-version: ['3.12']
 
     steps:
     - uses: actions/checkout@v2
