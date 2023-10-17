@@ -28,10 +28,10 @@ setup(
     ],
     packages=find_packages(exclude=["*tests*", "*.ci_support*"]),
     install_requires=[
-        'cloudpickle==2.2.1',
+        'cloudpickle==3.0.0',
         'mpi4py==3.1.5',
         'tqdm==4.66.1',
-        'pyzmq==24.0.1',
+        'pyzmq==25.1.1',
     ],
     cmdclass=versioneer.get_cmdclass(),
 )
