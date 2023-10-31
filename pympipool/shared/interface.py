@@ -3,9 +3,7 @@ import subprocess
 
 
 class BaseInterface(ABC):
-    def __init__(
-        self, cwd, cores=1, oversubscribe=False
-    ):
+    def __init__(self, cwd, cores=1, oversubscribe=False):
         self._cwd = cwd
         self._cores = cores
         self._oversubscribe = oversubscribe
