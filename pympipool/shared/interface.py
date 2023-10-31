@@ -4,12 +4,10 @@ import subprocess
 
 class BaseInterface(ABC):
     def __init__(
-        self, cwd, cores=1, threads_per_core=1, gpus_per_core=0, oversubscribe=False
+        self, cwd, cores=1, oversubscribe=False
     ):
         self._cwd = cwd
         self._cores = cores
-        self._threads_per_core = threads_per_core
-        self._gpus_per_core = gpus_per_core
         self._oversubscribe = oversubscribe
 
     def bootup(self, command_lst):
@@ -27,15 +25,11 @@ class SubprocessInterface(BaseInterface):
         self,
         cwd=None,
         cores=1,
-        threads_per_core=1,
-        gpus_per_core=0,
         oversubscribe=False,
     ):
         super().__init__(
             cwd=cwd,
             cores=cores,
-            threads_per_core=threads_per_core,
-            gpus_per_core=gpus_per_core,
             oversubscribe=oversubscribe,
         )
         self._process = None
@@ -63,7 +57,6 @@ class MpiExecInterface(SubprocessInterface):
     def generate_command(self, command_lst):
         command_prepend_lst = generate_mpiexec_command(
             cores=self._cores,
-            gpus_per_core=self._gpus_per_core,
             oversubscribe=self._oversubscribe,
         )
         return super().generate_command(
@@ -71,7 +64,23 @@ class MpiExecInterface(SubprocessInterface):
         )
 
 
-class SlurmSubprocessInterface(SubprocessInterface):
+class SrunInterface(SubprocessInterface):
+    def __init__(
+        self,
+        cwd=None,
+        cores=1,
+        threads_per_core=1,
+        gpus_per_core=0,
+        oversubscribe=False,
+    ):
+        super().__init__(
+            cwd=cwd,
+            cores=cores,
+            oversubscribe=oversubscribe,
+        )
+        self._threads_per_core = threads_per_core
+        self._gpus_per_core = gpus_per_core
+
     def generate_command(self, command_lst):
         command_prepend_lst = generate_slurm_command(
             cores=self._cores,
@@ -85,12 +94,10 @@ class SlurmSubprocessInterface(SubprocessInterface):
         )
 
 
-def generate_mpiexec_command(cores, gpus_per_core=0, oversubscribe=False):
+def generate_mpiexec_command(cores, oversubscribe=False):
     command_prepend_lst = ["mpiexec", "-n", str(cores)]
     if oversubscribe:
         command_prepend_lst += ["--oversubscribe"]
-    if gpus_per_core > 0:
-        raise ValueError()
     return command_prepend_lst
 
 
