@@ -11,6 +11,8 @@ from time import sleep
 
 import cloudpickle
 
+from pympipool.shared.communication import interface_bootup
+
 
 class ExecutorBase(FutureExecutor):
     def __init__(self):
@@ -52,9 +54,16 @@ class ExecutorBase(FutureExecutor):
             cancel_items_in_queue(que=self._future_queue)
         self._future_queue.put({"shutdown": True, "wait": wait})
         self._process.join()
+        self._future_queue.join()
 
     def __len__(self):
         return self._future_queue.qsize()
+
+    def _set_init_function(self, init_function):
+        if init_function is not None:
+            self._future_queue.put(
+                {"init": True, "fn": init_function, "args": (), "kwargs": {}}
+            )
 
 
 def cancel_items_in_queue(que):
@@ -97,6 +106,29 @@ def cloudpickle_register(ind=2):
         pass
 
 
+def execute_parallel_tasks(
+    future_queue,
+    cores,
+    interface_class,
+    **kwargs,
+):
+    """
+    Execute a single tasks in parallel using the message passing interface (MPI).
+
+    Args:
+       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+       cores (int): defines the total number of MPI ranks to use
+       interface_class:
+    """
+    execute_parallel_tasks_loop(
+        interface=interface_bootup(
+            command_lst=_get_backend_path(cores=cores),
+            connections=interface_class(cores=cores, **kwargs),
+        ),
+        future_queue=future_queue,
+    )
+
+
 def execute_parallel_tasks_loop(interface, future_queue):
     while True:
         task_dict = future_queue.get()
@@ -123,9 +155,16 @@ def execute_parallel_tasks_loop(interface, future_queue):
 
 def executor_broker(
     future_queue,
-    meta_future_lst,
+    max_workers,
+    executor_class,
     sleep_interval=0.1,
+    **kwargs,
 ):
+    meta_future_lst = _get_executor_dict(
+        max_workers=max_workers,
+        executor_class=executor_class,
+        **kwargs,
+    )
     while True:
         try:
             task_dict = future_queue.get_nowait()
@@ -154,26 +193,24 @@ def execute_task_dict(task_dict, meta_future_lst):
         raise ValueError("Unrecognized Task in task_dict: ", task_dict)
 
 
-def get_backend_path(cores):
+def _get_backend_path(cores):
     command_lst = [sys.executable]
     if cores > 1:
-        command_lst += [
-            os.path.abspath(
-                os.path.join(__file__, "..", "..", "backend", "mpiexec.py")
-            ),
-        ]
+        command_lst += [_get_command_path(executable="mpiexec.py")]
     else:
-        command_lst += [
-            os.path.abspath(os.path.join(__file__, "..", "..", "backend", "serial.py")),
-        ]
+        command_lst += [_get_command_path(executable="serial.py")]
     return command_lst
 
 
-def get_executor_dict(max_workers, executor_class, **kwargs):
-    return {get_future_done(): executor_class(**kwargs) for _ in range(max_workers)}
+def _get_command_path(executable):
+    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def get_future_done():
+def _get_executor_dict(max_workers, executor_class, **kwargs):
+    return {_get_future_done(): executor_class(**kwargs) for _ in range(max_workers)}
+
+
+def _get_future_done():
     f = Future()
     f.set_result(True)
     return f

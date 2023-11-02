@@ -18,7 +18,7 @@ class TestInterface(unittest.TestCase):
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
             interface=MpiExecInterface(
-                cwd=None, cores=1, gpus_per_core=0, oversubscribe=False
+                cwd=None, cores=1, oversubscribe=False
             )
         )
         interface.bootup(

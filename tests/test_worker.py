@@ -3,8 +3,8 @@ import unittest
 from queue import Queue
 from time import sleep
 from concurrent.futures import CancelledError
-from pympipool.mpi.mpitask import PyMPISingleTaskExecutor, _mpi_execute_parallel_tasks
-from pympipool.shared.executorbase import cloudpickle_register
+from pympipool.mpi.executor import PyMPISingleTaskExecutor, MpiExecInterface
+from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
 from concurrent.futures import Future
 
 
@@ -103,10 +103,11 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {}, "future": f})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
-            _mpi_execute_parallel_tasks(
+            execute_parallel_tasks(
                 future_queue=q,
                 cores=1,
                 oversubscribe=False,
+                interface_class=MpiExecInterface,
             )
         q.join()
 
@@ -116,10 +117,11 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"j": 4}, "future": f})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
-            _mpi_execute_parallel_tasks(
+            execute_parallel_tasks(
                 future_queue=q,
                 cores=1,
                 oversubscribe=False,
+                interface_class=MpiExecInterface,
             )
         q.join()
 
@@ -129,10 +131,11 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        _mpi_execute_parallel_tasks(
+        execute_parallel_tasks(
             future_queue=q,
             cores=1,
             oversubscribe=False,
+            interface_class=MpiExecInterface,
         )
         self.assertEqual(f.result(), np.array(4))
         q.join()
@@ -143,10 +146,11 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        _mpi_execute_parallel_tasks(
+        execute_parallel_tasks(
             future_queue=q,
             cores=2,
             oversubscribe=False,
+            interface_class=MpiExecInterface,
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])
         q.join()
