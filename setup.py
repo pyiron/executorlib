@@ -29,7 +29,7 @@ setup(
     packages=find_packages(exclude=["*tests*", "*.ci_support*"]),
     install_requires=[
         'cloudpickle==3.0.0',
-        'mpi4py==3.1.4',
+        'mpi4py==3.1.5',
         'tqdm==4.66.1',
         'pyzmq==25.1.1',
     ],
