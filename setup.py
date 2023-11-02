@@ -9,7 +9,7 @@ import versioneer
 setup(
     name='pympipool',
     version=versioneer.get_version(),
-    description='pympipool - scale python functions over multiple compute nodes',
+    description='pympipool - Scale serial and MPI-parallel python functions over hundreds of compute nodes all from within a jupyter notebook or serial python process.',
     long_description=Path("README.md").read_text(),
     long_description_content_type='text/markdown',
     url='https://github.com/jan-janssen/pympipool',
@@ -28,8 +28,8 @@ setup(
     ],
     packages=find_packages(exclude=["*tests*", "*.ci_support*"]),
     install_requires=[
-        'cloudpickle==2.2.1',
-        'mpi4py==3.1.4',
+        'cloudpickle==3.0.0',
+        'mpi4py==3.1.5',
         'tqdm==4.66.1',
         'pyzmq==25.1.1',
     ],

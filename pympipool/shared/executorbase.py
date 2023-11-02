@@ -54,6 +54,7 @@ class ExecutorBase(FutureExecutor):
             cancel_items_in_queue(que=self._future_queue)
         self._future_queue.put({"shutdown": True, "wait": wait})
         self._process.join()
+        self._future_queue.join()
 
     def __len__(self):
         return self._future_queue.qsize()

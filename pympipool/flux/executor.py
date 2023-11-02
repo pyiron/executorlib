@@ -136,10 +136,10 @@ class FluxPythonInterface(BaseInterface):
         super().__init__(
             cwd=cwd,
             cores=cores,
-            gpus_per_core=gpus_per_core,
-            threads_per_core=threads_per_core,
             oversubscribe=oversubscribe,
         )
+        self._threads_per_core = threads_per_core
+        self._gpus_per_core = gpus_per_core
         self._executor = executor
         self._future = None
 
