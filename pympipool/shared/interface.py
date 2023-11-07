@@ -2,6 +2,10 @@ from abc import ABC
 import subprocess
 
 
+MPI_COMMAND = "mpiexec"
+SLURM_COMMAND = "srun"
+
+
 class BaseInterface(ABC):
     def __init__(self, cwd, cores=1, oversubscribe=False):
         self._cwd = cwd
@@ -94,7 +98,7 @@ class SrunInterface(SubprocessInterface):
 
 
 def generate_mpiexec_command(cores, oversubscribe=False):
-    command_prepend_lst = ["mpiexec", "-n", str(cores)]
+    command_prepend_lst = [MPI_COMMAND, "-n", str(cores)]
     if oversubscribe:
         command_prepend_lst += ["--oversubscribe"]
     return command_prepend_lst
@@ -103,7 +107,7 @@ def generate_mpiexec_command(cores, oversubscribe=False):
 def generate_slurm_command(
     cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False
 ):
-    command_prepend_lst = ["srun", "-n", str(cores)]
+    command_prepend_lst = [SLURM_COMMAND, "-n", str(cores)]
     if cwd is not None:
         command_prepend_lst += ["-D", cwd]
     if threads_per_core > 1:
