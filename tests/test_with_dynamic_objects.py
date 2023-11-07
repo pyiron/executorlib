@@ -67,14 +67,14 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             Returns a complex, dynamically defined variable
             """
             sleep(0.1)
-            dynamic_arg.result = "input updated"
+            dynamic_arg.attribute_on_dynamic = "attribute updated"
             return dynamic_arg
 
         dynamic_dynamic = slowly_returns_dynamic()
         executor = Executor()
         dynamic_object = does_nothing()
         fs = executor.submit(dynamic_dynamic.run, dynamic_object)
-        self.assertEqual(fs.result().result, "input updated")
+        self.assertEqual(fs.result().attribute_on_dynamic, "attribute updated")
 
     def test_dynamic_callable(self):
         """
