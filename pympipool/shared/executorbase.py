@@ -61,7 +61,7 @@ class ExecutorBase(FutureExecutor):
         return self._future_queue.qsize()
 
     def __del__(self):
-        if self._process is not None:
+        if hasattr(self, "_process") and self._process is not None:
             self.shutdown(wait=True)
 
     def _set_init_function(self, init_function):
