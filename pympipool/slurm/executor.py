@@ -31,7 +31,7 @@ class PySlurmExecutor(ExecutorBase):
 
     def __init__(
         self,
-        max_workers,
+        max_workers=1,
         cores_per_worker=1,
         threads_per_core=1,
         gpus_per_worker=0,
