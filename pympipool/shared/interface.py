@@ -102,7 +102,9 @@ def generate_mpiexec_command(cores, oversubscribe=False):
 def generate_slurm_command(
     cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False
 ):
-    command_prepend_lst = ["srun", "-n", str(cores), "-D", cwd]
+    command_prepend_lst = ["srun", "-n", str(cores)]
+    if cwd is not None:
+        command_prepend_lst += ["-D", cwd]
     if threads_per_core > 1:
         command_prepend_lst += ["--cpus-per-task" + str(threads_per_core)]
     if gpus_per_core > 0:
