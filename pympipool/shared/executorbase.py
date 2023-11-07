@@ -53,7 +53,8 @@ class ExecutorBase(FutureExecutor):
         if cancel_futures:
             cancel_items_in_queue(que=self._future_queue)
         self._future_queue.put({"shutdown": True, "wait": wait})
-        self._process.join()
+        if self._process is not None:
+            self._process.join()
         self._future_queue.join()
         self._process = None
 
