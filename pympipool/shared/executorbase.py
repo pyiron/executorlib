@@ -53,8 +53,7 @@ class ExecutorBase(FutureExecutor):
         if cancel_futures:
             cancel_items_in_queue(que=self._future_queue)
         self._future_queue.put({"shutdown": True, "wait": wait})
-        if self._process is not None:
-            self._process.join()
+        self._process.join()
         self._future_queue.join()
         self._process = None
 
@@ -62,8 +61,10 @@ class ExecutorBase(FutureExecutor):
         return self._future_queue.qsize()
 
     def __del__(self):
-        if hasattr(self, "_process") and self._process is not None:
+        try:
             self.shutdown(wait=True)
+        except (AttributeError, RuntimeError):
+            pass
 
     def _set_init_function(self, init_function):
         if init_function is not None:
