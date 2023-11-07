@@ -8,4 +8,4 @@ from pympipool.shared.communication import (
 )
 from pympipool.shared.executorbase import cancel_items_in_queue
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.interface import MpiExecInterface, SlurmSubprocessInterface
+from pympipool.shared.interface import MpiExecInterface, SrunInterface

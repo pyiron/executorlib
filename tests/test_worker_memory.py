@@ -3,7 +3,7 @@ import numpy as np
 from queue import Queue
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
-from pympipool.mpi.executor import PyMPISingleTaskExecutor, get_interface
+from pympipool.mpi.executor import PyMPISingleTaskExecutor, MpiExecInterface
 from concurrent.futures import Future
 
 
@@ -43,7 +43,7 @@ class TestWorkerMemory(unittest.TestCase):
             future_queue=q,
             cores=1,
             oversubscribe=False,
-            interface_class=get_interface,
+            interface_class=MpiExecInterface,
         )
         self.assertEqual(f.result(), np.array([5]))
         q.join()

@@ -54,9 +54,17 @@ class ExecutorBase(FutureExecutor):
             cancel_items_in_queue(que=self._future_queue)
         self._future_queue.put({"shutdown": True, "wait": wait})
         self._process.join()
+        self._future_queue.join()
+        self._process = None
 
     def __len__(self):
         return self._future_queue.qsize()
+
+    def __del__(self):
+        try:
+            self.shutdown(wait=True)
+        except (AttributeError, RuntimeError):
+            pass
 
     def _set_init_function(self, init_function):
         if init_function is not None:
@@ -134,6 +142,7 @@ def execute_parallel_tasks_loop(interface, future_queue):
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
+            future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             f = task_dict.pop("future")
@@ -174,6 +183,7 @@ def executor_broker(
                 future_queue.task_done()
             else:
                 future_queue.task_done()
+                future_queue.join()
                 break
 
 

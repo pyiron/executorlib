@@ -14,6 +14,11 @@ from pympipool.shared.thread import RaisingThread
 
 class PyFluxExecutor(ExecutorBase):
     """
+    The pympipool.flux.PyFluxExecutor leverages the flux framework to distribute python tasks within a queuing system
+    allocation. In analogy to the pympipool.slurm.PySlurmExecutur it provides the option to specify the number of
+    threads per worker as well as the number of GPUs per worker in addition to specifying the number of cores per
+    worker.
+
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
         cores_per_worker (int): number of MPI cores to be used for each function call
@@ -23,11 +28,32 @@ class PyFluxExecutor(ExecutorBase):
         cwd (str/None): current working directory where the parallel python task is executed
         sleep_interval (float): synchronization interval - default 0.1
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
+
+    Examples:
+        ```
+        >>> import numpy as np
+        >>> from pympipool.flux import PyFluxExecutor
+        >>>
+        >>> def calc(i, j, k):
+        >>>     from mpi4py import MPI
+        >>>     size = MPI.COMM_WORLD.Get_size()
+        >>>     rank = MPI.COMM_WORLD.Get_rank()
+        >>>     return np.array([i, j, k]), size, rank
+        >>>
+        >>> def init_k():
+        >>>     return {"k": 3}
+        >>>
+        >>> with PyFluxExecutor(cores=2, init_function=init_k) as p:
+        >>>     fs = p.submit(calc, 2, j=4)
+        >>>     print(fs.result())
+
+        [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
+        ```
     """
 
     def __init__(
         self,
-        max_workers,
+        max_workers=1,
         cores_per_worker=1,
         threads_per_core=1,
         gpus_per_worker=0,
@@ -59,11 +85,7 @@ class PyFluxExecutor(ExecutorBase):
 
 class PyFluxSingleTaskExecutor(ExecutorBase):
     """
-    The pympipool.Executor behaves like the concurrent.futures.Executor but it uses mpi4py to execute parallel tasks.
-    In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.Executor can be executed in a serial python process
-    and does not require the python script to be executed with MPI. Still internally the pympipool.Executor uses the
-    mpi4py.futures.MPIPoolExecutor, consequently it is primarily an abstraction of its functionality to improve the
-    usability in particular when used in combination with Jupyter notebooks.
+    The pympipool.flux.PyFluxSingleTaskExecutor is the internal worker for the pympipool.flux.PyFluxExecutor.
 
     Args:
         cores (int): defines the number of MPI ranks to use for each function call
@@ -71,27 +93,7 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
         gpus_per_task (int): number of GPUs per MPI rank - defaults to 0
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-
-    Examples:
-        ```
-        >>> import numpy as np
-        >>> from pympipool.flux.executor import PyFluxSingleTaskExecutor
-        >>>
-        >>> def calc(i, j, k):
-        >>>     from mpi4py import MPI
-        >>>     size = MPI.COMM_WORLD.Get_size()
-        >>>     rank = MPI.COMM_WORLD.Get_rank()
-        >>>     return np.array([i, j, k]), size, rank
-        >>>
-        >>> def init_k():
-        >>>     return {"k": 3}
-        >>>
-        >>> with PyFluxSingleTaskExecutor(cores=2, init_function=init_k) as p:
-        >>>     fs = p.submit(calc, 2, j=4)
-        >>>     print(fs.result())
-
-        [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
-        ```
+        executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
     """
 
     def __init__(
@@ -136,10 +138,10 @@ class FluxPythonInterface(BaseInterface):
         super().__init__(
             cwd=cwd,
             cores=cores,
-            gpus_per_core=gpus_per_core,
-            threads_per_core=threads_per_core,
             oversubscribe=oversubscribe,
         )
+        self._threads_per_core = threads_per_core
+        self._gpus_per_core = gpus_per_core
         self._executor = executor
         self._future = None
 

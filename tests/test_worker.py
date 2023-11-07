@@ -3,7 +3,7 @@ import unittest
 from queue import Queue
 from time import sleep
 from concurrent.futures import CancelledError
-from pympipool.mpi.executor import PyMPISingleTaskExecutor, get_interface
+from pympipool.mpi.executor import PyMPISingleTaskExecutor, MpiExecInterface
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
 from concurrent.futures import Future
 
@@ -107,7 +107,7 @@ class TestFuturePool(unittest.TestCase):
                 future_queue=q,
                 cores=1,
                 oversubscribe=False,
-                interface_class=get_interface,
+                interface_class=MpiExecInterface,
             )
         q.join()
 
@@ -121,7 +121,7 @@ class TestFuturePool(unittest.TestCase):
                 future_queue=q,
                 cores=1,
                 oversubscribe=False,
-                interface_class=get_interface,
+                interface_class=MpiExecInterface,
             )
         q.join()
 
@@ -135,7 +135,7 @@ class TestFuturePool(unittest.TestCase):
             future_queue=q,
             cores=1,
             oversubscribe=False,
-            interface_class=get_interface,
+            interface_class=MpiExecInterface,
         )
         self.assertEqual(f.result(), np.array(4))
         q.join()
@@ -150,7 +150,7 @@ class TestFuturePool(unittest.TestCase):
             future_queue=q,
             cores=2,
             oversubscribe=False,
-            interface_class=get_interface,
+            interface_class=MpiExecInterface,
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])
         q.join()
