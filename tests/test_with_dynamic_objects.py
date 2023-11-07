@@ -5,6 +5,7 @@ This is a special (and rather difficult) case for serializing objects which cann
 be pickled using the standard pickle module, and thus poses a relatively thorough test
 for the general un-pickle-able case.
 """
+from concurrent.futures._base import TimeoutError as cfbTimeoutError
 from functools import partialmethod
 from time import sleep
 import unittest
@@ -199,7 +200,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         )
 
         with self.assertRaises(
-            TimeoutError,
+            (TimeoutError, cfbTimeoutError),
             msg="With a timeout time smaller than our submit callable's sleep time, "
                 "we had better get an exception!"
         ):
