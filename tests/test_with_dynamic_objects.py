@@ -1,6 +1,9 @@
 """
 The purpose of these tests is the check executor behaviour when the python objects
-are dynamically generated -- a case that is typically quite tricky for serializers.
+are dynamically generated.
+This is a special (and rather difficult) case for serializing objects which cannot
+be pickled using the standard pickle module, and thus poses a relatively thorough test
+for the general un-pickle-able case.
 """
 from functools import partialmethod
 from time import sleep
@@ -49,7 +52,7 @@ def dynamic_foo():
 
 
 class TestDynamicallyDefinedObjects(unittest.TestCase):
-    def test_unpickleable_args(self):
+    def test_dynamic_args(self):
         """
         We should be able to use an dynamically defined return value.
         """
@@ -59,23 +62,23 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return
 
         @dynamic_foo()
-        def slowly_returns_unpickleable(unpickleable_arg):
+        def slowly_returns_dynamic(dynamic_arg):
             """
             Returns a complex, dynamically defined variable
             """
             sleep(0.1)
-            unpickleable_arg.result = "input updated"
-            return unpickleable_arg
+            dynamic_arg.result = "input updated"
+            return dynamic_arg
 
-        dynamic_dynamic = slowly_returns_unpickleable()
+        dynamic_dynamic = slowly_returns_dynamic()
         executor = Executor()
-        unpicklable_object = does_nothing()
-        fs = executor.submit(dynamic_dynamic.run, unpicklable_object)
+        dynamic_object = does_nothing()
+        fs = executor.submit(dynamic_dynamic.run, dynamic_object)
         self.assertEqual(fs.result().result, "input updated")
 
-    def test_unpickleable_callable(self):
+    def test_dynamic_callable(self):
         """
-        We should be able to use an unpickleable callable -- in this case, a method of
+        We should be able to use an dynamic callable -- in this case, a method of
         a dynamically defined class.
         """
         fortytwo = 42  # No magic numbers; we use it in a couple places so give it a var
@@ -113,9 +116,9 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             fs.result()
 
-    def test_unpickleable_return(self):
+    def test_dynamic_return(self):
         """
-        We should be able to use an unpickleable return value -- in this case, a
+        We should be able to use an dynamic return value -- in this case, a
         method of a dynamically defined class.
         """
 
@@ -124,7 +127,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return
 
         @dynamic_foo()
-        def slowly_returns_unpickleable():
+        def slowly_returns_dynamic():
             """
             Returns a complex, dynamically defined variable
             """
@@ -133,7 +136,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             inside_variable.result = "it was an inside job!"
             return inside_variable
 
-        dynamic_dynamic = slowly_returns_unpickleable()
+        dynamic_dynamic = slowly_returns_dynamic()
         executor = Executor()
         fs = executor.submit(dynamic_dynamic.run)
         self.assertIsInstance(
