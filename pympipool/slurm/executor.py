@@ -18,6 +18,11 @@ if shutil.which(SLURM_COMMAND) is None:
 
 class PySlurmExecutor(ExecutorBase):
     """
+    The pympipool.slurm.PySlurmExecutor leverages the srun command to distribute python tasks within a SLURM queuing
+    system allocation. In analogy to the pympipool.flux.PyFluxExecutor it provides the option to specify the number of
+    threads per worker as well as the number of GPUs per worker in addition to specifying the number of cores per
+    worker.
+
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
         cores_per_worker (int): number of MPI cores to be used for each function call
@@ -27,6 +32,27 @@ class PySlurmExecutor(ExecutorBase):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         sleep_interval (float): synchronization interval - default 0.1
+
+    Examples:
+        ```
+        >>> import numpy as np
+        >>> from pympipool.slurm import PySlurmExecutor
+        >>>
+        >>> def calc(i, j, k):
+        >>>     from mpi4py import MPI
+        >>>     size = MPI.COMM_WORLD.Get_size()
+        >>>     rank = MPI.COMM_WORLD.Get_rank()
+        >>>     return np.array([i, j, k]), size, rank
+        >>>
+        >>> def init_k():
+        >>>     return {"k": 3}
+        >>>
+        >>> with PySlurmExecutor(cores=2, init_function=init_k) as p:
+        >>>     fs = p.submit(calc, 2, j=4)
+        >>>     print(fs.result())
+
+        [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
+        ```
     """
 
     def __init__(
@@ -63,11 +89,7 @@ class PySlurmExecutor(ExecutorBase):
 
 class PySlurmSingleTaskExecutor(ExecutorBase):
     """
-    The pympipool.Executor behaves like the concurrent.futures.Executor but it uses mpi4py to execute parallel tasks.
-    In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.Executor can be executed in a serial python process
-    and does not require the python script to be executed with MPI. Still internally the pympipool.Executor uses the
-    mpi4py.futures.MPIPoolExecutor, consequently it is primarily an abstraction of its functionality to improve the
-    usability in particular when used in combination with Jupyter notebooks.
+    The pympipool.slurm.PySlurmSingleTaskExecutor is the internal worker for the pympipool.slurm.PySlurmExecutor.
 
     Args:
         cores (int): defines the number of MPI ranks to use for each function call
@@ -77,25 +99,6 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
 
-    Examples:
-        ```
-        >>> import numpy as np
-        >>> from pympipool.mpi.executor import PyMPISingleTaskExecutor
-        >>>
-        >>> def calc(i, j, k):
-        >>>     from mpi4py import MPI
-        >>>     size = MPI.COMM_WORLD.Get_size()
-        >>>     rank = MPI.COMM_WORLD.Get_rank()
-        >>>     return np.array([i, j, k]), size, rank
-        >>>
-        >>> def init_k():
-        >>>     return {"k": 3}
-        >>>
-        >>> with PyMPISingleTaskExecutor(cores=2, init_function=init_k) as p:
-        >>>     fs = p.submit(calc, 2, j=4)
-        >>>     print(fs.result())
-        [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
-        ```
     """
 
     def __init__(
