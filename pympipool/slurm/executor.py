@@ -1,11 +1,19 @@
+import shutil
+import subprocess
+
+
 from pympipool.shared.executorbase import (
     cloudpickle_register,
     execute_parallel_tasks,
     ExecutorBase,
     executor_broker,
 )
-from pympipool.shared.interface import SrunInterface
+from pympipool.shared.interface import SrunInterface, SLURM_COMMAND
 from pympipool.shared.thread import RaisingThread
+
+
+if shutil.which(SLURM_COMMAND) is None:
+    raise subprocess.SubprocessError("SLURM command " + SLURM_COMMAND + " not found.")
 
 
 class PySlurmExecutor(ExecutorBase):
