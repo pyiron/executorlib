@@ -26,7 +26,7 @@ del get_versions
 class Executor:
     def __new__(
         cls,
-        max_workers,
+        max_workers=1,
         cores_per_worker=1,
         init_function=None,
         cwd=None,
