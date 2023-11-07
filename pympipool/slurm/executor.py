@@ -13,7 +13,7 @@ from pympipool.shared.thread import RaisingThread
 
 
 if shutil.which(SLURM_COMMAND) is None:
-    raise subprocess.SubprocessError("SLURM command " + SLURM_COMMAND + " not found.")
+    raise ImportError("SLURM command " + SLURM_COMMAND + " not found.")
 
 
 class PySlurmExecutor(ExecutorBase):
