@@ -84,6 +84,7 @@ def main():
             and "kwargs" in input_dict.keys()
         ):
             memory = call_funct(input_dict=input_dict, funct=None)
+    MPI.Finalize()
 
 
 if __name__ == "__main__":
