@@ -55,9 +55,14 @@ class ExecutorBase(FutureExecutor):
         self._future_queue.put({"shutdown": True, "wait": wait})
         self._process.join()
         self._future_queue.join()
+        self._process = None
 
     def __len__(self):
         return self._future_queue.qsize()
+
+    def __del__(self):
+        if self._process is not None:
+            self.shutdown(wait=True)
 
     def _set_init_function(self, init_function):
         if init_function is not None:
