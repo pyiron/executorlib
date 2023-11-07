@@ -74,7 +74,12 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         executor = Executor()
         dynamic_object = does_nothing()
         fs = executor.submit(dynamic_dynamic.run, dynamic_object)
-        self.assertEqual(fs.result().attribute_on_dynamic, "attribute updated")
+        self.assertEqual(
+            fs.result().attribute_on_dynamic,
+            "attribute updated",
+            msg="The submit callable should have modified the mutable, dynamically "
+                "defined object with a new attribute."
+        )
 
     def test_dynamic_callable(self):
         """
@@ -101,9 +106,22 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         executor = Executor()
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
-        self.assertFalse(fs.done(), msg="Should be running on the executor")
-        self.assertEqual(fortytwo, fs.result(), msg="Future must complete")
-        self.assertEqual(fortytwo, dynamic_42.result, msg="Callback must get called")
+        self.assertFalse(
+            fs.done(),
+            msg="The submit callable sleeps long enough that we expect to still be "
+                "running here -- did something fail to get submit to an executor??"
+        )
+        self.assertEqual(
+            fortytwo,
+            fs.result(),
+            msg="The future is expected to behave as usual"
+        )
+        self.assertEqual(
+            fortytwo,
+            dynamic_42.result,
+            msg="The callback modifies its object and should run by the time the result"
+                "is available -- did it fail to get called?"
+        )
 
     def test_exception(self):
         """
@@ -117,7 +135,10 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         re = raise_error()
         executor = Executor()
         fs = executor.submit(re.run)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(
+            RuntimeError,
+            msg="The callable just raises an error -- this should get shown to the user"
+        ):
             fs.result()
 
     def test_dynamic_return(self):
@@ -146,8 +167,15 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         self.assertIsInstance(
             fs.result(),
             Foo,
+            msg="Just a sanity check that we're getting the right type of dynamically "
+                "defined type of object"
         )
-        self.assertEqual(fs.result().result, "it was an inside job!")
+        self.assertEqual(
+            fs.result().result,
+            "it was an inside job!",
+            msg="The submit callable modifies the object that owns it, and this should"
+                "be reflected in the main process after deserialziation"
+        )
 
     def test_timeout(self):
         """
@@ -170,6 +198,10 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             msg="waiting long enough should get the result"
         )
 
-        with self.assertRaises(TimeoutError):
+        with self.assertRaises(
+            TimeoutError,
+            msg="With a timeout time smaller than our submit callable's sleep time, "
+                "we had better get an exception!"
+        ):
             fs = executor.submit(f.run)
             fs.result(timeout=0.0001)
