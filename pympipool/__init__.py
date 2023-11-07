@@ -1,10 +1,11 @@
+import os
 from ._version import get_versions
 from pympipool.mpi.executor import PyMPIExecutor
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
     from pympipool.flux.executor import PyFluxExecutor
 
-    flux_installed = True
+    flux_installed = "FLUX_URI" in os.environ
 except ImportError:
     flux_installed = False
     pass
