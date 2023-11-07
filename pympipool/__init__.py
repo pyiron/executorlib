@@ -3,6 +3,7 @@ from pympipool.mpi.executor import PyMPIExecutor
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
     from pympipool.flux.executor import PyFluxExecutor
+
     flux_installed = True
 except ImportError:
     flux_installed = False
@@ -10,6 +11,7 @@ except ImportError:
 
 try:  # The PySlurmExecutor requires the srun command to be available.
     from pympipool.slurm.executor import PySlurmExecutor
+
     slurm_installed = True
 except ImportError:
     slurm_installed = False
@@ -27,7 +29,7 @@ class Executor:
         cores_per_worker=1,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1
+        sleep_interval=0.1,
     ):
         if flux_installed:
             return PyFluxExecutor(
