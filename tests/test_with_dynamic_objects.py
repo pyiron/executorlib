@@ -106,6 +106,10 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         self.assertEqual(fortytwo, dynamic_42.result, msg="Callback must get called")
 
     def test_exception(self):
+        """
+        Exceptions from dynamically defined callables should get cleanly raised.
+        """
+
         @dynamic_foo()
         def raise_error():
             raise RuntimeError
@@ -146,6 +150,10 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         self.assertEqual(fs.result().result, "it was an inside job!")
 
     def test_timeout(self):
+        """
+        Timeouts for dynamically defined callables should be handled ok.
+        """
+
         fortytwo = 42
 
         @dynamic_foo()
