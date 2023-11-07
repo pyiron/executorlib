@@ -42,6 +42,7 @@ class SubprocessInterface(BaseInterface):
         return command_lst
 
     def shutdown(self, wait=True):
+        self._process.communicate()
         self._process.terminate()
         if wait:
             self._process.wait()
