@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 from pympipool.shared.backend import parse_arguments
-from pympipool.shared.interface import SlurmSubprocessInterface, MpiExecInterface
+from pympipool.shared.interface import SrunInterface, MpiExecInterface
 
 
 class TestParser(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestParser(unittest.TestCase):
             result_dict["zmqport"],
         ]
         interface = MpiExecInterface(
-            cwd=None, cores=2, gpus_per_core=0, oversubscribe=True
+            cwd=None, cores=2, oversubscribe=True
         )
         self.assertEqual(
             command_lst,
@@ -31,13 +31,6 @@ class TestParser(unittest.TestCase):
             ),
         )
         self.assertEqual(result_dict, parse_arguments(command_lst))
-
-    def test_mpiexec_gpu(self):
-        interface = MpiExecInterface(
-            cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True
-        )
-        with self.assertRaises(ValueError):
-            interface.bootup(command_lst=[])
 
     def test_command_slurm(self):
         result_dict = {
@@ -59,7 +52,7 @@ class TestParser(unittest.TestCase):
             "--zmqport",
             result_dict["zmqport"],
         ]
-        interface = SlurmSubprocessInterface(
+        interface = SrunInterface(
             cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True
         )
         self.assertEqual(
