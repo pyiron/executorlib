@@ -53,7 +53,7 @@ def dynamic_foo():
 
 
 class TestDynamicallyDefinedObjects(unittest.TestCase):
-    def test_dynamic_args(self):
+    def test_args(self):
         """
         We should be able to use a dynamically defined return value.
         """
@@ -82,7 +82,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
                 "defined object with a new attribute."
         )
 
-    def test_dynamic_callable(self):
+    def test_callable(self):
         """
         We should be able to use a dynamic callable -- in this case, a method of
         a dynamically defined class.
