@@ -21,6 +21,7 @@ class Foo:
     def __init__(self, fnc: callable):
         self.fnc = fnc
         self.result = None
+        self.flag = False
 
     @property
     def run(self):
@@ -28,6 +29,7 @@ class Foo:
 
     def process_result(self, future):
         self.result = future.result()
+        self.flag = True
 
 
 def dynamic_foo():
@@ -122,6 +124,27 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             dynamic_42.result,
             msg="The callback modifies its object and should run by the time the result"
                 "is available -- did it fail to get called?"
+        )
+
+    def test_callback(self):
+        """Make sure the callback methods can modify their owners"""
+
+        @dynamic_foo()
+        def returns_42():
+            return 42
+
+        dynamic_42 = returns_42()
+        self.assertFalse(
+            dynamic_42.flag,
+            msg="Sanity check that the test starts in the expected condition"
+        )
+        executor = Executor()
+        fs = executor.submit(dynamic_42.run)
+        fs.add_done_callback(dynamic_42.process_result)
+        fs.result()  # Wait for the process to finish
+        self.assertTrue(
+            dynamic_42.flag,
+            msg="Callback methods need to be able to modify their owners"
         )
 
     def test_exception(self):
