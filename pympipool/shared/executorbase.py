@@ -57,6 +57,7 @@ class ExecutorBase(FutureExecutor):
             self._process.join()
             self._future_queue.join()
         self._process = None
+        self._future_queue = None
 
     def __len__(self):
         return self._future_queue.qsize()
