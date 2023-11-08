@@ -1,4 +1,55 @@
-# Interfaces
+# Examples
+## Background
+### Backends 
+The availability of certain features depends on the backend `pympipool` is installed with. In particular the thread 
+based parallelism and the GPU assignment is only available with the `pympipool.slurm.PySlurmExecutor` or the 
+`pympipool.flux.PyFluxExecutor` backend. The latter is recommended based on the easy installation, the faster allocation 
+of resources as the resources are managed within the allocation and no central databases is used and the superior level 
+of fine-grained resource assignment which is typically not available on other HPC resource schedulers including the
+[SLURM workload manager](https://www.schedmd.com). The `pympipool.flux.PyFluxExecutor` requires 
+[flux framework](https://flux-framework.org) to be installed in addition to the `pympipool` package. The features are 
+summarized in the table below: 
+
+|     Feature \ Backend      | `PyMpiExecutor` | `PySlurmExecutor` | `PyFluxExecutor` |
+|:--------------------------:|:---------------:|:-----------------:|:----------------:|
+|  Thread based parallelism  |       no        |        yes        |       yes        | 
+|   MPI based parallelism    |       yes       |        yes        |       yes        |
+|       GPU assignment       |       no        |        yes        |       yes        |
+| Resource over-subscription |       yes       |        yes        |        no        |
+|        Scalability         |     1 node      |    ~100 nodes     |     no limit     |
+
+### Up-Scaling
+The `pympipool.Executor` extends the interface of the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
+to simplify the up-scaling of individual functions in a given workflow. In addition, to specifying the maximum number
+of workers `max_workers` the user can also specify the number of cores per worker `cores_per_worker` for MPI based 
+parallelism, the number of threads per core `threads_per_core` for thread based parallelism and the number of GPUs per 
+worker `gpus_per_worker`. Finally, for those backends which support over-subscribing this can also be enabled using the
+`oversubscribe` parameter. All these parameters are optional, so the `pympipool.Executor` can be used as a drop-in 
+replacement for the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures):
+
+```
+from pympipool import Executor 
+
+with Executor(
+    max_workers=1, 
+    cores_per_worker=1, 
+    threads_per_core=1, 
+    gpus_per_worker=0, 
+    oversubscribe=False
+) as exe:
+    fs = exe.submit()
+```
+
+## Serial Python Function
+
+## Data Loading 
+
+## MPI Parallel Python Function
+
+## GPU Assignment 
+
+## Backwards compatibility 
+
 The `pympipool` class provides five different interfaces to scale python functions over multiple compute nodes. They are
 briefly summarized here and explained in more detail below. 
 
