@@ -10,7 +10,7 @@ from functools import partialmethod
 from time import sleep
 import unittest
 
-from pympipool.mpi.executor import PyMPIExecutor as Executor
+from pympipool import Executor
 
 
 class Foo:
