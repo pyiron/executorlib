@@ -170,7 +170,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         ):
             fs.result()
 
-    def test_dynamic_return(self):
+    def test_return(self):
         """
         We should be able to use a dynamic return value -- in this case, a
         method of a dynamically defined class.
