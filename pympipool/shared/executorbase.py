@@ -62,7 +62,7 @@ class ExecutorBase(FutureExecutor):
 
     def __del__(self):
         try:
-            self.shutdown(wait=True)
+            self.shutdown(wait=False)
         except (AttributeError, RuntimeError):
             pass
 
