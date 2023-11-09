@@ -1,6 +1,153 @@
 # Examples
-## Background
-### Backends 
+The `pympipool.Executor` extends the interface of the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
+to simplify the up-scaling of individual functions in a given workflow.
+
+## Compatibility
+Starting with the basic example of `1+1=2`. With the `ThreadPoolExecutor` from the [`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
+standard library this can be written as - `test_thread.py`: 
+```
+from concurrent.futures import ThreadPoolExecutor
+
+with ThreadPoolExecutor(
+    max_workers=1,
+) as exe:
+    future = exe.submit(sum, [1, 1])
+    print(future.result())
+```
+In this case `max_workers=1` limits the number of threads uses by the `ThreadPoolExecutor` to one. Then the `sum()` 
+function is submitted to the executor with a list with two ones `[1, 1]` as input. A [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
+object is returned. The `Future` object allows to check the status of the execution with the `done()` method which 
+returns `True` or `False` depending on the state of the execution. Or the main process can wait until the execution is 
+completed by calling `result()`. 
+
+This example stored in a python file named `test_thread.py` can be executed using the python interpreter: 
+```
+python test_thread.py
+>>> 2
+```
+The result of the calculation is `1+1=2`. 
+
+The `pympipool.Executor` class extends the interface of the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures) 
+class by providing more parameters to specify the level of parallelism. In addition, to specifying the maximum number 
+of workers `max_workers` the user can also specify the number of cores per worker `cores_per_worker` for MPI based 
+parallelism, the number of threads per core `threads_per_core` for thread based parallelism and the number of GPUs per
+worker `gpus_per_worker`. Finally, for those backends which support over-subscribing this can also be enabled using the 
+`oversubscribe` parameter. All these parameters are optional, so the `pympipool.Executor` can be used as a drop-in 
+replacement for the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures).
+
+The previous example is rewritten for the `pympipool.Executor` in - `test_sum.py`:
+```
+from pympipool import Executor 
+
+with Executor(
+    max_workers=1, 
+    cores_per_worker=1, 
+    threads_per_core=1, 
+    gpus_per_worker=0, 
+    oversubscribe=False
+) as exe:
+    future = exe.submit(sum, [1,1])
+    print(future.result())
+```
+Again this example can be executed with the python interpreter: 
+```
+python test_sum.py
+>>> 2
+```
+The result of the calculation is again `1+1=2`.
+
+Beyond pre-defined functions like the `sum()` function, the same functionality can be used to submit user-defined 
+functions. In the `test_serial.py` example a custom summation function is defined: 
+```
+from pympipool import Executor
+
+def calc(*args):
+    return sum(*args)
+
+with Executor(max_workers=2) as exe:
+    fs_1 = exe.submit(calc, [2, 1])
+    fs_2 = exe.submit(calc, [2, 2])
+    fs_3 = exe.submit(calc, [2, 3])
+    fs_4 = exe.submit(calc, [2, 4])
+    print([
+        fs_1.result(), 
+        fs_2.result(), 
+        fs_3.result(), 
+        fs_4.result(),
+    ])
+```
+In contrast to the previous example where just a single function was submitted to a single worker, in this case a total
+of four functions is submitted to a group of two workers `max_workers=2`. Consequently, the functions are executed as a
+set of two pairs. 
+
+The script can be executed with any python interpreter:
+```
+python test_serial.py
+>>> [3, 4, 5, 6]
+```
+It returns the corresponding sums as expected. The same can be achieved with the built-in [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
+classes. Still one advantage of using the `pympipool.Executor` rather than the built-in ones, is the ability to execute 
+the same commands in interactive environments like [Jupyter notebooks](https://jupyter.org). This is achieved by using 
+[cloudpickle](https://github.com/cloudpipe/cloudpickle) to serialize the python function and its parameters rather than
+the regular pickle package. 
+
+For backwards compatibility with the [`multiprocessing.Pool`](https://docs.python.org/3/library/multiprocessing.html) 
+class the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
+also implements the `map()` function to map a series of inputs to a function. The same `map()` function is also 
+available in the `pympipool.Executor` - `test_map.py`: 
+```
+from pympipool import Executor
+
+def calc(*args):
+    return sum(*args)
+
+with Executor(max_workers=2) as exe:
+    print(list(exe.map(calc, [[2, 1], [2, 2], [2, 3], [2, 4]])))
+```
+Again the script can be executed with any python interpreter:
+```
+python test_map.py
+>>> [3, 4, 5, 6]
+```
+The results remain the same. 
+
+## Data Handling
+A limitation of many parallel approaches is the overhead in communication when working with large datasets. Instead of
+reading the same dataset repetitively, the `pympipool.Executor` loads the dataset only once per worker and afterwards 
+each function submitted to this worker has access to the dataset, as it is already loaded in memory. To achieve this
+the user defines an initialization function `init_function` which returns a dictionary with one key per dataset. The 
+keys of the dictionary can then be used as additional input parameters in each function submitted to the `pympipool.Executor`.
+This functionality is illustrated in the `test_data.py` example: 
+```
+from pympipool import Executor
+
+def calc(i, j, k):
+    return i + j + k
+
+def init_function():
+    return {"j": 4, "k": 3, "l": 2}
+
+with Executor(cores=1, init_function=init_function) as exe:
+    fs = exe.submit(calc, 2, j=5)
+    print(fs.result())
+```
+The function `calc()` requires three inputs `i`, `j` and `k`. But when the function is submitted to the executor only 
+two inputs are provided `fs = exe.submit(calc, 2, j=5)`. In this case the first input parameter is mapped to `i=2`, the
+second input parameter is specified explicitly `j=5` but the third input parameter `k` is not provided. So the 
+`pympipool.Executor` automatically checks the keys set in the `init_function()` function. In this case the returned 
+dictionary `{"j": 4, "k": 3, "l": 2}` defines `j=4`, `k=3` and `l=2`. For this specific call of the `calc()` function,
+`i` and `j` are already provided so `j` is not required, but `k=3` is used from the `init_function()` and as the `calc()`
+function does not define the `l` parameter this one is also ignored. 
+
+Again the script can be executed with any python interpreter:
+```
+python test_data.py
+>>> 10
+```
+The result is `2+5+3=10` as `i=2` and `j=5` are provided during the submission and `k=3` is defined in the `init_function()`
+function.
+
+## Up-Scaling 
 The availability of certain features depends on the backend `pympipool` is installed with. In particular the thread 
 based parallelism and the GPU assignment is only available with the `pympipool.slurm.PySlurmExecutor` or the 
 `pympipool.flux.PyFluxExecutor` backend. The latter is recommended based on the easy installation, the faster allocation 
@@ -18,137 +165,56 @@ summarized in the table below:
 | Resource over-subscription |       yes       |        yes        |        no        |
 |        Scalability         |     1 node      |    ~100 nodes     |     no limit     |
 
-### Up-Scaling
-The `pympipool.Executor` extends the interface of the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
-to simplify the up-scaling of individual functions in a given workflow. In addition, to specifying the maximum number
-of workers `max_workers` the user can also specify the number of cores per worker `cores_per_worker` for MPI based 
-parallelism, the number of threads per core `threads_per_core` for thread based parallelism and the number of GPUs per 
-worker `gpus_per_worker`. Finally, for those backends which support over-subscribing this can also be enabled using the
-`oversubscribe` parameter. All these parameters are optional, so the `pympipool.Executor` can be used as a drop-in 
-replacement for the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures):
+### Thread based Parallelism
+The number of threads per core can be controlled with the `threads_per_core` parameter during the initialization of the 
+`pympipool.Executor`. Unfortunately, there is no uniform way to control the number of cores a given underlying library 
+uses for thread based parallelism, so it might be necessary to set certain environment variables manually: 
+
+* `OMP_NUM_THREADS`: for openmp
+* `OPENBLAS_NUM_THREADS`: for openblas
+* `MKL_NUM_THREADS`: for mkl
+* `VECLIB_MAXIMUM_THREADS`: for accelerate on Mac Os X
+* `NUMEXPR_NUM_THREADS`: for numexpr
+
+At the current stage `pympipool.Executor` does not set these parameters itself, so you have to add them in the function
+you submit before importing the corresponding library: 
 
 ```
-from pympipool import Executor 
-
-with Executor(
-    max_workers=1, 
-    cores_per_worker=1, 
-    threads_per_core=1, 
-    gpus_per_worker=0, 
-    oversubscribe=False
-) as exe:
-    fs = exe.submit()
-```
-
-## Serial Python Function
-
-## Data Loading 
-
-## MPI Parallel Python Function
-
-## GPU Assignment 
-
-## Backwards compatibility 
-
-The `pympipool` class provides five different interfaces to scale python functions over multiple compute nodes. They are
-briefly summarized here and explained in more detail below. 
-
-|        Feature         | Pool | Executor | HPCExecutor | PoolExecutor | MPISpawnPool |
-|:----------------------:|:----:|:--------:|:-----------:|:------------:|:------------:|
-|        `map()`         | yes  |   yes    |     yes     |     yes      |     yes      |
-|      `starmap()`       | yes  |    no    |     no      |      no      |     yes      |
-|       `submit()`       |  no  |   yes    |     yes     |     yes      |      no      |
-|   parallel execution   | yes  |    no    |     yes     |     yes      |     yes      |
-| MPI parallel functions |  no  |   yes    |     yes     |      no      |     yes      |
-| flux framework support | yes  |   yes    |     yes     |     yes      |      no      |
-|    internal storage    |  no  |   yes    |     yes     |      no      |      no      | 
-
-While all four interfaces implement the `map()` function, only two of them implement the `starmap()` function while the
-rest implements the asynchronous `sumbit()` function which returns [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#future-objects).
-In terms of the execution it is important to differentiate between parallel execution, meaning multiple individual 
-functions are executed in parallel and MPI parallel functions, which each require multiple MPI ranks to be executed. 
-Furthermore, most interfaces are integrated with the [flux-framework](https://flux-framework.org) and the 
-[SLURM queuing system](https://slurm.schedmd.com) so rather than using MPI ranks to distribute functions over multiple
-compute nodes, they can also use the flux-framework or the SLURM queuing system for this purpose. Finally, the 
-`pympipool.Executor` and `pympipool.HPCExecutor` are currently the only interfaces which implements an internal storage,
-so data can remain in the executor process while applying multiple functions which interact with this data. 
-
-The sixth interface is the `SocketInterface`. This interface connects two python processes to transfer python objects 
-between them. It is used for all the above interfaces to connect the serial python process of the user interacts, with
-the MPI parallel python process, which executes the python functions over multiple compute nodes.  
-
-## Pool
-Following the [`multiprocessing.pool.Pool`](https://docs.python.org/3/library/multiprocessing.html) 
-the `pympipool.Pool` class implements the `map()` and `starmap()` functions. Internally these connect to an MPI parallel
-subprocess running the [`mpi4py.futures.MPIPoolExecutor`](https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html#mpipoolexecutor).
-So by increasing the number of workers, by setting the `max_workers` parameter the `pympipool.Pool` can scale the 
-execution of serial python functions beyond a single compute node. For MPI parallel python functions the `pympipool.MPISpawnPool`
-is derived from the `pympipool.Pool` and uses `MPI_Spawn()` to execute those. For more details see below.
-
-Example how to use the `pympipool.Pool` class. This can be executed inside a jupyter notebook, interactive python shell
-or as a python script. For the example a python script is used. Write a python test script named `test_pool_map.py`: 
-```python
-import numpy as np
-from pympipool import Pool
-
 def calc(i):
-    return np.array(i ** 2)
-
-with Pool(max_workers=2) as p:
-    print(p.map(func=calc, iterable=[1, 2, 3, 4]))
+    import os
+    os.environ["OMP_NUM_THREADS"] = "2"
+    os.environ["OPENBLAS_NUM_THREADS"] = "2"
+    os.environ["MKL_NUM_THREADS"] = "2"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "2"
+    os.environ["NUMEXPR_NUM_THREADS"] = "2"
+    import numpy as np
+    return i
 ```
-The function `calc()` is applied on the list of arguments `iterable`. The script is executed as serial python process,
-while internally it uses MPI to execute two sets of two parameters at a time. As you see the `numpy` library is 
-dynamically included when the function is transferred to the MPI parallel subprocess for execution. To execute the 
-python file `test_pool.py` in a serial python process use: 
-```
-python test_pool_map.py
->>> [array(1), array(4), array(9), array(16)]
-```
-Beyond the number of workers defined by `max_workers`, the additional parameters are `oversubscribe` to enable 
-[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and `enable_slurm_backend` to switch from 
-MPI as backend to flux or SLURM as alternative backend. In addition, the parameters `queue_adapter` and 
-`queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the simple queue adapter for 
-python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` 
-parameter represents a dictionary of input arguments for the `submit_job()` function of the queue adapter. Finally, the
-`cwd` parameter specifies the current working directory where the python functions are executed.
 
-In addition to the `map()` function, the `pympipool.Pool` interface implements the `starmap()` function. The example is
-very similar to the one above. Just this time the `calc()` function accepts two arguments rather than one: 
-```python
-from pympipool import Pool
+Most modern CPUs use hyper-threading to present the operating system with double the number of virtual cores compared to
+the number of physical cores available. So unless this functionality is disabled `threads_per_core=2` is a reasonable 
+default. Just be careful if the number of threads is not specified it is possible that all workers try to access all 
+cores at the same time which can lead to poor performance. So it is typically a good idea to monitor the CPU utilization
+with increasing number of workers. 
 
-def calc(i, j):
-    return i + j
+Specific manycore CPU models like the Intel Xeon Phi processors provide a much higher hyper-threading ration and require
+a higher number of threads per core for optimal performance. 
 
-with Pool(max_workers=2) as p:
-    print(p.starmap(func=calc, iterable=[[1, 2], [3, 4], [5, 6], [7, 8]]))
+### MPI Parallel Python Function
+Beyond thread based parallelism, the message passing interface (MPI) is the de facto standard parallel execution in 
+scientific computing and the [`mpi4py`](https://mpi4py.readthedocs.io) bindings to the MPI libraries are commonly used
+to parallelize existing workflows. The limitation of this approach is that it requires the whole code to adopt the MPI
+communication standards to coordinate the way how information is distributed. Just like the `pympipool.Executor` the 
+[`mpi4py.futures.MPIPoolExecutor`](https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html#mpipoolexecutor) 
+implements the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
+interface. Still in this case eah python function submitted to the executor is still limited to serial execution. The
+novel approach of the `pympipool.Executor` is mixing these two types of parallelism. Individual functions can use
+the [`mpi4py`](https://mpi4py.readthedocs.io) library to handle the parallel execution within the context of this 
+function while these functions can still me submitted to the `pympipool.Executor` just like any other function. The
+advantage of this approach is that the users can parallelize their workflows one function at the time. 
+
+The example in `test_mpi.py` illustrates the submission of a simple MPI parallel python function: 
 ```
-The script named `test_pool_starmap.py` is executed and the sum of the input parameters is returned: 
-```
-python test_pool_starmap.py
->>> [3, 7, 11, 15]
-```
-In summary the `pympipool.Pool` class implements both the `map()` function and the `starmap()` function to scale serial 
-python functions over multiple compute nodes. It internally handles the load distribution over multiple compute nodes.
-
-## Executor
-The easiest way to execute MPI parallel python functions right next to serial python functions is the `pympipool.Executor`.
-It implements the executor interface defined by the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures).
-So functions are submitted to the `pympipool.Executor` using the `submit()` function, which returns an 
-[`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#future-objects) object. With 
-these [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#future-objects) objects 
-asynchronous workflows can be constructed which periodically check if the computation is completed `done()` and then query 
-the results using the `result()` function. The limitation of the `pympipool.Executor` is lack of load balancing, each 
-`pympipool.Executor` acts as a serial first in first out (FIFO) queue. So it is the task of the user to balance the load
-of many different tasks over multiple `pympipool.Executor` instances. 
-
-In comparison to the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
-in the standard python library the `pympipool.Executor` can execute MPI parallel python functions which internally use
-the `mpi4py` library. In this example the `calc()` function returns the total number of MPI ranks and the index of the
-individual MPI ranks. By setting the `cores` parameter of the `pympipool.Executor` to `2` the `calc()` function is 
-executed with two MPI ranks.
-```python
 from pympipool import Executor
 
 def calc(i):
@@ -157,72 +223,32 @@ def calc(i):
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
 
-with Executor(cores=2) as p:
-    fs = p.submit(calc, 3)
+with Executor(cores_per_worker=2) as exe:
+    fs = exe.submit(calc, 3)
     print(fs.result())
 ```
-The important part is that in contrast to the `mpi4py` library the scripts which use the `pympipool.Executor` class can
-be executed as serial python scripts, without the need to invoke external MPI calls. 
+The `calc()` function initializes the [`mpi4py`](https://mpi4py.readthedocs.io) library and gathers the size of the 
+allocation and the rank of the current process within the MPI allocation. This function is then submitted to an 
+`pympipool.Executor` which is initialized with a single worker with two cores `cores_per_worker=2`. So each function
+call is going to have access to two cores. 
+
+Just like before the script can be called with any python interpreter even though it is using the [`mpi4py`](https://mpi4py.readthedocs.io)
+library in the background it is not necessary to execute the script with `mpiexec` or `mpirun`:
 ```
-python test_executor_mpi.py
+python test_mpi.py
 >>> [(3, 2, 0), (3, 2, 1)]
 ```
-The responses of the individual MPI ranks are returned as a combined python list. So in this case each MPI rank returns
-a triple of the parameter `i=3`, the total number of MPI ranks `2` and the index of the selected MPI rank. 
+The response consists of a list of two tuples, one for each MPI parallel process, with the first entry of the tuple 
+being the parameter `i=3`, followed by the number of MPI parallel processes assigned to the function call `cores_per_worker=2`
+and finally the index of the specific process `0` or `1`. 
 
-In addition to the ability to execute MPI parallel functions the `pympipool.Executor` class also implements an internal
-data storage, which can be utilized for serial and MPI parallel python functions. By adding an initialization function
-`init_function` as additional parameter to the initialization of the `pympipool.Executor` class which returns a dictionary
-of python variables, these variables are added to the internal storage. Each function which is submitted to this 
-`pympipool.Executor` class can use these variables as input parameters, interact with them or modify them. 
-```python
-from pympipool import Executor
-
-def calc(i, j, k):
-    return i + j + k
-
-def init_function():
-    return {"j": 4, "k": 3, "l": 2}
-
-with Executor(cores=1, init_function=init_function) as p:
-    fs = p.submit(calc, 2, j=5)
-    print(fs.result())
-```
-In this example the `calc()` function takes three arguments `i`,`j` and `k`. While the arguments `j`, `k` and `l` are 
-set by the `init_function()` function. When the `calc()` function is submitted only the `i` parameter is required, while
-the parameters `j` and `k` can be accessed from the internal storage. At the same time the `l` parameter which is not 
-used by the `calc()` function, does not interact with it. So not all functions have to use all parameters. Finally, 
-when the parameter is provided during the submission `submit()`, like in this case the `j` parameter, then the submitted
-parameter is used rather than the parameter from internal memory.
-```
-python test_executor_init.py
->>> 10
-```
-So the sum of `i`,`j` and `k` results in `10` rather than `9`. Beyond the number of cores defined by `cores`, the number
-of GPUs defined by `gpus_per_task` and the initialization function defined by `init_function` the additional parameters
-are `oversubscribe` to enable [OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and 
-`enable_slurm_backend` to switch from MPI as backend to flux or SLURM as alternative backend. In addition, the 
-parameters `queue_adapter` and `queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the
-simple queue adapter for python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the 
-`queue_adapter_kwargs` parameter represents a dictionary of input arguments for the `submit_job()` function of the queue
-adapter. Finally, the `cwd` parameter specifies the current working directory where the python functions are executed.
-
-When multiple functions are submitted to the `pympipool.Executor` class then they are executed following the first in
-first out principle. The `len()` function applied on the `pympipool.Executor` object can be used to list how many items
-are still waiting to be executed. 
-
-## HPCExecutor
-To address the limitation of the `pympipool.Executor` that only a single task is executed at any time, the 
-`pympipool.HPCExecutor` provides a wrapper around multiple `pympipool.Executor` objects. It balances the queues of the 
-individual `pympipool.Executor` objects to maximize the throughput for the given resources. This functionality comes 
-with an additional overhead of another thread, acting as a broker between the task queue of the `pympipool.HPCExecutor`
-and the individual `pympipool.Executor` objects. 
-
-Example how to use the `pympipool.HPCExecutor` class. This can be executed inside a jupyter notebook, interactive python 
-shell or as a python script. For the example a python script is used. Write a python test script named `test_hpc_gpu.py`: 
+### GPU Assignment
+With the rise of machine learning applications, the use of GPUs for scientific application becomes more and more popular.
+Consequently, it is essential to have full control over the assignment of GPUs to specific python functions. In the 
+`test_gpu.py` example the `tensorflow` library is used to identify the GPUs and return their configuration: 
 ```
 import socket
-from pympipool import HPCExecutor
+from pympipool import Executor
 from tensorflow.python.client import device_lib
 
 def get_available_gpus():
@@ -232,121 +258,49 @@ def get_available_gpus():
         for x in local_device_protos if x.device_type == 'GPU'
     ]
 
-with HPCExecutor(
+with Executor(
     max_workers=2, 
-    cores_per_worker=1, 
     gpus_per_worker=1, 
-    enable_flux_backend=True,
 ) as exe:
     fs_1 = exe.submit(get_available_gpus)
     fs_2 = exe.submit(get_available_gpus)
 
-print(fs_1.result())
-print(fs_2.result())
+print(fs_1.result(), fs_2.result())
 ```
-The example demonstrates how one GPU is assigned to each of the two tasks which are executed in parallel. To access the
-GPUs the `tensorflow` package is used in the `get_available_gpus()` function to return a brief summary of the available 
-GPU. The initialization of the `pympipool.HPCExecutor` then follows the same scheme as the initialization of the 
-`pympipool.Executor`. The `max_workers` argument defines the number of `pympipool.Executor` objects the 
-`pympipool.HPCExecutor` is managing internally. Then for each of these `pympipool.Executor` objects the number of cores
-is defined by `cores_per_worker` and the number of GPUs is defined by `gpus_per_worker`. By default the number of GPUs 
-is set to zero, as assigning GPUs to tasks requires an advanced scheduling backend like the flux-framework enabled by 
-the `enable_flux_backend` option or the SLURM queuing system backend enabled by the `enable_slurm_backend` option. In
-addition, the parameters `queue_adapter` and `queue_adapter_kwargs` provide an interface to 
-[pysqa](https://pysqa.readthedocs.org) the simple queue adapter for python. The `queue_adapter` can be set as 
-`pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` parameter represents a dictionary of input 
-arguments for the `submit_job()` function of the queue adapter. Finally, the `cwd` parameter specifies the current 
-working directory where the python functions are executed.
+The additional parameter `gpus_per_worker=1` specifies that one GPU is assigned to each worker. This functionality 
+requires `pympipool` to be connected to a resource manager like the [SLURM workload manager](https://www.schedmd.com)
+or preferably the [flux framework](https://flux-framework.org). The rest of the script follows the previous examples, 
+as two functions are submitted and the results are printed. 
 
-The submission of the individual tasks follows the definition of the `pympipool.HPCExecutor` in analogy to the example
-above for the `pympipool.Executor`. Finally, the results are printed to the standard output:
+To clarify the execution of such an example on a high performance computing (HPC) cluster using the [SLURM workload manager](https://www.schedmd.com)
+the submission script is given below: 
 ```
-python test_hpc_gpu.py
->>> [('/device:GPU:0', 'device: 0, name: Tesla V100S-PCIE-32GB, pci bus id: 0000:84:00.0, compute capability: 7.0', 'cn138')]
->>> [('/device:GPU:0', 'device: 0, name: Tesla V100S-PCIE-32GB, pci bus id: 0000:84:00.0, compute capability: 7.0', 'cn139')]
+#!/bin/bash
+#SBATCH --nodes=2
+#SBATCH --gpus-per-node=1
+#SBATCH --get-user-env=L
+
+python test_gpu.py
 ```
-The output highlights that for each of the two workers there is only a single GPU visible. This applies to the example
-case where only one GPU is available on each of the two hosts, as well as to hosts with multiple GPUs. Consequently, 
-the `pympipool.HPCExecutor` drastically simplifies the scheduling of `GPU` and their assignment for python tasks. 
+The important part is that for using the `pympipool.slurm.PySlurmExecutor` backend the script `test_gpu.py` does not 
+need to be executed with `srun` but rather it is sufficient to just execute it with the python interpreter. `pympipool`
+internally calls `srun` to assign the individual resources to a given worker. 
 
-## PoolExecutor
-To combine the functionality of the `pympipool.Pool` and the `pympipool.Executor` the `pympipool.PoolExecutor` again
-connects to the [`mpi4py.futures.MPIPoolExecutor`](https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html#mpipoolexecutor).
-Still in contrast to the `pympipool.Pool` it does not implement the `map()` and `starmap()` functions but rather the 
-`submit()` function based on the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
-interface. In this case the load balancing happens internally and the maximum number of workers `max_workers` defines
-the maximum number of parallel tasks. But only serial python tasks can be executed in contrast to the `pympipool.Executor`
-which can also execute MPI parallel python tasks. 
-
-In the example a simple `calc()` function which calculates the sum of two parameters `i` and `j` is submitted with four 
-different parameter combinations to an `pympipool.PoolExecutor` with a total of two workers specified by the `max_workers`
-parameter.
-```python
-from pympipool import PoolExecutor
-
-def calc(i, j):
-    return i + j
-
-with PoolExecutor(max_workers=2) as p:
-    fs1 = p.submit(calc, 1, 2)
-    fs2 = p.submit(calc, 3, 4)
-    fs3 = p.submit(calc, 5, 6)
-    fs4 = p.submit(calc, 7, 8)
-    print(fs1.result(), fs2.result(), fs3.result(), fs4.result())
+For the more complex setup of running the [flux framework](https://flux-framework.org) as a secondary resource scheduler
+within the [SLURM workload manager](https://www.schedmd.com) it is essential that the resources are passed from the 
+[SLURM workload manager](https://www.schedmd.com) to the [flux framework](https://flux-framework.org). This is achieved
+by calling `srun flux start` in the submission script: 
 ```
-The functions are executed in two sets of two function and the result is returned when all functions are executed as the
-`result()` call waits until the future object completed.
-```
-python test_pool_executor.py
->>> 3 7 11 15
-```
-Beyond the number of workers defined by `max_workers`, the additional parameters are `oversubscribe` to enable 
-[OpenMPI](https://www.open-mpi.org) over-subscription, `enable_flux_backend` and `enable_slurm_backend` to switch from 
-MPI as backend to flux or SLURM as alternative backend. In addition, the parameters `queue_adapter` and 
-`queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) the simple queue adapter for 
-python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the `queue_adapter_kwargs` 
-parameter represents a dictionary of input arguments for the `submit_job()` function of the queue adapter. Finally, the
-`cwd` parameter specifies the current working directory where the python functions are executed.
+#!/bin/bash
+#SBATCH --nodes=2
+#SBATCH --gpus-per-node=1
+#SBATCH --get-user-env=L
 
-## MPISpawnPool
-An alternative way to support MPI parallel functions in addition to the `pympipool.Executor` is the `pympipool.MPISpawnPool`. 
-Just like the `pympipool.Pool` it supports the `map()` and `starmap()` functions. The additional `ranks_per_task` 
-parameter defines how many MPI ranks are used per task. All functions are executed with the same number of MPI ranks. 
-The limitation of this approach is that it uses `MPI_Spawn()` to create new MPI ranks for the execution of the 
-individual tasks. Consequently, this approach is not as scalable as the `pympipool.Executor` but it offers load 
-balancing for a large number of similar MPI parallel tasks. 
-
-In the example the maximum number of workers is defined by the maximum number of MPI ranks `max_ranks` devided by the
-number of ranks per task `ranks_per_tasks`. So in the case of a total of four ranks and two ranks per task only two 
-workers are created. 
-```python
-from pympipool import MPISpawnPool
-
-def calc(i, comm):
-    return i, comm.Get_size(), comm.Get_rank()
-
-with MPISpawnPool(max_ranks=4, ranks_per_task=2) as p:
-    print(p.map(func=calc, iterable=[1, 2, 3, 4]))
+srun flux start python test_gpu.py
 ```
-In contrast to the `pympipool.Executor` which returns the results of each individual MPI rank, the `pympipool.MPISpawnPool`
-only returns the results of one MPI rank per function call, so it is the users task to synchronize the response of the
-MPI parallel functions. 
+As a result the GPUs available on the two compute nodes are reported: 
 ```
-python test_mpispawnpool.py
->>> [[1, 2, 0], [2, 2, 0], [3, 2, 0], [4, 2, 0]]
+>>> [('/device:GPU:0', 'device: 0, name: Tesla V100S-PCIE-32GB, pci bus id: 0000:84:00.0, compute capability: 7.0', 'cn138'),
+>>>  ('/device:GPU:0', 'device: 0, name: Tesla V100S-PCIE-32GB, pci bus id: 0000:84:00.0, compute capability: 7.0', 'cn139')]
 ```
-Beyond the maximum number of ranks defined by `max_ranks` and the ranks per task defined by `ranks_per_task` the 
-additional parameters are `oversubscribe` to enable [OpenMPI](https://www.open-mpi.org) over-subscription. In addition,
-the parameters `queue_adapter` and `queue_adapter_kwargs` provide an interface to [pysqa](https://pysqa.readthedocs.org) 
-the simple queue adapter for python. The `queue_adapter` can be set as `pysqa.queueadapter.QueueAdapter` object and the
-`queue_adapter_kwargs` parameter represents a dictionary of input arguments for the `submit_job()` function of the queue
-adapter. Finally, the `cwd` parameter specifies the current working directory  where the MPI parallel python functions 
-are executed. The flux backend as well as the SLURM backend are not supported for the `pympipool.MPISpawnPool` as the 
-`MPI_Spawn()` command is incompatible to the internal management of ranks inside flux and SLURM. 
-
-## SocketInterface
-`pympipool.SocketInterface`: The key functionality of the `pympipool` package is the coupling of a serial python process
-with an MPI parallel python process. This happens in the background using a combination of the [zero message queue](https://zeromq.org)
-and [cloudpickle](https://github.com/cloudpipe/cloudpickle) to communicate binary python objects. The `pympipool.SocketInterface`
-is an abstraction of this interface, which is used in the other classes inside `pympipool` and might also be helpful for
-other projects. 
+In this case each compute node `cn138` and `cn139` is equipped with one `Tesla V100S-PCIE-32GB`.
