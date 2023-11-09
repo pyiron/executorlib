@@ -75,3 +75,40 @@ class TestFuture(unittest.TestCase):
                 mutable,
                 msg="After completion, the callback should modify the mutable data"
             )
+
+        with self.subTest("From inside a class"):
+            class Foo:
+                def __init__(self):
+                    self.running = False
+
+                def run(self):
+                    self.running = True
+
+                    future = PyMPISingleTaskExecutor().submit(self.return_42)
+                    future.add_done_callback(self.finished)
+
+                    return future
+
+                def return_42(self):
+                    from time import sleep
+                    sleep(1)
+                    return 42
+
+                def finished(self, future):
+                    self.running = False
+
+            foo = Foo()
+            self.assertFalse(
+                foo.running,
+                msg="Sanity check that the test starts in the expected condition"
+            )
+            fs = foo.run()
+            self.assertTrue(
+                foo.running,
+                msg="We should be able to exit the run method before the task completes"
+            )
+            fs.result()  # Wait for completion
+            self.assertFalse(
+                foo.running,
+                msg="After task completion, we expect the callback to modify the class"
+            )
