@@ -34,8 +34,8 @@ approach. Here the user creates their HPC allocation first and then `mpi4py <htt
 :code:`pympipool` can be used to distribute the tasks within this allocation. The advantage of this approach is that
 no central data storage is required as the workers and the scheduling task can communicate directly.
 
-Example
--------
+Examples
+--------
 The following examples illustrates how :code:`pympipool` can be used to distribute a series of MPI parallel function
 calls within a queuing system allocation. :code:`example.py`::
 
@@ -75,8 +75,8 @@ returned. Consequently, the :code:`pympipool.Executor` can be used as a drop-in 
 `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
 which allows the user to add parallelism to their workflow one function at a time.
 
-Backend
--------
+Backends
+--------
 Depending on the availability of different resource schedulers in your HPC environment the :code:`pympipool.Executor`
 uses a different backend, with the :code:`pympipool.flux.PyFluxExecutor` being the preferred backend:
 

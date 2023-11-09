@@ -165,7 +165,7 @@ summarized in the table below:
 | Resource over-subscription |       yes       |        yes        |        no        |
 |        Scalability         |     1 node      |    ~100 nodes     |     no limit     |
 
-### Thread based Parallelism
+### Thread-based Parallelism
 The number of threads per core can be controlled with the `threads_per_core` parameter during the initialization of the 
 `pympipool.Executor`. Unfortunately, there is no uniform way to control the number of cores a given underlying library 
 uses for thread based parallelism, so it might be necessary to set certain environment variables manually: 
@@ -200,7 +200,7 @@ with increasing number of workers.
 Specific manycore CPU models like the Intel Xeon Phi processors provide a much higher hyper-threading ration and require
 a higher number of threads per core for optimal performance. 
 
-### MPI Parallel Python Function
+### MPI Parallel Python Functions
 Beyond thread based parallelism, the message passing interface (MPI) is the de facto standard parallel execution in 
 scientific computing and the [`mpi4py`](https://mpi4py.readthedocs.io) bindings to the MPI libraries are commonly used
 to parallelize existing workflows. The limitation of this approach is that it requires the whole code to adopt the MPI
