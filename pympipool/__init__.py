@@ -61,6 +61,7 @@ class Executor:
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
         ```
     """
+
     def __init__(
         self,
         max_workers=1,
@@ -133,12 +134,16 @@ class Executor:
             if threads_per_core != 1:
                 raise ValueError(
                     "Thread based parallelism is not supported for the pympipool.mpi.PyMPIExecutor backend."
-                    "Please use threads_per_core=1 instead of threads_per_core=" + str(threads_per_core) + "."
+                    "Please use threads_per_core=1 instead of threads_per_core="
+                    + str(threads_per_core)
+                    + "."
                 )
             if gpus_per_worker != 0:
                 raise ValueError(
                     "GPU assignment is not supported for the pympipool.mpi.PyMPIExecutor backend."
-                    "Please use gpus_per_worker=0 instead of gpus_per_worker=" + str(gpus_per_worker) + "."
+                    "Please use gpus_per_worker=0 instead of gpus_per_worker="
+                    + str(gpus_per_worker)
+                    + "."
                 )
             return PyMPIExecutor(
                 max_workers=max_workers,
