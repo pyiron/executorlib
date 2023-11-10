@@ -1,6 +1,7 @@
 # pympipool - up-scale python functions for high performance computing
 [![Unittests](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pyiron/pympipool/badge.svg?branch=main)](https://coveralls.io/github/pyiron/pympipool?branch=main)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/pympipool/HEAD?labpath=notebooks%2Fexamples.ipynb)
 
 Up-scaling python functions for high performance computing (HPC) can be challenging. While the python standard library
 provides interfaces for multiprocessing and asynchronous task execution, namely

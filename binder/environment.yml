@@ -1,0 +1,11 @@
+channels:
+- conda-forge
+dependencies:
+- python
+- numpy
+- openmpi
+- cloudpickle =3.0.0
+- flux-core
+- mpi4py =3.1.5
+- tqdm =4.66.1
+- pyzmq =25.1.1
