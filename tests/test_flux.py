@@ -15,7 +15,7 @@ try:
         FluxPythonInterface,
     )
 
-    skip_flux_test = False
+    skip_flux_test = "FLUX_URI" not in os.environ
 except ImportError:
     skip_flux_test = True
 
