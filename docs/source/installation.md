@@ -32,7 +32,7 @@ following command:
 pip install pympipool
 ```
 
-## Integration with high performance computing
+## High Performance Computing
 `pympipool` currently provides interfaces to the [SLURM workload manager](https://www.schedmd.com) and the 
 [flux framework](https://flux-framework.org). With the [flux framework](https://flux-framework.org) being the 
 recommended solution as it can be installed without root user rights and it can be integrated in existing resource
