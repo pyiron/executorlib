@@ -91,7 +91,7 @@ uses a different backend, with the `pympipool.flux.PyFluxExecutor` being the pre
   interface can be a reasonable choice, still depending on the [SLURM workload manager](https://www.schedmd.com) 
   configuration in can be limited in terms of the fine-grained scheduling or the responsiveness when working with 
   hundreds of compute nodes in an individual allocation.
-* `pympipool.flux.PyFluxExecutor`: The [flux framework]](https://flux-framework.org) is the preferred backend for 
+* `pympipool.flux.PyFluxExecutor`: The [flux framework](https://flux-framework.org) is the preferred backend for 
   `pympipool`. Just like the `pympipool.slurm.PySlurmExecutor` it supports serial python functions, thread based 
   parallelism, MPI based parallelism and the assignment of GPUs to individual python functions. Still the advantages of 
   using the [flux framework](https://flux-framework.org) as a backend are the easy installation, the faster allocation 
