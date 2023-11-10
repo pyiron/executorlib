@@ -2,10 +2,13 @@
 For up-scaling python functions beyond a single compute node `pympipool` requires the integration with a high 
 performance computing (HPC) resource manager. These HPC resource manager are currently only supported for Linux. Still
 for testing and development purposes the `pympipool` package can installed on all major operating systems including 
-Windows. This basic installation is based on the `pympipool.mpi.PyMPIExecutor` interface and allows up-scaling serial 
+Windows. 
+
+This basic installation is based on the `pympipool.mpi.PyMPIExecutor` interface and allows up-scaling serial 
 and parallel python functions which use the message passing interface (MPI) for python [`mpi4py`](https://mpi4py.readthedocs.io)
 on a single compute node. In addition, the integration with an HPC resource manager provides scaling beyond one compute
-node, thread based parallelism and the assignment of GPUs. 
+node, thread based parallelism and the assignment of GPUs. Still the user would not call the interface directly, but 
+rather use it through the `pympipool.Executor`. 
 
 ## Basic Installation 
 For testing and development purposes the `pympipool` package can installed on all major operating systems including 
@@ -38,7 +41,13 @@ pip install pympipool
 recommended solution as it can be installed without root user rights and it can be integrated in existing resource
 managers like the [SLURM workload manager](https://www.schedmd.com). The advantages of using `pympipool` in combination
 with these resource schedulers is the fine-grained resource allocation. In addition, to scaling beyond a single compute
-node they add the ability to assign GPUs and thread based parallelism. 
+node they add the ability to assign GPUs and thread based parallelism. The two resource manager are internally linked to
+two interfaces: 
+
+* `pympipool.slurm.PySlurmExecutor`: The interface for the [SLURM workload manager](https://www.schedmd.com).
+* `pympipool.flux.PyFluxExecutor`: The interface for the [flux framework](https://flux-framework.org).
+
+Still the user would not call these interfaces directly, but rather use it through the `pympipool.Executor`. 
 
 ### Flux Framework
 For Linux users without a pre-installed resource scheduler in their high performance computing (HPC) environment, the
@@ -116,6 +125,6 @@ both resource schedulers, the [flux framework](https://flux-framework.org) can a
 uses the [SLURM workload manager](https://www.schedmd.com) as primary resource scheduler. This enables more fine-grained
 scheduling like independent GPU access on HPC systems where [SLURM workload manager](https://www.schedmd.com) is 
 configured to allow only one job step per node. Furthermore, the [flux framework](https://flux-framework.org) provides 
-superior performance in large allocation with several hundred compute nodes or in the case when many `pympipool.Executor`
-objects are created frequently, as each creation of an `pympipool.Executor` results in an `srun` call which is 
+superior performance in large allocation with several hundred compute nodes or in the case when many `pympipool.slurm.PySlurmExecutor`
+objects are created frequently, as each creation of an `pympipool.slurm.PySlurmExecutor` results in an `srun` call which is 
 communicated to the central database of the [SLURM workload manager](https://www.schedmd.com). 

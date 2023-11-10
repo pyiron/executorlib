@@ -127,7 +127,7 @@ def calc(i, j, k):
 def init_function():
     return {"j": 4, "k": 3, "l": 2}
 
-with Executor(cores=1, init_function=init_function) as exe:
+with Executor(max_workers=1, init_function=init_function) as exe:
     fs = exe.submit(calc, 2, j=5)
     print(fs.result())
 ```
