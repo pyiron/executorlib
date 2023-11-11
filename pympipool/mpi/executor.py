@@ -25,7 +25,7 @@ class PyMPIExecutor(ExecutorBase):
         sleep_interval (float): synchronization interval - default 0.1
 
     Examples:
-        ```
+
         >>> import numpy as np
         >>> from pympipool.mpi import PyMPIExecutor
         >>>
@@ -42,7 +42,7 @@ class PyMPIExecutor(ExecutorBase):
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
-        ```
+
     """
 
     def __init__(
