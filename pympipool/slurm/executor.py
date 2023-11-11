@@ -39,7 +39,7 @@ class PySlurmExecutor(ExecutorBase):
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with PySlurmExecutor(cores=2, init_function=init_k) as p:
+        >>> with PySlurmExecutor(max_workers=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
 
