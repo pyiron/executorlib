@@ -1,6 +1,9 @@
 import os
+import shutil
 from ._version import get_versions
 from pympipool.mpi.executor import PyMPIExecutor
+from pympipool.shared.interface import SLURM_COMMAND
+from pympipool.slurm.executor import PySlurmExecutor
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
     from pympipool.flux.executor import PyFluxExecutor
@@ -10,13 +13,8 @@ except ImportError:
     flux_installed = False
     pass
 
-try:  # The PySlurmExecutor requires the srun command to be available.
-    from pympipool.slurm.executor import PySlurmExecutor
-
-    slurm_installed = True
-except ImportError:
-    slurm_installed = False
-    pass
+# The PySlurmExecutor requires the srun command to be available.
+slurm_installed = shutil.which(SLURM_COMMAND) is not None
 
 
 __version__ = get_versions()["version"]

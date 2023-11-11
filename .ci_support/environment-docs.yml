@@ -10,3 +10,4 @@ dependencies:
   - mpi4py
   - tqdm
   - pyzmq
+  - flux-core
