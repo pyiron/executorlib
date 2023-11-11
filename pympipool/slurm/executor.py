@@ -26,7 +26,7 @@ class PySlurmExecutor(ExecutorBase):
         sleep_interval (float): synchronization interval - default 0.1
 
     Examples:
-        ```
+
         >>> import numpy as np
         >>> from pympipool.slurm import PySlurmExecutor
         >>>
@@ -44,7 +44,6 @@ class PySlurmExecutor(ExecutorBase):
         >>>     print(fs.result())
 
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
-        ```
     """
 
     def __init__(
