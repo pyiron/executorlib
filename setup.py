@@ -12,8 +12,8 @@ setup(
     description='pympipool - Scale serial and MPI-parallel python functions over hundreds of compute nodes all from within a jupyter notebook or serial python process.',
     long_description=Path("README.md").read_text(),
     long_description_content_type='text/markdown',
-    url='https://github.com/jan-janssen/pympipool',
-    author_email='jan.janssen@outlook.com',
+    url='https://github.com/pyiron/pympipool',
+    author_email='janssen@lanl.gov',
     license='BSD',
 
     classifiers=[
