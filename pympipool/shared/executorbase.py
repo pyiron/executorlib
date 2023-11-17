@@ -93,7 +93,7 @@ def cancel_items_in_queue(que):
             break
 
 
-def cloudpickle_register(ind=2):
+def cloudpickle_register(ind=1):
     """
     Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
     be pickled by value rather than by reference, so the module which calls the map function is pickled by value.

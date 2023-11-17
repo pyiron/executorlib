@@ -47,7 +47,7 @@ jobs:
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
-      run: cd tests; coverage run --omit pympipool/_version.py -m unittest discover .
+      run: coverage run --omit pympipool/_version.py -m unittest discover tests
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'

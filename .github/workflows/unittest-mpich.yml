@@ -57,4 +57,4 @@ jobs:
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
-      run: cd tests; python -m unittest discover .
+      run: python -m unittest discover tests
