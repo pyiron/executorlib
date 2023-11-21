@@ -190,7 +190,7 @@ def executor_broker(
 
 
 def execute_task_dict(task_dict, meta_future_lst):
-    if "fn" in task_dict.keys():
+    if "fn" in task_dict.keys() or "future" in task_dict.keys():
         meta_future = next(as_completed(meta_future_lst.keys()))
         executor = meta_future_lst.pop(meta_future)
         executor.future_queue.put(task_dict)
