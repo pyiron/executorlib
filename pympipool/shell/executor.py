@@ -6,6 +6,12 @@ from pympipool.shared.thread import RaisingThread
 
 
 def execute_single_task(future_queue):
+    """
+    Process items received via the queue.
+
+    Args:
+        future_queue (queue.Queue):
+    """
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
@@ -31,7 +37,10 @@ def execute_single_task(future_queue):
             raise KeyError(task_dict)
 
 
-class ShellStaticExecutor(ExecutorBase):
+class SubprocessSingleExecutor(ExecutorBase):
+    """
+    The pympipool.shell.SubprocessSingleExecutor is the internal worker for the pympipool.shell.SubprocessExecutor.
+    """
     def __init__(self):
         super().__init__()
         self._process = RaisingThread(
@@ -48,7 +57,26 @@ class ShellStaticExecutor(ExecutorBase):
         return f
 
 
-class ShellExecutor(ExecutorBase):
+class SubprocessExecutor(ExecutorBase):
+    """
+    The pympipool.shell.SubprocessExecutor enables the submission of command line calls via the subprocess.check_output()
+    interface of the python standard library. It is based on the concurrent.futures.Executor class and returns a
+    concurrent.futures.Future object for every submitted command line call. Still it does not provide any option to
+    interact with the external executable during the execution.
+
+    Args:
+        max_workers (int): defines the number workers which can execute functions in parallel
+        sleep_interval (float): synchronization interval - default 0.1
+
+    Examples:
+
+        >>> from pympipool import SubprocessExecutor
+        >>> with SubprocessExecutor(max_workers=2) as exe:
+        >>>     future = exe.submit(["echo", "test"], universal_newlines=True)
+        >>> print(future.done(), future.result(), future.done())
+        (False, "test", True)
+
+    """
     def __init__(
         self,
         max_workers=1,
@@ -62,12 +90,19 @@ class ShellExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
                 "sleep_interval": sleep_interval,
-                "executor_class": ShellStaticExecutor,
+                "executor_class": SubprocessSingleExecutor,
             },
         )
         self._process.start()
 
     def submit(self, *args, **kwargs):
+        """
+        Submit a command line call to be executed. The given arguments are provided to subprocess.Popen() as additional
+        inputs to control the execution.
+
+        Returns:
+            A Future representing the given call.
+        """
         f = Future()
         self._future_queue.put({"future": f, "args": args, "kwargs": kwargs})
         return f

@@ -3,10 +3,10 @@ import queue
 
 from unittest import TestCase
 
-from pympipool.shell.executor import ShellStaticExecutor, ShellExecutor, execute_single_task
+from pympipool.shell.executor import SubprocessSingleExecutor, SubprocessExecutor, execute_single_task
 
 
-class ShellExecutorTest(TestCase):
+class SubprocessExecutorTest(TestCase):
     def test_execute_single_task(self):
         test_queue = queue.Queue()
         f = Future()
@@ -17,15 +17,29 @@ class ShellExecutorTest(TestCase):
         self.assertTrue(f.done())
         self.assertEqual("test\n", f.result())
 
-    def test_shell_static_executor(self):
-        with ShellStaticExecutor() as exe:
-            future = exe.submit(["echo", "test"], universal_newlines=True)
+    def test_shell_static_executor_args(self):
+        with SubprocessSingleExecutor() as exe:
+            future = exe.submit(["echo", "test"], universal_newlines=True, shell=False)
+            self.assertFalse(future.done())
+            self.assertEqual("test\n", future.result())
+            self.assertTrue(future.done())
+
+    def test_shell_static_executor_binary(self):
+        with SubprocessSingleExecutor() as exe:
+            future = exe.submit(["echo", "test"], universal_newlines=False, shell=False)
+            self.assertFalse(future.done())
+            self.assertEqual(b"test\n", future.result())
+            self.assertTrue(future.done())
+
+    def test_shell_static_executor_shell(self):
+        with SubprocessSingleExecutor() as exe:
+            future = exe.submit("echo test", universal_newlines=True, shell=True)
             self.assertFalse(future.done())
             self.assertEqual("test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_executor(self):
-        with ShellExecutor(max_workers=2) as exe:
+        with SubprocessExecutor(max_workers=2) as exe:
             f_1 = exe.submit(["echo", "test_1"], universal_newlines=True)
             f_2 = exe.submit(["echo", "test_2"], universal_newlines=True)
             f_3 = exe.submit(["echo", "test_3"], universal_newlines=True)

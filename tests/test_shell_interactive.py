@@ -4,7 +4,7 @@ import queue
 
 from unittest import TestCase
 
-from pympipool.shell.interactive import ShellInteractiveExecutor, execute_single_task
+from pympipool.shell.interactive import ShellExecutor, execute_single_task
 
 
 class ShellInteractiveExecutorTest(TestCase):
@@ -28,7 +28,7 @@ class ShellInteractiveExecutorTest(TestCase):
         self.assertEqual("0\n1\n2\n3\ndone\n", future_pattern.result())
 
     def test_shell_interactive_executor(self):
-        with ShellInteractiveExecutor(["python", self.executable_path], universal_newlines=True) as exe:
+        with ShellExecutor(["python", self.executable_path], universal_newlines=True) as exe:
             future_lines = exe.submit(string_input="4", lines_to_read=5, stop_read_pattern=None)
             future_pattern = exe.submit(string_input="4", lines_to_read=None, stop_read_pattern="done")
             self.assertFalse(future_lines.done())
