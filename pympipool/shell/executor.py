@@ -1,9 +1,7 @@
 from concurrent.futures import Future
 import subprocess
 
-from pympipool.shared.executorbase import (
-    executor_broker, ExecutorBase
-)
+from pympipool.shared.executorbase import executor_broker, ExecutorBase
 from pympipool.shared.thread import RaisingThread
 
 
