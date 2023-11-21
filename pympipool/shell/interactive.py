@@ -104,6 +104,7 @@ class ShellExecutor(ExecutorBase):
         >>>     print(future_pattern.done(), future_pattern.result(), future_pattern.done())
         (False, "0\n1\n2\n3\ndone\n", True)
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__()
         self._process = RaisingThread(

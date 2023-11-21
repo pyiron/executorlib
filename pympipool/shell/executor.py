@@ -41,6 +41,7 @@ class SubprocessSingleExecutor(ExecutorBase):
     """
     The pympipool.shell.SubprocessSingleExecutor is the internal worker for the pympipool.shell.SubprocessExecutor.
     """
+
     def __init__(self):
         super().__init__()
         self._process = RaisingThread(
@@ -77,6 +78,7 @@ class SubprocessExecutor(ExecutorBase):
         (False, "test", True)
 
     """
+
     def __init__(
         self,
         max_workers=1,
