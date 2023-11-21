@@ -3,6 +3,8 @@ import shutil
 from ._version import get_versions
 from pympipool.mpi.executor import PyMPIExecutor
 from pympipool.shared.interface import SLURM_COMMAND
+from pympipool.shell.executor import ShellExecutor
+from pympipool.shell.interactive import ShellInteractiveExecutor
 from pympipool.slurm.executor import PySlurmExecutor
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
