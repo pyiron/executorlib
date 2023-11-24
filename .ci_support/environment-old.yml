@@ -7,4 +7,4 @@ dependencies:
 - cloudpickle =1.4.0
 - mpi4py =3.1.2
 - tqdm =4.44.0
-- pyzmq =18.1.1
+- pyzmq =25.0.0
