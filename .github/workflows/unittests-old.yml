@@ -1,0 +1,36 @@
+# This workflow is used to run the unittest of pyiron
+
+name: Unittest Lower Bound
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2.2.0
+      with:
+        python-version: '3.9'
+        mamba-version: "*"
+        channels: conda-forge
+        miniforge-variant: Mambaforge
+        channel-priority: strict
+        auto-update-conda: true
+        environment-file: .ci_support/environment-old.yml
+    - name: Setup
+      shell: bash -l {0}
+      run: pip install --no-deps .
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: cd tests; python -m unittest discover .
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
