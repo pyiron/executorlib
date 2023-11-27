@@ -10,6 +10,8 @@ build:
   tools:
     python: "mambaforge-22.9"
   commands:
+    - cat .ci_support/environment-docs.yml
+    - mamba env create --quiet --name readthedocs --file .ci_support/environment-docs.yml
     - pip install versioneer[toml]==0.29
     - pip install . --no-deps --no-build-isolation
     - python -m sphinx -T -E -b html -d _build/doctrees -D language=en . $READTHEDOCS_OUTPUT/html
