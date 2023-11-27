@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    # if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
+    if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -41,5 +41,5 @@ jobs:
       run: |
         pip install versioneer[toml]==0.29
         python setup.py sdist bdist_wheel
-    # - name: Publish distribution 📦 to PyPI
-    #   uses: pypa/gh-action-pypi-publish@release/v1
+    - name: Publish distribution 📦 to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
