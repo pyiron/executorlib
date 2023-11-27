@@ -14,21 +14,32 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/pympipool
+      url: https://pypi.org/p/${{ github.event.repository.name }}
     permissions:
       id-token: write
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - name: Merge
+      run: |
+        cp .ci_support/environment-openmpi.yml environment.yml
+        echo "- python-build" >> environment.yml
+    - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-        python-version: "3.11"
-    - name: Install dependencies
-      run: python -m pip install --user --upgrade cloudpickle pyzmq setuptools tqdm versioneer wheel
+        python-version: 3.11
+        mamba-version: "*"
+        channels: conda-forge
+        miniforge-variant: Mambaforge
+        channel-priority: strict
+        auto-update-conda: true
+        environment-file: environment.yml
     - name: Convert dependencies
       run: |
         cp .ci_support/environment-old.yml environment.yml
         python .ci_support/release.py; cat pyproject.toml
     - name: Build
-      run: python setup.py sdist bdist_wheel
+      shell: bash -l {0}
+      run: |
+        pip install versioneer[toml]==0.29
+        python setup.py sdist bdist_wheel
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
