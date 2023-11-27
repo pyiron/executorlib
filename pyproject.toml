@@ -1,5 +1,5 @@
 [build-system]
-requires = ["cloudpickle", "mpi4py", "pyzmq", "setuptools", "tqdm", "versioneer[toml]==0.29"]
+requires = ["cloudpickle", "pyzmq", "setuptools", "tqdm", "versioneer[toml]==0.29"]
 build-backend = "setuptools.build_meta"
 
 [project]
