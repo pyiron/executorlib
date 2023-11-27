@@ -32,6 +32,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        pip install --no-deps .
+        pip install . -vv --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
