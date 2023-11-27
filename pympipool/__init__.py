@@ -20,7 +20,6 @@ slurm_installed = shutil.which(SLURM_COMMAND) is not None
 
 
 __version__ = get_versions()["version"]
-del get_versions
 
 
 class Executor:
