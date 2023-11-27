@@ -9,6 +9,10 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "mambaforge-22.9"
+  commands:
+    - pip install versioneer[toml]==0.29
+    - pip install . --no-deps --no-build-isolation
+    - python -m sphinx -T -E -b html -d _build/doctrees -D language=en . $READTHEDOCS_OUTPUT/html
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -20,9 +24,3 @@ formats: []
 # Install pyiron from conda
 conda:
   environment: .ci_support/environment-docs.yml
-
-# Optionally set the version of Python and requirements required to build your docs
-python:
-  install:
-    - method: pip
-      path: .
