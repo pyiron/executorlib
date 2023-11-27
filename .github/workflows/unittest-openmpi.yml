@@ -56,7 +56,7 @@ jobs:
       timeout-minutes: 5
       run: |
         pip install versioneer[toml]==0.29
-        pip install . -vv --no-deps --no-build-isolation
+        pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
       env:
