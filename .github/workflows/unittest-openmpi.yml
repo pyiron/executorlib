@@ -55,6 +55,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
+        pip install versioneer[toml]==0.29
         pip install . -vv --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .

@@ -43,6 +43,7 @@ jobs:
       timeout-minutes: 5
       run: |
         mamba install -y flux-core coverage
+        pip install versioneer[toml]==0.29
         pip install . -vv --no-deps --no-build-isolation
         cd tests
         coverage run --omit pympipool/_version.py -m unittest discover .
