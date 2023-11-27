@@ -19,6 +19,10 @@ jobs:
       id-token: write
     steps:
     - uses: actions/checkout@v2
+    - name: Merge
+      run: |
+        cp .ci_support/environment-openmpi.yml environment.yml
+        echo "- python-build" >> environment.yml
     - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
         python-version: 3.11
@@ -27,7 +31,7 @@ jobs:
         miniforge-variant: Mambaforge
         channel-priority: strict
         auto-update-conda: true
-        environment-file: .ci_support/environment-openmpi.yml
+        environment-file: environment.yml
     - name: Convert dependencies
       run: |
         cp .ci_support/environment-old.yml environment.yml
