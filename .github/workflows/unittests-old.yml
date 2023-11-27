@@ -23,13 +23,13 @@ jobs:
         channel-priority: strict
         auto-update-conda: true
         environment-file: .ci_support/environment-old.yml
-    - name: Setup
-      shell: bash -l {0}
-      run: pip install --no-deps .
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
-      run: cd tests; python -m unittest discover .
+      run: |
+        pip install --no-deps .
+        cd tests
+        python -m unittest discover .
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
