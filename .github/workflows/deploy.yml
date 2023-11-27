@@ -37,9 +37,9 @@ jobs:
         cp .ci_support/environment-old.yml environment.yml
         python .ci_support/release.py; cat pyproject.toml
     - name: Build
+      shell: bash -l {0}
       run: |
         pip install versioneer[toml]==0.29
-        pip list
         python setup.py sdist bdist_wheel
     # - name: Publish distribution 📦 to PyPI
     #   uses: pypa/gh-action-pypi-publish@release/v1
