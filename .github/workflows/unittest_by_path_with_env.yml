@@ -1,6 +1,6 @@
 # This workflow is used to run the unittest of pyiron
 
-name: Unittests-openmpi
+name: Unittests_by_path_with_env
 
 on:
   push:
