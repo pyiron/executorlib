@@ -15,24 +15,6 @@ jobs:
     strategy:
       matrix:
         include:
-        - operating-system: macos-latest
-          python-version: '3.11'
-          label: osx-latest-64-py-3-11-openmpi
-          prefix: /Users/runner/miniconda3/envs/my-env
-
-
-        - operating-system: macos-11
-          python-version: '3.11'
-          label: osx-11-64-py-3-11-openmpi
-          prefix: /Users/runner/miniconda3/envs/my-env
-
-
-        - operating-system: macos-12
-          python-version: '3.11'
-          label: osx-12-64-py-3-11-openmpi
-          prefix: /Users/runner/miniconda3/envs/my-env
-
-
         - operating-system: macos-13
           python-version: '3.11'
           label: osx-13-64-py-3-11-openmpi
