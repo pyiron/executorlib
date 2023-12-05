@@ -38,10 +38,10 @@ pip install pympipool
 ## High Performance Computing
 `pympipool` currently provides interfaces to the [SLURM workload manager](https://www.schedmd.com) and the 
 [flux framework](https://flux-framework.org). With the [flux framework](https://flux-framework.org) being the 
-recommended solution as it can be installed without root user rights and it can be integrated in existing resource
+recommended solution as it can be installed without root permissions and it can be integrated in existing resource
 managers like the [SLURM workload manager](https://www.schedmd.com). The advantages of using `pympipool` in combination
-with these resource schedulers is the fine-grained resource allocation. In addition, to scaling beyond a single compute
-node they add the ability to assign GPUs and thread based parallelism. The two resource manager are internally linked to
+with these resource schedulers is the fine-grained resource allocation. In addition to scaling beyond a single compute
+node, they add the ability to assign GPUs and thread based parallelism. The two resource manager are internally linked to
 two interfaces: 
 
 * `pympipool.slurm.PySlurmExecutor`: The interface for the [SLURM workload manager](https://www.schedmd.com).

@@ -8,29 +8,27 @@ pympipool - up-scale python functions for high performance computing
 Up-scaling python functions for high performance computing (HPC) can be challenging. While the python standard library
 provides interfaces for multiprocessing and asynchronous task execution, namely
 `multiprocessing <https://docs.python.org/3/library/multiprocessing.html>`_ and
-`concurrent.futures <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_ both are
+`concurrent.futures <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_, both are
 limited to the execution on a single compute node. So a series of python libraries have been developed to address the
 up-scaling of python functions for HPC. Starting in the datascience and machine learning community with solutions
-like `dask <https://www.dask.org>`_ over more HPC focused solutions like
-`fireworks <https://materialsproject.github.io/fireworks/>`_ and `parsl <http://parsl-project.org>`_ up to Python
+like `dask <https://www.dask.org>`_, over to more HPC-focused solutions like
+`fireworks <https://materialsproject.github.io/fireworks/>`_ and `parsl <http://parsl-project.org>`_, up to Python
 bindings for the message passing interface (MPI) named `mpi4py <https://mpi4py.readthedocs.io>`_. Each of these
-solutions has their advantages and disadvantages, in particular scaling beyond serial python functions, including thread
-based parallelism, MPI parallel python application or assignment of GPUs to individual python function remains
-challenging.
+solutions has its advantages and disadvantages. However, one disadvantage common to all these libraries is the relative difficulty of scaling from serial functions to functions that make use of thread-based, MPI-based, or GPU-based parallelism.
 
 To address these challenges :code:`pympipool` is developed with three goals in mind:
 
 * Extend the standard python library `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_ interface, to minimize the barrier of up-scaling an existing workflow to be used on HPC resources.
-* Integrate thread based parallelism, MPI parallel python functions based on `mpi4py <https://mpi4py.readthedocs.io>`_ and GPU assignment. This allows the users to accelerate their workflows one function at a time.
+* Integrate thread-based parallelism, MPI-parallel python functions based on `mpi4py <https://mpi4py.readthedocs.io>`_, and GPU assignment. This allows users to accelerate their workflows one function at a time.
 * Embrace `Jupyter <https://jupyter.org>`_ notebooks for the interactive development of HPC workflows, as they allow the users to document their though process right next to the python code and their results all within one document.
 
 HPC Context
 -----------
-In contrast to frameworks like `dask <https://www.dask.org>`_, `fireworks <https://materialsproject.github.io/fireworks/>`_
-and `parsl <http://parsl-project.org>`_ which can be used to submit a number of worker processes directly the the HPC
+Frameworks like `dask <https://www.dask.org>`_, `fireworks <https://materialsproject.github.io/fireworks/>`_
+and `parsl <http://parsl-project.org>`_ can be used to submit a number of worker processes directly to the HPC
 queuing system and then transfer tasks from either the login node or an interactive allocation to these worker processes
-to accelerate the execution, `mpi4py <https://mpi4py.readthedocs.io>`_ and :code:`pympipool` follow a different
-approach. Here the user creates their HPC allocation first and then `mpi4py <https://mpi4py.readthedocs.io>`_ or
+to accelerate the execution. By contrast, `mpi4py <https://mpi4py.readthedocs.io>`_ and :code:`pympipool` follow a different
+approach, in which the user creates their HPC allocation first and then `mpi4py <https://mpi4py.readthedocs.io>`_ or
 :code:`pympipool` can be used to distribute the tasks within this allocation. The advantage of this approach is that
 no central data storage is required as the workers and the scheduling task can communicate directly.
 
@@ -69,6 +67,7 @@ The same code can also be executed inside a jupyter notebook directly which enab
 The standard `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
 interface is extended by adding the option :code:`cores_per_worker=2` to assign multiple MPI ranks to each function call.
 To create two workers :code:`max_workers=2` each with two cores each requires a total of four CPU cores to be available.
+
 After submitting the function :code:`calc()` with the corresponding parameter to the executor :code:`exe.submit(calc, 0)`
 a python `concurrent.futures.Future <https://docs.python.org/3/library/concurrent.futures.html#future-objects>`_ is
 returned. Consequently, the :code:`pympipool.Executor` can be used as a drop-in replacement for the
