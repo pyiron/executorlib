@@ -6,10 +6,11 @@ on:
   schedule:
     - cron: '0 23 * * 2'
   workflow_dispatch:
+  pull_request:
 
 jobs:
   openmpi-on-macos-latest:
-    runs-on: macos-latest
+    runs-on: macos-11
     steps:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2.2.0
