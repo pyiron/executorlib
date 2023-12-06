@@ -5,6 +5,7 @@ name: Is-macos-latest-working-yet
 on:
   schedule:
     - cron: '0 23 * * 2'
+  workflow_dispatch:
 
 jobs:
   openmpi-on-macos-latest:
