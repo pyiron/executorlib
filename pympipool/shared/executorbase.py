@@ -174,7 +174,9 @@ def executor_broker(
         **kwargs,
     )
     while True:
-        if execute_task_dict(task_dict=future_queue.get(), meta_future_lst=meta_future_lst):
+        if execute_task_dict(
+            task_dict=future_queue.get(), meta_future_lst=meta_future_lst
+        ):
             future_queue.task_done()
         else:
             future_queue.task_done()
