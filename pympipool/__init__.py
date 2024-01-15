@@ -38,7 +38,6 @@ class Executor:
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        sleep_interval (float): synchronization interval - default 0.1
 
     Examples:
         ```
@@ -70,7 +69,6 @@ class Executor:
         oversubscribe=False,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1,
         executor=None,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
@@ -85,7 +83,6 @@ class Executor:
         oversubscribe=False,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1,
         executor=None,
     ):
         """
@@ -104,7 +101,6 @@ class Executor:
             oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
             init_function (None): optional function to preset arguments for functions which are submitted later
             cwd (str/None): current working directory where the parallel python task is executed
-            sleep_interval (float): synchronization interval - default 0.1
         """
         if flux_installed:
             if oversubscribe:
@@ -119,7 +115,6 @@ class Executor:
                 gpus_per_worker=gpus_per_worker,
                 init_function=init_function,
                 cwd=cwd,
-                sleep_interval=sleep_interval,
             )
         elif slurm_installed:
             return PySlurmExecutor(
@@ -127,7 +122,6 @@ class Executor:
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
                 cwd=cwd,
-                sleep_interval=sleep_interval,
             )
         else:
             if threads_per_core != 1:
@@ -149,5 +143,4 @@ class Executor:
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
                 cwd=cwd,
-                sleep_interval=sleep_interval,
             )

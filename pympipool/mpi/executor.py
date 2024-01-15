@@ -22,7 +22,7 @@ class PyMPIExecutor(ExecutorBase):
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        sleep_interval (float): synchronization interval - default 0.1
+
 
     Examples:
 
@@ -52,7 +52,6 @@ class PyMPIExecutor(ExecutorBase):
         oversubscribe=False,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -61,7 +60,6 @@ class PyMPIExecutor(ExecutorBase):
                 # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
-                "sleep_interval": sleep_interval,
                 "executor_class": PyMPISingleTaskExecutor,
                 # Executor Arguments
                 "cores": cores_per_worker,

@@ -26,7 +26,6 @@ class PyFluxExecutor(ExecutorBase):
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        sleep_interval (float): synchronization interval - default 0.1
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
 
     Examples:
@@ -58,7 +57,6 @@ class PyFluxExecutor(ExecutorBase):
         gpus_per_worker=0,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1,
         executor=None,
     ):
         super().__init__()
@@ -68,7 +66,6 @@ class PyFluxExecutor(ExecutorBase):
                 # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
-                "sleep_interval": sleep_interval,
                 "executor_class": PyFluxSingleTaskExecutor,
                 # Executor Arguments
                 "cores": cores_per_worker,

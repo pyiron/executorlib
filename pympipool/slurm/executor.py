@@ -55,7 +55,6 @@ class PySlurmExecutor(ExecutorBase):
         oversubscribe=False,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -64,7 +63,6 @@ class PySlurmExecutor(ExecutorBase):
                 # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
-                "sleep_interval": sleep_interval,
                 "executor_class": PySlurmSingleTaskExecutor,
                 # Executor Arguments
                 "cores": cores_per_worker,
