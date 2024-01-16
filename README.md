@@ -106,6 +106,7 @@ of workers can be specified with the `max_workers` parameter.
 ## Disclaimer
 While we try to develop a stable and reliable software library, the development remains a opensource project under the
 BSD 3-Clause License without any warranties::
+
 ```
 BSD 3-Clause License
 
