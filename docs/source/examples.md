@@ -14,7 +14,7 @@ with ThreadPoolExecutor(
     future = exe.submit(sum, [1, 1])
     print(future.result())
 ```
-In this case `max_workers=1` limits the number of threads uses by the `ThreadPoolExecutor` to one. Then the `sum()` 
+In this case `max_workers=1` limits the number of threads used by the `ThreadPoolExecutor` to one. Then the `sum()`
 function is submitted to the executor with a list with two ones `[1, 1]` as input. A [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
 object is returned. The `Future` object allows to check the status of the execution with the `done()` method which 
 returns `True` or `False` depending on the state of the execution. Or the main process can wait until the execution is 
