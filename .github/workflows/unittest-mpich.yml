@@ -16,9 +16,14 @@ jobs:
       matrix:
         include:
         - operating-system: macos-11
-          python-version: '3.11'
-          label: osx-64-py-3-11-mpich
+          python-version: '3.12'
+          label: osx-64-py-3-12-mpich
           prefix: /Users/runner/miniconda3/envs/my-env
+
+        - operating-system: ubuntu-latest
+          python-version: '3.12'
+          label: linux-64-py-3-12-mpich
+          prefix: /usr/share/miniconda3/envs/my-env
 
         - operating-system: ubuntu-latest
           python-version: '3.11'
