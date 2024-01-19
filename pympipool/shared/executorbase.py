@@ -53,10 +53,20 @@ class ExecutorBase(FutureExecutor):
         if cancel_futures:
             cancel_items_in_queue(que=self._future_queue)
         self._future_queue.put({"shutdown": True, "wait": wait})
-        self._process.join()
+        if wait:
+            self._process.join()
+            self._future_queue.join()
+        self._process = None
+        self._future_queue = None
 
     def __len__(self):
         return self._future_queue.qsize()
+
+    def __del__(self):
+        try:
+            self.shutdown(wait=False)
+        except (AttributeError, RuntimeError):
+            pass
 
     def _set_init_function(self, init_function):
         if init_function is not None:
@@ -134,6 +144,7 @@ def execute_parallel_tasks_loop(interface, future_queue):
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
+            future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             f = task_dict.pop("future")
@@ -174,11 +185,12 @@ def executor_broker(
                 future_queue.task_done()
             else:
                 future_queue.task_done()
+                future_queue.join()
                 break
 
 
 def execute_task_dict(task_dict, meta_future_lst):
-    if "fn" in task_dict.keys():
+    if "fn" in task_dict.keys() or "future" in task_dict.keys():
         meta_future = next(as_completed(meta_future_lst.keys()))
         executor = meta_future_lst.pop(meta_future)
         executor.future_queue.put(task_dict)

@@ -1,0 +1,38 @@
+name: Update Dependabot
+
+on:
+  pull_request_target:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: (github.actor == 'dependabot[bot]')
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }} # Check out the head of the actual branch, not the PR
+          fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+          token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
+      - name: UpdateEnvironmentFile
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        shell: bash -l {0}
+        run: |
+          package=$(echo "$PR_TITLE" | awk '{print $2}')
+          from=$(echo "$PR_TITLE" | awk '{print $4}')
+          to=$(echo "$PR_TITLE" | awk '{print $6}')
+          sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-mpich.yml
+          sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-openmpi.yml
+          sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-win.yml
+          sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-docs.yml
+      - name: UpdateDependabotPR commit
+        run: |
+          git config --local user.email "pyiron@mpie.de"
+          git config --local user.name "pyironrunner"
+          git commit -m "[dependabot skip] Update environment" -a
+      - name: UpdateDependabotPR push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
+          branch: ${{ github.event.pull_request.head.ref }}

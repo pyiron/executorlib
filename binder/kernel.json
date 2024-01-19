@@ -1,0 +1,16 @@
+{
+ "argv": [
+  "flux",
+  "start",
+  "/srv/conda/envs/notebook/bin/python",
+  "-m",
+  "ipykernel_launcher",
+  "-f",
+  "{connection_file}"
+ ],
+ "display_name": "Flux",
+ "language": "python",
+ "metadata": {
+  "debugger": true
+ }
+}

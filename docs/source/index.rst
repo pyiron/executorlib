@@ -1,32 +1,127 @@
-.. pympipool documentation master file, created by
-   sphinx-quickstart on Sat Jun 10 11:15:31 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+====================================================================
+pympipool - up-scale python functions for high performance computing
+====================================================================
 
-pympipool - scale python functions over multiple compute nodes
-==============================================================
+:Author:  Jan Janssen
+:Contact: janssen@lanl.gov
 
-Up-scaling python functions for high performance computing (HPC) can be challenging. While the python standard library provides interfaces for multiprocessing and asynchronous task execution, namely `multiprocessing <https://docs.python.org/3/library/multiprocessing.html>`_ and `concurrent.futures <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_ both are limited to the execution on a single compute node. So a series of python libraries have been developed to address the up-scaling of python functions for HPC. Starting in the datascience and machine learning community with solutions like `dask <https://www.dask.org>`_ over more HPC focused solutions like `parsl <http://parsl-project.org>`_ up to Python bindings for the message passing interface (MPI) named `mpi4py <https://mpi4py.readthedocs.io>`_. Each of these solutions has their advantages and disadvantages, in particular the mixing of MPI parallel python functions and serial python functions in combined workflows remains challenging.
+Up-scaling python functions for high performance computing (HPC) can be challenging. While the python standard library
+provides interfaces for multiprocessing and asynchronous task execution, namely
+`multiprocessing <https://docs.python.org/3/library/multiprocessing.html>`_ and
+`concurrent.futures <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_, both are
+limited to the execution on a single compute node. So a series of python libraries have been developed to address the
+up-scaling of python functions for HPC. Starting in the datascience and machine learning community with solutions
+like `dask <https://www.dask.org>`_, over to more HPC-focused solutions like
+`fireworks <https://materialsproject.github.io/fireworks/>`_ and `parsl <http://parsl-project.org>`_, up to Python
+bindings for the message passing interface (MPI) named `mpi4py <https://mpi4py.readthedocs.io>`_. Each of these
+solutions has its advantages and disadvantages. However, one disadvantage common to all these libraries is the relative difficulty of scaling from serial functions to functions that make use of thread-based, MPI-based, or GPU-based parallelism.
 
 To address these challenges :code:`pympipool` is developed with three goals in mind:
 
-* Reimplement the standard python library interfaces namely `multiprocessing.pool.Pool <https://docs.python.org/3/library/multiprocessing.html>`_ and `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_ as closely as possible, to minimize the barrier of up-scaling an existing workflow to be used on HPC resources.
-* Integrate MPI parallel python functions based on `mpi4py <https://mpi4py.readthedocs.io>`_ on the same level as serial python functions, so both can be combined in a single workflow. This allows the users to parallelize their workflows one function at a time. Internally this is achieved by coupling a serial python process to a MPI parallel python process.
+* Extend the standard python library `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_ interface, to minimize the barrier of up-scaling an existing workflow to be used on HPC resources.
+* Integrate thread-based parallelism, MPI-parallel python functions based on `mpi4py <https://mpi4py.readthedocs.io>`_, and GPU assignment. This allows users to accelerate their workflows one function at a time.
 * Embrace `Jupyter <https://jupyter.org>`_ notebooks for the interactive development of HPC workflows, as they allow the users to document their though process right next to the python code and their results all within one document.
 
-Features
+HPC Context
+-----------
+Frameworks like `dask <https://www.dask.org>`_, `fireworks <https://materialsproject.github.io/fireworks/>`_
+and `parsl <http://parsl-project.org>`_ can be used to submit a number of worker processes directly to the HPC
+queuing system and then transfer tasks from either the login node or an interactive allocation to these worker processes
+to accelerate the execution. By contrast, `mpi4py <https://mpi4py.readthedocs.io>`_ and :code:`pympipool` follow a different
+approach, in which the user creates their HPC allocation first and then `mpi4py <https://mpi4py.readthedocs.io>`_ or
+:code:`pympipool` can be used to distribute the tasks within this allocation. The advantage of this approach is that
+no central data storage is required as the workers and the scheduling task can communicate directly.
+
+Examples
 --------
-As different users and different workflows have different requirements in terms of the level of parallelization, the
-:code:`pympipool` implements a series of five different interfaces:
+The following examples illustrates how :code:`pympipool` can be used to distribute a series of MPI parallel function
+calls within a queuing system allocation. :code:`example.py`::
 
-* `pympipool.Pool <https://pympipool.readthedocs.io/en/latest/interfaces.html#pool>`_: Following the `multiprocessing.pool.Pool <https://docs.python.org/3/library/multiprocessing.html>`_ the :code:`pympipool.Pool` class implements the `map()` and `starmap()` functions. Internally these connect to an MPI parallel subprocess running the `mpi4py.futures.MPIPoolExecutor <https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html#mpipoolexecutor>`_. So by increasing the number of workers, by setting the :code:`max_workers` parameter the :code:`pympipool.Pool` can scale the execution of serial python functions beyond a single compute node. For MPI parallel python functions the :code:`pympipool.MPISpawnPool` is derived from the :code:`pympipool.Pool` and uses :code:`MPI_Spawn()` to execute those. For more details see below.
-* `pympipool.Executor <https://pympipool.readthedocs.io/en/latest/interfaces.html#executor>`_: The easiest way to execute MPI parallel python functions right next to serial python functions is the :code:`pympipool.Executor`. It implements the executor interface defined by the `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_. So functions are submitted to the :code:`pympipool.Executor` using the :code:`submit()` function, which returns an `concurrent.futures.Future <https://docs.python.org/3/library/concurrent.futures.html#future-objects>`_ object. With these `concurrent.futures.Future <https://docs.python.org/3/library/concurrent.futures.html#future-objects>`_ objects asynchronous workflows can be constructed which periodically check if the computation is completed `done()` and then query the results using the :code:`result()` function. The limitation of the :code:`pympipool.Executor` is lack of load balancing, each :code:`pympipool.Executor` acts as a serial first in first out (FIFO) queue. So it is the task of the user to balance the load of many different tasks over multiple :code:`pympipool.Executor` instances.
-* `pympipool.HPCExecutor <https://pympipool.readthedocs.io/en/latest/interfaces.html#hpcexecutor>`_: To address the limitation of the :code:`pympipool.Executor` that only a single task is executed at any time, the :code:`pympipool.HPCExecutor` provides a wrapper around multiple :code:`pympipool.Executor` objects. It balances the queues of the individual :code:`pympipool.Executor` objects to maximize the throughput for the given resources. This functionality comes  with an additional overhead of another thread, acting as a broker between the task queue of the :code:`pympipool.HPCExecutor` and the individual :code:`pympipool.Executor` objects.
-* `pympipool.PoolExecutor <https://pympipool.readthedocs.io/en/latest/interfaces.html#poolexecutor>`_: To combine the functionality of the :code:`pympipool.Pool` and the :code:`pympipool.Executor` the :code:`pympipool.PoolExecutor` again connects to the `mpi4py.futures.MPIPoolExecutor <https://mpi4py.readthedocs.io/en/stable/mpi4py.futures.html#mpipoolexecutor>`_. Still in contrast to the :code:`pympipool.Pool` it does not implement the :code:`map()` and :code:`starmap()` functions but rather the :code:`submit()` function based on the `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_ interface. In this case the load balancing happens internally and the maximum number of workers :code:`max_workers` defines the maximum number of parallel tasks. But only serial python tasks can be executed in contrast to the :code:`pympipool.Executor` which can also execute MPI parallel python tasks.
-* `pympipool.MPISpawnPool <https://pympipool.readthedocs.io/en/latest/interfaces.html#mpispawnpool>`_: An alternative way to support MPI parallel functions in addition to the :code:`pympipool.Executor` is the :code:`pympipool.MPISpawnPool`. Just like the :code:`pympipool.Pool` it supports the :code:`map()` and :code:`starmap()` functions. The additional :code:`ranks_per_task` parameter defines how many MPI ranks are used per task. All functions are executed with the same number of MPI ranks. The limitation of this approach is that it uses :code:`MPI_Spawn()` to create new MPI ranks for the execution of the individual tasks. Consequently, this approach is not as scalable as the :code:`pympipool.Executor` but it offers load balancing for a large number of similar MPI parallel tasks.
-* `pympipool.SocketInterface <https://pympipool.readthedocs.io/en/latest/interfaces.html#socketinterface>`_: The key functionality of the :code:`pympipool` package is the coupling of a serial python process with an MPI parallel python process. This happens in the background using a combination of the `zero message queue <https://zeromq.org>`_ and `cloudpickle <https://github.com/cloudpipe/cloudpickle>`_ to communicate binary python objects. The :code:`pympipool.SocketInterface` is an abstraction of this interface, which is used in the other classes inside :code:`pympipool` and might also be helpful for other projects.
+    from pympipool import Executor
 
-In addition to using MPI to start a number of processes on different HPC computing resources, :code:`pympipool` also supports the `flux-framework <https://flux-framework.org>`_ as additional backend. By setting the optional :code:`enable_flux_backend` parameter to :code:`True` the flux backend can be enabled for the :code:`pympipool.Pool`, :code:`pympipool.Executor` and :code:`pympipool.PoolExecutor`. Other optional parameters include the selection of the working directory where the python function should be executed :code:`cwd` and the option to oversubscribe MPI tasks which is an `OpenMPI <https://www.open-mpi.org>`_ specific feature which can be enabled by setting :code:`oversubscribe` to :code:`True`. For more details on the :code:`pympipool` classes and their application, the  extended documentation is linked below.
+    def calc(i):
+        from mpi4py import MPI
+        size = MPI.COMM_WORLD.Get_size()
+        rank = MPI.COMM_WORLD.Get_rank()
+        return i, size, rank
+
+    with Executor(max_workers=2, cores_per_worker=2) as exe:
+        fs_0 = exe.submit(calc, 0)
+        fs_1 = exe.submit(calc, 1)
+        print(fs_0.result(), fs_1.result())
+
+This example can be executed using::
+
+    python example.py
+
+Which returns::
+
+    [(0, 2, 0), (0, 2, 1)], [(1, 2, 0), (1, 2, 1)]
+
+The important part in this example is that `mpi4py <https://mpi4py.readthedocs.io>`_ is only used in the :code:`calc()`
+function, not in the python script, consequently it is not necessary to call the script with :code:`mpiexec` but instead
+a call with the regular python interpreter is sufficient. This highlights how :code:`pympipool` allows the users to
+parallelize one function at a time and not having to convert their whole workflow to use `mpi4py <https://mpi4py.readthedocs.io>`_.
+The same code can also be executed inside a jupyter notebook directly which enables an interactive development process.
+
+The standard `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
+interface is extended by adding the option :code:`cores_per_worker=2` to assign multiple MPI ranks to each function call.
+To create two workers :code:`max_workers=2` each with two cores each requires a total of four CPU cores to be available.
+
+After submitting the function :code:`calc()` with the corresponding parameter to the executor :code:`exe.submit(calc, 0)`
+a python `concurrent.futures.Future <https://docs.python.org/3/library/concurrent.futures.html#future-objects>`_ is
+returned. Consequently, the :code:`pympipool.Executor` can be used as a drop-in replacement for the
+`concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
+which allows the user to add parallelism to their workflow one function at a time.
+
+Backends
+--------
+Depending on the availability of different resource schedulers in your HPC environment the :code:`pympipool.Executor`
+uses a different backend, with the :code:`pympipool.flux.PyFluxExecutor` being the preferred backend:
+
+* :code:`pympipool.mpi.PyMpiExecutor`: The simplest executor of the three uses `mpi4py <https://mpi4py.readthedocs.io>`_ as a backend. This simplifies the installation on all operation systems including Windows. Still at the same time it limits the up-scaling to a single compute node and serial or MPI parallel python functions. There is no support for thread based parallelism or GPU assignment. This interface is primarily used for testing and developing or as a fall-back solution. It is not recommended to use this interface in production.
+* :code:`pympipool.slurm.PySlurmExecutor`: The `SLURM workload manager <https://www.schedmd.com>`_ is commonly used on HPC systems to schedule and distribute tasks. :code:`pympipool` provides a python interface for scheduling the execution of python functions as SLURM job steps which are typically created using the :code:`srun` command. This executor supports serial python functions, thread based parallelism, MPI based parallelism and the assignment of GPUs to individual python functions. When the `SLURM workload manager <https://www.schedmd.com>`_ is installed on your HPC cluster this interface can be a reasonable choice, still depending on the SLURM configuration in can be limited in terms of the fine-grained scheduling or the responsiveness when working with hundreds of compute nodes in an individual allocation.
+* :code:`pympipool.flux.PyFluxExecutor`: The `flux framework <https://flux-framework.org>`_ is the preferred backend for :code:`pympipool`. Just like the :code:`pympipool.slurm.PySlurmExecutor` it supports serial python functions, thread based parallelism, MPI based parallelism and the assignment of GPUs to individual python functions. Still the advantages of using the `flux framework <https://flux-framework.org>`_ as a backend are the easy installation, the faster allocation of resources as the resources are managed within the allocation and no central databases is used and the superior level of fine-grained resource assignment which is typically not available on HPC resource schedulers.
+
+Each of these backends consists of two parts a broker and a worker. When a new tasks is submitted from the user it is
+received by the broker and the broker identifies the first available worker. The worker then executes a task and returns
+it to the broker, who returns it to the user. While there is only one broker per :code:`pympipool.Executor` the number
+of workers can be specified with the :code:`max_workers` parameter.
+
+Disclaimer
+----------
+While we try to develop a stable and reliable software library, the development remains a opensource project under the
+BSD 3-Clause License without any warranties::
+
+    BSD 3-Clause License
+
+    Copyright (c) 2022, Jan Janssen
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright notice, this
+      list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+
+    * Neither the name of the copyright holder nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Documentation
 -------------
@@ -35,7 +130,7 @@ Documentation
    :maxdepth: 2
 
    installation
-   interfaces
+   examples
    development
 
 * :ref:`modindex`

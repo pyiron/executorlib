@@ -1,4 +1,6 @@
-name: Pip check
+# This workflow is used to run the unittest of pyiron
+
+name: Unittest Lower Bound
 
 on:
   push:
@@ -8,21 +10,28 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-        python-version: '3.11'
+        python-version: '3.9'
         mamba-version: "*"
         channels: conda-forge
         miniforge-variant: Mambaforge
         channel-priority: strict
         auto-update-conda: true
-        environment-file: .ci_support/environment-openmpi.yml
-    - name: Setup
+        environment-file: .ci_support/environment-old.yml
+    - name: Test
       shell: bash -l {0}
+      timeout-minutes: 5
       run: |
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
-        pip check
+        cd tests
+        python -m unittest discover .
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'

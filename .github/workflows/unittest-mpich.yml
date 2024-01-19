@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - operating-system: macos-latest
+        - operating-system: macos-11
           python-version: '3.12'
           label: osx-64-py-3-12-mpich
           prefix: /Users/runner/miniconda3/envs/my-env
@@ -56,10 +56,11 @@ jobs:
         channel-priority: strict
         auto-update-conda: true
         environment-file: .ci_support/environment-mpich.yml
-    - name: Setup
-      shell: bash -l {0}
-      run: pip install --no-deps .
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
-      run: for f in $(ls tests/test_*.py); do echo $f; python -m unittest $f; done
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        cd tests
+        python -m unittest discover .

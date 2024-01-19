@@ -1,38 +1,35 @@
-# This workflow is used to run the unittest of pyiron
+# We are waiting on the macos-latest image to play nicely with MPI
 
-name: Unittests-msmpi
+name: Is-macos-latest-working-yet
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  schedule:
+    - cron: '0 23 * * 2'
+  workflow_dispatch:
 
 jobs:
-  build:
-
-    runs-on: ${{ matrix.operating-system }}
-    strategy:
-      matrix:
-        operating-system: [windows-latest]
-        python-version: ['3.12']
-
+  openmpi-on-macos-latest:
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.11"
         mamba-version: "*"
         channels: conda-forge
         miniforge-variant: Mambaforge
         channel-priority: strict
         auto-update-conda: true
-        environment-file: .ci_support/environment-win.yml
+        environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}
-      timeout-minutes: 5
+      timeout-minutes: 10
       run: |
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
