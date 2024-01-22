@@ -37,6 +37,9 @@ Homepage = "https://github.com/pyiron/pympipool"
 Documentation = "https://pympipool.readthedocs.io"
 Repository = "https://github.com/pyiron/pympipool"
 
+[project.optional-dependencies]
+conda = ["conda_subprocess==0.0.1"]
+
 [tool.setuptools.packages.find]
 include = ["pympipool*"]
 

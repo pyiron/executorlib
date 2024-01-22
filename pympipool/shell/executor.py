@@ -5,12 +5,13 @@ from pympipool.shared.executorbase import executor_broker, ExecutorBase
 from pympipool.shared.thread import RaisingThread
 
 
-def execute_single_task(future_queue):
+def execute_single_task(future_queue, prefix_name=None, prefix_path=None):
     """
     Process items received via the queue.
 
     Args:
         future_queue (queue.Queue):
+
     """
     while True:
         task_dict = future_queue.get()
@@ -22,11 +23,22 @@ def execute_single_task(future_queue):
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 try:
-                    f.set_result(
-                        subprocess.check_output(
-                            *task_dict["args"], **task_dict["kwargs"]
+                    if prefix_name is None and prefix_path is None:
+                        f.set_result(
+                            subprocess.check_output(
+                                *task_dict["args"], **task_dict["kwargs"]
+                            )
                         )
-                    )
+                    else:
+                        import conda_subprocess
+                        f.set_result(
+                            conda_subprocess.check_output(
+                                *task_dict["args"],
+                                **task_dict["kwargs"],
+                                prefix_name=prefix_name,
+                                prefix_path=prefix_path,
+                            )
+                        )
                 except Exception as thread_exception:
                     future_queue.task_done()
                     f.set_exception(exception=thread_exception)
@@ -42,12 +54,14 @@ class SubprocessSingleExecutor(ExecutorBase):
     The pympipool.shell.SubprocessSingleExecutor is the internal worker for the pympipool.shell.SubprocessExecutor.
     """
 
-    def __init__(self):
+    def __init__(self, conda_environment_name=None, conda_environment_path=None):
         super().__init__()
         self._process = RaisingThread(
             target=execute_single_task,
             kwargs={
                 "future_queue": self._future_queue,
+                "prefix_name": conda_environment_name,
+                "prefix_path": conda_environment_path,
             },
         )
         self._process.start()
@@ -83,6 +97,8 @@ class SubprocessExecutor(ExecutorBase):
         self,
         max_workers=1,
         sleep_interval=0.1,
+        conda_environment_name=None,
+        conda_environment_path=None,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -93,6 +109,8 @@ class SubprocessExecutor(ExecutorBase):
                 "max_workers": max_workers,
                 "sleep_interval": sleep_interval,
                 "executor_class": SubprocessSingleExecutor,
+                "conda_environment_name": conda_environment_name,
+                "conda_environment_path": conda_environment_path,
             },
         )
         self._process.start()
