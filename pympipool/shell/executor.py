@@ -31,6 +31,7 @@ def execute_single_task(future_queue, prefix_name=None, prefix_path=None):
                         )
                     else:
                         import conda_subprocess
+
                         f.set_result(
                             conda_subprocess.check_output(
                                 *task_dict["args"],
