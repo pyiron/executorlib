@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         include:
-        - operating-system: macos-11
+        - operating-system: macos-13
           python-version: '3.12'
           label: osx-64-py-3-12-mpich
           prefix: /Users/runner/miniconda3/envs/my-env
