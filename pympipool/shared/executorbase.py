@@ -7,7 +7,6 @@ import inspect
 import os
 import queue
 import sys
-from time import sleep
 
 import cloudpickle
 
@@ -176,7 +175,6 @@ def executor_broker(
     future_queue,
     max_workers,
     executor_class,
-    sleep_interval=0.1,
     **kwargs,
 ):
     meta_future_lst = _get_executor_dict(
@@ -185,17 +183,14 @@ def executor_broker(
         **kwargs,
     )
     while True:
-        try:
-            task_dict = future_queue.get_nowait()
-        except queue.Empty:
-            sleep(sleep_interval)
+        if execute_task_dict(
+            task_dict=future_queue.get(), meta_future_lst=meta_future_lst
+        ):
+            future_queue.task_done()
         else:
-            if execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
-                future_queue.task_done()
-            else:
-                future_queue.task_done()
-                future_queue.join()
-                break
+            future_queue.task_done()
+            future_queue.join()
+            break
 
 
 def execute_task_dict(task_dict, meta_future_lst):
