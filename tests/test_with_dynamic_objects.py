@@ -107,7 +107,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             dynamic_42.result,
             msg="Just a sanity check that the test is set up right"
         )
-        executor = Executor()
+        executor = Executor(hostname_localhost=True)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
         self.assertFalse(
@@ -139,7 +139,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             dynamic_42.running,
             msg="Sanity check that the test starts in the expected condition"
         )
-        executor = Executor()
+        executor = Executor(hostname_localhost=True)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
         self.assertTrue(
@@ -162,7 +162,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             raise RuntimeError
 
         re = raise_error()
-        executor = Executor()
+        executor = Executor(hostname_localhost=True)
         fs = executor.submit(re.run)
         with self.assertRaises(
             RuntimeError,
@@ -191,7 +191,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return inside_variable
 
         dynamic_dynamic = slowly_returns_dynamic()
-        executor = Executor()
+        executor = Executor(hostname_localhost=True)
         fs = executor.submit(dynamic_dynamic.run)
         self.assertIsInstance(
             fs.result(),
@@ -219,7 +219,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return fortytwo
 
         f = slow()
-        executor = Executor()
+        executor = Executor(hostname_localhost=True)
         fs = executor.submit(f.run)
         self.assertEqual(
             fs.result(timeout=30),
