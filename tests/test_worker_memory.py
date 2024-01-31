@@ -17,7 +17,7 @@ def set_global():
 
 class TestWorkerMemory(unittest.TestCase):
     def test_internal_memory(self):
-        with PyMPISingleTaskExecutor(cores=1, init_function=set_global) as p:
+        with PyMPISingleTaskExecutor(cores=1, init_function=set_global, hostname_localhost=True) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
@@ -44,6 +44,7 @@ class TestWorkerMemory(unittest.TestCase):
             cores=1,
             oversubscribe=False,
             interface_class=MpiExecInterface,
+            hostname_localhost=True,
         )
         self.assertEqual(f.result(), np.array([5]))
         q.join()

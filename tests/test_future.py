@@ -11,7 +11,7 @@ def calc(i):
 
 class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
-        with PyMPISingleTaskExecutor(cores=1) as p:
+        with PyMPISingleTaskExecutor(cores=1, hostname_localhost=True) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
@@ -20,7 +20,7 @@ class TestFuture(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_pool_serial_multi_core(self):
-        with PyMPISingleTaskExecutor(cores=2) as p:
+        with PyMPISingleTaskExecutor(cores=2, hostname_localhost=True) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
@@ -48,7 +48,7 @@ class TestFuture(unittest.TestCase):
             def submit():
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
-                future = PyMPISingleTaskExecutor().submit(slow_callable)
+                future = PyMPISingleTaskExecutor(hostname_localhost=True).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
 
@@ -84,7 +84,7 @@ class TestFuture(unittest.TestCase):
                 def run(self):
                     self.running = True
 
-                    future = PyMPISingleTaskExecutor().submit(self.return_42)
+                    future = PyMPISingleTaskExecutor(hostname_localhost=True).submit(self.return_42)
                     future.add_done_callback(self.finished)
 
                     return future

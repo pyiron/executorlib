@@ -70,6 +70,7 @@ class Executor:
         init_function=None,
         cwd=None,
         executor=None,
+        hostname_localhost=False,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
@@ -84,6 +85,7 @@ class Executor:
         init_function=None,
         cwd=None,
         executor=None,
+        hostname_localhost=False,
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -115,6 +117,7 @@ class Executor:
                 gpus_per_worker=gpus_per_worker,
                 init_function=init_function,
                 cwd=cwd,
+                hostname_localhost=hostname_localhost,
             )
         elif slurm_installed:
             return PySlurmExecutor(
@@ -122,6 +125,7 @@ class Executor:
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
                 cwd=cwd,
+                hostname_localhost=hostname_localhost,
             )
         else:
             if threads_per_core != 1:
@@ -143,4 +147,5 @@ class Executor:
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
                 cwd=cwd,
+                hostname_localhost=hostname_localhost,
             )

@@ -27,6 +27,7 @@ class PyFluxExecutor(ExecutorBase):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
+        hostname_localhost (boolean): use localhost as hostname to establish the zmq connection
 
     Examples:
 
@@ -58,6 +59,7 @@ class PyFluxExecutor(ExecutorBase):
         init_function=None,
         cwd=None,
         executor=None,
+        hostname_localhost=False,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -66,6 +68,7 @@ class PyFluxExecutor(ExecutorBase):
                 # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
+                "hostname_localhost": hostname_localhost,
                 "executor_class": PyFluxSingleTaskExecutor,
                 # Executor Arguments
                 "cores": cores_per_worker,
@@ -90,6 +93,8 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
+        hostname_localhost (boolean): use localhost as hostname to establish the zmq connection
+
     """
 
     def __init__(
@@ -100,6 +105,7 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
         init_function=None,
         cwd=None,
         executor=None,
+        hostname_localhost=False,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -109,6 +115,7 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "cores": cores,
                 "interface_class": FluxPythonInterface,
+                "hostname_localhost": hostname_localhost,
                 # Interface Arguments
                 "threads_per_core": threads_per_core,
                 "gpus_per_core": gpus_per_task,

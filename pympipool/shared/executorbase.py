@@ -118,6 +118,7 @@ def execute_parallel_tasks(
     future_queue,
     cores,
     interface_class,
+    hostname_localhost=False,
     **kwargs,
 ):
     """
@@ -127,11 +128,13 @@ def execute_parallel_tasks(
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
        interface_class:
+       hostname_localhost (boolean): use localhost as hostname to establish the zmq connection
     """
     execute_parallel_tasks_loop(
         interface=interface_bootup(
             command_lst=_get_backend_path(cores=cores),
             connections=interface_class(cores=cores, **kwargs),
+            hostname_localhost=hostname_localhost,
         ),
         future_queue=future_queue,
     )

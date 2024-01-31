@@ -98,11 +98,13 @@ class SocketInterface(object):
 def interface_bootup(
     command_lst,
     connections,
+    hostname_localhost=False,
 ):
-    command_lst += [
-        "--host",
-        gethostname(),
-    ]
+    if not hostname_localhost:
+        command_lst += [
+            "--host",
+            gethostname(),
+        ]
     interface = SocketInterface(interface=connections)
     command_lst += [
         "--zmqport",
