@@ -99,10 +99,10 @@ def interface_bootup(
     command_lst,
     connections,
 ):
-    command_lst += [
-        "--host",
-        gethostname(),
-    ]
+    # command_lst += [
+    #     "--host",
+    #     gethostname(),
+    # ]
     interface = SocketInterface(interface=connections)
     command_lst += [
         "--zmqport",
