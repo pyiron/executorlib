@@ -100,6 +100,24 @@ def interface_bootup(
     connections,
     hostname_localhost=False,
 ):
+    """
+    Start interface for ZMQ communication
+
+    Args:
+        command_lst (list): List of commands as strings
+        connections (pympipool.shared.interface.BaseInterface): Interface to start parallel process, like MPI, SLURM or
+                                                                Flux
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
+
+    Returns:
+         pympipool.shared.communication.SocketInterface: socket interface for zmq communication
+    """
     if not hostname_localhost:
         command_lst += [
             "--host",

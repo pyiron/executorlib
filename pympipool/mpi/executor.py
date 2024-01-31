@@ -22,7 +22,13 @@ class PyMPIExecutor(ExecutorBase):
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        hostname_localhost (boolean): use localhost as hostname to establish the zmq connection
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
 
     Examples:
 
@@ -82,7 +88,13 @@ class PyMPISingleTaskExecutor(ExecutorBase):
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        hostname_localhost (boolean): use localhost as hostname to establish the zmq connection
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
 
     """
 
