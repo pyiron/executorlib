@@ -48,7 +48,7 @@ class TestFuture(unittest.TestCase):
             def submit():
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
-                future = PyMPISingleTaskExecutor().submit(slow_callable)
+                future = PyMPISingleTaskExecutor(hostname_localhost=True).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
 

@@ -114,6 +114,6 @@ class TestMetaExecutor(unittest.TestCase):
 
     def test_errors(self):
         with self.assertRaises(TypeError):
-            PyMPIExecutor(max_workers=1, cores_per_worker=1, threads_per_core=2)
+            PyMPIExecutor(max_workers=1, cores_per_worker=1, threads_per_core=2, hostname_localhost=True)
         with self.assertRaises(TypeError):
-            PyMPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_worker=1)
+            PyMPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_worker=1, hostname_localhost=True)
