@@ -75,7 +75,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return dynamic_arg
 
         dynamic_dynamic = slowly_returns_dynamic()
-        executor = Executor()
+        executor = Executor(hostname_localhost=True)
         dynamic_object = does_nothing()
         fs = executor.submit(dynamic_dynamic.run, dynamic_object)
         self.assertEqual(

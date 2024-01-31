@@ -72,6 +72,7 @@ class Executor:
         cwd=None,
         sleep_interval=0.1,
         executor=None,
+        hostname_localhost=False,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
@@ -87,6 +88,7 @@ class Executor:
         cwd=None,
         sleep_interval=0.1,
         executor=None,
+        hostname_localhost=False,
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -120,6 +122,7 @@ class Executor:
                 init_function=init_function,
                 cwd=cwd,
                 sleep_interval=sleep_interval,
+                hostname_localhost=hostname_localhost,
             )
         elif slurm_installed:
             return PySlurmExecutor(
@@ -128,6 +131,7 @@ class Executor:
                 init_function=init_function,
                 cwd=cwd,
                 sleep_interval=sleep_interval,
+                hostname_localhost=hostname_localhost,
             )
         else:
             if threads_per_core != 1:
@@ -150,4 +154,5 @@ class Executor:
                 init_function=init_function,
                 cwd=cwd,
                 sleep_interval=sleep_interval,
+                hostname_localhost=hostname_localhost,
             )

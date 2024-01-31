@@ -23,6 +23,7 @@ class PyMPIExecutor(ExecutorBase):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         sleep_interval (float): synchronization interval - default 0.1
+        hostname_localhost (boolean): use localhost as hostname to establish the zmq connection
 
     Examples:
 
@@ -53,6 +54,7 @@ class PyMPIExecutor(ExecutorBase):
         init_function=None,
         cwd=None,
         sleep_interval=0.1,
+        hostname_localhost=False,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -63,6 +65,7 @@ class PyMPIExecutor(ExecutorBase):
                 "max_workers": max_workers,
                 "sleep_interval": sleep_interval,
                 "executor_class": PyMPISingleTaskExecutor,
+                "hostname_localhost": hostname_localhost,
                 # Executor Arguments
                 "cores": cores_per_worker,
                 "oversubscribe": oversubscribe,
@@ -82,6 +85,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
+        hostname_localhost (boolean): use localhost as hostname to establish the zmq connection
 
     """
 
@@ -91,6 +95,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
         oversubscribe=False,
         init_function=None,
         cwd=None,
+        hostname_localhost=False,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -103,6 +108,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
                 # Interface Arguments
                 "cwd": cwd,
                 "oversubscribe": oversubscribe,
+                "hostname_localhost": hostname_localhost,
             },
         )
         self._process.start()
