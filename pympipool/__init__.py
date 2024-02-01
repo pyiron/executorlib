@@ -38,7 +38,13 @@ class Executor:
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        sleep_interval (float): synchronization interval - default 0.1
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
 
     Examples:
         ```
@@ -70,8 +76,8 @@ class Executor:
         oversubscribe=False,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1,
         executor=None,
+        hostname_localhost=False,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
@@ -85,8 +91,8 @@ class Executor:
         oversubscribe=False,
         init_function=None,
         cwd=None,
-        sleep_interval=0.1,
         executor=None,
+        hostname_localhost=False,
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -104,7 +110,14 @@ class Executor:
             oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
             init_function (None): optional function to preset arguments for functions which are submitted later
             cwd (str/None): current working directory where the parallel python task is executed
-            sleep_interval (float): synchronization interval - default 0.1
+            hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
+
         """
         if flux_installed:
             if oversubscribe:
@@ -119,7 +132,7 @@ class Executor:
                 gpus_per_worker=gpus_per_worker,
                 init_function=init_function,
                 cwd=cwd,
-                sleep_interval=sleep_interval,
+                hostname_localhost=hostname_localhost,
             )
         elif slurm_installed:
             return PySlurmExecutor(
@@ -127,7 +140,7 @@ class Executor:
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
                 cwd=cwd,
-                sleep_interval=sleep_interval,
+                hostname_localhost=hostname_localhost,
             )
         else:
             if threads_per_core != 1:
@@ -149,5 +162,5 @@ class Executor:
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
                 cwd=cwd,
-                sleep_interval=sleep_interval,
+                hostname_localhost=hostname_localhost,
             )

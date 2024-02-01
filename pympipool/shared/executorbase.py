@@ -7,7 +7,6 @@ import inspect
 import os
 import queue
 import sys
-from time import sleep
 
 import cloudpickle
 
@@ -119,6 +118,7 @@ def execute_parallel_tasks(
     future_queue,
     cores,
     interface_class,
+    hostname_localhost=False,
     **kwargs,
 ):
     """
@@ -128,11 +128,19 @@ def execute_parallel_tasks(
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
        interface_class:
+       hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                     context of an HPC cluster this essential to be able to communicate to an
+                                     Executor running on a different compute node within the same allocation. And
+                                     in principle any computer should be able to resolve that their own hostname
+                                     points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                     this look up for security reasons. So on MacOS it is required to set this
+                                     option to true
     """
     execute_parallel_tasks_loop(
         interface=interface_bootup(
             command_lst=_get_backend_path(cores=cores),
             connections=interface_class(cores=cores, **kwargs),
+            hostname_localhost=hostname_localhost,
         ),
         future_queue=future_queue,
     )
@@ -167,7 +175,6 @@ def executor_broker(
     future_queue,
     max_workers,
     executor_class,
-    sleep_interval=0.1,
     **kwargs,
 ):
     meta_future_lst = _get_executor_dict(
@@ -176,17 +183,14 @@ def executor_broker(
         **kwargs,
     )
     while True:
-        try:
-            task_dict = future_queue.get_nowait()
-        except queue.Empty:
-            sleep(sleep_interval)
+        if execute_task_dict(
+            task_dict=future_queue.get(), meta_future_lst=meta_future_lst
+        ):
+            future_queue.task_done()
         else:
-            if execute_task_dict(task_dict=task_dict, meta_future_lst=meta_future_lst):
-                future_queue.task_done()
-            else:
-                future_queue.task_done()
-                future_queue.join()
-                break
+            future_queue.task_done()
+            future_queue.join()
+            break
 
 
 def execute_task_dict(task_dict, meta_future_lst):
