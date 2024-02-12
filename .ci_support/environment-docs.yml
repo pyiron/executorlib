@@ -9,6 +9,6 @@ dependencies:
 - openmpi
 - cloudpickle =3.0.0
 - mpi4py =3.1.5
-- tqdm =4.66.1
+- tqdm =4.66.2
 - pyzmq =25.1.2
 - flux-core
