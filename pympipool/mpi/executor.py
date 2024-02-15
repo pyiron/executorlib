@@ -22,6 +22,7 @@ class PyMPIExecutor(ExecutorBase):
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
+        sleep_interval (float): synchronization interval - default 0.1
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -58,6 +59,7 @@ class PyMPIExecutor(ExecutorBase):
         oversubscribe=False,
         init_function=None,
         cwd=None,
+        sleep_interval=0.1,
         hostname_localhost=False,
     ):
         super().__init__()
@@ -67,6 +69,7 @@ class PyMPIExecutor(ExecutorBase):
                 # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
+                "sleep_interval": sleep_interval,
                 "executor_class": PyMPISingleTaskExecutor,
                 "hostname_localhost": hostname_localhost,
                 # Executor Arguments

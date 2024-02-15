@@ -67,6 +67,7 @@ class SubprocessExecutor(ExecutorBase):
 
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
+        sleep_interval (float): synchronization interval - default 0.1
 
     Examples:
 
@@ -81,6 +82,7 @@ class SubprocessExecutor(ExecutorBase):
     def __init__(
         self,
         max_workers=1,
+        sleep_interval=0.1,
     ):
         super().__init__()
         self._process = RaisingThread(
@@ -89,6 +91,7 @@ class SubprocessExecutor(ExecutorBase):
                 # Broker Arguments
                 "future_queue": self._future_queue,
                 "max_workers": max_workers,
+                "sleep_interval": sleep_interval,
                 "executor_class": SubprocessSingleExecutor,
             },
         )
