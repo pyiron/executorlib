@@ -62,11 +62,9 @@ class MpiExecInterface(SubprocessInterface):
             cores=self._cores,
             oversubscribe=self._oversubscribe,
         )
-        command_final_lst = super().generate_command(
+        return super().generate_command(
             command_lst=command_prepend_lst + command_lst,
         )
-        print(command_final_lst)
-        return command_final_lst
 
 
 class SrunInterface(SubprocessInterface):
