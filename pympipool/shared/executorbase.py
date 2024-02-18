@@ -53,7 +53,7 @@ class ExecutorBase(FutureExecutor):
         if cancel_futures:
             cancel_items_in_queue(que=self._future_queue)
         self._future_queue.put({"shutdown": True, "wait": wait})
-        if wait:
+        if wait and self._process is not None:
             self._process.join()
             self._future_queue.join()
         self._process = None
@@ -90,12 +90,13 @@ class ExecutorBroker(ExecutorBase):
         """
         if cancel_futures:
             cancel_items_in_queue(que=self._future_queue)
-        for _ in range(len(self._process)):
-            self._future_queue.put({"shutdown": True, "wait": wait})
-        if wait:
-            for process in self._process:
-                process.join()
-            self._future_queue.join()
+        if self._process is not None:
+            for _ in range(len(self._process)):
+                self._future_queue.put({"shutdown": True, "wait": wait})
+            if wait:
+                for process in self._process:
+                    process.join()
+                self._future_queue.join()
         self._process = None
         self._future_queue = None
 
