@@ -144,7 +144,9 @@ def execute_parallel_tasks(
 
 def execute_parallel_tasks_loop(interface, future_queue, init_function=None):
     if init_function is not None:
-        interface.send_dict(input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}})
+        interface.send_dict(
+            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+        )
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
