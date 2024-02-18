@@ -46,7 +46,7 @@ jobs:
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         cd tests
-        coverage run --omit="pympipool/_version.py,tests/*" -m unittest discover .
+        coverage run --omit="pympipool/_version.py,test_*" -m unittest discover .
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
@@ -56,7 +56,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        coverage run --omit="pympipool/_version.py,test_*" -m unittest tests/test_flux.py;
+        coverage run --omit="pympipool/_version.py,tests/*" -m unittest tests/test_flux.py;
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
