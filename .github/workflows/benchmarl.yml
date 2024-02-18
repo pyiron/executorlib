@@ -42,7 +42,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 10
       run: |
-        mamba install -y flux-core=0.58.0 coverage
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         python tests/benchmark/llh.py static >> timing.log
@@ -50,22 +49,8 @@ jobs:
         python tests/benchmark/llh.py thread >> timing.log
         mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py >> timing.log
         python tests/benchmark/llh.py pympipool >> timing.log
-      env:
-        OMPI_MCA_plm: 'isolated'
-        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
-        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
-    - name: Test Flux
-      shell: bash -l {0}
-      timeout-minutes: 5
-      run: >
-        flux start
-        python tests/benchmark/llh.py flux >> timing.log
-      env:
-        OMPI_MCA_plm: 'isolated'
-        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
-        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
-    - name: Analyse log
-      shell: bash -l {0}
-      timeout-minutes: 5
-      run: |
         cat timing.log
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
