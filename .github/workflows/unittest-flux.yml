@@ -63,5 +63,5 @@ jobs:
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
     - name: Coveralls
-      if:  matrix.label == 'linux-64-py-3-11-openmpi'
+      if:  matrix.label == 'linux-64-py-3-12-openmpi'
       uses: coverallsapp/github-action@v2
