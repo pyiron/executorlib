@@ -3,7 +3,7 @@ import numpy as np
 from queue import Queue
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
-from pympipool.mpi.executor import PyMPISingleTaskExecutor, MpiExecInterface
+from pympipool.mpi.executor import PyMPIExecutor, MpiExecInterface
 from concurrent.futures import Future
 
 
@@ -17,7 +17,7 @@ def set_global():
 
 class TestWorkerMemory(unittest.TestCase):
     def test_internal_memory(self):
-        with PyMPISingleTaskExecutor(cores=1, init_function=set_global, hostname_localhost=True) as p:
+        with PyMPIExecutor(max_workers=1, cores_per_worker=1, init_function=set_global, hostname_localhost=True) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))

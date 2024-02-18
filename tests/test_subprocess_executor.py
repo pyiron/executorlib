@@ -3,7 +3,7 @@ import queue
 
 from unittest import TestCase
 
-from pympipool.shell.executor import SubprocessSingleExecutor, SubprocessExecutor, execute_single_task
+from pympipool.shell.executor import SubprocessExecutor, execute_single_task
 
 
 class SubprocessExecutorTest(TestCase):
@@ -18,21 +18,21 @@ class SubprocessExecutorTest(TestCase):
         self.assertEqual("test\n", f.result())
 
     def test_shell_static_executor_args(self):
-        with SubprocessSingleExecutor() as exe:
+        with SubprocessExecutor(max_workers=1) as exe:
             future = exe.submit(["echo", "test"], universal_newlines=True, shell=False)
             self.assertFalse(future.done())
             self.assertEqual("test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_static_executor_binary(self):
-        with SubprocessSingleExecutor() as exe:
+        with SubprocessExecutor(max_workers=1) as exe:
             future = exe.submit(["echo", "test"], universal_newlines=False, shell=False)
             self.assertFalse(future.done())
             self.assertEqual(b"test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_static_executor_shell(self):
-        with SubprocessSingleExecutor() as exe:
+        with SubprocessExecutor(max_workers=1) as exe:
             future = exe.submit("echo test", universal_newlines=True, shell=True)
             self.assertFalse(future.done())
             self.assertEqual("test\n", future.result())

@@ -107,13 +107,14 @@ class ShellExecutor(ExecutorBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
-        self._process = RaisingThread(
-            target=execute_single_task,
-            kwargs={
-                "future_queue": self._future_queue,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=execute_single_task,
+                kwargs={
+                    "future_queue": self._future_queue,
+                },
+            ),
         )
-        self._process.start()
         self._future_queue.put({"init": True, "args": args, "kwargs": kwargs})
 
     def submit(self, string_input, lines_to_read=None, stop_read_pattern=None):

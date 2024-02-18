@@ -15,6 +15,7 @@ from pympipool.shared.communication import interface_bootup
 
 class ExecutorBase(FutureExecutor):
     def __init__(self):
+        cloudpickle_register(ind=3)
         self._future_queue = queue.Queue()
         self._process = None
 
@@ -58,6 +59,10 @@ class ExecutorBase(FutureExecutor):
         self._process = None
         self._future_queue = None
 
+    def _set_process(self, process):
+        self._process = process
+        self._process.start()
+
     def __len__(self):
         return self._future_queue.qsize()
 
@@ -66,6 +71,38 @@ class ExecutorBase(FutureExecutor):
             self.shutdown(wait=False)
         except (AttributeError, RuntimeError):
             pass
+
+
+class ExecutorBroker(ExecutorBase):
+    def shutdown(self, wait=True, *, cancel_futures=False):
+        """Clean-up the resources associated with the Executor.
+
+        It is safe to call this method several times. Otherwise, no other
+        methods can be called after this one.
+
+        Args:
+            wait: If True then shutdown will not return until all running
+                futures have finished executing and the resources used by the
+                parallel_executors have been reclaimed.
+            cancel_futures: If True then shutdown will cancel all pending
+                futures. Futures that are completed or running will not be
+                cancelled.
+        """
+        if cancel_futures:
+            cancel_items_in_queue(que=self._future_queue)
+        for _ in range(len(self._process)):
+            self._future_queue.put({"shutdown": True, "wait": wait})
+        if wait:
+            for process in self._process:
+                process.join()
+            self._future_queue.join()
+        self._process = None
+        self._future_queue = None
+
+    def _set_process(self, process):
+        self._process = process
+        for process in self._process:
+            process.start()
 
 
 def cancel_items_in_queue(que):
@@ -166,43 +203,6 @@ def execute_parallel_tasks_loop(interface, future_queue, init_function=None):
                     future_queue.task_done()
 
 
-def executor_broker(
-    future_queue,
-    max_workers,
-    executor_class,
-    **kwargs,
-):
-    meta_future_lst = _get_executor_dict(
-        max_workers=max_workers,
-        executor_class=executor_class,
-        **kwargs,
-    )
-    while True:
-        if execute_task_dict(
-            task_dict=future_queue.get(), meta_future_lst=meta_future_lst
-        ):
-            future_queue.task_done()
-        else:
-            future_queue.task_done()
-            future_queue.join()
-            break
-
-
-def execute_task_dict(task_dict, meta_future_lst):
-    if "fn" in task_dict.keys() or "future" in task_dict.keys():
-        meta_future = next(as_completed(meta_future_lst.keys()))
-        executor = meta_future_lst.pop(meta_future)
-        executor.future_queue.put(task_dict)
-        meta_future_lst[task_dict["future"]] = executor
-        return True
-    elif "shutdown" in task_dict.keys() and task_dict["shutdown"]:
-        for executor in meta_future_lst.values():
-            executor.shutdown(wait=task_dict["wait"])
-        return False
-    else:
-        raise ValueError("Unrecognized Task in task_dict: ", task_dict)
-
-
 def _get_backend_path(cores):
     command_lst = [sys.executable]
     if cores > 1:
@@ -214,13 +214,3 @@ def _get_backend_path(cores):
 
 def _get_command_path(executable):
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
-
-
-def _get_executor_dict(max_workers, executor_class, **kwargs):
-    return {_get_future_done(): executor_class(**kwargs) for _ in range(max_workers)}
-
-
-def _get_future_done():
-    f = Future()
-    f.set_result(True)
-    return f

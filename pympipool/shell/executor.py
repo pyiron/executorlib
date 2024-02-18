@@ -1,7 +1,7 @@
 from concurrent.futures import Future
 import subprocess
 
-from pympipool.shared.executorbase import executor_broker, ExecutorBase
+from pympipool.shared.executorbase import ExecutorBroker
 from pympipool.shared.thread import RaisingThread
 
 
@@ -37,28 +37,7 @@ def execute_single_task(future_queue):
             raise KeyError(task_dict)
 
 
-class SubprocessSingleExecutor(ExecutorBase):
-    """
-    The pympipool.shell.SubprocessSingleExecutor is the internal worker for the pympipool.shell.SubprocessExecutor.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self._process = RaisingThread(
-            target=execute_single_task,
-            kwargs={
-                "future_queue": self._future_queue,
-            },
-        )
-        self._process.start()
-
-    def submit(self, *args, **kwargs):
-        f = Future()
-        self._future_queue.put({"future": f, "args": args, "kwargs": kwargs})
-        return f
-
-
-class SubprocessExecutor(ExecutorBase):
+class SubprocessExecutor(ExecutorBroker):
     """
     The pympipool.shell.SubprocessExecutor enables the submission of command line calls via the subprocess.check_output()
     interface of the python standard library. It is based on the concurrent.futures.Executor class and returns a
@@ -83,16 +62,18 @@ class SubprocessExecutor(ExecutorBase):
         max_workers=1,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=executor_broker,
-            kwargs={
-                # Broker Arguments
-                "future_queue": self._future_queue,
-                "max_workers": max_workers,
-                "executor_class": SubprocessSingleExecutor,
-            },
+        self._set_process(
+            process=[
+                RaisingThread(
+                    target=execute_single_task,
+                    kwargs={
+                        # Executor Arguments
+                        "future_queue": self._future_queue,
+                    },
+                )
+                for _ in range(max_workers)
+            ],
         )
-        self._process.start()
 
     def submit(self, *args, **kwargs):
         """
