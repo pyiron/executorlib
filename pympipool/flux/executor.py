@@ -3,8 +3,6 @@ import os
 import flux.job
 
 from pympipool.shared.executorbase import (
-    cloudpickle_register,
-    ExecutorBase,
     ExecutorBroker,
     execute_parallel_tasks,
 )
