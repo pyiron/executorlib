@@ -44,4 +44,4 @@ if __name__ == "__main__":
     else:
         raise ValueError(run_mode)
     stop_time = time()
-    print("Result:", stop_time-start_time)
+    print(run_mode, stop_time-start_time)

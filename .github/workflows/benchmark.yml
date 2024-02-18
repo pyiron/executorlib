@@ -50,6 +50,7 @@ jobs:
         mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py >> timing.log
         python tests/benchmark/llh.py pympipool >> timing.log
         cat timing.log
+        python -m unittest tests/benchmark/test_results.py
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
