@@ -98,10 +98,13 @@ class SrunInterface(SubprocessInterface):
 
 
 def generate_mpiexec_command(cores, oversubscribe=False):
-    command_prepend_lst = [MPI_COMMAND, "-n", str(cores)]
-    if oversubscribe:
-        command_prepend_lst += ["--oversubscribe"]
-    return command_prepend_lst
+    if cores == 1:
+        return []
+    else:
+        command_prepend_lst = [MPI_COMMAND, "-n", str(cores)]
+        if oversubscribe:
+            command_prepend_lst += ["--oversubscribe"]
+        return command_prepend_lst
 
 
 def generate_slurm_command(
