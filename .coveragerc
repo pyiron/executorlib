@@ -1,5 +1,0 @@
-# .coveragerc to control coverage.py
-[run]
-source = pympipool
-omit = pympipool/_version.py
-concurrency = multiprocessing
