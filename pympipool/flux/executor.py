@@ -68,24 +68,25 @@ class PyFluxExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=executor_broker,
-            kwargs={
-                # Broker Arguments
-                "future_queue": self._future_queue,
-                "max_workers": max_workers,
-                "hostname_localhost": hostname_localhost,
-                "executor_class": PyFluxSingleTaskExecutor,
-                # Executor Arguments
-                "cores": cores_per_worker,
-                "threads_per_core": threads_per_core,
-                "gpus_per_task": int(gpus_per_worker / cores_per_worker),
-                "init_function": init_function,
-                "cwd": cwd,
-                "executor": executor,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=executor_broker,
+                kwargs={
+                    # Broker Arguments
+                    "future_queue": self._future_queue,
+                    "max_workers": max_workers,
+                    "hostname_localhost": hostname_localhost,
+                    "executor_class": PyFluxSingleTaskExecutor,
+                    # Executor Arguments
+                    "cores": cores_per_worker,
+                    "threads_per_core": threads_per_core,
+                    "gpus_per_task": int(gpus_per_worker / cores_per_worker),
+                    "init_function": init_function,
+                    "cwd": cwd,
+                    "executor": executor,
+                },
+            )
         )
-        self._process.start()
 
 
 class PyFluxSingleTaskExecutor(ExecutorBase):
@@ -120,22 +121,23 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=execute_parallel_tasks,
-            kwargs={
-                # Executor Arguments
-                "future_queue": self._future_queue,
-                "cores": cores,
-                "interface_class": FluxPythonInterface,
-                "hostname_localhost": hostname_localhost,
-                # Interface Arguments
-                "threads_per_core": threads_per_core,
-                "gpus_per_core": gpus_per_task,
-                "cwd": cwd,
-                "executor": executor,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=execute_parallel_tasks,
+                kwargs={
+                    # Executor Arguments
+                    "future_queue": self._future_queue,
+                    "cores": cores,
+                    "interface_class": FluxPythonInterface,
+                    "hostname_localhost": hostname_localhost,
+                    # Interface Arguments
+                    "threads_per_core": threads_per_core,
+                    "gpus_per_core": gpus_per_task,
+                    "cwd": cwd,
+                    "executor": executor,
+                },
+            )
         )
-        self._process.start()
         self._set_init_function(init_function=init_function)
         cloudpickle_register(ind=3)
 

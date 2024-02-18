@@ -73,6 +73,10 @@ class ExecutorBase(FutureExecutor):
                 {"init": True, "fn": init_function, "args": (), "kwargs": {}}
             )
 
+    def _set_process(self, process):
+        self._process = process
+        self._process.start()
+
 
 def cancel_items_in_queue(que):
     """

@@ -61,22 +61,23 @@ class PyMPIExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=executor_broker,
-            kwargs={
-                # Broker Arguments
-                "future_queue": self._future_queue,
-                "max_workers": max_workers,
-                "executor_class": PyMPISingleTaskExecutor,
-                "hostname_localhost": hostname_localhost,
-                # Executor Arguments
-                "cores": cores_per_worker,
-                "oversubscribe": oversubscribe,
-                "init_function": init_function,
-                "cwd": cwd,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=executor_broker,
+                kwargs={
+                    # Broker Arguments
+                    "future_queue": self._future_queue,
+                    "max_workers": max_workers,
+                    "executor_class": PyMPISingleTaskExecutor,
+                    "hostname_localhost": hostname_localhost,
+                    # Executor Arguments
+                    "cores": cores_per_worker,
+                    "oversubscribe": oversubscribe,
+                    "init_function": init_function,
+                    "cwd": cwd,
+                },
+            ),
         )
-        self._process.start()
 
 
 class PyMPISingleTaskExecutor(ExecutorBase):
@@ -107,19 +108,20 @@ class PyMPISingleTaskExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=execute_parallel_tasks,
-            kwargs={
-                # Executor Arguments
-                "future_queue": self._future_queue,
-                "cores": cores,
-                "interface_class": MpiExecInterface,
-                # Interface Arguments
-                "cwd": cwd,
-                "oversubscribe": oversubscribe,
-                "hostname_localhost": hostname_localhost,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=execute_parallel_tasks,
+                kwargs={
+                    # Executor Arguments
+                    "future_queue": self._future_queue,
+                    "cores": cores,
+                    "interface_class": MpiExecInterface,
+                    # Interface Arguments
+                    "cwd": cwd,
+                    "oversubscribe": oversubscribe,
+                    "hostname_localhost": hostname_localhost,
+                },
+            )
         )
-        self._process.start()
         self._set_init_function(init_function=init_function)
         cloudpickle_register(ind=3)
