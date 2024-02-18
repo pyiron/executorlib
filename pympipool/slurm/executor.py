@@ -23,7 +23,6 @@ class PySlurmExecutor(ExecutorBase):
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
-        sleep_interval (float): synchronization interval - default 0.1
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -118,6 +117,7 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
+        cloudpickle_register(ind=3)
         self._set_process(
             process=RaisingThread(
                 target=execute_parallel_tasks,
@@ -126,6 +126,7 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
                     "future_queue": self._future_queue,
                     "cores": cores,
                     "interface_class": SrunInterface,
+                    "init_function": init_function,
                     # Interface Arguments
                     "threads_per_core": threads_per_core,
                     "gpus_per_core": gpus_per_task,
@@ -135,5 +136,3 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
                 },
             ),
         )
-        self._set_init_function(init_function=init_function)
-        cloudpickle_register(ind=3)

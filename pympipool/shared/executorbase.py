@@ -67,12 +67,6 @@ class ExecutorBase(FutureExecutor):
         except (AttributeError, RuntimeError):
             pass
 
-    def _set_init_function(self, init_function):
-        if init_function is not None:
-            self._future_queue.put(
-                {"init": True, "fn": init_function, "args": (), "kwargs": {}}
-            )
-
     def _set_process(self, process):
         self._process = process
         self._process.start()
@@ -123,6 +117,7 @@ def execute_parallel_tasks(
     cores,
     interface_class,
     hostname_localhost=False,
+    init_function=None,
     **kwargs,
 ):
     """
@@ -147,10 +142,15 @@ def execute_parallel_tasks(
             hostname_localhost=hostname_localhost,
         ),
         future_queue=future_queue,
+        init_function=init_function,
     )
 
 
-def execute_parallel_tasks_loop(interface, future_queue):
+def execute_parallel_tasks_loop(interface, future_queue, init_function=None):
+    if init_function is not None:
+        interface.send_dict(
+            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+        )
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
@@ -170,9 +170,6 @@ def execute_parallel_tasks_loop(interface, future_queue):
                     raise thread_exception
                 else:
                     future_queue.task_done()
-        elif "fn" in task_dict.keys() and "init" in task_dict.keys():
-            interface.send_dict(input_dict=task_dict)
-            future_queue.task_done()
 
 
 def executor_broker(
