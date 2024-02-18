@@ -40,16 +40,16 @@ jobs:
         environment-file: ${{ matrix.environment-file }}
     - name: Test
       shell: bash -l {0}
-      timeout-minutes: 5
+      timeout-minutes: 10
       run: |
         mamba install -y flux-core=0.58.0 coverage
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
-        python tests/benchmark/llh.py static
-        python tests/benchmark/llh.py process
-        python tests/benchmark/llh.py thread
-        mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py
-        python tests/benchmark/llh.py pympipool
+        python tests/benchmark/llh.py static >> timing.log
+        python tests/benchmark/llh.py process >> timing.log
+        python tests/benchmark/llh.py thread >> timing.log
+        mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py >> timing.log
+        python tests/benchmark/llh.py pympipool >> timing.log
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
@@ -59,7 +59,8 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        python tests/benchmark/llh.py flux
+        python tests/benchmark/llh.py flux >> timing.log
+        cat timing.log
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
