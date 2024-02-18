@@ -57,7 +57,6 @@ jobs:
       run: >
         flux start
         coverage run --omit pympipool/_version.py -m unittest tests/test_flux.py;
-        coverage combine
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
