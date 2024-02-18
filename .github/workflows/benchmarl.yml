@@ -1,0 +1,66 @@
+# This workflow is used to run the unittest of pyiron
+
+name: Benchmark
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        include:
+        - operating-system: ubuntu-latest
+          python-version: '3.12'
+          label: linux-64-py-3-12-openmpi
+          prefix: /Users/runner/miniconda3/envs/my-env
+          environment-file: .ci_support/environment-openmpi.yml
+
+        - operating-system: ubuntu-latest
+          python-version: '3.12'
+          label: linux-64-py-3-12-mpich
+          prefix: /usr/share/miniconda3/envs/my-env
+          environment-file: .ci_support/environment-mpich.yml
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2.2.0
+      with:
+        python-version: ${{ matrix.python-version }}
+        mamba-version: "*"
+        channels: conda-forge
+        miniforge-variant: Mambaforge
+        channel-priority: strict
+        auto-update-conda: true
+        environment-file: ${{ matrix.environment-file }}
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        mamba install -y flux-core=0.58.0 coverage
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python tests/benchmark/llh.py static
+        python tests/benchmark/llh.py process
+        python tests/benchmark/llh.py thread
+        mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py
+        python tests/benchmark/llh.py pympipool
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
+    - name: Test Flux
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: >
+        flux start
+        python tests/benchmark/llh.py flux
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
