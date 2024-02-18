@@ -44,13 +44,14 @@ class SubprocessSingleExecutor(ExecutorBase):
 
     def __init__(self):
         super().__init__()
-        self._process = RaisingThread(
-            target=execute_single_task,
-            kwargs={
-                "future_queue": self._future_queue,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=execute_single_task,
+                kwargs={
+                    "future_queue": self._future_queue,
+                },
+            ),
         )
-        self._process.start()
 
     def submit(self, *args, **kwargs):
         f = Future()
@@ -83,16 +84,17 @@ class SubprocessExecutor(ExecutorBase):
         max_workers=1,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=executor_broker,
-            kwargs={
-                # Broker Arguments
-                "future_queue": self._future_queue,
-                "max_workers": max_workers,
-                "executor_class": SubprocessSingleExecutor,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=executor_broker,
+                kwargs={
+                    # Broker Arguments
+                    "future_queue": self._future_queue,
+                    "max_workers": max_workers,
+                    "executor_class": SubprocessSingleExecutor,
+                },
+            ),
         )
-        self._process.start()
 
     def submit(self, *args, **kwargs):
         """

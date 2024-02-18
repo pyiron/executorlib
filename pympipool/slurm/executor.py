@@ -64,24 +64,25 @@ class PySlurmExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=executor_broker,
-            kwargs={
-                # Broker Arguments
-                "future_queue": self._future_queue,
-                "max_workers": max_workers,
-                "hostname_localhost": hostname_localhost,
-                "executor_class": PySlurmSingleTaskExecutor,
-                # Executor Arguments
-                "cores": cores_per_worker,
-                "threads_per_core": threads_per_core,
-                "gpus_per_task": int(gpus_per_worker / cores_per_worker),
-                "oversubscribe": oversubscribe,
-                "init_function": init_function,
-                "cwd": cwd,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=executor_broker,
+                kwargs={
+                    # Broker Arguments
+                    "future_queue": self._future_queue,
+                    "max_workers": max_workers,
+                    "hostname_localhost": hostname_localhost,
+                    "executor_class": PySlurmSingleTaskExecutor,
+                    # Executor Arguments
+                    "cores": cores_per_worker,
+                    "threads_per_core": threads_per_core,
+                    "gpus_per_task": int(gpus_per_worker / cores_per_worker),
+                    "oversubscribe": oversubscribe,
+                    "init_function": init_function,
+                    "cwd": cwd,
+                },
+            ),
         )
-        self._process.start()
 
 
 class PySlurmSingleTaskExecutor(ExecutorBase):
@@ -117,20 +118,21 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
     ):
         super().__init__()
         cloudpickle_register(ind=3)
-        self._process = RaisingThread(
-            target=execute_parallel_tasks,
-            kwargs={
-                # Executor Arguments
-                "future_queue": self._future_queue,
-                "cores": cores,
-                "interface_class": SrunInterface,
-                "init_function": init_function,
-                # Interface Arguments
-                "threads_per_core": threads_per_core,
-                "gpus_per_core": gpus_per_task,
-                "cwd": cwd,
-                "oversubscribe": oversubscribe,
-                "hostname_localhost": hostname_localhost,
-            },
+        self._set_process(
+            process=RaisingThread(
+                target=execute_parallel_tasks,
+                kwargs={
+                    # Executor Arguments
+                    "future_queue": self._future_queue,
+                    "cores": cores,
+                    "interface_class": SrunInterface,
+                    "init_function": init_function,
+                    # Interface Arguments
+                    "threads_per_core": threads_per_core,
+                    "gpus_per_core": gpus_per_task,
+                    "cwd": cwd,
+                    "oversubscribe": oversubscribe,
+                    "hostname_localhost": hostname_localhost,
+                },
+            ),
         )
-        self._process.start()
