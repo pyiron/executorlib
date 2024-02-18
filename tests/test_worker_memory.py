@@ -35,7 +35,6 @@ class TestWorkerMemory(unittest.TestCase):
     def test_execute_task(self):
         f = Future()
         q = Queue()
-        q.put({"init": True, "fn": set_global, "args": (), "kwargs": {}})
         q.put({"fn": get_global, "args": (), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
@@ -45,6 +44,7 @@ class TestWorkerMemory(unittest.TestCase):
             oversubscribe=False,
             interface_class=MpiExecInterface,
             hostname_localhost=True,
+            init_function=set_global,
         )
         self.assertEqual(f.result(), np.array([5]))
         q.join()

@@ -107,6 +107,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
+        cloudpickle_register(ind=3)
         self._process = RaisingThread(
             target=execute_parallel_tasks,
             kwargs={
@@ -114,6 +115,7 @@ class PyMPISingleTaskExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "cores": cores,
                 "interface_class": MpiExecInterface,
+                "init_function": init_function,
                 # Interface Arguments
                 "cwd": cwd,
                 "oversubscribe": oversubscribe,
@@ -121,5 +123,3 @@ class PyMPISingleTaskExecutor(ExecutorBase):
             },
         )
         self._process.start()
-        self._set_init_function(init_function=init_function)
-        cloudpickle_register(ind=3)
