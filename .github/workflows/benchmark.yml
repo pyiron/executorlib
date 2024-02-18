@@ -1,6 +1,6 @@
 # This workflow is used to run the unittest of pyiron
 
-name: Unittests-flux
+name: Benchmark
 
 on:
   push:
@@ -40,28 +40,18 @@ jobs:
         environment-file: ${{ matrix.environment-file }}
     - name: Test
       shell: bash -l {0}
-      timeout-minutes: 5
+      timeout-minutes: 10
       run: |
-        mamba install -y flux-core=0.58.0 coverage
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
-        cd tests
-        coverage run --omit pympipool/_version.py -m unittest discover .
+        python tests/benchmark/llh.py static >> timing.log
+        python tests/benchmark/llh.py process >> timing.log
+        python tests/benchmark/llh.py thread >> timing.log
+        mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py >> timing.log
+        python tests/benchmark/llh.py pympipool >> timing.log
+        cat timing.log
+        python -m unittest tests/benchmark/test_results.py
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
-    - name: Test Flux
-      shell: bash -l {0}
-      timeout-minutes: 5
-      run: >
-        flux start
-        coverage run --omit pympipool/_version.py -m unittest tests/test_flux.py;
-        coverage combine
-      env:
-        OMPI_MCA_plm: 'isolated'
-        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
-        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
-    - name: Coveralls
-      if:  matrix.label == 'linux-64-py-3-12-openmpi'
-      uses: coverallsapp/github-action@v2
