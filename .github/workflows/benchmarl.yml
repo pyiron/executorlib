@@ -60,8 +60,12 @@ jobs:
       run: >
         flux start
         python tests/benchmark/llh.py flux >> timing.log
-        cat timing.log
       env:
         OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
+    - name: Analyse log
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        cat timing.log
