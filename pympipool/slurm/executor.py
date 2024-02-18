@@ -117,6 +117,7 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
+        cloudpickle_register(ind=3)
         self._process = RaisingThread(
             target=execute_parallel_tasks,
             kwargs={
@@ -124,6 +125,7 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
                 "future_queue": self._future_queue,
                 "cores": cores,
                 "interface_class": SrunInterface,
+                "init_function": init_function,
                 # Interface Arguments
                 "threads_per_core": threads_per_core,
                 "gpus_per_core": gpus_per_task,
@@ -133,5 +135,3 @@ class PySlurmSingleTaskExecutor(ExecutorBase):
             },
         )
         self._process.start()
-        self._set_init_function(init_function=init_function)
-        cloudpickle_register(ind=3)

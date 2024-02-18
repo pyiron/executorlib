@@ -120,6 +120,7 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
         hostname_localhost=False,
     ):
         super().__init__()
+        cloudpickle_register(ind=3)
         self._process = RaisingThread(
             target=execute_parallel_tasks,
             kwargs={
@@ -128,6 +129,7 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
                 "cores": cores,
                 "interface_class": FluxPythonInterface,
                 "hostname_localhost": hostname_localhost,
+                "init_function": init_function,
                 # Interface Arguments
                 "threads_per_core": threads_per_core,
                 "gpus_per_core": gpus_per_task,
@@ -136,8 +138,6 @@ class PyFluxSingleTaskExecutor(ExecutorBase):
             },
         )
         self._process.start()
-        self._set_init_function(init_function=init_function)
-        cloudpickle_register(ind=3)
 
 
 class FluxPythonInterface(BaseInterface):
