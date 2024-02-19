@@ -11,6 +11,7 @@ from time import sleep
 import unittest
 
 from pympipool import Executor
+from pympipool.shared.executorbase import cloudpickle_register
 
 
 class Foo:
@@ -76,6 +77,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         dynamic_dynamic = slowly_returns_dynamic()
         executor = Executor(hostname_localhost=True)
+        cloudpickle_register(ind=1)
         dynamic_object = does_nothing()
         fs = executor.submit(dynamic_dynamic.run, dynamic_object)
         self.assertEqual(
@@ -108,6 +110,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             msg="Just a sanity check that the test is set up right"
         )
         executor = Executor(hostname_localhost=True)
+        cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
         self.assertFalse(
@@ -140,6 +143,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             msg="Sanity check that the test starts in the expected condition"
         )
         executor = Executor(hostname_localhost=True)
+        cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
         self.assertTrue(
@@ -163,6 +167,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         re = raise_error()
         executor = Executor(hostname_localhost=True)
+        cloudpickle_register(ind=1)
         fs = executor.submit(re.run)
         with self.assertRaises(
             RuntimeError,
@@ -192,6 +197,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         dynamic_dynamic = slowly_returns_dynamic()
         executor = Executor(hostname_localhost=True)
+        cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_dynamic.run)
         self.assertIsInstance(
             fs.result(),
@@ -220,6 +226,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         f = slow()
         executor = Executor(hostname_localhost=True)
+        cloudpickle_register(ind=1)
         fs = executor.submit(f.run)
         self.assertEqual(
             fs.result(timeout=30),

@@ -1,5 +1,6 @@
 import unittest
-from pympipool.mpi.executor import PyMPISingleTaskExecutor
+from pympipool.mpi.executor import PyMPIExecutor
+from pympipool.shared.executorbase import cloudpickle_register
 
 
 def echo_funct(i):
@@ -16,17 +17,20 @@ def mpi_funct(i):
 
 class TestTask(unittest.TestCase):
     def test_echo(self):
-        with PyMPISingleTaskExecutor(cores=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+            cloudpickle_register(ind=1)
             output = p.submit(echo_funct, 2).result()
         self.assertEqual(output, [2, 2])
 
     def test_mpi(self):
-        with PyMPISingleTaskExecutor(cores=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+            cloudpickle_register(ind=1)
             output = p.submit(mpi_funct, 2).result()
         self.assertEqual(output, [(2, 2, 0), (2, 2, 1)])
 
     def test_mpi_multiple(self):
-        with PyMPISingleTaskExecutor(cores=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+            cloudpickle_register(ind=1)
             fs1 = p.submit(mpi_funct, 1)
             fs2 = p.submit(mpi_funct, 2)
             fs3 = p.submit(mpi_funct, 3)

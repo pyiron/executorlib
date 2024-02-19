@@ -1,7 +1,7 @@
 from concurrent.futures import Future
 import subprocess
 
-from pympipool.shared.executorbase import executor_broker, ExecutorBase
+from pympipool.shared.executorbase import ExecutorBroker
 from pympipool.shared.thread import RaisingThread
 
 
@@ -50,30 +50,7 @@ def execute_single_task(future_queue, prefix_name=None, prefix_path=None):
             raise KeyError(task_dict)
 
 
-class SubprocessSingleExecutor(ExecutorBase):
-    """
-    The pympipool.shell.SubprocessSingleExecutor is the internal worker for the pympipool.shell.SubprocessExecutor.
-    """
-
-    def __init__(self, conda_environment_name=None, conda_environment_path=None):
-        super().__init__()
-        self._process = RaisingThread(
-            target=execute_single_task,
-            kwargs={
-                "future_queue": self._future_queue,
-                "prefix_name": conda_environment_name,
-                "prefix_path": conda_environment_path,
-            },
-        )
-        self._process.start()
-
-    def submit(self, *args, **kwargs):
-        f = Future()
-        self._future_queue.put({"future": f, "args": args, "kwargs": kwargs})
-        return f
-
-
-class SubprocessExecutor(ExecutorBase):
+class SubprocessExecutor(ExecutorBroker):
     """
     The pympipool.shell.SubprocessExecutor enables the submission of command line calls via the subprocess.check_output()
     interface of the python standard library. It is based on the concurrent.futures.Executor class and returns a
@@ -96,23 +73,24 @@ class SubprocessExecutor(ExecutorBase):
     def __init__(
         self,
         max_workers=1,
-        sleep_interval=0.1,
         conda_environment_name=None,
         conda_environment_path=None,
     ):
         super().__init__()
-        self._process = RaisingThread(
-            target=executor_broker,
-            kwargs={
-                # Broker Arguments
-                "future_queue": self._future_queue,
-                "max_workers": max_workers,
-                "executor_class": SubprocessSingleExecutor,
-                "conda_environment_name": conda_environment_name,
-                "conda_environment_path": conda_environment_path,
-            },
+        self._set_process(
+            process=[
+                RaisingThread(
+                    target=execute_single_task,
+                    kwargs={
+                        # Executor Arguments
+                        "future_queue": self._future_queue,
+                        "conda_environment_name": conda_environment_name,
+                        "conda_environment_path": conda_environment_path,
+                    },
+                )
+                for _ in range(max_workers)
+            ],
         )
-        self._process.start()
 
     def submit(self, *args, **kwargs):
         """

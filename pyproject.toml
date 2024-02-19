@@ -28,7 +28,7 @@ dependencies = [
     "cloudpickle==3.0.0",
     "mpi4py==3.1.5",
     "pyzmq==25.1.2",
-    "tqdm==4.66.1",
+    "tqdm==4.66.2",
 ]
 dynamic = ["version"]
 
