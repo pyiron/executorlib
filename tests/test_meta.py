@@ -7,7 +7,7 @@ from pympipool.shared.executorbase import (
     _get_executor_dict,
     _get_future_done,
 )
-from pympipool.mpi.executor import PyMPIExecutor, PyMPISingleTaskExecutor
+from pympipool.mpi.executor import PyMPIExecutor, PyMPISingleTaskExecutor, cloudpickle_register
 
 
 def calc(i):
@@ -72,6 +72,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
             executor_class=PyMPISingleTaskExecutor,
             hostname_localhost=True,
         )
+        cloudpickle_register(ind=1)
         with self.assertRaises(ValueError):
             execute_task_dict(task_dict={}, meta_future_lst=meta_future_lst)
         list(meta_future_lst.values())[0].shutdown(wait=True)
@@ -90,6 +91,7 @@ class TestMetaExecutorFuture(unittest.TestCase):
 class TestMetaExecutor(unittest.TestCase):
     def test_meta_executor_serial(self):
         with PyMPIExecutor(max_workers=2, hostname_localhost=True) as exe:
+            cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -99,6 +101,7 @@ class TestMetaExecutor(unittest.TestCase):
 
     def test_meta_executor_single(self):
         with PyMPIExecutor(max_workers=1, hostname_localhost=True) as exe:
+            cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -108,6 +111,7 @@ class TestMetaExecutor(unittest.TestCase):
 
     def test_meta_executor_parallel(self):
         with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as exe:
+            cloudpickle_register(ind=1)
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
