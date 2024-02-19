@@ -1,5 +1,4 @@
 from concurrent.futures import (
-    as_completed,
     Executor as FutureExecutor,
     Future,
 )
