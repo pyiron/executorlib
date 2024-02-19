@@ -3,7 +3,7 @@ import queue
 
 from unittest import TestCase
 
-from pympipool.shell.executor import SubprocessSingleExecutor, SubprocessExecutor, execute_single_task
+from pympipool.shell.executor import SubprocessExecutor, execute_single_task
 
 
 class SubprocessExecutorTest(TestCase):
@@ -17,22 +17,35 @@ class SubprocessExecutorTest(TestCase):
         self.assertTrue(f.done())
         self.assertEqual("test\n", f.result())
 
+    def test_wrong_error(self):
+        test_queue = queue.Queue()
+        test_queue.put({"wrong_key": True})
+        with self.assertRaises(KeyError):
+            execute_single_task(future_queue=test_queue)
+
+    def test_broken_executable(self):
+        test_queue = queue.Queue()
+        f = Future()
+        test_queue.put({"future": f, "args": [["/executable/does/not/exist"]], "kwargs": {"universal_newlines": True}})
+        with self.assertRaises(FileNotFoundError):
+            execute_single_task(future_queue=test_queue)
+
     def test_shell_static_executor_args(self):
-        with SubprocessSingleExecutor() as exe:
+        with SubprocessExecutor(max_workers=1) as exe:
             future = exe.submit(["echo", "test"], universal_newlines=True, shell=False)
             self.assertFalse(future.done())
             self.assertEqual("test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_static_executor_binary(self):
-        with SubprocessSingleExecutor() as exe:
+        with SubprocessExecutor(max_workers=1) as exe:
             future = exe.submit(["echo", "test"], universal_newlines=False, shell=False)
             self.assertFalse(future.done())
             self.assertEqual(b"test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_static_executor_shell(self):
-        with SubprocessSingleExecutor() as exe:
+        with SubprocessExecutor(max_workers=1) as exe:
             future = exe.submit("echo test", universal_newlines=True, shell=True)
             self.assertFalse(future.done())
             self.assertEqual("test\n", future.result())
