@@ -40,6 +40,7 @@ class SubprocessInterface(BaseInterface):
         self._process = subprocess.Popen(
             args=self.generate_command(command_lst=command_lst),
             cwd=self._cwd,
+            stdin=subprocess.DEVNULL,
         )
 
     def generate_command(self, command_lst):
