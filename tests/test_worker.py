@@ -78,6 +78,23 @@ class TestFuturePool(unittest.TestCase):
                 fs = p.submit(raise_error)
                 fs.result()
 
+    def test_meta(self):
+        meta_data_dict = {
+            'cores': 2,
+            'interface_class': "<class 'pympipool.shared.interface.MpiExecInterface'>",
+            'hostname_localhost': True,
+            'init_function': None,
+            'cwd': None,
+            'oversubscribe': False,
+            'max_workers': 1
+        }
+        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+            for k, v in meta_data_dict.items():
+                if k != 'interface_class':
+                    self.assertEqual(p.info[k], v)
+                else:
+                    self.assertEqual(str(p.info[k]), v)
+
     def test_pool_multi_core(self):
         with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
             output = p.submit(mpi_funct, i=2)
