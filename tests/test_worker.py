@@ -4,7 +4,8 @@ from queue import Queue
 from time import sleep
 from concurrent.futures import CancelledError
 from pympipool.mpi.executor import PyMPIExecutor, MpiExecInterface
-from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
+from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks, ExecutorBase
+from pympipool.shell import ShellExecutor
 from concurrent.futures import Future
 
 
@@ -79,7 +80,7 @@ class TestFuturePool(unittest.TestCase):
                 fs.result()
 
     def test_meta(self):
-        meta_data_dict = {
+        meta_data_exe_dict = {
             'cores': 2,
             'interface_class': "<class 'pympipool.shared.interface.MpiExecInterface'>",
             'hostname_localhost': True,
@@ -88,12 +89,16 @@ class TestFuturePool(unittest.TestCase):
             'oversubscribe': False,
             'max_workers': 1
         }
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
-            for k, v in meta_data_dict.items():
+        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as exe:
+            for k, v in meta_data_exe_dict.items():
                 if k != 'interface_class':
-                    self.assertEqual(p.info[k], v)
+                    self.assertEqual(exe.info[k], v)
                 else:
-                    self.assertEqual(str(p.info[k]), v)
+                    self.assertEqual(str(exe.info[k]), v)
+        with ExecutorBase() as exe:
+            self.assertIsNone(exe.info)
+        with ShellExecutor(["sleep"]) as exe:
+            self.assertEqual(exe.info, {})
 
     def test_pool_multi_core(self):
         with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
