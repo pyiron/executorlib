@@ -112,7 +112,12 @@ def generate_mpiexec_command(cores, oversubscribe=False):
 
 
 def generate_slurm_command(
-    cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False, command_line_argument_lst=[],
+    cores,
+    cwd,
+    threads_per_core=1,
+    gpus_per_core=0,
+    oversubscribe=False,
+    command_line_argument_lst=[],
 ):
     command_prepend_lst = [SLURM_COMMAND, "-n", str(cores)]
     if cwd is not None:
