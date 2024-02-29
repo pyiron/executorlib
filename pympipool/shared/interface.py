@@ -76,6 +76,7 @@ class SrunInterface(SubprocessInterface):
         threads_per_core=1,
         gpus_per_core=0,
         oversubscribe=False,
+        command_line_argument_lst=[],
     ):
         super().__init__(
             cwd=cwd,
@@ -84,6 +85,7 @@ class SrunInterface(SubprocessInterface):
         )
         self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
+        self._command_line_argument_lst = command_line_argument_lst
 
     def generate_command(self, command_lst):
         command_prepend_lst = generate_slurm_command(
@@ -92,6 +94,7 @@ class SrunInterface(SubprocessInterface):
             threads_per_core=self._threads_per_core,
             gpus_per_core=self._gpus_per_core,
             oversubscribe=self._oversubscribe,
+            command_line_argument_lst=self._command_line_argument_lst,
         )
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,
@@ -109,7 +112,7 @@ def generate_mpiexec_command(cores, oversubscribe=False):
 
 
 def generate_slurm_command(
-    cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False
+    cores, cwd, threads_per_core=1, gpus_per_core=0, oversubscribe=False, command_line_argument_lst=[],
 ):
     command_prepend_lst = [SLURM_COMMAND, "-n", str(cores)]
     if cwd is not None:
@@ -120,4 +123,6 @@ def generate_slurm_command(
         command_prepend_lst += ["--gpus-per-task=" + str(gpus_per_core)]
     if oversubscribe:
         command_prepend_lst += ["--oversubscribe"]
+    if len(command_line_argument_lst) > 0:
+        command_prepend_lst += command_line_argument_lst
     return command_prepend_lst
