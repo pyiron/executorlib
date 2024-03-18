@@ -76,7 +76,7 @@ class SrunInterface(SubprocessInterface):
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
         oversubscribe: bool = False,
-            command_line_argument_lst: list[str] = [],
+        command_line_argument_lst: list[str] = [],
     ):
         super().__init__(
             cwd=cwd,
@@ -101,7 +101,7 @@ class SrunInterface(SubprocessInterface):
         )
 
 
-def generate_mpiexec_command(cores: int, oversubscribe: bool=False) -> list[str]:
+def generate_mpiexec_command(cores: int, oversubscribe: bool = False) -> list[str]:
     if cores == 1:
         return []
     else:

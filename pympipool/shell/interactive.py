@@ -119,7 +119,12 @@ class ShellExecutor(ExecutorBase):
         )
         self._future_queue.put({"init": True, "args": args, "kwargs": kwargs})
 
-    def submit(self, string_input: str, lines_to_read: int = None, stop_read_pattern: str = None):
+    def submit(
+        self,
+        string_input: str,
+        lines_to_read: int = None,
+        stop_read_pattern: str = None,
+    ):
         """
         Submit the input as a string to the executable. In addition to the input the ShellExecutor also needs a measure
         to identify the completion of the execution. This can either be provided based on the number of lines to read

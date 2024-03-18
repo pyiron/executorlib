@@ -60,7 +60,7 @@ class PySlurmExecutor(ExecutorBroker):
         init_function: callable = None,
         cwd: str = None,
         hostname_localhost: bool = False,
-            command_line_argument_lst: list[str] = [],
+        command_line_argument_lst: list[str] = [],
     ):
         super().__init__()
         self._set_process(
