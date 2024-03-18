@@ -40,11 +40,6 @@ jobs:
           label: linux-64-py-3-9-openmpi
           prefix: /usr/share/miniconda3/envs/my-env
 
-        - operating-system: ubuntu-latest
-          python-version: 3.8
-          label: linux-64-py-3-8-openmpi
-          prefix: /usr/share/miniconda3/envs/my-env
-
     steps:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2.2.0
