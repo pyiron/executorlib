@@ -1,7 +1,9 @@
 import inspect
 
 
-def call_funct(input_dict: dict, funct: callable = None, memory: dict = None) -> callable:
+def call_funct(
+    input_dict: dict, funct: callable = None, memory: dict = None
+) -> callable:
     """
     Call function from dictionary
 
@@ -50,7 +52,9 @@ def parse_arguments(argument_lst: list[str]) -> dict:
     )
 
 
-def update_default_dict_from_arguments(argument_lst: list[str], argument_dict: dict, default_dict: dict) -> dict:
+def update_default_dict_from_arguments(
+    argument_lst: list[str], argument_dict: dict, default_dict: dict
+) -> dict:
     default_dict.update(
         {
             k: argument_lst[argument_lst.index(v) + 1]
@@ -61,7 +65,9 @@ def update_default_dict_from_arguments(argument_lst: list[str], argument_dict: d
     return default_dict
 
 
-def _update_dict_delta(dict_input: dict, dict_output: dict, keys_possible_lst: list) -> dict:
+def _update_dict_delta(
+    dict_input: dict, dict_output: dict, keys_possible_lst: list
+) -> dict:
     return {
         k: v
         for k, v in dict_input.items()

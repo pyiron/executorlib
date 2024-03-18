@@ -77,7 +77,7 @@ class Executor:
         init_function: callable = None,
         cwd: str = None,
         executor=None,
-        hostname_localhost: bool =False,
+        hostname_localhost: bool = False,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass

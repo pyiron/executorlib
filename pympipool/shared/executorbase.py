@@ -200,7 +200,9 @@ def execute_parallel_tasks(
     )
 
 
-def execute_parallel_tasks_loop(interface, future_queue: queue.Queue, init_function: callable = None):
+def execute_parallel_tasks_loop(
+    interface, future_queue: queue.Queue, init_function: callable = None
+):
     if init_function is not None:
         interface.send_dict(
             input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
