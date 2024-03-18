@@ -51,12 +51,12 @@ class PyMPIExecutor(ExecutorBroker):
 
     def __init__(
         self,
-        max_workers=1,
-        cores_per_worker=1,
-        oversubscribe=False,
-        init_function=None,
-        cwd=None,
-        hostname_localhost=False,
+        max_workers: int = 1,
+        cores_per_worker: int = 1,
+        oversubscribe: bool = False,
+        init_function: callable = None,
+        cwd: str = None,
+        hostname_localhost: bool = False,
     ):
         super().__init__()
         self._set_process(

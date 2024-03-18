@@ -1,7 +1,7 @@
 import inspect
 
 
-def call_funct(input_dict, funct=None, memory=None):
+def call_funct(input_dict: dict, funct: callable = None, memory: dict = None) -> callable:
     """
     Call function from dictionary
 
@@ -30,7 +30,7 @@ def call_funct(input_dict, funct=None, memory=None):
     return funct(input_dict["fn"], *input_dict["args"], **input_dict["kwargs"])
 
 
-def parse_arguments(argument_lst):
+def parse_arguments(argument_lst: list[str]) -> dict:
     """
     Simple function to parse command line arguments
 
@@ -50,7 +50,7 @@ def parse_arguments(argument_lst):
     )
 
 
-def update_default_dict_from_arguments(argument_lst, argument_dict, default_dict):
+def update_default_dict_from_arguments(argument_lst: list[str], argument_dict: dict, default_dict: dict) -> dict:
     default_dict.update(
         {
             k: argument_lst[argument_lst.index(v) + 1]
@@ -61,7 +61,7 @@ def update_default_dict_from_arguments(argument_lst, argument_dict, default_dict
     return default_dict
 
 
-def _update_dict_delta(dict_input, dict_output, keys_possible_lst):
+def _update_dict_delta(dict_input: dict, dict_output: dict, keys_possible_lst: list) -> dict:
     return {
         k: v
         for k, v in dict_input.items()

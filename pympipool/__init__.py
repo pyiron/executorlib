@@ -69,30 +69,30 @@ class Executor:
 
     def __init__(
         self,
-        max_workers=1,
-        cores_per_worker=1,
-        threads_per_core=1,
-        gpus_per_worker=0,
-        oversubscribe=False,
-        init_function=None,
-        cwd=None,
+        max_workers: int = 1,
+        cores_per_worker: int = 1,
+        threads_per_core: int = 1,
+        gpus_per_worker: int = 0,
+        oversubscribe: bool = False,
+        init_function: callable = None,
+        cwd: str = None,
         executor=None,
-        hostname_localhost=False,
+        hostname_localhost: bool =False,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
 
     def __new__(
         cls,
-        max_workers=1,
-        cores_per_worker=1,
-        threads_per_core=1,
-        gpus_per_worker=0,
-        oversubscribe=False,
-        init_function=None,
-        cwd=None,
+        max_workers: int = 1,
+        cores_per_worker: int = 1,
+        threads_per_core: int = 1,
+        gpus_per_worker: int = 0,
+        oversubscribe: bool = False,
+        init_function: callable = None,
+        cwd: str = None,
         executor=None,
-        hostname_localhost=False,
+        hostname_localhost: bool = False,
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,

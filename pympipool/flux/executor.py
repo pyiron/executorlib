@@ -56,14 +56,14 @@ class PyFluxExecutor(ExecutorBroker):
 
     def __init__(
         self,
-        max_workers=1,
-        cores_per_worker=1,
-        threads_per_core=1,
-        gpus_per_worker=0,
-        init_function=None,
-        cwd=None,
-        executor=None,
-        hostname_localhost=False,
+        max_workers: int = 1,
+        cores_per_worker: int = 1,
+        threads_per_core: int = 1,
+        gpus_per_worker: int = 0,
+        init_function: callable = None,
+        cwd: str = None,
+        executor: flux.job.FluxExecutor = None,
+        hostname_localhost: bool = False,
     ):
         super().__init__()
         self._set_process(
@@ -92,12 +92,12 @@ class PyFluxExecutor(ExecutorBroker):
 class FluxPythonInterface(BaseInterface):
     def __init__(
         self,
-        cwd=None,
-        cores=1,
-        threads_per_core=1,
-        gpus_per_core=0,
-        oversubscribe=False,
-        executor=None,
+        cwd: str = None,
+        cores: int = 1,
+        threads_per_core: int = 1,
+        gpus_per_core: int = 0,
+        oversubscribe: bool = False,
+        executor: flux.job.FluxExecutor = None,
     ):
         super().__init__(
             cwd=cwd,
@@ -109,7 +109,7 @@ class FluxPythonInterface(BaseInterface):
         self._executor = executor
         self._future = None
 
-    def bootup(self, command_lst):
+    def bootup(self, command_lst: list[str]):
         if self._oversubscribe:
             raise ValueError(
                 "Oversubscribing is currently not supported for the Flux adapter."
@@ -129,7 +129,7 @@ class FluxPythonInterface(BaseInterface):
             jobspec.cwd = self._cwd
         self._future = self._executor.submit(jobspec)
 
-    def shutdown(self, wait=True):
+    def shutdown(self, wait: bool = True):
         if self.poll():
             self._future.cancel()
         # The flux future objects are not instantly updated,

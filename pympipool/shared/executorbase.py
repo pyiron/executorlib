@@ -1,3 +1,4 @@
+import threading
 from concurrent.futures import (
     Executor as FutureExecutor,
     Future,
@@ -22,7 +23,7 @@ class ExecutorBase(FutureExecutor):
     def future_queue(self):
         return self._future_queue
 
-    def submit(self, fn, *args, **kwargs):
+    def submit(self, fn: callable, *args, **kwargs):
         """Submits a callable to be executed with the given arguments.
 
         Schedules the callable to be executed as fn(*args, **kwargs) and returns
@@ -35,7 +36,7 @@ class ExecutorBase(FutureExecutor):
         self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
         return f
 
-    def shutdown(self, wait=True, *, cancel_futures=False):
+    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """Clean-up the resources associated with the Executor.
 
         It is safe to call this method several times. Otherwise, no other
@@ -58,7 +59,7 @@ class ExecutorBase(FutureExecutor):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process):
+    def _set_process(self, process: threading.Thread):
         self._process = process
         self._process.start()
 
@@ -71,13 +72,13 @@ class ExecutorBase(FutureExecutor):
         except (AttributeError, RuntimeError):
             pass
 
-    def _set_process(self, process):
+    def _set_process(self, process: threading.Thread):
         self._process = process
         self._process.start()
 
 
 class ExecutorBroker(ExecutorBase):
-    def shutdown(self, wait=True, *, cancel_futures=False):
+    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """Clean-up the resources associated with the Executor.
 
         It is safe to call this method several times. Otherwise, no other
@@ -103,13 +104,13 @@ class ExecutorBroker(ExecutorBase):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process):
+    def _set_process(self, process: threading.Thread):
         self._process = process
         for process in self._process:
             process.start()
 
 
-def cancel_items_in_queue(que):
+def cancel_items_in_queue(que: queue.Queue):
     """
     Cancel items which are still waiting in the queue. If the executor is busy tasks remain in the queue, so the future
     objects have to be cancelled when the executor shuts down.
@@ -127,7 +128,7 @@ def cancel_items_in_queue(que):
             break
 
 
-def cloudpickle_register(ind=2):
+def cloudpickle_register(ind: int = 2):
     """
     Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
     be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
@@ -150,11 +151,11 @@ def cloudpickle_register(ind=2):
 
 
 def execute_parallel_tasks(
-    future_queue,
-    cores,
+    future_queue: queue.Queue,
+    cores: int,
     interface_class,
-    hostname_localhost=False,
-    init_function=None,
+    hostname_localhost: bool = False,
+    init_function: callable = None,
     **kwargs,
 ):
     """
@@ -183,7 +184,7 @@ def execute_parallel_tasks(
     )
 
 
-def execute_parallel_tasks_loop(interface, future_queue, init_function=None):
+def execute_parallel_tasks_loop(interface, future_queue: queue.Queue, init_function: callable = None):
     if init_function is not None:
         interface.send_dict(
             input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
@@ -209,7 +210,7 @@ def execute_parallel_tasks_loop(interface, future_queue, init_function=None):
                     future_queue.task_done()
 
 
-def _get_backend_path(cores):
+def _get_backend_path(cores: int):
     command_lst = [sys.executable]
     if cores > 1:
         command_lst += [_get_command_path(executable="mpiexec.py")]
@@ -218,5 +219,5 @@ def _get_backend_path(cores):
     return command_lst
 
 
-def _get_command_path(executable):
+def _get_command_path(executable: str):
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))

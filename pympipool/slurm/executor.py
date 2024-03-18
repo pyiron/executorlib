@@ -52,14 +52,14 @@ class PySlurmExecutor(ExecutorBroker):
 
     def __init__(
         self,
-        max_workers=1,
-        cores_per_worker=1,
-        threads_per_core=1,
-        gpus_per_worker=0,
-        oversubscribe=False,
-        init_function=None,
-        cwd=None,
-        hostname_localhost=False,
+        max_workers: int = 1,
+        cores_per_worker: int = 1,
+        threads_per_core: int = 1,
+        gpus_per_worker: int = 0,
+        oversubscribe: bool = False,
+        init_function: callable = None,
+        cwd: str = None,
+        hostname_localhost: bool = False,
     ):
         super().__init__()
         self._set_process(

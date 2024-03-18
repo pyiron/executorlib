@@ -10,7 +10,7 @@ from pympipool.shared.communication import (
 from pympipool.shared.backend import call_funct, parse_arguments
 
 
-def main(argument_lst=None):
+def main(argument_lst: list[str] = None):
     if argument_lst is None:
         argument_lst = sys.argv
     argument_dict = parse_arguments(argument_lst=argument_lst)
