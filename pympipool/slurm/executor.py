@@ -60,6 +60,7 @@ class PySlurmExecutor(ExecutorBroker):
         init_function: callable = None,
         cwd: str = None,
         hostname_localhost: bool = False,
+        command_line_argument_lst: list[str] = [],
     ):
         super().__init__()
         self._set_process(
@@ -78,6 +79,7 @@ class PySlurmExecutor(ExecutorBroker):
                         "gpus_per_core": int(gpus_per_worker / cores_per_worker),
                         "cwd": cwd,
                         "oversubscribe": oversubscribe,
+                        "command_line_argument_lst": command_line_argument_lst,
                     },
                 )
                 for _ in range(max_workers)
