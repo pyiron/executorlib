@@ -1,3 +1,4 @@
+from typing import Optional
 from pympipool.shared.executorbase import (
     execute_parallel_tasks,
     ExecutorBroker,
@@ -57,8 +58,8 @@ class PySlurmExecutor(ExecutorBroker):
         threads_per_core: int = 1,
         gpus_per_worker: int = 0,
         oversubscribe: bool = False,
-        init_function: callable = None,
-        cwd: str = None,
+        init_function: Optional[callable] = None,
+        cwd: Optional[str] = None,
         hostname_localhost: bool = False,
         command_line_argument_lst: list[str] = [],
     ):

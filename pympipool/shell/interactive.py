@@ -1,5 +1,6 @@
 import queue
 import threading
+from typing import Optional
 from concurrent.futures import Future
 import subprocess
 from time import sleep
@@ -122,8 +123,8 @@ class ShellExecutor(ExecutorBase):
     def submit(
         self,
         string_input: str,
-        lines_to_read: int = None,
-        stop_read_pattern: str = None,
+        lines_to_read: Optional[int] = None,
+        stop_read_pattern: Optional[str] = None,
     ):
         """
         Submit the input as a string to the executable. In addition to the input the ShellExecutor also needs a measure

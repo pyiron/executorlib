@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pympipool.shared.executorbase import (
     execute_parallel_tasks,
     ExecutorBroker,
@@ -54,8 +56,8 @@ class PyMPIExecutor(ExecutorBroker):
         max_workers: int = 1,
         cores_per_worker: int = 1,
         oversubscribe: bool = False,
-        init_function: callable = None,
-        cwd: str = None,
+        init_function: Optional[callable] = None,
+        cwd: Optional[str] = None,
         hostname_localhost: bool = False,
     ):
         super().__init__()

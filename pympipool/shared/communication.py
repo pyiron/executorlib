@@ -146,7 +146,7 @@ def interface_connect(host: str, port: str):
     return context, socket
 
 
-def interface_send(socket, result_dict: dict):
+def interface_send(socket: zmq.Socket, result_dict: dict):
     """
     Send results to a SocketInterface instance.
 
@@ -157,7 +157,7 @@ def interface_send(socket, result_dict: dict):
     socket.send(cloudpickle.dumps(result_dict))
 
 
-def interface_receive(socket):
+def interface_receive(socket: zmq.Socket):
     """
     Receive instructions from a SocketInterface instance.
 
@@ -167,7 +167,7 @@ def interface_receive(socket):
     return cloudpickle.loads(socket.recv())
 
 
-def interface_shutdown(socket, context):
+def interface_shutdown(socket: zmq.Socket, context: zmq.Context):
     """
     Close the connection to a SocketInterface instance.
 

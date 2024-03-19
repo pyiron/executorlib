@@ -1,8 +1,9 @@
+from typing import Optional
 import inspect
 
 
 def call_funct(
-    input_dict: dict, funct: callable = None, memory: dict = None
+    input_dict: dict, funct: Optional[callable] = None, memory: Optional[dict] = None
 ) -> callable:
     """
     Call function from dictionary

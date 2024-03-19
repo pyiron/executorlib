@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import flux.job
 
@@ -60,10 +61,10 @@ class PyFluxExecutor(ExecutorBroker):
         cores_per_worker: int = 1,
         threads_per_core: int = 1,
         gpus_per_worker: int = 0,
-        init_function: callable = None,
-        cwd: str = None,
-        executor: flux.job.FluxExecutor = None,
-        hostname_localhost: bool = False,
+        init_function: Optional[callable] = None,
+        cwd: Optional[str] = None,
+        executor: Optional[flux.job.FluxExecutor] = None,
+        hostname_localhost: Optional[bool] = False,
     ):
         super().__init__()
         self._set_process(
@@ -92,12 +93,12 @@ class PyFluxExecutor(ExecutorBroker):
 class FluxPythonInterface(BaseInterface):
     def __init__(
         self,
-        cwd: str = None,
+        cwd: Optional[str] = None,
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
         oversubscribe: bool = False,
-        executor: flux.job.FluxExecutor = None,
+        executor: Optional[flux.job.FluxExecutor] = None,
     ):
         super().__init__(
             cwd=cwd,

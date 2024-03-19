@@ -1,5 +1,6 @@
 from abc import ABC
 import subprocess
+from typing import Optional
 
 
 MPI_COMMAND = "mpiexec"
@@ -25,7 +26,7 @@ class BaseInterface(ABC):
 class SubprocessInterface(BaseInterface):
     def __init__(
         self,
-        cwd: str = None,
+        cwd: Optional[str] = None,
         cores: int = 1,
         oversubscribe: bool = False,
     ):
@@ -71,7 +72,7 @@ class MpiExecInterface(SubprocessInterface):
 class SrunInterface(SubprocessInterface):
     def __init__(
         self,
-        cwd: str = None,
+        cwd: Optional[str] = None,
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,

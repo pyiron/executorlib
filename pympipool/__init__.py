@@ -1,5 +1,6 @@
 import os
 import shutil
+from typing import Optional
 from ._version import get_versions
 from pympipool.mpi.executor import PyMPIExecutor
 from pympipool.shared.interface import SLURM_COMMAND
@@ -74,8 +75,8 @@ class Executor:
         threads_per_core: int = 1,
         gpus_per_worker: int = 0,
         oversubscribe: bool = False,
-        init_function: callable = None,
-        cwd: str = None,
+        init_function: Optional[callable] = None,
+        cwd: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
     ):
@@ -89,8 +90,8 @@ class Executor:
         threads_per_core: int = 1,
         gpus_per_worker: int = 0,
         oversubscribe: bool = False,
-        init_function: callable = None,
-        cwd: str = None,
+        init_function: Optional[callable] = None,
+        cwd: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
     ):

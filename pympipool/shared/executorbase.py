@@ -1,4 +1,5 @@
 import threading
+from typing import Optional
 from concurrent.futures import (
     Executor as FutureExecutor,
     Future,
@@ -171,7 +172,7 @@ def execute_parallel_tasks(
     cores: int,
     interface_class,
     hostname_localhost: bool = False,
-    init_function: callable = None,
+    init_function: Optional[callable] = None,
     **kwargs,
 ):
     """
@@ -201,7 +202,7 @@ def execute_parallel_tasks(
 
 
 def execute_parallel_tasks_loop(
-    interface, future_queue: queue.Queue, init_function: callable = None
+    interface, future_queue: queue.Queue, init_function: Optional[callable] = None
 ):
     if init_function is not None:
         interface.send_dict(
