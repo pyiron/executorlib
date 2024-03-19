@@ -18,7 +18,7 @@ class SocketInterface(object):
         self._process = None
         self._interface = interface
 
-    def send_dict(self, input_dict):
+    def send_dict(self, input_dict: dict):
         """
         Send a dictionary with instructions to a connected client process.
 
@@ -42,7 +42,7 @@ class SocketInterface(object):
             error_type = output["error_type"].split("'")[1]
             raise eval(error_type)(output["error"])
 
-    def send_and_receive_dict(self, input_dict):
+    def send_and_receive_dict(self, input_dict: dict) -> dict:
         """
         Combine both the send_dict() and receive_dict() function in a single call.
 
@@ -66,7 +66,7 @@ class SocketInterface(object):
         """
         return self._socket.bind_to_random_port("tcp://*")
 
-    def bootup(self, command_lst):
+    def bootup(self, command_lst: list[str]):
         """
         Boot up the client process to connect to the SocketInterface.
 
@@ -75,7 +75,7 @@ class SocketInterface(object):
         """
         self._interface.bootup(command_lst=command_lst)
 
-    def shutdown(self, wait=True):
+    def shutdown(self, wait: bool = True):
         result = None
         if self._interface.poll():
             result = self.send_and_receive_dict(
@@ -96,9 +96,9 @@ class SocketInterface(object):
 
 
 def interface_bootup(
-    command_lst,
+    command_lst: list[str],
     connections,
-    hostname_localhost=False,
+    hostname_localhost: bool = False,
 ):
     """
     Start interface for ZMQ communication
@@ -132,7 +132,7 @@ def interface_bootup(
     return interface
 
 
-def interface_connect(host, port):
+def interface_connect(host: str, port: str):
     """
     Connect to an existing SocketInterface instance by providing the hostname and the port as strings.
 
@@ -146,7 +146,7 @@ def interface_connect(host, port):
     return context, socket
 
 
-def interface_send(socket, result_dict):
+def interface_send(socket: zmq.Socket, result_dict: dict):
     """
     Send results to a SocketInterface instance.
 
@@ -157,7 +157,7 @@ def interface_send(socket, result_dict):
     socket.send(cloudpickle.dumps(result_dict))
 
 
-def interface_receive(socket):
+def interface_receive(socket: zmq.Socket):
     """
     Receive instructions from a SocketInterface instance.
 
@@ -167,7 +167,7 @@ def interface_receive(socket):
     return cloudpickle.loads(socket.recv())
 
 
-def interface_shutdown(socket, context):
+def interface_shutdown(socket: zmq.Socket, context: zmq.Context):
     """
     Close the connection to a SocketInterface instance.
 
