@@ -90,8 +90,8 @@ class SubprocessExecutor(ExecutorBroker):
                     kwargs={
                         # Executor Arguments
                         "future_queue": self._future_queue,
-                        "conda_environment_name": conda_environment_name,
-                        "conda_environment_path": conda_environment_path,
+                        "prefix_name": conda_environment_name,
+                        "prefix_path": conda_environment_path,
                     },
                 )
                 for _ in range(max_workers)
