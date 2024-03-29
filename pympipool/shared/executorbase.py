@@ -1,4 +1,3 @@
-import threading
 from typing import Optional
 from concurrent.futures import (
     Executor as FutureExecutor,
@@ -12,6 +11,7 @@ import sys
 import cloudpickle
 
 from pympipool.shared.communication import interface_bootup
+from pympipool.shared.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor):
@@ -76,7 +76,7 @@ class ExecutorBase(FutureExecutor):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: threading.Thread):
+    def _set_process(self, process: RaisingThread):
         self._process = process
         self._process.start()
 
@@ -89,7 +89,7 @@ class ExecutorBase(FutureExecutor):
         except (AttributeError, RuntimeError):
             pass
 
-    def _set_process(self, process: threading.Thread):
+    def _set_process(self, process: RaisingThread):
         self._process = process
         self._process.start()
 
