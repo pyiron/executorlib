@@ -29,6 +29,8 @@ class PySlurmExecutor(ExecutorBroker):
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
 
     Examples:
 
@@ -60,6 +62,8 @@ class PySlurmExecutor(ExecutorBroker):
         oversubscribe: bool = False,
         init_function: Optional[callable] = None,
         cwd: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
         hostname_localhost: bool = False,
         command_line_argument_lst: list[str] = [],
     ):
@@ -75,6 +79,8 @@ class PySlurmExecutor(ExecutorBroker):
                         "interface_class": SrunInterface,
                         "hostname_localhost": hostname_localhost,
                         "init_function": init_function,
+                        "prefix_name": conda_environment_name,
+                        "prefix_path": conda_environment_path,
                         # Interface Arguments
                         "threads_per_core": threads_per_core,
                         "gpus_per_core": int(gpus_per_worker / cores_per_worker),

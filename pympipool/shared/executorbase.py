@@ -173,6 +173,8 @@ def execute_parallel_tasks(
     interface_class,
     hostname_localhost: bool = False,
     init_function: Optional[callable] = None,
+    prefix_name: Optional[str] = None,
+    prefix_path: Optional[str] = None,
     **kwargs,
 ):
     """
@@ -189,10 +191,12 @@ def execute_parallel_tasks(
                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
+       prefix_name (str): name of the conda environment to initialize
+       prefix_path (str): path of the conda environment to initialize
     """
     execute_parallel_tasks_loop(
         interface=interface_bootup(
-            command_lst=_get_backend_path(cores=cores),
+            command_lst=_get_backend_path(cores=cores, prefix_name=prefix_name, prefix_path=prefix_path),
             connections=interface_class(cores=cores, **kwargs),
             hostname_localhost=hostname_localhost,
         ),
@@ -229,8 +233,13 @@ def execute_parallel_tasks_loop(
                     future_queue.task_done()
 
 
-def _get_backend_path(cores: int):
-    command_lst = [sys.executable]
+def _get_backend_path(cores: int, prefix_name: Optional[str] = None, prefix_path: Optional[str] = None,):
+    if prefix_name is not None:
+        command_lst = ["conda", "run", "-n", prefix_name, sys.executable]
+    elif prefix_path is not None:
+        command_lst = ["conda", "run", "-p", prefix_path, sys.executable]
+    else:
+        command_lst = [sys.executable]
     if cores > 1:
         command_lst += [_get_command_path(executable="mpiexec.py")]
     else:

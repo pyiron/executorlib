@@ -29,6 +29,8 @@ class PyMPIExecutor(ExecutorBroker):
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
 
     Examples:
 
@@ -58,6 +60,8 @@ class PyMPIExecutor(ExecutorBroker):
         oversubscribe: bool = False,
         init_function: Optional[callable] = None,
         cwd: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
         hostname_localhost: bool = False,
     ):
         super().__init__()
@@ -72,6 +76,8 @@ class PyMPIExecutor(ExecutorBroker):
                         "interface_class": MpiExecInterface,
                         "hostname_localhost": hostname_localhost,
                         "init_function": init_function,
+                        "prefix_name": conda_environment_name,
+                        "prefix_path": conda_environment_path,
                         # Interface Arguments
                         "cwd": cwd,
                         "oversubscribe": oversubscribe,

@@ -33,6 +33,8 @@ class PyFluxExecutor(ExecutorBroker):
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
 
     Examples:
 
@@ -63,6 +65,8 @@ class PyFluxExecutor(ExecutorBroker):
         gpus_per_worker: int = 0,
         init_function: Optional[callable] = None,
         cwd: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
         executor: Optional[flux.job.FluxExecutor] = None,
         hostname_localhost: Optional[bool] = False,
     ):
@@ -83,6 +87,8 @@ class PyFluxExecutor(ExecutorBroker):
                         "gpus_per_core": int(gpus_per_worker / cores_per_worker),
                         "cwd": cwd,
                         "executor": executor,
+                        "prefix_name": conda_environment_name,
+                        "prefix_path": conda_environment_path,
                     },
                 )
                 for _ in range(max_workers)

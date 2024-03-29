@@ -17,8 +17,8 @@ def execute_single_task(
 
     Args:
         future_queue (queue.Queue):
-        prefix_name (str):
-        prefix_path (str):
+        prefix_name (str): name of the conda environment to initialize
+        prefix_path (str): path of the conda environment to initialize
 
     """
     while True:
