@@ -7,7 +7,11 @@ from pympipool.shared.executorbase import ExecutorBroker
 from pympipool.shared.thread import RaisingThread
 
 
-def execute_single_task(future_queue: queue.Queue, prefix_name: Optional[str] = None, prefix_path: Optional[str] = None):
+def execute_single_task(
+    future_queue: queue.Queue,
+    prefix_name: Optional[str] = None,
+    prefix_path: Optional[str] = None,
+):
     """
     Process items received via the queue.
 
