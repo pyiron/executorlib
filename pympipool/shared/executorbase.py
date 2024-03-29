@@ -121,7 +121,7 @@ class ExecutorBroker(ExecutorBase):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: threading.Thread):
+    def _set_process(self, process: RaisingThread):
         self._process = process
         for process in self._process:
             process.start()
