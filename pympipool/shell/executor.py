@@ -1,3 +1,4 @@
+import queue
 from concurrent.futures import Future
 import subprocess
 
@@ -5,7 +6,7 @@ from pympipool.shared.executorbase import ExecutorBroker
 from pympipool.shared.thread import RaisingThread
 
 
-def execute_single_task(future_queue, prefix_name=None, prefix_path=None):
+def execute_single_task(future_queue: queue.Queue, prefix_name: str = None, prefix_path: str = None):
     """
     Process items received via the queue.
 
@@ -72,9 +73,9 @@ class SubprocessExecutor(ExecutorBroker):
 
     def __init__(
         self,
-        max_workers=1,
-        conda_environment_name=None,
-        conda_environment_path=None,
+        max_workers: int = 1,
+        conda_environment_name: str = None,
+        conda_environment_path: str = None,
     ):
         super().__init__()
         self._set_process(

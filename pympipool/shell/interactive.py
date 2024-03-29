@@ -1,3 +1,6 @@
+import queue
+import threading
+from typing import Optional
 from concurrent.futures import Future
 import subprocess
 from time import sleep
@@ -6,7 +9,7 @@ from pympipool.shared.executorbase import cancel_items_in_queue, ExecutorBase
 from pympipool.shared.thread import RaisingThread
 
 
-def wait_for_process_to_stop(process, sleep_interval=10e-10):
+def wait_for_process_to_stop(process: threading.Thread, sleep_interval: float = 10e-10):
     """
     Wait for the subprocess.Popen() process to stop executing
 
@@ -18,7 +21,7 @@ def wait_for_process_to_stop(process, sleep_interval=10e-10):
         sleep(sleep_interval)
 
 
-def execute_single_task(future_queue):
+def execute_single_task(future_queue: queue.Queue):
     """
     Process items received via the queue.
 
@@ -117,7 +120,12 @@ class ShellExecutor(ExecutorBase):
         )
         self._future_queue.put({"init": True, "args": args, "kwargs": kwargs})
 
-    def submit(self, string_input, lines_to_read=None, stop_read_pattern=None):
+    def submit(
+        self,
+        string_input: str,
+        lines_to_read: Optional[int] = None,
+        stop_read_pattern: Optional[str] = None,
+    ):
         """
         Submit the input as a string to the executable. In addition to the input the ShellExecutor also needs a measure
         to identify the completion of the execution. This can either be provided based on the number of lines to read
@@ -149,7 +157,7 @@ class ShellExecutor(ExecutorBase):
         )
         return f
 
-    def shutdown(self, wait=True, *, cancel_futures=False):
+    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """Clean-up the resources associated with the Executor.
 
         It is safe to call this method several times. Otherwise, no other
