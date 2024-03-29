@@ -196,7 +196,9 @@ def execute_parallel_tasks(
     """
     execute_parallel_tasks_loop(
         interface=interface_bootup(
-            command_lst=_get_backend_path(cores=cores, prefix_name=prefix_name, prefix_path=prefix_path),
+            command_lst=_get_backend_path(
+                cores=cores, prefix_name=prefix_name, prefix_path=prefix_path
+            ),
             connections=interface_class(cores=cores, **kwargs),
             hostname_localhost=hostname_localhost,
         ),
@@ -233,7 +235,11 @@ def execute_parallel_tasks_loop(
                     future_queue.task_done()
 
 
-def _get_backend_path(cores: int, prefix_name: Optional[str] = None, prefix_path: Optional[str] = None,):
+def _get_backend_path(
+    cores: int,
+    prefix_name: Optional[str] = None,
+    prefix_path: Optional[str] = None,
+):
     if prefix_name is not None:
         command_lst = ["conda", "run", "-n", prefix_name, sys.executable]
     elif prefix_path is not None:
