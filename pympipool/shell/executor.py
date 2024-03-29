@@ -1,17 +1,20 @@
 import queue
 from concurrent.futures import Future
 import subprocess
+from typing import Optional
 
 from pympipool.shared.executorbase import ExecutorBroker
 from pympipool.shared.thread import RaisingThread
 
 
-def execute_single_task(future_queue: queue.Queue, prefix_name: str = None, prefix_path: str = None):
+def execute_single_task(future_queue: queue.Queue, prefix_name: Optional[str] = None, prefix_path: Optional[str] = None):
     """
     Process items received via the queue.
 
     Args:
         future_queue (queue.Queue):
+        prefix_name (str):
+        prefix_path (str):
 
     """
     while True:
@@ -60,6 +63,8 @@ class SubprocessExecutor(ExecutorBroker):
 
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
 
     Examples:
 
@@ -74,8 +79,8 @@ class SubprocessExecutor(ExecutorBroker):
     def __init__(
         self,
         max_workers: int = 1,
-        conda_environment_name: str = None,
-        conda_environment_path: str = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
     ):
         super().__init__()
         self._set_process(
