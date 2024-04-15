@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     "cloudpickle==3.0.0",
     "mpi4py==3.1.6",
-    "pyzmq==25.1.2",
+    "pyzmq==26.0.0",
     "tqdm==4.66.2",
 ]
 dynamic = ["version"]
