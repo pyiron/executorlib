@@ -11,14 +11,13 @@ authors = [
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["pyiron"]
-requires-python = ">=3.8"
+requires-python = ">=3.9 <3.13"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Topic :: Scientific/Engineering :: Physics",
     "License :: OSI Approved :: BSD License",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
