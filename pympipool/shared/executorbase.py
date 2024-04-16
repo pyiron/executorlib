@@ -192,20 +192,11 @@ def execute_parallel_tasks(
                                      option to true
        init_function (callable): optional function to preset arguments for functions which are submitted later
     """
-    execute_parallel_tasks_loop(
-        interface=interface_bootup(
-            command_lst=_get_backend_path(cores=cores),
-            connections=interface_class(cores=cores, **kwargs),
-            hostname_localhost=hostname_localhost,
-        ),
-        future_queue=future_queue,
-        init_function=init_function,
+    interface = interface_bootup(
+        command_lst=_get_backend_path(cores=cores),
+        connections=interface_class(cores=cores, **kwargs),
+        hostname_localhost=hostname_localhost,
     )
-
-
-def execute_parallel_tasks_loop(
-    interface, future_queue: queue.Queue, init_function: Optional[callable] = None
-):
     if init_function is not None:
         interface.send_dict(
             input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
