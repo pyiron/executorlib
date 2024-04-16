@@ -19,19 +19,19 @@ their own version of `mpi` and `mpi4py` the `pympipool` package is also provided
 
 ### conda-based installation 
 In the same way `pympipool` can be installed with the [conda package manager](https://anaconda.org/conda-forge/pympipool): 
-```
+```shell
 conda install -c conda-forge pympipool
 ```
 When resolving the dependencies with `conda` gets slow it is recommended to use `mamba` instead of `conda`. So you can 
 also install `pympipool` using: 
-```
+```shell
 mamba install -c conda-forge pympipool
 ```
 
 ### pypi-based installation
 `pympipool` can be installed from the [python package index (pypi)](https://pypi.org/project/pympipool/) using the 
 following command: 
-```
+```shell
 pip install pympipool
 ```
 
@@ -52,7 +52,7 @@ Still the user would not call these interfaces directly, but rather use it throu
 ### Flux Framework
 For Linux users without a pre-installed resource scheduler in their high performance computing (HPC) environment, the
 [flux framework](https://flux-framework.org) can be installed with the `conda` package manager: 
-```
+```shell
 conda install -c conda-forge flux-core
 ```
 For alternative ways to install the [flux framework](https://flux-framework.org) please refer to their official 
@@ -61,30 +61,30 @@ For alternative ways to install the [flux framework](https://flux-framework.org)
 #### Nvidia 
 For adding GPU support in the [flux framework](https://flux-framework.org) you want to install `flux-sched` in addition 
 to `flux-core`. For Nvidia GPUs you need: 
-```
+```shell
 conda install -c conda-forge flux-core flux-sched libhwloc=*=cuda*
 ```
 In case this fails because there is no GPU on the login node and the `cudatoolkit` cannot be installed you can use the 
 `CONDA_OVERRIDE_CUDA` environment variable to pretend a local cuda version is installed `conda` can link to using:
-```
+```shell
 CONDA_OVERRIDE_CUDA="11.6" conda install -c conda-forge flux-core flux-sched libhwloc=*=cuda*
 ```
 
 #### AMD
 For adding GPU support in the [flux framework](https://flux-framework.org) you want to install `flux-sched` in addition 
 to `flux-core`. For AMD GPUs you need: 
-```
+```shell
 conda install -c conda-forge flux-core flux-sched
 ```
 
 #### Test Flux
 To test the [flux framework](https://flux-framework.org) and validate the GPUs are correctly recognized you can start
 a flux instance using: 
-```
+```shell
 flux start
 ```
 Afterwards, you can list the resources accessible to flux using:
-```
+```shell
 flux resource list
 ```
 This should contain a column for the GPUs if you installed the required dependencies. Here is an example output for a 
@@ -101,15 +101,15 @@ hyper-threading the total number of CPU cores might be half the number of cores 
 When the [flux framework](https://flux-framework.org) is used inside an existing queuing system, then you have to 
 communicate these resources to it. For the [SLURM workload manager](https://www.schedmd.com) this is achieved by calling
 `flux start` with `srun`. For an interactive session use: 
-```
+```shell
 srun --pty flux start
 ```
 Alternatively, to execute a python script which uses `pympipool` you can call it with: 
-```
+```shell
 srun flux start python <your python script.py>
 ```
 In the same way to start a Jupyter Notebook in an interactive allocation you can use: 
-```
+```shell
 srun --pty flux start jupyter notebook
 ```
 Then each jupyter notebook you execute on this jupyter notebook server has access to the resources of the interactive
