@@ -5,7 +5,7 @@ to simplify the up-scaling of individual functions in a given workflow.
 ## Compatibility
 Starting with the basic example of `1+1=2`. With the `ThreadPoolExecutor` from the [`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
 standard library this can be written as - `test_thread.py`: 
-```
+```python
 from concurrent.futures import ThreadPoolExecutor
 
 with ThreadPoolExecutor(
@@ -36,7 +36,7 @@ worker `gpus_per_worker`. Finally, for those backends which support over-subscri
 replacement for the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures).
 
 The previous example is rewritten for the `pympipool.Executor` in - `test_sum.py`:
-```
+```python
 from pympipool import Executor 
 
 with Executor(
@@ -58,7 +58,7 @@ The result of the calculation is again `1+1=2`.
 
 Beyond pre-defined functions like the `sum()` function, the same functionality can be used to submit user-defined 
 functions. In the `test_serial.py` example a custom summation function is defined: 
-```
+```python
 from pympipool import Executor
 
 def calc(*args):
@@ -95,7 +95,7 @@ For backwards compatibility with the [`multiprocessing.Pool`](https://docs.pytho
 class the [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
 also implements the `map()` function to map a series of inputs to a function. The same `map()` function is also 
 available in the `pympipool.Executor` - `test_map.py`: 
-```
+```python
 from pympipool import Executor
 
 def calc(*args):
@@ -118,7 +118,7 @@ each function submitted to this worker has access to the dataset, as it is alrea
 the user defines an initialization function `init_function` which returns a dictionary with one key per dataset. The 
 keys of the dictionary can then be used as additional input parameters in each function submitted to the `pympipool.Executor`.
 This functionality is illustrated in the `test_data.py` example: 
-```
+```python
 from pympipool import Executor
 
 def calc(i, j, k):
@@ -179,7 +179,7 @@ uses for thread based parallelism, so it might be necessary to set certain envir
 At the current stage `pympipool.Executor` does not set these parameters itself, so you have to add them in the function
 you submit before importing the corresponding library: 
 
-```
+```python
 def calc(i):
     import os
     os.environ["OMP_NUM_THREADS"] = "2"
@@ -214,7 +214,7 @@ function while these functions can still me submitted to the `pympipool.Executor
 advantage of this approach is that the users can parallelize their workflows one function at the time. 
 
 The example in `test_mpi.py` illustrates the submission of a simple MPI parallel python function: 
-```
+```python
 from pympipool import Executor
 
 def calc(i):
@@ -246,7 +246,7 @@ and finally the index of the specific process `0` or `1`.
 With the rise of machine learning applications, the use of GPUs for scientific application becomes more and more popular.
 Consequently, it is essential to have full control over the assignment of GPUs to specific python functions. In the 
 `test_gpu.py` example the `tensorflow` library is used to identify the GPUs and return their configuration: 
-```
+```python
 import socket
 from pympipool import Executor
 from tensorflow.python.client import device_lib
@@ -274,7 +274,7 @@ as two functions are submitted and the results are printed.
 
 To clarify the execution of such an example on a high performance computing (HPC) cluster using the [SLURM workload manager](https://www.schedmd.com)
 the submission script is given below: 
-```
+```shell
 #!/bin/bash
 #SBATCH --nodes=2
 #SBATCH --gpus-per-node=1
@@ -290,7 +290,7 @@ For the more complex setup of running the [flux framework](https://flux-framewor
 within the [SLURM workload manager](https://www.schedmd.com) it is essential that the resources are passed from the 
 [SLURM workload manager](https://www.schedmd.com) to the [flux framework](https://flux-framework.org). This is achieved
 by calling `srun flux start` in the submission script: 
-```
+```shell
 #!/bin/bash
 #SBATCH --nodes=2
 #SBATCH --gpus-per-node=1
@@ -316,7 +316,7 @@ Following the [`subprocess.check_output()`](https://docs.python.org/3/library/su
 python libraries, any kind of command can be submitted to the `pympipool.SubprocessExecutor`. The command can either be 
 specified as a list `["echo", "test"]` in which the first entry is typically the executable followed by the corresponding
 parameters or the command can be specified as a string `"echo test"` with the additional parameter `shell=True`.
-```
+```python
 from pympipool import SubprocessExecutor
 
 with SubprocessExecutor(max_workers=2) as exe:
@@ -345,7 +345,7 @@ of outputs, there are some executables which allow the user to interact with the
 challenge of interfacing a python process with such an interactive executable is to identify when the executable is ready
 to receive the next input. A very basis example for an interactive executable is a script which counts to the number 
 input by the user. This can be written in python as `count.py`:
-```
+```python
 def count(iterations):
     for i in range(int(iterations)):
         print(i)
@@ -366,12 +366,14 @@ each call submitted to the executable using the `lines_to_read` parameter. In co
 defined above the `ShellExecutor` only supports the execution of a single executable at a time, correspondingly the input
 parameters for calling the executable are provided at the time of initialization of the `ShellExecutor` and the inputs 
 are submitted using the `submit()` function:
-```
+```python
 from pympipool import ShellExecutor
 
 with ShellExecutor(["python", "count.py"], universal_newlines=True) as exe:
     future_lines = exe.submit(string_input="4", lines_to_read=5)
     print(future_lines.done(), future_lines.result(), future_lines.done())
+```
+```
 >>> (False, "0\n1\n2\n3\ndone\n", True)
 ```
 The response for a given set of input is again returned as `concurrent.futures.Future` object, this allows the user to
@@ -380,12 +382,14 @@ example counts the numbers from `0` to `3` and prints each of them in one line f
 waiting for new inputs. This results in `n+1` lines of output for the input of `n`. Still predicting the number of lines
 for a given input can be challenging, so the `pympipool.ShellExecutor` class also provides the option to wait until a 
 specific pattern is found in the output using the `stop_read_pattern`:
-```
+```python
 from pympipool import ShellExecutor
 
 with ShellExecutor(["python", "count.py"], universal_newlines=True) as exe:
     future_pattern = exe.submit(string_input="4", stop_read_pattern="done")
     print(future_pattern.done(), future_pattern.result(), future_pattern.done())
+```
+```
 >>> (False, "0\n1\n2\n3\ndone\n", True)
 ```
 In this example the pattern simply searches for the string `done` in the output of the program and returns all the output
