@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from concurrent.futures import (
     Executor as FutureExecutor,
     Future,
@@ -12,6 +12,7 @@ import cloudpickle
 
 from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
+from pympipool.shared.interface import BaseInterface
 
 
 class ExecutorBase(FutureExecutor):
@@ -121,7 +122,7 @@ class ExecutorBroker(ExecutorBase):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: RaisingThread):
+    def _set_process(self, process: List[RaisingThread]):
         self._process = process
         for process in self._process:
             process.start()
@@ -170,7 +171,7 @@ def cloudpickle_register(ind: int = 2):
 def execute_parallel_tasks(
     future_queue: queue.Queue,
     cores: int,
-    interface_class,
+    interface_class: BaseInterface,
     hostname_localhost: bool = False,
     init_function: Optional[callable] = None,
     **kwargs,
@@ -181,7 +182,7 @@ def execute_parallel_tasks(
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
-       interface_class:
+       interface_class (BaseInterface): Interface to start process on selected compute resources
        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                      context of an HPC cluster this essential to be able to communicate to an
                                      Executor running on a different compute node within the same allocation. And
@@ -189,6 +190,7 @@ def execute_parallel_tasks(
                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
+       init_function (callable): optional function to preset arguments for functions which are submitted later
     """
     execute_parallel_tasks_loop(
         interface=interface_bootup(
