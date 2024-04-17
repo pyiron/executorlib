@@ -132,9 +132,9 @@ class ExecutorSteps(ExecutorBase):
     def submit(
         self,
         fn: callable,
-        fn_args: list,
-        fn_kwargs: dict,
-        executor_kwargs: dict,
+        args: tuple = (),
+        kwargs: dict = {},
+        executor_kwargs: dict = {},
     ):
         """Submits a callable to be executed with the given arguments.
 
@@ -148,8 +148,8 @@ class ExecutorSteps(ExecutorBase):
         self._future_queue.put(
             {
                 "fn": fn,
-                "args": fn_args,
-                "kwargs": fn_kwargs,
+                "args": args,
+                "kwargs": kwargs,
                 "future": f,
                 "executor_kwargs": executor_kwargs,
             }
