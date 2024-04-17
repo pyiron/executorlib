@@ -37,7 +37,7 @@ no central data storage is required as the workers and the scheduling task can c
 ## Examples
 The following examples illustrates how `pympipool` can be used to distribute a series of MPI parallel function calls 
 within a queuing system allocation. `example.py`:
-```
+```python
 from pympipool import Executor
 
 def calc(i):

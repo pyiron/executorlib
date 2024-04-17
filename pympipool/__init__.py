@@ -79,6 +79,7 @@ class Executor:
         cwd: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
+        backend="auto",
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
@@ -94,6 +95,7 @@ class Executor:
         cwd: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
+        backend: str = "auto",
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -118,9 +120,18 @@ class Executor:
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+            backend (str): Switch between the different backends "flux", "mpi" or "slurm". Alternatively, when "auto"
+                           is selected (the default) the available backend is determined automatically.
 
         """
-        if flux_installed:
+        if backend not in ["auto", "mpi", "slurm", "flux"]:
+            raise ValueError(
+                'The currently implemented backends are ["flux", "mpi", "slurm"]. '
+                'Alternatively, you can select "auto", the default option, to automatically determine the backend. But '
+                + backend
+                + " is not a valid choice."
+            )
+        elif backend == "flux" or (backend == "auto" and flux_installed):
             if oversubscribe:
                 raise ValueError(
                     "Oversubscribing is not supported for the pympipool.flux.PyFLuxExecutor backend."
@@ -135,7 +146,7 @@ class Executor:
                 cwd=cwd,
                 hostname_localhost=hostname_localhost,
             )
-        elif slurm_installed:
+        elif backend == "slurm" or (backend == "auto" and slurm_installed):
             return PySlurmExecutor(
                 max_workers=max_workers,
                 cores_per_worker=cores_per_worker,
@@ -143,7 +154,7 @@ class Executor:
                 cwd=cwd,
                 hostname_localhost=hostname_localhost,
             )
-        else:
+        else:  # backend="mpi"
             if threads_per_core != 1:
                 raise ValueError(
                     "Thread based parallelism is not supported for the pympipool.mpi.PyMPIExecutor backend."
