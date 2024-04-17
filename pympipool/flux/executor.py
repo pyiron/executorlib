@@ -127,7 +127,7 @@ class PyFluxStepExecutor(ExecutorSteps):
         >>>     return np.array([i, j, k]), size, rank
         >>>
         >>> with PyFluxStepExecutor(max_cores=2) as p:
-        >>>     fs = p.submit(fn=calc, args=[2], kwargs={"j": 4, "k": 3}, executor_kwargs={"cores": 2})
+        >>>     fs = p.submit(calc, 2, j=4, k=3, executor_kwargs={"cores": 2})
         >>>     print(fs.result())
 
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
