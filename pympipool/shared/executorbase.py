@@ -132,9 +132,9 @@ class ExecutorSteps(ExecutorBase):
     def submit(
         self,
         fn: callable,
-        args: tuple = (),
-        kwargs: dict = {},
+        *args,
         executor_kwargs: dict = {},
+        **kwargs,
     ):
         """Submits a callable to be executed with the given arguments.
 
