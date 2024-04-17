@@ -125,7 +125,12 @@ class Executor:
 
         """
         if backend not in ["auto", "mpi", "slurm", "flux"]:
-            raise ValueError()
+            raise ValueError(
+                'The currently implemented backends are ["flux", "mpi", "slurm"]. '
+                'Alternatively, you can select "auto", the default option, to automatically determine the backend. But '
+                + backend
+                + " is not a valid choice."
+            )
         elif backend == "flux" or (backend == "auto" and flux_installed):
             if oversubscribe:
                 raise ValueError(
