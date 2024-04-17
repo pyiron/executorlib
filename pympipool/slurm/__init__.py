@@ -1,1 +1,1 @@
-from pympipool.slurm.executor import PySlurmExecutor
+from pympipool.slurm.executor import PySlurmExecutor, PySlurmStepExecutor

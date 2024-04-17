@@ -1,1 +1,1 @@
-from pympipool.flux.executor import PyFluxExecutor
+from pympipool.flux.executor import PyFluxExecutor, PyFluxStepExecutor

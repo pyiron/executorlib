@@ -128,6 +128,59 @@ class ExecutorBroker(ExecutorBase):
             process.start()
 
 
+class ExecutorSteps(ExecutorBase):
+    def submit(
+        self,
+        fn: callable,
+        fn_args: list,
+        fn_kwargs: dict,
+        executor_kwargs: dict,
+    ):
+        """Submits a callable to be executed with the given arguments.
+
+        Schedules the callable to be executed as fn(*args, **kwargs) and returns
+        a Future instance representing the execution of the callable.
+
+        Returns:
+            A Future representing the given call.
+        """
+        f = Future()
+        self._future_queue.put(
+            {
+                "fn": fn,
+                "args": fn_args,
+                "kwargs": fn_kwargs,
+                "future": f,
+                "executor_kwargs": executor_kwargs,
+            }
+        )
+        return f
+
+    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
+        """Clean-up the resources associated with the Executor.
+
+        It is safe to call this method several times. Otherwise, no other
+        methods can be called after this one.
+
+        Args:
+            wait: If True then shutdown will not return until all running
+                futures have finished executing and the resources used by the
+                parallel_executors have been reclaimed.
+            cancel_futures: If True then shutdown will cancel all pending
+                futures. Futures that are completed or running will not be
+                cancelled.
+        """
+        if cancel_futures:
+            cancel_items_in_queue(que=self._future_queue)
+        if self._process is not None:
+            self._future_queue.put({"shutdown": True, "wait": wait})
+            if wait:
+                self._process.join()
+                self._future_queue.join()
+        self._process = None
+        self._future_queue = None
+
+
 def cancel_items_in_queue(que: queue.Queue):
     """
     Cancel items which are still waiting in the queue. If the executor is busy tasks remain in the queue, so the future
@@ -222,6 +275,63 @@ def execute_parallel_tasks(
                     future_queue.task_done()
 
 
+def execute_separate_tasks(
+    future_queue: queue.Queue,
+    interface_class: BaseInterface,
+    max_cores: int,
+    hostname_localhost: bool = False,
+    **kwargs,
+):
+    """
+    Execute a single tasks in parallel using the message passing interface (MPI).
+
+    Args:
+       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+       interface_class (BaseInterface): Interface to start process on selected compute resources
+       max_cores (int): defines the number cores which can be used in parallel
+       hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                     context of an HPC cluster this essential to be able to communicate to an
+                                     Executor running on a different compute node within the same allocation. And
+                                     in principle any computer should be able to resolve that their own hostname
+                                     points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                     this look up for security reasons. So on MacOS it is required to set this
+                                     option to true
+    """
+    active_task_dict = {}
+    while True:
+        task_dict = future_queue.get()
+        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+            future_queue.task_done()
+            future_queue.join()
+            break
+        elif "fn" in task_dict.keys() and "future" in task_dict.keys():
+            active_task_dict = _wait_for_free_slots(
+                active_task_dict=active_task_dict,
+                max_cores=max_cores,
+            )
+            executor_dict = task_dict.pop("executor_kwargs")
+            qtask = queue.Queue()
+            qtask.put(task_dict)
+            qtask.put({"shutdown": True, "wait": True})
+            active_task_dict[task_dict["future"]] = executor_dict["cores"]
+            task_kwargs = kwargs.copy()
+            task_kwargs.update(executor_dict)
+            task_kwargs.update(
+                {
+                    "future_queue": qtask,
+                    "interface_class": interface_class,
+                    "hostname_localhost": hostname_localhost,
+                    "init_function": None,
+                }
+            )
+            process = RaisingThread(
+                target=execute_parallel_tasks,
+                kwargs=task_kwargs,
+            )
+            process.start()
+            future_queue.task_done()
+
+
 def _get_backend_path(cores: int):
     command_lst = [sys.executable]
     if cores > 1:
@@ -233,3 +343,9 @@ def _get_backend_path(cores: int):
 
 def _get_command_path(executable: str):
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
+
+
+def _wait_for_free_slots(active_task_dict, max_cores):
+    while sum(active_task_dict.values()) >= max_cores:
+        active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
+    return active_task_dict
