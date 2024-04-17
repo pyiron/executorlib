@@ -117,7 +117,7 @@ class PyMPIStepExecutor(ExecutorSteps):
         >>>     return np.array([i, j, k]), size, rank
         >>>
         >>> with PyMPIStepExecutor(max_cores=2) as p:
-        >>>     fs = p.submit(calc, 2, j=4, k=3, executor_kwargs={"cores": 2})
+        >>>     fs = p.submit(calc, 2, j=4, k=3, resource_dict={"cores": 2})
         >>>     print(fs.result())
 
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]

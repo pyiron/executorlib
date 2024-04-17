@@ -41,21 +41,42 @@ class ExecutorBase(FutureExecutor):
     def future_queue(self):
         return self._future_queue
 
-    def submit(self, fn: callable, *args, **kwargs):
-        """Submits a callable to be executed with the given arguments.
+    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs):
+        """
+        Submits a callable to be executed with the given arguments.
 
         Schedules the callable to be executed as fn(*args, **kwargs) and returns
         a Future instance representing the execution of the callable.
 
+        Args:
+            fn (callable): function to submit for execution
+            args: arguments for the submitted function
+            kwargs: keyword arguments for the submitted function
+            resource_dict (dict): resource dictionary, which defines the resources used for the execution of the
+                                  function. Example resource dictionary: {
+                                      cores: 1,
+                                      threads_per_core: 1,
+                                      gpus_per_worker: 0,
+                                      oversubscribe: False,
+                                      cwd: None,
+                                      executor: None,
+                                      hostname_localhost: False,
+                                  }
+
         Returns:
             A Future representing the given call.
         """
+        if len(resource_dict) > 0:
+            raise ValueError(
+                "When block_allocation is enabled, the resource requirements have to be defined on the executor level."
+            )
         f = Future()
         self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
         return f
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
-        """Clean-up the resources associated with the Executor.
+        """
+        Clean-up the resources associated with the Executor.
 
         It is safe to call this method several times. Otherwise, no other
         methods can be called after this one.
@@ -89,10 +110,6 @@ class ExecutorBase(FutureExecutor):
             self.shutdown(wait=False)
         except (AttributeError, RuntimeError):
             pass
-
-    def _set_process(self, process: RaisingThread):
-        self._process = process
-        self._process.start()
 
 
 class ExecutorBroker(ExecutorBase):
@@ -129,17 +146,27 @@ class ExecutorBroker(ExecutorBase):
 
 
 class ExecutorSteps(ExecutorBase):
-    def submit(
-        self,
-        fn: callable,
-        *args,
-        executor_kwargs: dict = {},
-        **kwargs,
-    ):
-        """Submits a callable to be executed with the given arguments.
+    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs):
+        """
+        Submits a callable to be executed with the given arguments.
 
         Schedules the callable to be executed as fn(*args, **kwargs) and returns
         a Future instance representing the execution of the callable.
+
+        Args:
+            fn (callable): function to submit for execution
+            args: arguments for the submitted function
+            kwargs: keyword arguments for the submitted function
+            resource_dict (dict): resource dictionary, which defines the resources used for the execution of the
+                                  function. Example resource dictionary: {
+                                      cores: 1,
+                                      threads_per_core: 1,
+                                      gpus_per_worker: 0,
+                                      oversubscribe: False,
+                                      cwd: None,
+                                      executor: None,
+                                      hostname_localhost: False,
+                                  }
 
         Returns:
             A Future representing the given call.
@@ -151,7 +178,7 @@ class ExecutorSteps(ExecutorBase):
                 "args": args,
                 "kwargs": kwargs,
                 "future": f,
-                "executor_kwargs": executor_kwargs,
+                "resource_dict": resource_dict,
             }
         )
         return f
@@ -298,9 +325,12 @@ def execute_separate_tasks(
                                      option to true
     """
     active_task_dict = {}
+    process_lst = []
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+            if task_dict["wait"]:
+                _ = [process.join() for process in process_lst]
             future_queue.task_done()
             future_queue.join()
             break
@@ -309,13 +339,13 @@ def execute_separate_tasks(
                 active_task_dict=active_task_dict,
                 max_cores=max_cores,
             )
-            executor_dict = task_dict.pop("executor_kwargs")
+            resource_dict = task_dict.pop("resource_dict")
             qtask = queue.Queue()
             qtask.put(task_dict)
             qtask.put({"shutdown": True, "wait": True})
-            active_task_dict[task_dict["future"]] = executor_dict["cores"]
+            active_task_dict[task_dict["future"]] = resource_dict["cores"]
             task_kwargs = kwargs.copy()
-            task_kwargs.update(executor_dict)
+            task_kwargs.update(resource_dict)
             task_kwargs.update(
                 {
                     "future_queue": qtask,
@@ -329,6 +359,7 @@ def execute_separate_tasks(
                 kwargs=task_kwargs,
             )
             process.start()
+            process_lst.append(process)
             future_queue.task_done()
 
 
