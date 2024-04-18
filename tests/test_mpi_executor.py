@@ -14,6 +14,10 @@ def calc(i):
     return i
 
 
+def calc_array(i):
+    return np.array(i**2)
+
+
 def echo_funct(i):
     return i
 
@@ -140,7 +144,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
         with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
-            output = p.submit(calc, i=2)
+            output = p.submit(calc_array, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
@@ -151,8 +155,8 @@ class TestFuturePool(unittest.TestCase):
 
     def test_executor_multi_submission(self):
         with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
-            fs_1 = p.submit(calc, i=2)
-            fs_2 = p.submit(calc, i=2)
+            fs_1 = p.submit(calc_array, i=2)
+            fs_2 = p.submit(calc_array, i=2)
             self.assertEqual(fs_1.result(), np.array(4))
             self.assertEqual(fs_2.result(), np.array(4))
             self.assertTrue(fs_1.done())
@@ -172,7 +176,7 @@ class TestFuturePool(unittest.TestCase):
 
     def test_pool_serial_map(self):
         with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
-            output = p.map(calc, [1, 2, 3])
+            output = p.map(calc_array, [1, 2, 3])
         self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
 
     def test_executor_exception(self):
@@ -227,7 +231,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_failed_no_argument(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, "args": (), "kwargs": {}, "future": f})
+        q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -242,7 +246,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_failed_wrong_argument(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, "args": (), "kwargs": {"j": 4}, "future": f})
+        q.put({"fn": calc_array, "args": (), "kwargs": {"j": 4}, "future": f})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -257,7 +261,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
+        q.put({"fn": calc_array, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_parallel_tasks(
@@ -273,7 +277,7 @@ class TestFuturePool(unittest.TestCase):
     def test_execute_task_parallel(self):
         f = Future()
         q = Queue()
-        q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
+        q.put({"fn": calc_array, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         execute_parallel_tasks(
