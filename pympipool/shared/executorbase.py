@@ -90,10 +90,6 @@ class ExecutorBase(FutureExecutor):
         except (AttributeError, RuntimeError):
             pass
 
-    def _set_process(self, process: RaisingThread):
-        self._process = process
-        self._process.start()
-
 
 class ExecutorBroker(ExecutorBase):
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
