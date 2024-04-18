@@ -343,7 +343,10 @@ def execute_separate_tasks(
             qtask = queue.Queue()
             qtask.put(task_dict)
             qtask.put({"shutdown": True, "wait": True})
-            active_task_dict[task_dict["future"]] = resource_dict["cores"]
+            if "cores" in resource_dict.keys():
+                active_task_dict[task_dict["future"]] = resource_dict["cores"]
+            else:
+                active_task_dict[task_dict["future"]] = kwargs["cores"]
             task_kwargs = kwargs.copy()
             task_kwargs.update(resource_dict)
             task_kwargs.update(
