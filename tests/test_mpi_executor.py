@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from pympipool.mpi.executor import PyMPIExecutor, MpiExecInterface
+from pympipool.mpi.executor import PyMPIExecutor, PyMPIStepExecutor, MpiExecInterface
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import (
     cloudpickle_register,
@@ -89,6 +89,44 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             )
 
 
+class TestPyMpiExecutorStepSerial(unittest.TestCase):
+    def test_pympiexecutor_two_workers(self):
+        with PyMPIStepExecutor(max_cores=2, hostname_localhost=True) as exe:
+            cloudpickle_register(ind=1)
+            fs_1 = exe.submit(calc, 1)
+            fs_2 = exe.submit(calc, 2)
+            self.assertEqual(fs_1.result(), 1)
+            self.assertEqual(fs_2.result(), 2)
+            self.assertTrue(fs_1.done())
+            self.assertTrue(fs_2.done())
+
+    def test_pympiexecutor_one_worker(self):
+        with PyMPIStepExecutor(max_cores=1, hostname_localhost=True) as exe:
+            cloudpickle_register(ind=1)
+            fs_1 = exe.submit(calc, 1)
+            fs_2 = exe.submit(calc, 2)
+            self.assertEqual(fs_1.result(), 1)
+            self.assertEqual(fs_2.result(), 2)
+            self.assertTrue(fs_1.done())
+            self.assertTrue(fs_2.done())
+
+    def test_pympiexecutor_errors(self):
+        with self.assertRaises(TypeError):
+            PyMPIStepExecutor(
+                max_cores=1,
+                cores_per_worker=1,
+                threads_per_core=2,
+                hostname_localhost=True,
+            )
+        with self.assertRaises(TypeError):
+            PyMPIStepExecutor(
+                max_cores=1,
+                cores_per_worker=1,
+                gpus_per_worker=1,
+                hostname_localhost=True,
+            )
+
+
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
         with PyMPIExecutor(
@@ -120,6 +158,43 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
         with PyMPIExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as p:
+            cloudpickle_register(ind=1)
+            output = p.submit(echo_funct, 2).result()
+        self.assertEqual(output, [2, 2])
+
+
+class TestPyMpiStepExecutorMPI(unittest.TestCase):
+    def test_pympiexecutor_one_worker_with_mpi(self):
+        with PyMPIStepExecutor(
+            max_cores=2, cores_per_worker=2, hostname_localhost=True
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs_1 = exe.submit(mpi_funct, 1)
+            self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
+            self.assertTrue(fs_1.done())
+
+    def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
+        with PyMPIStepExecutor(
+            max_cores=2, cores_per_worker=2, hostname_localhost=True
+        ) as p:
+            cloudpickle_register(ind=1)
+            fs1 = p.submit(mpi_funct, 1)
+            fs2 = p.submit(mpi_funct, 2)
+            fs3 = p.submit(mpi_funct, 3)
+            output = [
+                fs1.result(),
+                fs2.result(),
+                fs3.result(),
+            ]
+        self.assertEqual(
+            output,
+            [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
+        )
+
+    def test_pympiexecutor_one_worker_with_mpi_echo(self):
+        with PyMPIStepExecutor(
+            max_cores=2, cores_per_worker=2, hostname_localhost=True
         ) as p:
             cloudpickle_register(ind=1)
             output = p.submit(echo_funct, 2).result()
@@ -245,6 +320,24 @@ class TestFuturePool(unittest.TestCase):
                     self.assertEqual(str(exe.info[k]), v)
         with ExecutorBase() as exe:
             self.assertIsNone(exe.info)
+
+    def test_meta_step(self):
+        meta_data_exe_dict = {
+            "cores": 2,
+            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
+            "hostname_localhost": True,
+            "cwd": None,
+            "oversubscribe": False,
+            "max_cores": 2,
+        }
+        with PyMPIStepExecutor(
+            max_cores=2, cores_per_worker=2, hostname_localhost=True
+        ) as exe:
+            for k, v in meta_data_exe_dict.items():
+                if k != "interface_class":
+                    self.assertEqual(exe.info[k], v)
+                else:
+                    self.assertEqual(str(exe.info[k]), v)
 
     def test_pool_multi_core(self):
         with PyMPIExecutor(
