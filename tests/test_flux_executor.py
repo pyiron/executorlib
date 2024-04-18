@@ -132,7 +132,12 @@ class TestFluxBackend(unittest.TestCase):
         self.executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with Executor(max_workers=2, executor=self.executor, backend="flux") as exe:
+        with Executor(
+            max_cores=2,
+            executor=self.executor,
+            backend="flux",
+            block_allocation=True,
+        ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -142,7 +147,11 @@ class TestFluxBackend(unittest.TestCase):
 
     def test_flux_executor_threads(self):
         with Executor(
-            max_workers=1, threads_per_core=2, executor=self.executor, backend="flux"
+            max_cores=2,
+            threads_per_core=2,
+            executor=self.executor,
+            backend="flux",
+            block_allocation=True,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -153,14 +162,24 @@ class TestFluxBackend(unittest.TestCase):
 
     def test_flux_executor_parallel(self):
         with Executor(
-            max_workers=1, cores_per_worker=2, executor=self.executor, backend="flux"
+            max_cores=2,
+            cores_per_worker=2,
+            executor=self.executor,
+            backend="flux",
+            block_allocation=True,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with Executor(max_workers=1, cores_per_worker=2, executor=self.executor, backend="flux") as p:
+        with Executor(
+            max_cores=2,
+            cores_per_worker=2,
+            executor=self.executor,
+            backend="flux",
+            block_allocation=True,
+        ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
             list(output),
@@ -169,7 +188,12 @@ class TestFluxBackend(unittest.TestCase):
 
     def test_internal_memory(self):
         with Executor(
-            max_workers=1, cores_per_worker=1, init_function=set_global, executor=self.executor, backend="flux"
+            max_cores=1,
+            cores_per_worker=1,
+            init_function=set_global,
+            executor=self.executor,
+            backend="flux",
+            block_allocation=True,
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
