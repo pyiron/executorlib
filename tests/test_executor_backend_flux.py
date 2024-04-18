@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
+from pympipool import Executor
 
 
 try:
@@ -43,12 +43,16 @@ def set_global():
 @unittest.skipIf(
     skip_flux_test, "Flux is not installed, so the flux tests are skipped."
 )
-class TestFlux(unittest.TestCase):
+class TestFluxBackend(unittest.TestCase):
     def setUp(self):
         self.executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with PyFluxExecutor(max_workers=2, executor=self.executor) as exe:
+        with Executor(
+            max_workers=2,
+            executor=self.executor,
+            backend="flux",
+        ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -57,8 +61,11 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_threads(self):
-        with PyFluxExecutor(
-            max_workers=1, threads_per_core=2, executor=self.executor
+        with Executor(
+            max_workers=1,
+            threads_per_core=2,
+            executor=self.executor,
+            backend="flux",
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -68,16 +75,22 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_parallel(self):
-        with PyFluxExecutor(
-            max_workers=1, cores_per_worker=2, executor=self.executor
+        with Executor(
+            max_workers=1,
+            cores_per_worker=2,
+            executor=self.executor,
+            backend="flux",
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with PyFluxExecutor(
-            max_workers=1, cores_per_worker=2, executor=self.executor
+        with Executor(
+            max_workers=1,
+            cores_per_worker=2,
+            executor=self.executor,
+            backend="flux",
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
@@ -85,43 +98,13 @@ class TestFlux(unittest.TestCase):
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
 
-    def test_execute_task(self):
-        f = Future()
-        q = Queue()
-        q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
-        q.put({"shutdown": True, "wait": True})
-        cloudpickle_register(ind=1)
-        execute_parallel_tasks(
-            future_queue=q,
-            cores=1,
-            executor=self.executor,
-            interface_class=FluxPythonInterface,
-        )
-        self.assertEqual(f.result(), 2)
-        q.join()
-
-    def test_execute_task_threads(self):
-        f = Future()
-        q = Queue()
-        q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
-        q.put({"shutdown": True, "wait": True})
-        cloudpickle_register(ind=1)
-        execute_parallel_tasks(
-            future_queue=q,
-            cores=1,
-            threads_per_core=1,
-            executor=self.executor,
-            interface_class=FluxPythonInterface,
-        )
-        self.assertEqual(f.result(), 2)
-        q.join()
-
     def test_internal_memory(self):
-        with PyFluxExecutor(
+        with Executor(
             max_workers=1,
             cores_per_worker=1,
             init_function=set_global,
             executor=self.executor,
+            backend="flux",
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())

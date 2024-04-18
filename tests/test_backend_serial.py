@@ -1,8 +1,10 @@
+from threading import Thread
 import unittest
+
 import cloudpickle
 import zmq
+
 from pympipool.backend.serial import main
-from threading import Thread
 
 
 def calc(i, j):

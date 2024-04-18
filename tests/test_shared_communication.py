@@ -1,8 +1,8 @@
 import os
 import sys
+import unittest
 
 import numpy as np
-import unittest
 import zmq
 
 from pympipool.shared.communication import (
@@ -25,9 +25,7 @@ class TestInterface(unittest.TestCase):
         cloudpickle_register(ind=1)
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
-            interface=MpiExecInterface(
-                cwd=None, cores=1, oversubscribe=False
-            )
+            interface=MpiExecInterface(cwd=None, cores=1, oversubscribe=False)
         )
         interface.bootup(
             command_lst=[

@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+
 from pympipool.shared.backend import parse_arguments
 from pympipool.shared.interface import SrunInterface, MpiExecInterface
 
@@ -21,9 +22,7 @@ class TestParser(unittest.TestCase):
             "--zmqport",
             result_dict["zmqport"],
         ]
-        interface = MpiExecInterface(
-            cwd=None, cores=2, oversubscribe=True
-        )
+        interface = MpiExecInterface(cwd=None, cores=2, oversubscribe=True)
         self.assertEqual(
             command_lst,
             interface.generate_command(
