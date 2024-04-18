@@ -1,4 +1,5 @@
 import unittest
+
 from pympipool import Executor
 from pympipool.mpi.executor import PyMPIExecutor
 from pympipool.shared.executorbase import cloudpickle_register

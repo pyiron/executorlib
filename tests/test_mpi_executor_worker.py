@@ -1,12 +1,12 @@
-import numpy as np
-import unittest
+from concurrent.futures import CancelledError, Future
 from queue import Queue
 from time import sleep
-from concurrent.futures import CancelledError
+import unittest
+
+import numpy as np
+
 from pympipool.mpi.executor import PyMPIExecutor, MpiExecInterface
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks, ExecutorBase
-from pympipool.shell import ShellExecutor
-from concurrent.futures import Future
 
 
 def calc(i):
@@ -97,8 +97,6 @@ class TestFuturePool(unittest.TestCase):
                     self.assertEqual(str(exe.info[k]), v)
         with ExecutorBase() as exe:
             self.assertIsNone(exe.info)
-        with ShellExecutor(["sleep"]) as exe:
-            self.assertEqual(exe.info, {})
 
     def test_pool_multi_core(self):
         with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:

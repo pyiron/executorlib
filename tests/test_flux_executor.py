@@ -1,9 +1,9 @@
 from concurrent.futures import Future
 import os
 from queue import Queue
+import unittest
 
 import numpy as np
-import unittest
 
 from pympipool import Executor
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks

@@ -1,10 +1,12 @@
-import unittest
-import numpy as np
+from concurrent.futures import Future
 from queue import Queue
+import unittest
+
+import numpy as np
+
+from pympipool.mpi.executor import PyMPIExecutor, MpiExecInterface
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
-from pympipool.mpi.executor import PyMPIExecutor, MpiExecInterface
-from concurrent.futures import Future
 
 
 def get_global(memory=None):

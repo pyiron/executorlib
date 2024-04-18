@@ -1,4 +1,5 @@
 import unittest
+
 from pympipool.shared.thread import RaisingThread
 
 

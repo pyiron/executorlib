@@ -1,13 +1,12 @@
 from concurrent.futures import Future
 import os
 import queue
-
-from unittest import TestCase
+import unittest
 
 from pympipool.shell.interactive import ShellExecutor, execute_single_task
 
 
-class ShellInteractiveExecutorTest(TestCase):
+class ShellInteractiveExecutorTest(unittest.TestCase):
     def setUp(self):
         self.executable_path = os.path.join(os.path.dirname(__file__), "executables", "count.py")
 
@@ -37,3 +36,8 @@ class ShellInteractiveExecutorTest(TestCase):
             self.assertEqual("0\n1\n2\n3\ndone\n", future_pattern.result())
             self.assertTrue(future_lines.done())
             self.assertTrue(future_pattern.done())
+
+    def test_meta(self):
+        with ShellExecutor(["sleep"]) as exe:
+            self.assertEqual(exe.info, {})
+

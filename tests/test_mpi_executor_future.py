@@ -1,8 +1,10 @@
-import numpy as np
-import unittest
-from time import sleep
-from pympipool.mpi.executor import PyMPIExecutor
 from concurrent.futures import Future
+from time import sleep
+import unittest
+
+import numpy as np
+
+from pympipool.mpi.executor import PyMPIExecutor
 
 
 def calc(i):

@@ -1,8 +1,8 @@
 import os
 import sys
+import unittest
 
 import numpy as np
-import unittest
 import zmq
 
 from pympipool.shared.communication import (
