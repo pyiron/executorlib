@@ -7,7 +7,11 @@ import numpy as np
 
 from pympipool.mpi.executor import PyMPIExecutor, MpiExecInterface
 from pympipool.shared.backend import call_funct
-from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks, ExecutorBase
+from pympipool.shared.executorbase import (
+    cloudpickle_register,
+    execute_parallel_tasks,
+    ExecutorBase,
+)
 
 
 def calc(i):
@@ -70,21 +74,35 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
 
     def test_pympiexecutor_errors(self):
         with self.assertRaises(TypeError):
-            PyMPIExecutor(max_workers=1, cores_per_worker=1, threads_per_core=2, hostname_localhost=True)
+            PyMPIExecutor(
+                max_workers=1,
+                cores_per_worker=1,
+                threads_per_core=2,
+                hostname_localhost=True,
+            )
         with self.assertRaises(TypeError):
-            PyMPIExecutor(max_workers=1, cores_per_worker=1, gpus_per_worker=1, hostname_localhost=True)
+            PyMPIExecutor(
+                max_workers=1,
+                cores_per_worker=1,
+                gpus_per_worker=1,
+                hostname_localhost=True,
+            )
 
 
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as exe:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as p:
             cloudpickle_register(ind=1)
             fs1 = p.submit(mpi_funct, 1)
             fs2 = p.submit(mpi_funct, 2)
@@ -100,7 +118,9 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         )
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as p:
             cloudpickle_register(ind=1)
             output = p.submit(echo_funct, 2).result()
         self.assertEqual(output, [2, 2])
@@ -108,7 +128,12 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 
 class TestPyMpiExecutorInitFunction(unittest.TestCase):
     def test_internal_memory(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=1, init_function=set_global, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1,
+            cores_per_worker=1,
+            init_function=set_global,
+            hostname_localhost=True,
+        ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
@@ -143,7 +168,9 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=1, hostname_localhost=True
+        ) as p:
             output = p.submit(calc_array, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -154,7 +181,9 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_executor_multi_submission(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=1, hostname_localhost=True
+        ) as p:
             fs_1 = p.submit(calc_array, i=2)
             fs_2 = p.submit(calc_array, i=2)
             self.assertEqual(fs_1.result(), np.array(4))
@@ -175,34 +204,42 @@ class TestFuturePool(unittest.TestCase):
             fs2.result()
 
     def test_pool_serial_map(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=1, hostname_localhost=True
+        ) as p:
             output = p.map(calc_array, [1, 2, 3])
         self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
 
     def test_executor_exception(self):
         with self.assertRaises(RuntimeError):
-            with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
+            with PyMPIExecutor(
+                max_workers=1, cores_per_worker=1, hostname_localhost=True
+            ) as p:
                 p.submit(raise_error)
 
     def test_executor_exception_future(self):
         with self.assertRaises(RuntimeError):
-            with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
+            with PyMPIExecutor(
+                max_workers=1, cores_per_worker=1, hostname_localhost=True
+            ) as p:
                 fs = p.submit(raise_error)
                 fs.result()
 
     def test_meta(self):
         meta_data_exe_dict = {
-            'cores': 2,
-            'interface_class': "<class 'pympipool.shared.interface.MpiExecInterface'>",
-            'hostname_localhost': True,
-            'init_function': None,
-            'cwd': None,
-            'oversubscribe': False,
-            'max_workers': 1
+            "cores": 2,
+            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
+            "hostname_localhost": True,
+            "init_function": None,
+            "cwd": None,
+            "oversubscribe": False,
+            "max_workers": 1,
         }
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as exe:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as exe:
             for k, v in meta_data_exe_dict.items():
-                if k != 'interface_class':
+                if k != "interface_class":
                     self.assertEqual(exe.info[k], v)
                 else:
                     self.assertEqual(str(exe.info[k]), v)
@@ -210,7 +247,9 @@ class TestFuturePool(unittest.TestCase):
             self.assertIsNone(exe.info)
 
     def test_pool_multi_core(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as p:
             output = p.submit(mpi_funct, i=2)
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
@@ -221,7 +260,9 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
 
     def test_pool_multi_core_map(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
             list(output),

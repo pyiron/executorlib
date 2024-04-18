@@ -76,7 +76,9 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with PyFluxExecutor(max_workers=1, cores_per_worker=2, executor=self.executor) as p:
+        with PyFluxExecutor(
+            max_workers=1, cores_per_worker=2, executor=self.executor
+        ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
             list(output),
@@ -116,7 +118,10 @@ class TestFlux(unittest.TestCase):
 
     def test_internal_memory(self):
         with PyFluxExecutor(
-            max_workers=1, cores_per_worker=1, init_function=set_global, executor=self.executor
+            max_workers=1,
+            cores_per_worker=1,
+            init_function=set_global,
+            executor=self.executor,
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())

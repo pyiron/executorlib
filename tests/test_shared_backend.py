@@ -22,9 +22,7 @@ class TestParser(unittest.TestCase):
             "--zmqport",
             result_dict["zmqport"],
         ]
-        interface = MpiExecInterface(
-            cwd=None, cores=2, oversubscribe=True
-        )
+        interface = MpiExecInterface(cwd=None, cores=2, oversubscribe=True)
         self.assertEqual(
             command_lst,
             interface.generate_command(

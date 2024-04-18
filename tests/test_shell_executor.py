@@ -9,7 +9,13 @@ class SubprocessExecutorTest(unittest.TestCase):
     def test_execute_single_task(self):
         test_queue = queue.Queue()
         f = Future()
-        test_queue.put({"future": f, "args": [["echo", "test"]], "kwargs": {"universal_newlines": True}})
+        test_queue.put(
+            {
+                "future": f,
+                "args": [["echo", "test"]],
+                "kwargs": {"universal_newlines": True},
+            }
+        )
         test_queue.put({"shutdown": True})
         self.assertFalse(f.done())
         execute_single_task(future_queue=test_queue)
@@ -25,7 +31,13 @@ class SubprocessExecutorTest(unittest.TestCase):
     def test_broken_executable(self):
         test_queue = queue.Queue()
         f = Future()
-        test_queue.put({"future": f, "args": [["/executable/does/not/exist"]], "kwargs": {"universal_newlines": True}})
+        test_queue.put(
+            {
+                "future": f,
+                "args": [["/executable/does/not/exist"]],
+                "kwargs": {"universal_newlines": True},
+            }
+        )
         with self.assertRaises(FileNotFoundError):
             execute_single_task(future_queue=test_queue)
 

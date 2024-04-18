@@ -13,7 +13,9 @@ def calc(i):
 
 class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=1, hostname_localhost=True
+        ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
@@ -22,7 +24,9 @@ class TestFuture(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_pool_serial_multi_core(self):
-        with PyMPIExecutor(max_workers=1, cores_per_worker=2, hostname_localhost=True) as p:
+        with PyMPIExecutor(
+            max_workers=1, cores_per_worker=2, hostname_localhost=True
+        ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
@@ -41,6 +45,7 @@ class TestFuture(unittest.TestCase):
 
             def slow_callable():
                 from time import sleep
+
                 sleep(1)
                 return True
 
@@ -57,28 +62,29 @@ class TestFuture(unittest.TestCase):
             self.assertListEqual(
                 [],
                 mutable,
-                msg="Sanity check that test is starting in the expected condition"
+                msg="Sanity check that test is starting in the expected condition",
             )
             future = submit()
 
             self.assertFalse(
                 future.done(),
-                msg="The submit function is slow, it should be running still"
+                msg="The submit function is slow, it should be running still",
             )
             self.assertListEqual(
                 [],
                 mutable,
                 msg="While running, the mutable should not have been impacted by the "
-                    "callback"
+                "callback",
             )
             future.result()  # Wait for the calculation to finish
             self.assertListEqual(
                 ["Called back"],
                 mutable,
-                msg="After completion, the callback should modify the mutable data"
+                msg="After completion, the callback should modify the mutable data",
             )
 
         with self.subTest("From inside a class"):
+
             class Foo:
                 def __init__(self):
                     self.running = False
@@ -86,13 +92,16 @@ class TestFuture(unittest.TestCase):
                 def run(self):
                     self.running = True
 
-                    future = PyMPIExecutor(hostname_localhost=True).submit(self.return_42)
+                    future = PyMPIExecutor(hostname_localhost=True).submit(
+                        self.return_42
+                    )
                     future.add_done_callback(self.finished)
 
                     return future
 
                 def return_42(self):
                     from time import sleep
+
                     sleep(1)
                     return 42
 
@@ -102,15 +111,15 @@ class TestFuture(unittest.TestCase):
             foo = Foo()
             self.assertFalse(
                 foo.running,
-                msg="Sanity check that the test starts in the expected condition"
+                msg="Sanity check that the test starts in the expected condition",
             )
             fs = foo.run()
             self.assertTrue(
                 foo.running,
-                msg="We should be able to exit the run method before the task completes"
+                msg="We should be able to exit the run method before the task completes",
             )
             fs.result()  # Wait for completion
             self.assertFalse(
                 foo.running,
-                msg="After task completion, we expect the callback to modify the class"
+                msg="After task completion, we expect the callback to modify the class",
             )
