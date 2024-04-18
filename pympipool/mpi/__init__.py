@@ -1,1 +1,1 @@
-from pympipool.mpi.executor import PyMPIExecutor
+from pympipool.mpi.executor import PyMPIExecutor, PyMPIStepExecutor
