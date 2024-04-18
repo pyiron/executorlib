@@ -147,7 +147,7 @@ class TestFluxBackend(unittest.TestCase):
 
     def test_flux_executor_threads(self):
         with Executor(
-            max_cores=2,
+            max_cores=1,
             threads_per_core=2,
             executor=self.executor,
             backend="flux",
