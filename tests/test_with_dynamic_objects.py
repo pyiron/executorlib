@@ -76,7 +76,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return dynamic_arg
 
         dynamic_dynamic = slowly_returns_dynamic()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         dynamic_object = does_nothing()
         fs = executor.submit(dynamic_dynamic.run, dynamic_object)
@@ -109,7 +109,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             dynamic_42.result,
             msg="Just a sanity check that the test is set up right"
         )
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
@@ -142,7 +142,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             dynamic_42.running,
             msg="Sanity check that the test starts in the expected condition"
         )
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
@@ -166,7 +166,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             raise RuntimeError
 
         re = raise_error()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(re.run)
         with self.assertRaises(
@@ -196,7 +196,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return inside_variable
 
         dynamic_dynamic = slowly_returns_dynamic()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_dynamic.run)
         self.assertIsInstance(
@@ -225,7 +225,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return fortytwo
 
         f = slow()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(f.run)
         self.assertEqual(
