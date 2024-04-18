@@ -194,14 +194,14 @@ class Executor:
                 )
         else:  # backend="mpi"
             if threads_per_core != 1:
-                raise ValueError(
+                raise TypeError(
                     "Thread based parallelism is not supported for the pympipool.mpi.PyMPIExecutor backend."
                     "Please use threads_per_core=1 instead of threads_per_core="
                     + str(threads_per_core)
                     + "."
                 )
             if gpus_per_worker != 0:
-                raise ValueError(
+                raise TypeError(
                     "GPU assignment is not supported for the pympipool.mpi.PyMPIExecutor backend."
                     "Please use gpus_per_worker=0 instead of gpus_per_worker="
                     + str(gpus_per_worker)
