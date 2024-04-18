@@ -5,6 +5,7 @@ This is a special (and rather difficult) case for serializing objects which cann
 be pickled using the standard pickle module, and thus poses a relatively thorough test
 for the general un-pickle-able case.
 """
+
 from concurrent.futures._base import TimeoutError as cfbTimeoutError
 from functools import partialmethod
 from time import sleep
@@ -19,6 +20,7 @@ class Foo:
     A base class to be dynamically modified for putting an executor/serializer through
     its paces.
     """
+
     def __init__(self, fnc: callable):
         self.fnc = fnc
         self.result = None
@@ -41,16 +43,12 @@ def dynamic_foo():
 
     Overrides the `fnc` input of `Foo` with the decorated function.
     """
+
     def as_dynamic_foo(fnc: callable):
         return type(
             "DynamicFoo",
             (Foo,),  # Define parentage
-            {
-                "__init__": partialmethod(
-                    Foo.__init__,
-                    fnc
-                )
-            },
+            {"__init__": partialmethod(Foo.__init__, fnc)},
         )
 
     return as_dynamic_foo
@@ -76,7 +74,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return dynamic_arg
 
         dynamic_dynamic = slowly_returns_dynamic()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         dynamic_object = does_nothing()
         fs = executor.submit(dynamic_dynamic.run, dynamic_object)
@@ -84,7 +82,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             fs.result().attribute_on_dynamic,
             "attribute updated",
             msg="The submit callable should have modified the mutable, dynamically "
-                "defined object with a new attribute."
+            "defined object with a new attribute.",
         )
 
     def test_callable(self):
@@ -101,33 +99,28 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         dynamic_42 = slowly_returns_42()  # Instantiate the dynamically defined class
         self.assertIsInstance(
-            dynamic_42,
-            Foo,
-            msg="Just a sanity check that the test is set up right"
+            dynamic_42, Foo, msg="Just a sanity check that the test is set up right"
         )
         self.assertIsNone(
-            dynamic_42.result,
-            msg="Just a sanity check that the test is set up right"
+            dynamic_42.result, msg="Just a sanity check that the test is set up right"
         )
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
         self.assertFalse(
             fs.done(),
             msg="The submit callable sleeps long enough that we expect to still be "
-                "running here -- did something fail to get submit to an executor??"
+            "running here -- did something fail to get submit to an executor??",
         )
         self.assertEqual(
-            fortytwo,
-            fs.result(),
-            msg="The future is expected to behave as usual"
+            fortytwo, fs.result(), msg="The future is expected to behave as usual"
         )
         self.assertEqual(
             fortytwo,
             dynamic_42.result,
             msg="The callback modifies its object and should run by the time the result"
-                "is available -- did it fail to get called?"
+            "is available -- did it fail to get called?",
         )
 
     def test_callback(self):
@@ -140,20 +133,20 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
         dynamic_42 = returns_42()
         self.assertFalse(
             dynamic_42.running,
-            msg="Sanity check that the test starts in the expected condition"
+            msg="Sanity check that the test starts in the expected condition",
         )
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
         self.assertTrue(
             dynamic_42.running,
-            msg="Submit method need to be able to modify their owners"
+            msg="Submit method need to be able to modify their owners",
         )
         fs.result()  # Wait for the process to finish
         self.assertFalse(
             dynamic_42.running,
-            msg="Callback methods need to be able to modify their owners"
+            msg="Callback methods need to be able to modify their owners",
         )
 
     def test_exception(self):
@@ -166,12 +159,12 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             raise RuntimeError
 
         re = raise_error()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(re.run)
         with self.assertRaises(
             RuntimeError,
-            msg="The callable just raises an error -- this should get shown to the user"
+            msg="The callable just raises an error -- this should get shown to the user",
         ):
             fs.result()
 
@@ -196,20 +189,20 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return inside_variable
 
         dynamic_dynamic = slowly_returns_dynamic()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_dynamic.run)
         self.assertIsInstance(
             fs.result(),
             Foo,
             msg="Just a sanity check that we're getting the right type of dynamically "
-                "defined type of object"
+            "defined type of object",
         )
         self.assertEqual(
             fs.result().result,
             "it was an inside job!",
             msg="The submit callable modifies the object that owns it, and this should"
-                "be reflected in the main process after deserialziation"
+            "be reflected in the main process after deserialziation",
         )
 
     def test_timeout(self):
@@ -225,19 +218,19 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             return fortytwo
 
         f = slow()
-        executor = Executor(hostname_localhost=True)
+        executor = Executor(hostname_localhost=True, block_allocation=True)
         cloudpickle_register(ind=1)
         fs = executor.submit(f.run)
         self.assertEqual(
             fs.result(timeout=30),
             fortytwo,
-            msg="waiting long enough should get the result"
+            msg="waiting long enough should get the result",
         )
 
         with self.assertRaises(
             (TimeoutError, cfbTimeoutError),
             msg="With a timeout time smaller than our submit callable's sleep time, "
-                "we had better get an exception!"
+            "we had better get an exception!",
         ):
             fs = executor.submit(f.run)
             fs.result(timeout=0.0001)
