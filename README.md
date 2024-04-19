@@ -17,16 +17,16 @@ challenging, in primarily three aspects:
   leveraging the existing infrastructure provided by the job scheduler of the HPC.
 
 ### pympipool is ...
-In a given HPC allocation the :code:`pympipool` library addresses these challenges by extending the Executor interface
+In a given HPC allocation the `pympipool` library addresses these challenges by extending the Executor interface
 of the standard Python library to support the resource assignment in the HPC context. Computing resources can either be
-assigned on a per function call basis or as a block allocation on a per Executor basis. The :code:`pympipool` library
+assigned on a per function call basis or as a block allocation on a per Executor basis. The `pympipool` library
 is built on top of the [flux-framework](https://flux-framework.org) to enable fine-grained resource assignment. In
 addition, [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) is supported as alternative
-queuing system and for workstation installations :code:`pympipool` can be installed without a job scheduler.
+queuing system and for workstation installations `pympipool` can be installed without a job scheduler.
 
 ### pympipool is not ...
 The pympipool library is not designed to request an allocation from the job scheduler of an HPC. Instead within a given
-allocation from the job scheduler the :code:`pympipool` library can be employed to distribute a series of python
+allocation from the job scheduler the `pympipool` library can be employed to distribute a series of python
 function calls over the available computing resources to achieve maximum computing resource utilization.
 
 ## Example
@@ -62,9 +62,9 @@ parallelize one function at a time and not having to convert their whole workflo
 The same code can also be executed inside a jupyter notebook directly which enables an interactive development process.
 
 The interface of the standard [concurrent.futures.Executor](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
-is extended by adding the option :code:`cores_per_worker=2` to assign multiple MPI ranks to each function call. To
-create two workers the maximum number of cores can be increased to :code:`max_cores=4`. In this case each worker
-receives two cores resulting in a total of four CPU cores being utilized.
+is extended by adding the option `cores_per_worker=2` to assign multiple MPI ranks to each function call. To create two 
+workers the maximum number of cores can be increased to `max_cores=4`. In this case each worker receives two cores
+resulting in a total of four CPU cores being utilized.
 
 After submitting the function `calc()` with the corresponding parameter to the executor `exe.submit(calc, 0)`
 a python [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#future-objects) is
