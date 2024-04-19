@@ -1,130 +1,107 @@
 # Installation
-For up-scaling python functions beyond a single compute node `pympipool` requires the integration with a high 
-performance computing (HPC) resource manager. These HPC resource manager are currently only supported for Linux. Still
-for testing and development purposes the `pympipool` package can installed on all major operating systems including 
-Windows. 
+## Compatible Job Schedulers
+For optimal performance the [flux framework](https://flux-framework.org) is recommended as job scheduler. Even when the 
+[Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) or any other job scheduler is already 
+installed on the HPC cluster [flux framework](https://flux-framework.org) can be installed as a secondary job scheduler
+to leverage [flux framework](https://flux-framework.org) for the distribution of resources within a given allocation of
+the primary scheduler. 
 
-This basic installation is based on the `pympipool.mpi.PyMPIExecutor` interface and allows up-scaling serial 
-and parallel python functions which use the message passing interface (MPI) for python [`mpi4py`](https://mpi4py.readthedocs.io)
-on a single compute node. In addition, the integration with an HPC resource manager provides scaling beyond one compute
-node, thread based parallelism and the assignment of GPUs. Still the user would not call the interface directly, but 
-rather use it through the `pympipool.Executor`. 
+Alternatively, `pympipool` can directly create job steps in a SLURM allocation using the `srun `command. Still this always 
+queries the central database of the SLURM job scheduler which can decrease the performance of the job scheduler and is 
+not recommended.
 
-## Basic Installation 
-For testing and development purposes the `pympipool` package can installed on all major operating systems including 
-Windows. It is recommended to use the [conda package manager](https://anaconda.org/conda-forge/pympipool) for the 
-installation of the `pympipool` package. Still for advanced users who aim at maximizing their performance by compiling 
-their own version of `mpi` and `mpi4py` the `pympipool` package is also provided via the 
-[python package index (pypi)](https://pypi.org/project/pympipool/).
+## pympipool with Flux Framework
+The [flux framework](https://flux-framework.org) uses `libhwloc` and `pmi` to provide slots to specific scientific. 
+`libhwloc` not only assigns CPU cores but also GPUs. This requires `libhwloc` to be compiled with support for GPUs from 
+your vendor. In the same way the version of `pmi` for your queuing system has to be compatible with the version 
+installed via conda. As `pmi` is typically distributed with the implementation of the Message Passing Interface (MPI), 
+it is required to install the compatible MPI library in your conda environment as well. 
 
-### conda-based installation 
-In the same way `pympipool` can be installed with the [conda package manager](https://anaconda.org/conda-forge/pympipool): 
-```shell
-conda install -c conda-forge pympipool
+### AMD GPUs with mpich / cray mpi
+For example the [Frontier HPC](https://www.olcf.ornl.gov/frontier/) cluster at Oak Ridge National Laboratory uses 
+AMD MI250X GPUs with cray mpi version which is compatible to mpich `4.X`. So the corresponding versions can be installed
+from conda-forge using: 
 ```
-When resolving the dependencies with `conda` gets slow it is recommended to use `mamba` instead of `conda`. So you can 
-also install `pympipool` using: 
-```shell
-mamba install -c conda-forge pympipool
+conda install -c conda-forge flux-core flux-sched mpich>=4 pympipool
 ```
-
-### pypi-based installation
-`pympipool` can be installed from the [python package index (pypi)](https://pypi.org/project/pympipool/) using the 
-following command: 
-```shell
-pip install pympipool
+### Nvidia GPUs with mpich / cray mpi 
+For example the [Perlmutter HPC](https://docs.nersc.gov/systems/perlmutter/) at the National Energy Research Scientific 
+Computing (NERSC) uses Nvidia A100 GPUs in combination with cray mpi which is compatible to mpich `4.X`. So the 
+corresponding versions can be installed from conda-forge using: 
 ```
-
-## High Performance Computing
-`pympipool` currently provides interfaces to the [SLURM workload manager](https://www.schedmd.com) and the 
-[flux framework](https://flux-framework.org). With the [flux framework](https://flux-framework.org) being the 
-recommended solution as it can be installed without root permissions and it can be integrated in existing resource
-managers like the [SLURM workload manager](https://www.schedmd.com). The advantages of using `pympipool` in combination
-with these resource schedulers is the fine-grained resource allocation. In addition to scaling beyond a single compute
-node, they add the ability to assign GPUs and thread based parallelism. The two resource manager are internally linked to
-two interfaces: 
-
-* `pympipool.slurm.PySlurmExecutor`: The interface for the [SLURM workload manager](https://www.schedmd.com).
-* `pympipool.flux.PyFluxExecutor`: The interface for the [flux framework](https://flux-framework.org).
-
-Still the user would not call these interfaces directly, but rather use it through the `pympipool.Executor`. 
-
-### Flux Framework
-For Linux users without a pre-installed resource scheduler in their high performance computing (HPC) environment, the
-[flux framework](https://flux-framework.org) can be installed with the `conda` package manager: 
-```shell
-conda install -c conda-forge flux-core
+conda install -c conda-forge flux-core flux-sched libhwloc=*=cuda* mpich>=4 pympipool
 ```
-For alternative ways to install the [flux framework](https://flux-framework.org) please refer to their official 
-[documentation](https://flux-framework.readthedocs.io/en/latest/quickstart.html).
-
-#### Nvidia 
-For adding GPU support in the [flux framework](https://flux-framework.org) you want to install `flux-sched` in addition 
-to `flux-core`. For Nvidia GPUs you need: 
-```shell
-conda install -c conda-forge flux-core flux-sched libhwloc=*=cuda*
+When installing on a login node without a GPU the conda install command might fail with an Nvidia cuda related error, in
+this case adding the environment variable:
 ```
-In case this fails because there is no GPU on the login node and the `cudatoolkit` cannot be installed you can use the 
-`CONDA_OVERRIDE_CUDA` environment variable to pretend a local cuda version is installed `conda` can link to using:
-```shell
-CONDA_OVERRIDE_CUDA="11.6" conda install -c conda-forge flux-core flux-sched libhwloc=*=cuda*
+CONDA_OVERRIDE_CUDA="11.6"
+```
+With the specific Nvidia cuda library version installed on the cluster enables the installation even when no GPU is 
+present on the computer used for installing. 
+
+### Intel GPUs with mpich / cray mpi 
+For example the [Aurora HPC](https://www.alcf.anl.gov/aurora) cluster at Argonne National Laboratory uses Intel Ponte 
+Vecchio GPUs in combination with cray mpi which is compatible to mpich `4.X`. So the corresponding versions can be 
+installed from conda-forge using: 
+```
+conda install -c conda-forge flux-core flux-sched mpich=>4 pympipool
 ```
 
-#### AMD
-For adding GPU support in the [flux framework](https://flux-framework.org) you want to install `flux-sched` in addition 
-to `flux-core`. For AMD GPUs you need: 
-```shell
-conda install -c conda-forge flux-core flux-sched
+### Alternative Installations
+Flux is not limited to mpich / cray mpi, it can also be installed in compatibility with openmpi or intel mpi using the 
+openmpi package: 
+```
+conda install -c conda-forge flux-core flux-sched openmpi pympipool
 ```
 
-#### Test Flux
-To test the [flux framework](https://flux-framework.org) and validate the GPUs are correctly recognized you can start
-a flux instance using: 
-```shell
+## Test Flux Framework
+To validate the installation of flux and confirm the GPUs are correctly recognized, you can start a flux session on the 
+login node using:
+```
 flux start
 ```
-Afterwards, you can list the resources accessible to flux using:
-```shell
+This returns an interactive shell which is connected to the flux scheduler. In this interactive shell you can now list 
+the available resources using: 
+```
 flux resource list
 ```
-This should contain a column for the GPUs if you installed the required dependencies. Here is an example output for a 
-workstation with a six core CPU and a single GPU: 
+The output should return a list compareable to the following example output:
 ```
      STATE NNODES   NCORES    NGPUS NODELIST
       free      1        6        1 ljubi
  allocated      0        0        0 
-      down      0        0        0 
+      down      0        0        0
 ```
-As the [flux framework](https://flux-framework.org) only lists physical cores rather than virtual cores enabled by
-hyper-threading the total number of CPU cores might be half the number of cores you expect.
+As flux only lists physical cores rather than virtual cores enabled by hyper-threading the total number of CPU cores 
+might be half the number of cores you expect. 
 
-When the [flux framework](https://flux-framework.org) is used inside an existing queuing system, then you have to 
-communicate these resources to it. For the [SLURM workload manager](https://www.schedmd.com) this is achieved by calling
-`flux start` with `srun`. For an interactive session use: 
-```shell
+### Flux Framework as Secondary Scheduler
+When the flux framework is used inside an existing queuing system, you have to communicate the available resources to 
+the flux framework. For SLURM this is achieved by calling `flux start` with `srun`. For an interactive session use:
+```
 srun --pty flux start
 ```
-Alternatively, to execute a python script which uses `pympipool` you can call it with: 
-```shell
-srun flux start python <your python script.py>
+Alternatively, to execute a python script `<script.py>` which uses `pympipool` you can call it with: 
 ```
-In the same way to start a Jupyter Notebook in an interactive allocation you can use: 
-```shell
-srun --pty flux start jupyter notebook
+srun flux start python <script.py>
 ```
-Then each jupyter notebook you execute on this jupyter notebook server has access to the resources of the interactive
-allocation. 
 
-### SLURM 
-The installation of the [SLURM workload manager](https://www.schedmd.com) is explained in the corresponding 
-[documentation](https://slurm.schedmd.com/quickstart_admin.html) . As it requires root access, it is not explained here.
-Rather we assume you have access to an HPC cluster which already has SLURM installed. 
+### PMI Compatibility 
+When pmi version 1 is used rather than pmi version 2 then it is possible to enforce the usage of `pmi-2` during the 
+startup process of flux using: 
+```
+srun –mpi=pmi2 flux start python <script.py>
+```
 
-While the [SLURM workload manager](https://www.schedmd.com) and the [flux framework](https://flux-framework.org) are 
-both resource schedulers, the [flux framework](https://flux-framework.org) can also be installed on an HPC system which
-uses the [SLURM workload manager](https://www.schedmd.com) as primary resource scheduler. This enables more fine-grained
-scheduling like independent GPU access on HPC systems where [SLURM workload manager](https://www.schedmd.com) is 
-configured to allow only one job step per node. Furthermore, the [flux framework](https://flux-framework.org) provides 
-superior performance in large allocation with several hundred compute nodes or in the case when many `pympipool.slurm.PySlurmExecutor`
-objects are created frequently, as each creation of an `pympipool.slurm.PySlurmExecutor` results in an `srun` call which is 
-communicated to the central database of the [SLURM workload manager](https://www.schedmd.com). 
+## Without Flux Framework
+It is possible to install `pympipool` without flux, for example for using it on a local workstation or in combination
+with the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com). While this is not recommended
+in the high performance computing (HPC) context as `pympipool` with `block_allocation=False` is going to create a SLURM
+job step for each submitted python function. 
+
+In this case `pympipool` can be installed using:
+```
+conda install -c conda-forge pympipool
+```
+
+This also includes workstation installations on Windows and MacOS. 

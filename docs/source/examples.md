@@ -8,9 +8,7 @@ standard library this can be written as - `test_thread.py`:
 ```python
 from concurrent.futures import ThreadPoolExecutor
 
-with ThreadPoolExecutor(
-    max_workers=1,
-) as exe:
+with ThreadPoolExecutor(max_workers=1) as exe:
     future = exe.submit(sum, [1, 1])
     print(future.result())
 ```
@@ -37,17 +35,13 @@ replacement for the [`concurrent.futures.Executor`](https://docs.python.org/3/li
 
 The previous example is rewritten for the `pympipool.Executor` in - `test_sum.py`:
 ```python
-from pympipool import Executor 
+import flux.job
+from pympipool import Executor
 
-with Executor(
-    max_workers=1, 
-    cores_per_worker=1, 
-    threads_per_core=1, 
-    gpus_per_worker=0, 
-    oversubscribe=False
-) as exe:
-    future = exe.submit(sum, [1,1])
-    print(future.result())
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(max_cores=1, executor=flux_exe) as exe:
+        future = exe.submit(sum, [1,1])
+        print(future.result())
 ```
 Again this example can be executed with the python interpreter: 
 ```
@@ -59,22 +53,24 @@ The result of the calculation is again `1+1=2`.
 Beyond pre-defined functions like the `sum()` function, the same functionality can be used to submit user-defined 
 functions. In the `test_serial.py` example a custom summation function is defined: 
 ```python
+import flux.job
 from pympipool import Executor
 
 def calc(*args):
     return sum(*args)
 
-with Executor(max_workers=2) as exe:
-    fs_1 = exe.submit(calc, [2, 1])
-    fs_2 = exe.submit(calc, [2, 2])
-    fs_3 = exe.submit(calc, [2, 3])
-    fs_4 = exe.submit(calc, [2, 4])
-    print([
-        fs_1.result(), 
-        fs_2.result(), 
-        fs_3.result(), 
-        fs_4.result(),
-    ])
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(max_cores=2, executor=flux_exe) as exe:
+        fs_1 = exe.submit(calc, [2, 1])
+        fs_2 = exe.submit(calc, [2, 2])
+        fs_3 = exe.submit(calc, [2, 3])
+        fs_4 = exe.submit(calc, [2, 4])
+        print([
+            fs_1.result(), 
+            fs_2.result(), 
+            fs_3.result(), 
+            fs_4.result(),
+        ])
 ```
 In contrast to the previous example where just a single function was submitted to a single worker, in this case a total
 of four functions is submitted to a group of two workers `max_workers=2`. Consequently, the functions are executed as a
@@ -96,13 +92,15 @@ class the [`concurrent.futures.Executor`](https://docs.python.org/3/library/conc
 also implements the `map()` function to map a series of inputs to a function. The same `map()` function is also 
 available in the `pympipool.Executor` - `test_map.py`: 
 ```python
+import flux.job
 from pympipool import Executor
 
 def calc(*args):
     return sum(*args)
 
-with Executor(max_workers=2) as exe:
-    print(list(exe.map(calc, [[2, 1], [2, 2], [2, 3], [2, 4]])))
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(max_cores=2, executor=flux_exe) as exe:
+        print(list(exe.map(calc, [[2, 1], [2, 2], [2, 3], [2, 4]])))
 ```
 Again the script can be executed with any python interpreter:
 ```
@@ -119,6 +117,7 @@ the user defines an initialization function `init_function` which returns a dict
 keys of the dictionary can then be used as additional input parameters in each function submitted to the `pympipool.Executor`.
 This functionality is illustrated in the `test_data.py` example: 
 ```python
+import flux.job
 from pympipool import Executor
 
 def calc(i, j, k):
@@ -127,9 +126,10 @@ def calc(i, j, k):
 def init_function():
     return {"j": 4, "k": 3, "l": 2}
 
-with Executor(max_workers=1, init_function=init_function) as exe:
-    fs = exe.submit(calc, 2, j=5)
-    print(fs.result())
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(max_cores=1, init_function=init_function, executor=flux_exe) as exe:
+        fs = exe.submit(calc, 2, j=5)
+        print(fs.result())
 ```
 The function `calc()` requires three inputs `i`, `j` and `k`. But when the function is submitted to the executor only 
 two inputs are provided `fs = exe.submit(calc, 2, j=5)`. In this case the first input parameter is mapped to `i=2`, the
@@ -147,23 +147,94 @@ python test_data.py
 The result is `2+5+3=10` as `i=2` and `j=5` are provided during the submission and `k=3` is defined in the `init_function()`
 function.
 
-## Up-Scaling 
-The availability of certain features depends on the backend `pympipool` is installed with. In particular the thread 
-based parallelism and the GPU assignment is only available with the `pympipool.slurm.PySlurmExecutor` or the 
-`pympipool.flux.PyFluxExecutor` backend. The latter is recommended based on the easy installation, the faster allocation 
-of resources as the resources are managed within the allocation and no central databases is used and the superior level 
-of fine-grained resource assignment which is typically not available on other HPC resource schedulers including the
-[SLURM workload manager](https://www.schedmd.com). The `pympipool.flux.PyFluxExecutor` requires 
-[flux framework](https://flux-framework.org) to be installed in addition to the `pympipool` package. The features are 
-summarized in the table below: 
+## Resource Assignment
+By default, every submission of a python function results in a flux job (or SLURM job step) depending on the backend. 
+This is sufficient for function calls which take several minutes or longer to execute. For python functions with shorter 
+run-time `pympipool` provides block allocation (enabled by the `block_allocation=True` parameter) to execute multiple 
+python functions with similar resource requirements in the same flux job (or SLURM job step). 
 
-|     Feature \ Backend      | `PyMpiExecutor` | `PySlurmExecutor` | `PyFluxExecutor` |
-|:--------------------------:|:---------------:|:-----------------:|:----------------:|
-|  Thread based parallelism  |       no        |        yes        |       yes        | 
-|   MPI based parallelism    |       yes       |        yes        |       yes        |
-|       GPU assignment       |       no        |        yes        |       yes        |
-| Resource over-subscription |       yes       |        yes        |        no        |
-|        Scalability         |     1 node      |    ~100 nodes     |     no limit     |
+The following example illustrates the resource definition on both level. This is redundant. For block allocations the 
+resources have to be configured on the **Executor level**, otherwise it can either be defined on the **Executor level**
+or on the **Submission level**. The resource defined on the **Submission level** overwrite the resources defined on the 
+**Executor level**.
+
+```python
+import flux.job
+from pympipool import Executor
+
+
+def calc_function(parameter_a, parameter_b):
+    return parameter_a + parameter_b
+
+
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(  
+        # Resource definition on the executor level
+        max_cores=128,  # total number of cores available to the Executor
+        # Optional resource definition 
+        cores_per_worker=1,
+        threads_per_core=1,
+        gpus_per_worker=0,
+        oversubscribe=False,  # not available with flux
+        cwd="/path/to/working/directory",
+        executor=flux_exe,
+        hostname_localhost=False,  # only required on MacOS
+        backend="flux",  # optional in case the backend is not recognized
+        block_allocation=False, 
+        init_function=None,  # only available with block_allocation=True
+        command_line_argument_lst=[],  # additional command line arguments for SLURM
+    ) as exe:
+        future_obj = exe.submit(
+            calc_function, 
+            1,   # parameter_a
+            parameter_b=2, 
+            # Resource definition on the submission level
+            resource_dict={
+                "cores": 1,
+                "threads_per_core": 1,
+                "gpus_per_worker": 0,
+                "oversubscribe": False,  # not available with flux
+                "cwd": "/path/to/working/directory",
+                "executor": flux_exe,
+                "hostname_localhost": False,  # only required on MacOS
+                "command_line_argument_lst": [],  # additional command line arguments for SLURM
+            },
+        )
+        print(future_obj.result())
+```
+The `max_cores` which defines the total number of cores of the allocation, is the only mandatory parameter. All other
+resource parameters are optional. If none of the submitted Python function uses [mpi4py](https://mpi4py.readthedocs.io)
+or any GPU, then the resources can be defined on the **Executor level** as: `cores_per_worker=1`, `threads_per_core=1` 
+and `gpus_per_worker=0`. These are defaults, so they do even have to be specified. In this case it also makes sense to 
+enable `block_allocation=True` to continuously use a fixed number of python processes rather than creating a new python
+process for each submission. In this case the above example can be reduced to: 
+```python
+import flux.job
+from pympipool import Executor
+
+
+def calc_function(parameter_a, parameter_b):
+    return parameter_a + parameter_b
+
+
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(  
+        # Resource definition on the executor level
+        max_cores=128,  # total number of cores available to the Executor
+        block_allocation=True,  # reuse python processes
+    ) as exe:
+        future_obj = exe.submit(
+            calc_function, 
+            1,   # parameter_a
+            parameter_b=2, 
+        )
+        print(future_obj.result())
+```
+The working directory parameter `cwd` can be helpful for tasks which interact with the file system to define which task
+is executed in which folder, but for most python functions it is not required. 
+
+## Up-Scaling 
+[flux](https://flux-framework.org) provides fine-grained resource assigment via `libhwloc` and `pmi`.
 
 ### Thread-based Parallelism
 The number of threads per core can be controlled with the `threads_per_core` parameter during the initialization of the 
@@ -215,6 +286,7 @@ advantage of this approach is that the users can parallelize their workflows one
 
 The example in `test_mpi.py` illustrates the submission of a simple MPI parallel python function: 
 ```python
+import flux.job
 from pympipool import Executor
 
 def calc(i):
@@ -223,9 +295,10 @@ def calc(i):
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
 
-with Executor(cores_per_worker=2) as exe:
-    fs = exe.submit(calc, 3)
-    print(fs.result())
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(max_cores=2, cores_per_worker=2, executor=flux_exe) as exe:
+        fs = exe.submit(calc, 3)
+        print(fs.result())
 ```
 The `calc()` function initializes the [`mpi4py`](https://mpi4py.readthedocs.io) library and gathers the size of the 
 allocation and the rank of the current process within the MPI allocation. This function is then submitted to an 
@@ -248,6 +321,7 @@ Consequently, it is essential to have full control over the assignment of GPUs t
 `test_gpu.py` example the `tensorflow` library is used to identify the GPUs and return their configuration: 
 ```python
 import socket
+import flux.job
 from pympipool import Executor
 from tensorflow.python.client import device_lib
 
@@ -258,14 +332,15 @@ def get_available_gpus():
         for x in local_device_protos if x.device_type == 'GPU'
     ]
 
-with Executor(
-    max_workers=2, 
-    gpus_per_worker=1, 
-) as exe:
-    fs_1 = exe.submit(get_available_gpus)
-    fs_2 = exe.submit(get_available_gpus)
-
-print(fs_1.result(), fs_2.result())
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(
+        max_workers=2, 
+        gpus_per_worker=1,
+        executor=flux_exe,
+    ) as exe:
+        fs_1 = exe.submit(get_available_gpus)
+        fs_2 = exe.submit(get_available_gpus)
+        print(fs_1.result(), fs_2.result())
 ```
 The additional parameter `gpus_per_worker=1` specifies that one GPU is assigned to each worker. This functionality 
 requires `pympipool` to be connected to a resource manager like the [SLURM workload manager](https://www.schedmd.com)
@@ -305,93 +380,43 @@ As a result the GPUs available on the two compute nodes are reported:
 ```
 In this case each compute node `cn138` and `cn139` is equipped with one `Tesla V100S-PCIE-32GB`.
 
-## External Executables
-While `pympipool` was initially designed for up-scaling python functions for HPC, the same functionality can be leveraged
-to up-scale any executable independent of the programming language it is developed in. This approach follows the design 
-of the `flux.job.FluxExecutor` included in the [flux framework](https://flux-framework.org). In `pympipool` this approach
-is extended to support any kind of subprocess, so it is no longer limited to the [flux framework](https://flux-framework.org).
+## SLURM Job Scheduler
+Using `pympipool` without the [flux framework](https://flux-framework.org) results in one `srun` call per worker in 
+`block_allocation=True` mode and one `srun` call per submitted function in `block_allocation=False` mode. As each `srun`
+call represents a request to the central database of SLURM this can drastically reduce the performance, especially for
+large numbers of small python functions. That is why the hierarchical job scheduler [flux framework](https://flux-framework.org)
+is recommended as secondary job scheduler even within the context of the SLURM job manager. 
 
-### Subprocess
-Following the [`subprocess.check_output()`](https://docs.python.org/3/library/subprocess.html) interface of the standard
-python libraries, any kind of command can be submitted to the `pympipool.SubprocessExecutor`. The command can either be 
-specified as a list `["echo", "test"]` in which the first entry is typically the executable followed by the corresponding
-parameters or the command can be specified as a string `"echo test"` with the additional parameter `shell=True`.
+Still the general usage of `pympipool` remains similar even with SLURM as backend:
 ```python
-from pympipool import SubprocessExecutor
+from pympipool import Executor
 
-with SubprocessExecutor(max_workers=2) as exe:
-    future = exe.submit(["echo", "test"], universal_newlines=True)
-    print(future.done(), future.result(), future.done())
->>> (False, "test", True)
+with Executor(max_cores=1, backend="slurm") as exe:
+    future = exe.submit(sum, [1,1])
+    print(future.result())
 ```
-In analogy to the previous examples the `SubprocessExecutor` class is directly imported from the `pympipool` module and 
-the maximum number of workers is set to two `max_workers=2`. In contrast to the `pympipool.Executor` class no other
-settings to assign specific hardware to the command via the python interface are available in the `SubprocessExecutor` 
-class. To specify the hardware requirements for the individual commands, the user has to manually assign the resources
-using the commands of the resource schedulers like `srun`, `flux run` or `mpiexec`.
+The `backend="slurm"` parameter is optional as `pympipool` automatically recognizes if [flux framework](https://flux-framework.org) 
+or SLURM are available. 
 
-The `concurrent.futures.Future` object returned after submitting a command to the `pymipool.SubprocessExecutor` behaves
-just like any other future object. It provides a `done()` function to check if the execution completed as well as a 
-`result()` function to return the output of the submitted command. 
+In addition, the SLURM backend introduces the `command_line_argument_lst=[]` parameter, which allows the user to provide
+a list of command line arguments for the `srun` command. 
 
-In comparison to the `flux.job.FluxExecutor` included in the [flux framework](https://flux-framework.org) the 
-`pymipool.SubprocessExecutor` differs in two ways. One the `pymipool.SubprocessExecutor` does not provide any option for
-resource assignment and two the `pymipool.SubprocessExecutor` returns the output of the command rather than just 
-returning the exit status when calling `result()`. 
+## Workstation Support
+While the high performance computing (HPC) setup is limited to the Linux operating system, `pympipool` can also be used
+in combination with MacOS and Windows. These setups are limited to a single compute node. 
 
-### Interactive Shell
-Beyond external executables which are called once with a set of input parameters and or input files and return one set
-of outputs, there are some executables which allow the user to interact with the executable during the execution. The 
-challenge of interfacing a python process with such an interactive executable is to identify when the executable is ready
-to receive the next input. A very basis example for an interactive executable is a script which counts to the number 
-input by the user. This can be written in python as `count.py`:
+Still the general usage of `pympipool` remains similar:
 ```python
-def count(iterations):
-    for i in range(int(iterations)):
-        print(i)
-    print("done")
+from pympipool import Executor
 
+with Executor(max_cores=1, backend="mpi") as exe:
+    future = exe.submit(sum, [1,1])
+    print(future.result())
+```
+The `backend="mpi"` parameter is optional as `pympipool` automatically recognizes if [flux framework](https://flux-framework.org) 
+or SLURM are available. 
 
-if __name__ == "__main__":
-    while True:
-        user_input = input()
-        if "shutdown" in user_input:
-            break
-        else:
-            count(iterations=int(user_input))
-```
-This example is challenging in terms of interfacing it with a python process as the length of the output changes depending
-on the input. The first option that the `pympipool.ShellExecutor` provides is specifying the number of lines to read for
-each call submitted to the executable using the `lines_to_read` parameter. In comparison to the `SubprocessExecutor` 
-defined above the `ShellExecutor` only supports the execution of a single executable at a time, correspondingly the input
-parameters for calling the executable are provided at the time of initialization of the `ShellExecutor` and the inputs 
-are submitted using the `submit()` function:
-```python
-from pympipool import ShellExecutor
-
-with ShellExecutor(["python", "count.py"], universal_newlines=True) as exe:
-    future_lines = exe.submit(string_input="4", lines_to_read=5)
-    print(future_lines.done(), future_lines.result(), future_lines.done())
-```
-```
->>> (False, "0\n1\n2\n3\ndone\n", True)
-```
-The response for a given set of input is again returned as `concurrent.futures.Future` object, this allows the user to
-execute other steps on the python side while waiting for the completion of the external executable. In this case the 
-example counts the numbers from `0` to `3` and prints each of them in one line followed by `done` to notify the user its
-waiting for new inputs. This results in `n+1` lines of output for the input of `n`. Still predicting the number of lines
-for a given input can be challenging, so the `pympipool.ShellExecutor` class also provides the option to wait until a 
-specific pattern is found in the output using the `stop_read_pattern`:
-```python
-from pympipool import ShellExecutor
-
-with ShellExecutor(["python", "count.py"], universal_newlines=True) as exe:
-    future_pattern = exe.submit(string_input="4", stop_read_pattern="done")
-    print(future_pattern.done(), future_pattern.result(), future_pattern.done())
-```
-```
->>> (False, "0\n1\n2\n3\ndone\n", True)
-```
-In this example the pattern simply searches for the string `done` in the output of the program and returns all the output
-gathered from the executable since the last input as the result of the `concurrent.futures.Future` object returned after
-the submission of the interactive command. 
+Workstations, especially workstations with MacOs can have rather strict firewall settings. This includes limiting the
+look up of hostnames and communicating with itself via their own hostname. To directly connect to `localhost` rather
+than using the hostname which is the default for distributed systems, the `hostname_localhost=True` parameter is 
+introduced. 
