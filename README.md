@@ -29,7 +29,7 @@ The pympipool library is not designed to request an allocation from the job sche
 allocation from the job scheduler the :code:`pympipool` library can be employed to distribute a series of python
 function calls over the available computing resources to achieve maximum computing resource utilization.
 
-## Examples
+## Example
 The following examples illustrates how `pympipool` can be used to distribute a series of MPI parallel function calls 
 within a queuing system allocation. `example.py`:
 ```python
@@ -47,11 +47,11 @@ with flux.job.FluxExecutor() as flux_exe:
         fs = exe.submit(calc, 3)
         print(fs.result())
 ```
-This example can be executed using::
+This example can be executed using:
 ```
 python example.py
 ```
-Which returns::
+Which returns:
 ```
 >>> [(0, 2, 0), (0, 2, 1)], [(1, 2, 0), (1, 2, 1)]
 ```

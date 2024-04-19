@@ -30,8 +30,8 @@ The pympipool library is not designed to request an allocation from the job sche
 allocation from the job scheduler the :code:`pympipool` library can be employed to distribute a series of python
 function calls over the available computing resources to achieve maximum computing resource utilization.
 
-Examples
---------
+Example
+-------
 The following examples illustrates how :code:`pympipool` can be used to distribute an MPI parallel function within a
 queuing system allocation using the `flux-framework <https://flux-framework.org>`_. :code:`example.py`::
 
