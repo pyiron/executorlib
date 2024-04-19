@@ -166,7 +166,9 @@ class Executor:
             )
         elif backend == "flux" or (backend == "auto" and flux_installed):
             _check_oversubscribe(oversubscribe=oversubscribe)
-            _check_command_line_argument_lst(command_line_argument_lst=command_line_argument_lst)
+            _check_command_line_argument_lst(
+                command_line_argument_lst=command_line_argument_lst
+            )
             if block_allocation:
                 return _PyFluxExecutor(
                     max_workers=int(max_cores / cores_per_worker),
@@ -211,7 +213,9 @@ class Executor:
         else:  # backend="mpi"
             _check_threads_per_core(threads_per_core=threads_per_core)
             _check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
-            _check_command_line_argument_lst(command_line_argument_lst=command_line_argument_lst)
+            _check_command_line_argument_lst(
+                command_line_argument_lst=command_line_argument_lst
+            )
             if block_allocation:
                 return _PyMPIExecutor(
                     max_workers=int(max_cores / cores_per_worker),
