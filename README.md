@@ -20,8 +20,8 @@ challenging, in primarily three aspects:
 In a given HPC allocation the :code:`pympipool` library addresses these challenges by extending the Executor interface
 of the standard Python library to support the resource assignment in the HPC context. Computing resources can either be
 assigned on a per function call basis or as a block allocation on a per Executor basis. The :code:`pympipool` library
-is built on top of the `flux-framework <https://flux-framework.org>`_ to enable fine-grained resource assignment. In
-addition `Simple Linux Utility for Resource Management (SLURM) <https://slurm.schedmd.com>`_ is supported as alternative
+is built on top of the [flux-framework](https://flux-framework.org) to enable fine-grained resource assignment. In
+addition, [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) is supported as alternative
 queuing system and for workstation installations :code:`pympipool` can be installed without a job scheduler.
 
 ### pympipool is not ...
