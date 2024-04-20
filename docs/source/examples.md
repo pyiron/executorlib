@@ -109,44 +109,6 @@ python test_map.py
 ```
 The results remain the same. 
 
-## Data Handling
-A limitation of many parallel approaches is the overhead in communication when working with large datasets. Instead of
-reading the same dataset repetitively, the `pympipool.Executor` loads the dataset only once per worker and afterwards 
-each function submitted to this worker has access to the dataset, as it is already loaded in memory. To achieve this
-the user defines an initialization function `init_function` which returns a dictionary with one key per dataset. The 
-keys of the dictionary can then be used as additional input parameters in each function submitted to the `pympipool.Executor`.
-This functionality is illustrated in the `test_data.py` example: 
-```python
-import flux.job
-from pympipool import Executor
-
-def calc(i, j, k):
-    return i + j + k
-
-def init_function():
-    return {"j": 4, "k": 3, "l": 2}
-
-with flux.job.FluxExecutor() as flux_exe:
-    with Executor(max_cores=1, init_function=init_function, executor=flux_exe) as exe:
-        fs = exe.submit(calc, 2, j=5)
-        print(fs.result())
-```
-The function `calc()` requires three inputs `i`, `j` and `k`. But when the function is submitted to the executor only 
-two inputs are provided `fs = exe.submit(calc, 2, j=5)`. In this case the first input parameter is mapped to `i=2`, the
-second input parameter is specified explicitly `j=5` but the third input parameter `k` is not provided. So the 
-`pympipool.Executor` automatically checks the keys set in the `init_function()` function. In this case the returned 
-dictionary `{"j": 4, "k": 3, "l": 2}` defines `j=4`, `k=3` and `l=2`. For this specific call of the `calc()` function,
-`i` and `j` are already provided so `j` is not required, but `k=3` is used from the `init_function()` and as the `calc()`
-function does not define the `l` parameter this one is also ignored. 
-
-Again the script can be executed with any python interpreter:
-```
-python test_data.py
->>> 10
-```
-The result is `2+5+3=10` as `i=2` and `j=5` are provided during the submission and `k=3` is defined in the `init_function()`
-function.
-
 ## Resource Assignment
 By default, every submission of a python function results in a flux job (or SLURM job step) depending on the backend. 
 This is sufficient for function calls which take several minutes or longer to execute. For python functions with shorter 
@@ -170,13 +132,13 @@ def calc_function(parameter_a, parameter_b):
 with flux.job.FluxExecutor() as flux_exe:
     with Executor(  
         # Resource definition on the executor level
-        max_cores=128,  # total number of cores available to the Executor
+        max_cores=2,  # total number of cores available to the Executor
         # Optional resource definition 
         cores_per_worker=1,
         threads_per_core=1,
         gpus_per_worker=0,
         oversubscribe=False,  # not available with flux
-        cwd="/path/to/working/directory",
+        cwd="/home/jovyan/notebooks",
         executor=flux_exe,
         hostname_localhost=False,  # only required on MacOS
         backend="flux",  # optional in case the backend is not recognized
@@ -192,12 +154,12 @@ with flux.job.FluxExecutor() as flux_exe:
             resource_dict={
                 "cores": 1,
                 "threads_per_core": 1,
-                "gpus_per_worker": 0,
+                "gpus_per_core": 0,  # here it is gpus_per_core rather than gpus_per_worker
                 "oversubscribe": False,  # not available with flux
-                "cwd": "/path/to/working/directory",
+                "cwd": "/home/jovyan/notebooks",
                 "executor": flux_exe,
                 "hostname_localhost": False,  # only required on MacOS
-                "command_line_argument_lst": [],  # additional command line arguments for SLURM
+                # "command_line_argument_lst": [],  # additional command line arguments for SLURM
             },
         )
         print(future_obj.result())
@@ -220,8 +182,9 @@ def calc_function(parameter_a, parameter_b):
 with flux.job.FluxExecutor() as flux_exe:
     with Executor(  
         # Resource definition on the executor level
-        max_cores=128,  # total number of cores available to the Executor
+        max_cores=2,  # total number of cores available to the Executor
         block_allocation=True,  # reuse python processes
+        executor=flux_exe,
     ) as exe:
         future_obj = exe.submit(
             calc_function, 
@@ -231,7 +194,48 @@ with flux.job.FluxExecutor() as flux_exe:
         print(future_obj.result())
 ```
 The working directory parameter `cwd` can be helpful for tasks which interact with the file system to define which task
-is executed in which folder, but for most python functions it is not required. 
+is executed in which folder, but for most python functions it is not required.
+
+## Data Handling
+A limitation of many parallel approaches is the overhead in communication when working with large datasets. Instead of
+reading the same dataset repetitively, the `pympipool.Executor` in block allocation mode (`block_allocation=True`) 
+loads the dataset only once per worker and afterward, each function submitted to this worker has access to the dataset, 
+as it is already loaded in memory. To achieve this the user defines an initialization function `init_function` which 
+returns a dictionary with one key per dataset. The keys of the dictionary can then be used as additional input 
+parameters in each function submitted to the `pympipool.Executor`. When block allocation is disabled this functionality 
+is not available, as each function is executed in a separate process, so no data can be preloaded.
+
+This functionality is illustrated in the `test_data.py` example: 
+```python
+import flux.job
+from pympipool import Executor
+
+def calc(i, j, k):
+    return i + j + k
+
+def init_function():
+    return {"j": 4, "k": 3, "l": 2}
+
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(max_cores=1, init_function=init_function, executor=flux_exe, block_allocation=True) as exe:
+        fs = exe.submit(calc, 2, j=5)
+        print(fs.result())
+```
+The function `calc()` requires three inputs `i`, `j` and `k`. But when the function is submitted to the executor only 
+two inputs are provided `fs = exe.submit(calc, 2, j=5)`. In this case the first input parameter is mapped to `i=2`, the
+second input parameter is specified explicitly `j=5` but the third input parameter `k` is not provided. So the 
+`pympipool.Executor` automatically checks the keys set in the `init_function()` function. In this case the returned 
+dictionary `{"j": 4, "k": 3, "l": 2}` defines `j=4`, `k=3` and `l=2`. For this specific call of the `calc()` function,
+`i` and `j` are already provided so `j` is not required, but `k=3` is used from the `init_function()` and as the `calc()`
+function does not define the `l` parameter this one is also ignored. 
+
+Again the script can be executed with any python interpreter:
+```
+python test_data.py
+>>> 10
+```
+The result is `2+5+3=10` as `i=2` and `j=5` are provided during the submission and `k=3` is defined in the `init_function()`
+function.
 
 ## Up-Scaling 
 [flux](https://flux-framework.org) provides fine-grained resource assigment via `libhwloc` and `pmi`.
