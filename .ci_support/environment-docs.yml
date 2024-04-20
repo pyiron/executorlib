@@ -10,5 +10,5 @@ dependencies:
 - cloudpickle =3.0.0
 - mpi4py =3.1.6
 - tqdm =4.66.2
-- pyzmq =26.0.1
+- pyzmq =26.0.2
 - flux-core
