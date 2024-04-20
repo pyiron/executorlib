@@ -3,4 +3,4 @@ mkdir -p /home/jovyan/.local/share/jupyter/kernels/flux
 cp binder/kernel.json /home/jovyan/.local/share/jupyter/kernels/flux
 
 # install pympipool
-pip install .
+pip install . --no-deps --no-build-isolation
