@@ -31,6 +31,7 @@ class PySlurmExecutor(ExecutorBroker):
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+        command_line_argument_lst (list): Additional command line arguments for the srun call
 
     Examples:
 
@@ -111,6 +112,7 @@ class PySlurmStepExecutor(ExecutorSteps):
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+        command_line_argument_lst (list): Additional command line arguments for the srun call
 
     Examples:
 

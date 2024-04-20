@@ -2,14 +2,29 @@ import os
 import shutil
 from typing import Optional
 from ._version import get_versions
-from pympipool.mpi.executor import PyMPIExecutor, PyMPIStepExecutor
-from pympipool.shared.interface import SLURM_COMMAND
+from pympipool.mpi.executor import (
+    PyMPIExecutor as _PyMPIExecutor,
+    PyMPIStepExecutor as _PyMPIStepExecutor,
+)
+from pympipool.shared.interface import SLURM_COMMAND as _SLURM_COMMAND
+from pympipool.shared.inputcheck import (
+    check_command_line_argument_lst as _check_command_line_argument_lst,
+    check_gpus_per_worker as _check_gpus_per_worker,
+    check_threads_per_core as _check_threads_per_core,
+    check_oversubscribe as _check_oversubscribe,
+)
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
-from pympipool.slurm.executor import PySlurmExecutor, PySlurmStepExecutor
+from pympipool.slurm.executor import (
+    PySlurmExecutor as _PySlurmExecutor,
+    PySlurmStepExecutor as _PySlurmStepExecutor,
+)
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
-    from pympipool.flux.executor import PyFluxExecutor, PyFluxStepExecutor
+    from pympipool.flux.executor import (
+        PyFluxExecutor as _PyFluxExecutor,
+        PyFluxStepExecutor as _PyFluxStepExecutor,
+    )
 
     flux_installed = "FLUX_URI" in os.environ
 except ImportError:
@@ -17,7 +32,7 @@ except ImportError:
     pass
 
 # The PySlurmExecutor requires the srun command to be available.
-slurm_installed = shutil.which(SLURM_COMMAND) is not None
+slurm_installed = shutil.which(_SLURM_COMMAND) is not None
 
 
 __version__ = get_versions()["version"]
@@ -36,7 +51,7 @@ class Executor:
         cores_per_worker (int): number of MPI cores to be used for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
-        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
+        oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
         cwd (str/None): current working directory where the parallel python task is executed
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -52,6 +67,7 @@ class Executor:
                                     to be defined on the executor, rather than during the submission of the individual
                                     function.
         init_function (None): optional function to preset arguments for functions which are submitted later
+        command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
 
     Examples:
         ```
@@ -87,6 +103,7 @@ class Executor:
         backend="auto",
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
+        command_line_argument_lst: list[str] = [],
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
@@ -104,6 +121,7 @@ class Executor:
         backend: str = "auto",
         block_allocation: bool = False,
         init_function: Optional[callable] = None,
+        command_line_argument_lst: list[str] = [],
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -118,7 +136,7 @@ class Executor:
             cores_per_worker (int): number of MPI cores to be used for each function call
             threads_per_core (int): number of OpenMP threads to be used for each function call
             gpus_per_worker (int): number of GPUs per worker - defaults to 0
-            oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI only) - default False
+            oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
             cwd (str/None): current working directory where the parallel python task is executed
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -134,6 +152,7 @@ class Executor:
                                         resources have to be defined on the executor, rather than during the submission
                                         of the individual function.
             init_function (None): optional function to preset arguments for functions which are submitted later
+            command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
 
         """
         if not block_allocation and init_function is not None:
@@ -146,13 +165,12 @@ class Executor:
                 + " is not a valid choice."
             )
         elif backend == "flux" or (backend == "auto" and flux_installed):
-            if oversubscribe:
-                raise ValueError(
-                    "Oversubscribing is not supported for the pympipool.flux.PyFLuxExecutor backend."
-                    "Please use oversubscribe=False instead of oversubscribe=True."
-                )
+            _check_oversubscribe(oversubscribe=oversubscribe)
+            _check_command_line_argument_lst(
+                command_line_argument_lst=command_line_argument_lst
+            )
             if block_allocation:
-                return PyFluxExecutor(
+                return _PyFluxExecutor(
                     max_workers=int(max_cores / cores_per_worker),
                     cores_per_worker=cores_per_worker,
                     threads_per_core=threads_per_core,
@@ -162,7 +180,7 @@ class Executor:
                     hostname_localhost=hostname_localhost,
                 )
             else:
-                return PyFluxStepExecutor(
+                return _PyFluxStepExecutor(
                     max_cores=max_cores,
                     cores_per_worker=cores_per_worker,
                     threads_per_core=threads_per_core,
@@ -172,7 +190,7 @@ class Executor:
                 )
         elif backend == "slurm" or (backend == "auto" and slurm_installed):
             if block_allocation:
-                return PySlurmExecutor(
+                return _PySlurmExecutor(
                     max_workers=int(max_cores / cores_per_worker),
                     cores_per_worker=cores_per_worker,
                     threads_per_core=threads_per_core,
@@ -183,7 +201,7 @@ class Executor:
                     hostname_localhost=hostname_localhost,
                 )
             else:
-                return PySlurmStepExecutor(
+                return _PySlurmStepExecutor(
                     max_cores=max_cores,
                     cores_per_worker=cores_per_worker,
                     threads_per_core=threads_per_core,
@@ -193,22 +211,13 @@ class Executor:
                     hostname_localhost=hostname_localhost,
                 )
         else:  # backend="mpi"
-            if threads_per_core != 1:
-                raise TypeError(
-                    "Thread based parallelism is not supported for the pympipool.mpi.PyMPIExecutor backend."
-                    "Please use threads_per_core=1 instead of threads_per_core="
-                    + str(threads_per_core)
-                    + "."
-                )
-            if gpus_per_worker != 0:
-                raise TypeError(
-                    "GPU assignment is not supported for the pympipool.mpi.PyMPIExecutor backend."
-                    "Please use gpus_per_worker=0 instead of gpus_per_worker="
-                    + str(gpus_per_worker)
-                    + "."
-                )
+            _check_threads_per_core(threads_per_core=threads_per_core)
+            _check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
+            _check_command_line_argument_lst(
+                command_line_argument_lst=command_line_argument_lst
+            )
             if block_allocation:
-                return PyMPIExecutor(
+                return _PyMPIExecutor(
                     max_workers=int(max_cores / cores_per_worker),
                     cores_per_worker=cores_per_worker,
                     init_function=init_function,
@@ -216,7 +225,7 @@ class Executor:
                     hostname_localhost=hostname_localhost,
                 )
             else:
-                return PyMPIStepExecutor(
+                return _PyMPIStepExecutor(
                     max_cores=max_cores,
                     cores_per_worker=cores_per_worker,
                     cwd=cwd,

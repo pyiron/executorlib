@@ -5,38 +5,37 @@ pympipool - up-scale python functions for high performance computing
 :Author:  Jan Janssen
 :Contact: janssen@lanl.gov
 
-Up-scaling python functions for high performance computing (HPC) can be challenging. While the python standard library
-provides interfaces for multiprocessing and asynchronous task execution, namely
-`multiprocessing <https://docs.python.org/3/library/multiprocessing.html>`_ and
-`concurrent.futures <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_, both are
-limited to the execution on a single compute node. So a series of python libraries have been developed to address the
-up-scaling of python functions for HPC. Starting in the datascience and machine learning community with solutions
-like `dask <https://www.dask.org>`_, over to more HPC-focused solutions like
-`fireworks <https://materialsproject.github.io/fireworks/>`_ and `parsl <http://parsl-project.org>`_, up to Python
-bindings for the message passing interface (MPI) named `mpi4py <https://mpi4py.readthedocs.io>`_. Each of these
-solutions has its advantages and disadvantages. However, one disadvantage common to all these libraries is the relative difficulty of scaling from serial functions to functions that make use of thread-based, MPI-based, or GPU-based parallelism.
+Challenges
+----------
+In high performance computing (HPC) the Python programming language is commonly used as high-level language to
+orchestrate the coupling of scientific applications. Still the efficient usage of highly parallel HPC clusters remains
+challenging, in primarily three aspects:
 
-To address these challenges :code:`pympipool` is developed with three goals in mind:
+* **Communication**: Distributing python function calls over hundreds of compute node and gathering the results on a shared file system is technically possible, but highly inefficient. A socket-based communication approach is preferable.
+* **Resource Management**: Assigning Python functions to GPUs or executing Python functions on multiple CPUs using the message passing interface (MPI) requires major modifications to the python workflow.
+* **Integration**: Existing workflow libraries implement a secondary the job management on the Python level rather than leveraging the existing infrastructure provided by the job scheduler of the HPC.
 
-* Extend the standard python library `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_ interface, to minimize the barrier of up-scaling an existing workflow to be used on HPC resources.
-* Integrate thread-based parallelism, MPI-parallel python functions based on `mpi4py <https://mpi4py.readthedocs.io>`_, and GPU assignment. This allows users to accelerate their workflows one function at a time.
-* Embrace `Jupyter <https://jupyter.org>`_ notebooks for the interactive development of HPC workflows, as they allow the users to document their though process right next to the python code and their results all within one document.
+pympipool is ...
+^^^^^^^^^^^^^^^^
+In a given HPC allocation the :code:`pympipool` library addresses these challenges by extending the Executor interface
+of the standard Python library to support the resource assignment in the HPC context. Computing resources can either be
+assigned on a per function call basis or as a block allocation on a per Executor basis. The :code:`pympipool` library
+is built on top of the `flux-framework <https://flux-framework.org>`_ to enable fine-grained resource assignment. In
+addition `Simple Linux Utility for Resource Management (SLURM) <https://slurm.schedmd.com>`_ is supported as alternative
+queuing system and for workstation installations :code:`pympipool` can be installed without a job scheduler.
 
-HPC Context
------------
-Frameworks like `dask <https://www.dask.org>`_, `fireworks <https://materialsproject.github.io/fireworks/>`_
-and `parsl <http://parsl-project.org>`_ can be used to submit a number of worker processes directly to the HPC
-queuing system and then transfer tasks from either the login node or an interactive allocation to these worker processes
-to accelerate the execution. By contrast, `mpi4py <https://mpi4py.readthedocs.io>`_ and :code:`pympipool` follow a different
-approach, in which the user creates their HPC allocation first and then `mpi4py <https://mpi4py.readthedocs.io>`_ or
-:code:`pympipool` can be used to distribute the tasks within this allocation. The advantage of this approach is that
-no central data storage is required as the workers and the scheduling task can communicate directly.
+pympipool is not ...
+^^^^^^^^^^^^^^^^^^^^
+The pympipool library is not designed to request an allocation from the job scheduler of an HPC. Instead within a given
+allocation from the job scheduler the :code:`pympipool` library can be employed to distribute a series of python
+function calls over the available computing resources to achieve maximum computing resource utilization.
 
-Examples
---------
-The following examples illustrates how :code:`pympipool` can be used to distribute a series of MPI parallel function
-calls within a queuing system allocation. :code:`example.py`::
+Example
+-------
+The following examples illustrates how :code:`pympipool` can be used to distribute an MPI parallel function within a
+queuing system allocation using the `flux-framework <https://flux-framework.org>`_. :code:`example.py`::
 
+    import flux.job
     from pympipool import Executor
 
     def calc(i):
@@ -45,10 +44,10 @@ calls within a queuing system allocation. :code:`example.py`::
         rank = MPI.COMM_WORLD.Get_rank()
         return i, size, rank
 
-    with Executor(max_workers=2, cores_per_worker=2) as exe:
-        fs_0 = exe.submit(calc, 0)
-        fs_1 = exe.submit(calc, 1)
-        print(fs_0.result(), fs_1.result())
+    with flux.job.FluxExecutor() as flux_exe:
+        with Executor(max_cores=2, cores_per_worker=2, executor=flux_exe) as exe:
+            fs = exe.submit(calc, 3)
+            print(fs.result())
 
 This example can be executed using::
 
@@ -62,31 +61,20 @@ The important part in this example is that `mpi4py <https://mpi4py.readthedocs.i
 function, not in the python script, consequently it is not necessary to call the script with :code:`mpiexec` but instead
 a call with the regular python interpreter is sufficient. This highlights how :code:`pympipool` allows the users to
 parallelize one function at a time and not having to convert their whole workflow to use `mpi4py <https://mpi4py.readthedocs.io>`_.
-The same code can also be executed inside a jupyter notebook directly which enables an interactive development process.
+At the same time the function can be distributed over all compute nodes in a given allocation of the job scheduler, in
+contrast to the standard `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
+which only supports distribution within one compute node.
 
-The standard `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
-interface is extended by adding the option :code:`cores_per_worker=2` to assign multiple MPI ranks to each function call.
-To create two workers :code:`max_workers=2` each with two cores each requires a total of four CPU cores to be available.
+The interface of the standard `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
+is extended by adding the option :code:`cores_per_worker=2` to assign multiple MPI ranks to each function call. To
+create two workers the maximum number of cores can be increased to :code:`max_cores=4`. In this case each worker
+receives two cores resulting in a total of four CPU cores being utilized.
 
 After submitting the function :code:`calc()` with the corresponding parameter to the executor :code:`exe.submit(calc, 0)`
 a python `concurrent.futures.Future <https://docs.python.org/3/library/concurrent.futures.html#future-objects>`_ is
 returned. Consequently, the :code:`pympipool.Executor` can be used as a drop-in replacement for the
 `concurrent.futures.Executor <https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures>`_
 which allows the user to add parallelism to their workflow one function at a time.
-
-Backends
---------
-Depending on the availability of different resource schedulers in your HPC environment the :code:`pympipool.Executor`
-uses a different backend, with the :code:`pympipool.flux.PyFluxExecutor` being the preferred backend:
-
-* :code:`pympipool.mpi.PyMpiExecutor`: The simplest executor of the three uses `mpi4py <https://mpi4py.readthedocs.io>`_ as a backend. This simplifies the installation on all operation systems including Windows. Still at the same time it limits the up-scaling to a single compute node and serial or MPI parallel python functions. There is no support for thread based parallelism or GPU assignment. This interface is primarily used for testing and developing or as a fall-back solution. It is not recommended to use this interface in production.
-* :code:`pympipool.slurm.PySlurmExecutor`: The `SLURM workload manager <https://www.schedmd.com>`_ is commonly used on HPC systems to schedule and distribute tasks. :code:`pympipool` provides a python interface for scheduling the execution of python functions as SLURM job steps which are typically created using the :code:`srun` command. This executor supports serial python functions, thread based parallelism, MPI based parallelism and the assignment of GPUs to individual python functions. When the `SLURM workload manager <https://www.schedmd.com>`_ is installed on your HPC cluster this interface can be a reasonable choice, still depending on the SLURM configuration in can be limited in terms of the fine-grained scheduling or the responsiveness when working with hundreds of compute nodes in an individual allocation.
-* :code:`pympipool.flux.PyFluxExecutor`: The `flux framework <https://flux-framework.org>`_ is the preferred backend for :code:`pympipool`. Just like the :code:`pympipool.slurm.PySlurmExecutor` it supports serial python functions, thread based parallelism, MPI based parallelism and the assignment of GPUs to individual python functions. Still the advantages of using the `flux framework <https://flux-framework.org>`_ as a backend are the easy installation, the faster allocation of resources as the resources are managed within the allocation and no central databases is used and the superior level of fine-grained resource assignment which is typically not available on HPC resource schedulers.
-
-Each of these backends consists of two parts a broker and a worker. When a new tasks is submitted from the user it is
-received by the broker and the broker identifies the first available worker. The worker then executes a task and returns
-it to the broker, who returns it to the user. While there is only one broker per :code:`pympipool.Executor` the number
-of workers can be specified with the :code:`max_workers` parameter.
 
 Disclaimer
 ----------
