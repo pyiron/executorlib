@@ -1,5 +1,3 @@
-import os
-import shutil
 from typing import Optional
 from ._version import get_versions
 from pympipool.scheduler import create_executor
