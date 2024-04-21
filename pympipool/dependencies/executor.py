@@ -2,7 +2,7 @@ from concurrent.futures import Future
 from queue import Queue, Empty
 from time import sleep
 
-from pympipool import Executor
+from pympipool.scheduler import create_executor
 from pympipool.shared.executorbase import ExecutorSteps
 from pympipool.shared.thread import RaisingThread
 
@@ -64,7 +64,7 @@ def run_task_with_dependencies(
 class ExecutorWithDependencies(ExecutorSteps):
     def __init__(self, *args, sleep_interval: float = 0.1, **kwargs):
         super().__init__()
-        self._executor_internal = Executor(*args, **kwargs)
+        self._executor_internal = create_executor(*args, **kwargs)
         self._set_process(
             RaisingThread(
                 target=run_task_with_dependencies,
