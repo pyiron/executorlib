@@ -2,26 +2,26 @@ import os
 import shutil
 from typing import Optional
 from pympipool.scheduler.mpi import (
-    PyMPIExecutor as _PyMPIExecutor,
-    PyMPIStepExecutor as _PyMPIStepExecutor,
+    PyMPIExecutor,
+    PyMPIStepExecutor,
 )
-from pympipool.shared.interface import SLURM_COMMAND as _SLURM_COMMAND
+from pympipool.shared.interface import SLURM_COMMAND
 from pympipool.shared.inputcheck import (
-    check_command_line_argument_lst as _check_command_line_argument_lst,
-    check_gpus_per_worker as _check_gpus_per_worker,
-    check_threads_per_core as _check_threads_per_core,
-    check_oversubscribe as _check_oversubscribe,
-    check_executor as _check_executor,
+    check_command_line_argument_lst,
+    check_gpus_per_worker,
+    check_threads_per_core,
+    check_oversubscribe,
+    check_executor,
 )
 from pympipool.scheduler.slurm import (
-    PySlurmExecutor as _PySlurmExecutor,
-    PySlurmStepExecutor as _PySlurmStepExecutor,
+    PySlurmExecutor,
+    PySlurmStepExecutor,
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
     from pympipool.scheduler.flux import (
-        PyFluxExecutor as _PyFluxExecutor,
-        PyFluxStepExecutor as _PyFluxStepExecutor,
+        PyFluxExecutor,
+        PyFluxStepExecutor,
     )
 
     flux_installed = "FLUX_URI" in os.environ
@@ -30,7 +30,7 @@ except ImportError:
     pass
 
 # The PySlurmExecutor requires the srun command to be available.
-slurm_installed = shutil.which(_SLURM_COMMAND) is not None
+slurm_installed = shutil.which(SLURM_COMMAND) is not None
 
 
 def create_executor(
@@ -89,12 +89,12 @@ def create_executor(
             + " is not a valid choice."
         )
     elif backend == "flux" or (backend == "auto" and flux_installed):
-        _check_oversubscribe(oversubscribe=oversubscribe)
-        _check_command_line_argument_lst(
+        check_oversubscribe(oversubscribe=oversubscribe)
+        check_command_line_argument_lst(
             command_line_argument_lst=command_line_argument_lst
         )
         if block_allocation:
-            return _PyFluxExecutor(
+            return PyFluxExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,
@@ -105,7 +105,7 @@ def create_executor(
                 hostname_localhost=hostname_localhost,
             )
         else:
-            return _PyFluxStepExecutor(
+            return PyFluxStepExecutor(
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,
@@ -115,9 +115,9 @@ def create_executor(
                 hostname_localhost=hostname_localhost,
             )
     elif backend == "slurm" or (backend == "auto" and slurm_installed):
-        _check_executor(executor=executor)
+        check_executor(executor=executor)
         if block_allocation:
-            return _PySlurmExecutor(
+            return PySlurmExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,
@@ -128,7 +128,7 @@ def create_executor(
                 hostname_localhost=hostname_localhost,
             )
         else:
-            return _PySlurmStepExecutor(
+            return PySlurmStepExecutor(
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,
@@ -138,14 +138,14 @@ def create_executor(
                 hostname_localhost=hostname_localhost,
             )
     else:  # backend="mpi"
-        _check_threads_per_core(threads_per_core=threads_per_core)
-        _check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
-        _check_command_line_argument_lst(
+        check_threads_per_core(threads_per_core=threads_per_core)
+        check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
+        check_command_line_argument_lst(
             command_line_argument_lst=command_line_argument_lst
         )
-        _check_executor(executor=executor)
+        check_executor(executor=executor)
         if block_allocation:
-            return _PyMPIExecutor(
+            return PyMPIExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
@@ -153,7 +153,7 @@ def create_executor(
                 hostname_localhost=hostname_localhost,
             )
         else:
-            return _PyMPIStepExecutor(
+            return PyMPIStepExecutor(
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 cwd=cwd,
