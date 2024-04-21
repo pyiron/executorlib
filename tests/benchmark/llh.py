@@ -41,17 +41,23 @@ if __name__ == "__main__":
         run_with_executor(
             executor=ThreadPoolExecutor, mean=0.1, sigma=1.1, runs=32, max_workers=4
         )
+    elif run_mode == "block_allocation":
+        from pympipool import Executor
+
+        run_with_executor(
+            executor=Executor, mean=0.1, sigma=1.1, runs=32, max_cores=4, backend="mpi", block_allocation=True
+        )
     elif run_mode == "pympipool":
         from pympipool import Executor
 
         run_with_executor(
-            executor=Executor, mean=0.1, sigma=1.1, runs=32, max_cores=4, backend="mpi"
+            executor=Executor, mean=0.1, sigma=1.1, runs=32, max_cores=4, backend="mpi", block_allocation=False
         )
     elif run_mode == "flux":
         from pympipool import Executor
 
         run_with_executor(
-            executor=Executor, mean=0.1, sigma=1.1, runs=32, max_cores=4, backend="flux"
+            executor=Executor, mean=0.1, sigma=1.1, runs=32, max_cores=4, backend="flux", block_allocation=True
         )
     elif run_mode == "mpi4py":
         from mpi4py.futures import MPIPoolExecutor
