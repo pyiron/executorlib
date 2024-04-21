@@ -10,7 +10,7 @@ from pympipool.shared.executorbase import cloudpickle_register, execute_parallel
 
 try:
     import flux.job
-    from pympipool.flux.executor import (
+    from pympipool.scheduler.flux import (
         PyFluxExecutor,
         FluxPythonInterface,
     )

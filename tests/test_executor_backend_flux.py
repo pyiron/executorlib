@@ -1,6 +1,4 @@
-from concurrent.futures import Future
 import os
-from queue import Queue
 import unittest
 
 import numpy as np
@@ -10,7 +8,7 @@ from pympipool import Executor
 
 try:
     import flux.job
-    from pympipool.flux.executor import (
+    from pympipool.scheduler.flux import (
         PyFluxExecutor,
         FluxPythonInterface,
     )
