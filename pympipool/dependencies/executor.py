@@ -31,10 +31,11 @@ def run_task_with_dependencies(
             and "fn" in task_dict.keys()
             and "future" in task_dict.keys()
         ):
-            future_lst, number_of_futures, number_of_done_futures = (
-                check_for_futures_in_input(task_dict=task_dict)
-            )
-            if number_of_futures == 0 or number_of_futures == number_of_done_futures:
+            future_lst = [arg for arg in task_dict["args"] if isinstance(arg, Future)] + [
+                value for value in task_dict["kwargs"] if isinstance(value, Future)
+            ]
+            result_lst = [future for future in future_lst if future.done()]
+            if len(future_lst) == 0 or len(future_lst) == len(result_lst):
                 task_dict["args"], task_dict["kwargs"] = update_futures_in_input(
                     args=task_dict["args"], kwargs=task_dict["kwargs"]
                 )
@@ -52,25 +53,40 @@ def run_task_with_dependencies(
 
 
 def submit_waiting_task(wait_lst: List[dict], executor_queue: Queue):
+    """
+    Submit the waiting tasks, which future inputs have been completed, to the executor
+
+    Args:
+        wait_lst (list): List of waiting tasks
+        executor_queue (Queue): Queue of the internal executor
+
+    Returns:
+        list: list tasks which future inputs have not been completed
+    """
     wait_tmp_lst = []
     for task_wait_dict in wait_lst:
         if all([future.done() for future in task_wait_dict["future_lst"]]):
             del task_wait_dict["future_lst"]
+            task_wait_dict["args"], task_wait_dict["kwargs"] = update_futures_in_input(
+                args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
+            )
             executor_queue.put(task_wait_dict)
         else:
             wait_tmp_lst.append(task_wait_dict)
     return wait_tmp_lst
 
 
-def check_for_futures_in_input(task_dict: dict):
-    future_lst = [arg for arg in task_dict["args"] if isinstance(arg, Future)] + [
-        value for value in task_dict["kwargs"] if isinstance(value, Future)
-    ]
-    result_lst = [future for future in future_lst if future.done()]
-    return future_lst, len(future_lst), len(result_lst)
+def update_futures_in_input(args: tuple, kwargs: dict):
+    """
+    Evaluate future objects in the arguments and keyword arguments by calling future.result()
 
+    Args:
+        args (tuple): function arguments
+        kwargs (dict): function keyword arguments
 
-def update_futures_in_input(args, kwargs):
+    Returns:
+        tuple, dict: arguments and keyword arguments with each future object in them being evaluated
+    """
     args = [arg if not isinstance(arg, Future) else arg.result() for arg in args]
     kwargs = {
         key: value if not isinstance(value, Future) else value.result()
