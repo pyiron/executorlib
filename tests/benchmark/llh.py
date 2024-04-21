@@ -42,13 +42,13 @@ if __name__ == "__main__":
             executor=ThreadPoolExecutor, mean=0.1, sigma=1.1, runs=32, max_workers=4
         )
     elif run_mode == "pympipool":
-        from pympipool.mpi.executor import PyMPIExecutor
+        from pympipool.scheduler.mpi import PyMPIExecutor
 
         run_with_executor(
             executor=PyMPIExecutor, mean=0.1, sigma=1.1, runs=32, max_workers=4
         )
     elif run_mode == "flux":
-        from pympipool.flux.executor import PyFluxExecutor
+        from pympipool.scheduler.flux import PyFluxExecutor
 
         run_with_executor(
             executor=PyFluxExecutor, mean=0.1, sigma=1.1, runs=32, max_workers=4

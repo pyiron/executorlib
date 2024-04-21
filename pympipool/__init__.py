@@ -2,7 +2,7 @@ import os
 import shutil
 from typing import Optional
 from ._version import get_versions
-from pympipool.mpi.executor import (
+from pympipool.scheduler.mpi import (
     PyMPIExecutor as _PyMPIExecutor,
     PyMPIStepExecutor as _PyMPIStepExecutor,
 )
@@ -15,13 +15,13 @@ from pympipool.shared.inputcheck import (
 )
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
-from pympipool.slurm.executor import (
+from pympipool.scheduler.slurm import (
     PySlurmExecutor as _PySlurmExecutor,
     PySlurmStepExecutor as _PySlurmStepExecutor,
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
-    from pympipool.flux.executor import (
+    from pympipool.scheduler.flux import (
         PyFluxExecutor as _PyFluxExecutor,
         PyFluxStepExecutor as _PyFluxStepExecutor,
     )

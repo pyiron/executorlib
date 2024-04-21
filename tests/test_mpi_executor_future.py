@@ -4,7 +4,7 @@ import unittest
 
 import numpy as np
 
-from pympipool.mpi.executor import PyMPIExecutor
+from pympipool.scheduler.mpi import PyMPIExecutor
 
 
 def calc(i):
