@@ -12,6 +12,7 @@ from pympipool.shared.inputcheck import (
     check_gpus_per_worker as _check_gpus_per_worker,
     check_threads_per_core as _check_threads_per_core,
     check_oversubscribe as _check_oversubscribe,
+    check_executor as _check_executor,
 )
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
@@ -177,6 +178,7 @@ class Executor:
                     gpus_per_worker=gpus_per_worker,
                     init_function=init_function,
                     cwd=cwd,
+                    executor=executor,
                     hostname_localhost=hostname_localhost,
                 )
             else:
@@ -186,9 +188,11 @@ class Executor:
                     threads_per_core=threads_per_core,
                     gpus_per_worker=gpus_per_worker,
                     cwd=cwd,
+                    executor=executor,
                     hostname_localhost=hostname_localhost,
                 )
         elif backend == "slurm" or (backend == "auto" and slurm_installed):
+            _check_executor(executor=executor)
             if block_allocation:
                 return _PySlurmExecutor(
                     max_workers=int(max_cores / cores_per_worker),
@@ -211,11 +215,12 @@ class Executor:
                     hostname_localhost=hostname_localhost,
                 )
         else:  # backend="mpi"
-            _check_threads_per_core(threads_per_core=threads_per_core)
-            _check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
             _check_command_line_argument_lst(
                 command_line_argument_lst=command_line_argument_lst
             )
+            _check_executor(executor=executor)
+            _check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
+            _check_threads_per_core(threads_per_core=threads_per_core)
             if block_allocation:
                 return _PyMPIExecutor(
                     max_workers=int(max_cores / cores_per_worker),
