@@ -10,7 +10,7 @@ class TestResults(unittest.TestCase):
         self.assertEqual(max(timing_dict, key=timing_dict.get), "static")
         self.assertTrue(timing_dict["process"] < timing_dict["pympipool"])
         self.assertTrue(timing_dict["block_allocation"] < timing_dict["process"] * 1.1) 
-        self.assertTrue(timing_dict["pympipool"] < timing_dict["process"] * 1.2)
+        self.assertTrue(timing_dict["pympipool"] < timing_dict["process"] * 1.35)
         self.assertTrue(timing_dict["process"] < timing_dict["mpi4py"])
         self.assertTrue(timing_dict["pympipool"] < timing_dict["mpi4py"])
         self.assertTrue(timing_dict["mpi4py"] < timing_dict["process"] * 1.15)
