@@ -2,37 +2,9 @@ import os
 import shutil
 from typing import Optional
 from ._version import get_versions
-from pympipool.scheduler.mpi import (
-    PyMPIExecutor as _PyMPIExecutor,
-    PyMPIStepExecutor as _PyMPIStepExecutor,
-)
-from pympipool.shared.interface import SLURM_COMMAND as _SLURM_COMMAND
-from pympipool.shared.inputcheck import (
-    check_command_line_argument_lst as _check_command_line_argument_lst,
-    check_gpus_per_worker as _check_gpus_per_worker,
-    check_threads_per_core as _check_threads_per_core,
-    check_oversubscribe as _check_oversubscribe,
-)
+from pympipool.scheduler import create_executor
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
-from pympipool.scheduler.slurm import (
-    PySlurmExecutor as _PySlurmExecutor,
-    PySlurmStepExecutor as _PySlurmStepExecutor,
-)
-
-try:  # The PyFluxExecutor requires flux-core to be installed.
-    from pympipool.scheduler.flux import (
-        PyFluxExecutor as _PyFluxExecutor,
-        PyFluxStepExecutor as _PyFluxStepExecutor,
-    )
-
-    flux_installed = "FLUX_URI" in os.environ
-except ImportError:
-    flux_installed = False
-    pass
-
-# The PySlurmExecutor requires the srun command to be available.
-slurm_installed = shutil.which(_SLURM_COMMAND) is not None
 
 
 __version__ = get_versions()["version"]
@@ -155,79 +127,17 @@ class Executor:
             command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
 
         """
-        if not block_allocation and init_function is not None:
-            raise ValueError("")
-        if backend not in ["auto", "mpi", "slurm", "flux"]:
-            raise ValueError(
-                'The currently implemented backends are ["flux", "mpi", "slurm"]. '
-                'Alternatively, you can select "auto", the default option, to automatically determine the backend. But '
-                + backend
-                + " is not a valid choice."
-            )
-        elif backend == "flux" or (backend == "auto" and flux_installed):
-            _check_oversubscribe(oversubscribe=oversubscribe)
-            _check_command_line_argument_lst(
-                command_line_argument_lst=command_line_argument_lst
-            )
-            if block_allocation:
-                return _PyFluxExecutor(
-                    max_workers=int(max_cores / cores_per_worker),
-                    cores_per_worker=cores_per_worker,
-                    threads_per_core=threads_per_core,
-                    gpus_per_worker=gpus_per_worker,
-                    init_function=init_function,
-                    cwd=cwd,
-                    hostname_localhost=hostname_localhost,
-                )
-            else:
-                return _PyFluxStepExecutor(
-                    max_cores=max_cores,
-                    cores_per_worker=cores_per_worker,
-                    threads_per_core=threads_per_core,
-                    gpus_per_worker=gpus_per_worker,
-                    cwd=cwd,
-                    hostname_localhost=hostname_localhost,
-                )
-        elif backend == "slurm" or (backend == "auto" and slurm_installed):
-            if block_allocation:
-                return _PySlurmExecutor(
-                    max_workers=int(max_cores / cores_per_worker),
-                    cores_per_worker=cores_per_worker,
-                    threads_per_core=threads_per_core,
-                    gpus_per_worker=gpus_per_worker,
-                    oversubscribe=oversubscribe,
-                    init_function=init_function,
-                    cwd=cwd,
-                    hostname_localhost=hostname_localhost,
-                )
-            else:
-                return _PySlurmStepExecutor(
-                    max_cores=max_cores,
-                    cores_per_worker=cores_per_worker,
-                    threads_per_core=threads_per_core,
-                    gpus_per_worker=gpus_per_worker,
-                    oversubscribe=oversubscribe,
-                    cwd=cwd,
-                    hostname_localhost=hostname_localhost,
-                )
-        else:  # backend="mpi"
-            _check_threads_per_core(threads_per_core=threads_per_core)
-            _check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
-            _check_command_line_argument_lst(
-                command_line_argument_lst=command_line_argument_lst
-            )
-            if block_allocation:
-                return _PyMPIExecutor(
-                    max_workers=int(max_cores / cores_per_worker),
-                    cores_per_worker=cores_per_worker,
-                    init_function=init_function,
-                    cwd=cwd,
-                    hostname_localhost=hostname_localhost,
-                )
-            else:
-                return _PyMPIStepExecutor(
-                    max_cores=max_cores,
-                    cores_per_worker=cores_per_worker,
-                    cwd=cwd,
-                    hostname_localhost=hostname_localhost,
-                )
+        return create_executor(
+            max_cores=max_cores,
+            cores_per_worker=cores_per_worker,
+            threads_per_core=threads_per_core,
+            gpus_per_worker=gpus_per_worker,
+            oversubscribe=oversubscribe,
+            cwd=cwd,
+            executor=executor,
+            hostname_localhost=hostname_localhost,
+            backend=backend,
+            block_allocation=block_allocation,
+            init_function=init_function,
+            command_line_argument_lst=command_line_argument_lst,
+        )
