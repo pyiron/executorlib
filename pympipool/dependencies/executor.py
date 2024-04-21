@@ -70,7 +70,7 @@ class ExecutorWithDependencies(ExecutorSteps):
                 kwargs={
                     # Executor Arguments
                     "future_queue": self._future_queue,
-                    "executor_queue": create_executor(*args, **kwargs),
+                    "executor": create_executor(*args, **kwargs),
                     "sleep_interval": sleep_interval,
                 },
             )
