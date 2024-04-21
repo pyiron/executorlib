@@ -7,23 +7,32 @@ from pympipool.shared.executorbase import ExecutorSteps
 from pympipool.shared.thread import RaisingThread
 
 
-def run_task_with_dependencies(future_queue: Queue, executor_queue: Queue, sleep_interval: float = 0.1):
+def run_task_with_dependencies(
+    future_queue: Queue, executor_queue: Queue, sleep_interval: float = 0.1
+):
     wait_lst = []
     while True:
         try:
             task_dict = future_queue.get_nowait()
         except Empty:
             task_dict = None
-        if task_dict is not None and "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+        if (
+            task_dict is not None
+            and "shutdown" in task_dict.keys()
+            and task_dict["shutdown"]
+        ):
             executor_queue.put(task_dict)
             future_queue.task_done()
             future_queue.join()
             break
-        elif task_dict is not None and "fn" in task_dict.keys() and "future" in task_dict.keys():
-            future_lst = (
-                    [arg for arg in task_dict["args"] if isinstance(arg, Future)]
-                    + [value for value in task_dict["kwargs"] if isinstance(value, Future)]
-            )
+        elif (
+            task_dict is not None
+            and "fn" in task_dict.keys()
+            and "future" in task_dict.keys()
+        ):
+            future_lst = [
+                arg for arg in task_dict["args"] if isinstance(arg, Future)
+            ] + [value for value in task_dict["kwargs"] if isinstance(value, Future)]
             result_lst = [future for future in future_lst if future.done()]
             if len(future_lst) == 0 or len(future_lst) == len(result_lst):
                 task_dict["args"] = [
