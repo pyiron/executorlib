@@ -31,3 +31,10 @@ def check_threads_per_core(threads_per_core):
             + str(threads_per_core)
             + "."
         )
+
+
+def check_executor(executor):
+    if executor is not None:
+        raise ValueError(
+            "The executor parameter is only supported for the flux framework backend."
+        )

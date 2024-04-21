@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from pympipool.mpi.executor import PyMPIExecutor, PyMPIStepExecutor, MpiExecInterface
+from pympipool.scheduler.mpi import PyMPIExecutor, PyMPIStepExecutor, MpiExecInterface
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import (
     cloudpickle_register,
