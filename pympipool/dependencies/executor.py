@@ -31,9 +31,9 @@ def run_task_with_dependencies(
             and "fn" in task_dict.keys()
             and "future" in task_dict.keys()
         ):
-            future_lst = [arg for arg in task_dict["args"] if isinstance(arg, Future)] + [
-                value for value in task_dict["kwargs"] if isinstance(value, Future)
-            ]
+            future_lst = [
+                arg for arg in task_dict["args"] if isinstance(arg, Future)
+            ] + [value for value in task_dict["kwargs"] if isinstance(value, Future)]
             result_lst = [future for future in future_lst if future.done()]
             if len(future_lst) == 0 or len(future_lst) == len(result_lst):
                 task_dict["args"], task_dict["kwargs"] = update_futures_in_input(
