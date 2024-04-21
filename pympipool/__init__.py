@@ -1,10 +1,9 @@
-import os
-import shutil
 from typing import Optional
 from ._version import get_versions
 from pympipool.scheduler import create_executor
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
+from pympipool.dependencies import ExecutorWithDependencies
 
 
 __version__ = get_versions()["version"]
