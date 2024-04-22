@@ -391,7 +391,7 @@ def execute_tasks_with_dependencies(
             task_dict = future_queue.get_nowait()
         except queue.Empty:
             task_dict = None
-        if (
+        if (  # shutdown the executor
             task_dict is not None
             and "shutdown" in task_dict.keys()
             and task_dict["shutdown"]
@@ -400,29 +400,29 @@ def execute_tasks_with_dependencies(
             future_queue.task_done()
             future_queue.join()
             break
-        elif (
+        elif (  # handle function submitted to the executor
             task_dict is not None
             and "fn" in task_dict.keys()
             and "future" in task_dict.keys()
         ):
-            future_lst = [
-                arg for arg in task_dict["args"] if isinstance(arg, Future)
-            ] + [value for value in task_dict["kwargs"] if isinstance(value, Future)]
-            result_lst = [future for future in future_lst if future.done()]
-            if len(future_lst) == 0 or len(future_lst) == len(result_lst):
+            future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
+            if len(future_lst) == 0 or ready_flag:
+                # No future objects are used in the input or all future objects are already done
                 task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
                     args=task_dict["args"], kwargs=task_dict["kwargs"]
                 )
                 executor_queue.put(task_dict)
-            else:
+            else:  # Otherwise add the function to the wait list
                 task_dict["future_lst"] = future_lst
                 wait_lst.append(task_dict)
             future_queue.task_done()
         elif len(wait_lst) > 0:
+            # Check functions in the wait list and execute them if all future objects are now ready
             wait_lst = _submit_waiting_task(
                 wait_lst=wait_lst, executor_queue=executor_queue
             )
         else:
+            # If there is nothing else to do, sleep for a moment
             sleep(refresh_rate)
 
 
@@ -515,3 +515,23 @@ def _update_futures_in_input(args: tuple, kwargs: dict):
         for key, value in kwargs.items()
     }
     return args, kwargs
+
+
+def _get_future_objects_from_input(task_dict: dict):
+    """
+    Check the input parameters if they contain future objects and which of these future objects are executed
+
+    Args:
+        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
+                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+
+    Returns:
+        list, boolean: list of future objects and boolean flag if all future objects are already done
+    """
+    future_lst = [arg for arg in task_dict["args"] if isinstance(arg, Future)] + [
+        value for value in task_dict["kwargs"] if isinstance(value, Future)
+    ]
+    boolean_flag = len([future for future in future_lst if future.done()]) == len(
+        future_lst
+    )
+    return future_lst, boolean_flag
