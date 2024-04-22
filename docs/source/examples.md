@@ -394,22 +394,25 @@ input for the second function during the submission. Consequently, this function
 graphs, still it does not enable cyclic graphs. As a simple example we can add one to the result of the addition of one
 and two:
 ```python
+import flux.job
 from pympipool import Executor
 
-def calc_function(parameter_a, parameter_b):
+def add_numbers(parameter_a, parameter_b):
     return parameter_a + parameter_b
 
 with flux.job.FluxExecutor() as flux_exe:
     with Executor(max_cores=2, executor=flux_exe) as exe:
         future_1 = exe.submit(
-            calc_function, 
-            parameter_a=1,
-            parameter_b=2, 
+            add_numbers, 
+            1,
+            parameter_b=2,
+            resource_dict={"cores": 1},
         )
         future_2 = exe.submit(
-            calc_function, 
-            parameter_a=1,
-            parameter_b=future_1, 
+            add_numbers, 
+            1,
+            parameter_b=future_1,
+            resource_dict={"cores": 1},
         )
         print(future_2.result())
 ```
@@ -452,7 +455,7 @@ Still the general usage of `pympipool` remains similar:
 from pympipool import Executor
 
 with Executor(max_cores=1, backend="mpi") as exe:
-    future = exe.submit(sum, [1,1])
+    future = exe.submit(sum, [1,1], resource_dict={"cores": 1})
     print(future.result())
 ```
 The `backend="mpi"` parameter is optional as `pympipool` automatically recognizes if [flux framework](https://flux-framework.org) 
