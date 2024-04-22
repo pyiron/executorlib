@@ -12,6 +12,8 @@ from pympipool.shared.inputcheck import (
     check_threads_per_core,
     check_oversubscribe,
     check_executor,
+    check_backend,
+    check_init_function,
 )
 from pympipool.scheduler.slurm import (
     PySlurmExecutor,
@@ -79,16 +81,9 @@ def create_executor(
         command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
 
     """
-    if not block_allocation and init_function is not None:
-        raise ValueError("")
-    if backend not in ["auto", "mpi", "slurm", "flux"]:
-        raise ValueError(
-            'The currently implemented backends are ["flux", "mpi", "slurm"]. '
-            'Alternatively, you can select "auto", the default option, to automatically determine the backend. But '
-            + backend
-            + " is not a valid choice."
-        )
-    elif backend == "flux" or (backend == "auto" and flux_installed):
+    check_init_function(block_allocation=block_allocation, init_function=init_function)
+    check_backend(backend=backend)
+    if backend == "flux" or (backend == "auto" and flux_installed):
         check_oversubscribe(oversubscribe=oversubscribe)
         check_command_line_argument_lst(
             command_line_argument_lst=command_line_argument_lst

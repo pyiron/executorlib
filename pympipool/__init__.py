@@ -4,6 +4,7 @@ from pympipool.scheduler import create_executor
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
 from pympipool.shared.dependencies import ExecutorWithDependencies
+from pympipool.shared.inputcheck import check_refresh_rate as _check_refresh_rate
 
 
 __version__ = get_versions()["version"]
@@ -149,10 +150,7 @@ class Executor:
                 refresh_rate=refresh_rate,
             )
         else:
-            if refresh_rate != 0.01:
-                raise ValueError(
-                    "The sleep_interval parameter is only used when disable_dependencies=False."
-                )
+            _check_refresh_rate(refresh_rate=refresh_rate)
             return create_executor(
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
