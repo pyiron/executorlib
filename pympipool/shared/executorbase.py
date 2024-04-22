@@ -371,7 +371,7 @@ def execute_tasks_with_dependencies(
     future_queue: queue.Queue,
     executor_queue: queue.Queue,
     executor: ExecutorBase,
-    refresh_rate: float = 0.01
+    refresh_rate: float = 0.01,
 ):
     """
     Resolve the dependencies of multiple tasks, by analysing which task requires concurrent.future.Futures objects from

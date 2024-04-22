@@ -148,7 +148,9 @@ class Executor:
             )
         else:
             if refresh_rate != 0.01:
-                raise ValueError("The sleep_interval parameter is only used when disable_dependencies=False.")
+                raise ValueError(
+                    "The sleep_interval parameter is only used when disable_dependencies=False."
+                )
             return create_executor(
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
