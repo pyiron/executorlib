@@ -13,6 +13,10 @@ import cloudpickle
 from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.interface import BaseInterface
+from pympipool.shared.inputcheck import (
+    check_resource_dict,
+    check_resource_dict_is_empty,
+)
 
 
 class ExecutorBase(FutureExecutor):
@@ -66,10 +70,8 @@ class ExecutorBase(FutureExecutor):
         Returns:
             A Future representing the given call.
         """
-        if len(resource_dict) > 0:
-            raise ValueError(
-                "When block_allocation is enabled, the resource requirements have to be defined on the executor level."
-            )
+        check_resource_dict_is_empty(resource_dict=resource_dict)
+        check_resource_dict(function=fn)
         f = Future()
         self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
         return f
@@ -171,6 +173,7 @@ class ExecutorSteps(ExecutorBase):
         Returns:
             A Future representing the given call.
         """
+        check_resource_dict(function=fn)
         f = Future()
         self._future_queue.put(
             {
