@@ -340,7 +340,9 @@ def execute_separate_tasks(
             qtask = queue.Queue()
             qtask.put(task_dict)
             qtask.put({"shutdown": True, "wait": True})
-            if "cores" not in resource_dict.keys():
+            if "cores" not in resource_dict.keys() or (
+                resource_dict["cores"] == 1 and kwargs["cores"] >= 1
+            ):
                 resource_dict["cores"] = kwargs["cores"]
             active_task_dict = _wait_for_free_slots(
                 active_task_dict=active_task_dict,
