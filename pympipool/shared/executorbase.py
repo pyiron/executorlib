@@ -337,6 +337,7 @@ def execute_separate_tasks(
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             process = _submit_function_to_separate_process(
                 task_dict=task_dict,
+                active_task_dict=active_task_dict,
                 interface_class=interface_class,
                 executor_kwargs=kwargs,
                 max_cores=max_cores,
