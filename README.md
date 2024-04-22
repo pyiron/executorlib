@@ -118,6 +118,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   * [Resource Assignment](https://pympipool.readthedocs.io/en/latest/examples.html#resource-assignment)
   * [Data Handling](https://pympipool.readthedocs.io/en/latest/examples.html#data-handling)
   * [Up-Scaling](https://pympipool.readthedocs.io/en/latest/examples.html#up-scaling)
+  * [Coupled Functions](https://pympipool.readthedocs.io/en/latest/examples.html#coupled-functions)
   * [SLURM Job Scheduler](https://pympipool.readthedocs.io/en/latest/examples.html#slurm-job-scheduler) 
   * [Workstation Support](https://pympipool.readthedocs.io/en/latest/examples.html#workstation-support)
 * [Development](https://pympipool.readthedocs.io/en/latest/development.html)
