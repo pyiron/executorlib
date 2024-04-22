@@ -3,7 +3,7 @@ from ._version import get_versions
 from pympipool.scheduler import create_executor
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
-from pympipool.dependencies import ExecutorWithDependencies
+from pympipool.shared.dependencies import ExecutorWithDependencies
 
 
 __version__ = get_versions()["version"]
@@ -93,6 +93,8 @@ class Executor:
         block_allocation: bool = False,
         init_function: Optional[callable] = None,
         command_line_argument_lst: list[str] = [],
+        disable_dependencies: bool = False,
+        refresh_rate: float = 0.01,
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -124,19 +126,40 @@ class Executor:
                                         of the individual function.
             init_function (None): optional function to preset arguments for functions which are submitted later
             command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
+            disable_dependencies (boolean): Disable resolving future objects during the submission.
+            refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
 
         """
-        return create_executor(
-            max_cores=max_cores,
-            cores_per_worker=cores_per_worker,
-            threads_per_core=threads_per_core,
-            gpus_per_worker=gpus_per_worker,
-            oversubscribe=oversubscribe,
-            cwd=cwd,
-            executor=executor,
-            hostname_localhost=hostname_localhost,
-            backend=backend,
-            block_allocation=block_allocation,
-            init_function=init_function,
-            command_line_argument_lst=command_line_argument_lst,
-        )
+        if not disable_dependencies:
+            return ExecutorWithDependencies(
+                max_cores=max_cores,
+                cores_per_worker=cores_per_worker,
+                threads_per_core=threads_per_core,
+                gpus_per_worker=gpus_per_worker,
+                oversubscribe=oversubscribe,
+                cwd=cwd,
+                executor=executor,
+                hostname_localhost=hostname_localhost,
+                backend=backend,
+                block_allocation=block_allocation,
+                init_function=init_function,
+                command_line_argument_lst=command_line_argument_lst,
+                refresh_rate=refresh_rate,
+            )
+        else:
+            if refresh_rate != 0.01:
+                raise ValueError("The sleep_interval parameter is only used when disable_dependencies=False.")
+            return create_executor(
+                max_cores=max_cores,
+                cores_per_worker=cores_per_worker,
+                threads_per_core=threads_per_core,
+                gpus_per_worker=gpus_per_worker,
+                oversubscribe=oversubscribe,
+                cwd=cwd,
+                executor=executor,
+                hostname_localhost=hostname_localhost,
+                backend=backend,
+                block_allocation=block_allocation,
+                init_function=init_function,
+                command_line_argument_lst=command_line_argument_lst,
+            )

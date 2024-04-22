@@ -1,4 +1,3 @@
-from typing import Optional, List
 from concurrent.futures import (
     Executor as FutureExecutor,
     Future,
@@ -7,6 +6,8 @@ import inspect
 import os
 import queue
 import sys
+from time import sleep
+from typing import Optional, List
 
 import cloudpickle
 
@@ -335,18 +336,18 @@ def execute_separate_tasks(
             future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
-            active_task_dict = _wait_for_free_slots(
-                active_task_dict=active_task_dict,
-                max_cores=max_cores,
-            )
             resource_dict = task_dict.pop("resource_dict")
             qtask = queue.Queue()
             qtask.put(task_dict)
             qtask.put({"shutdown": True, "wait": True})
-            if "cores" in resource_dict.keys():
-                active_task_dict[task_dict["future"]] = resource_dict["cores"]
-            else:
-                active_task_dict[task_dict["future"]] = kwargs["cores"]
+            if "cores" not in resource_dict.keys():
+                resource_dict["cores"] = kwargs["cores"]
+            active_task_dict = _wait_for_free_slots(
+                active_task_dict=active_task_dict,
+                cores_requested=resource_dict["cores"],
+                max_cores=max_cores,
+            )
+            active_task_dict[task_dict["future"]] = resource_dict["cores"]
             task_kwargs = kwargs.copy()
             task_kwargs.update(resource_dict)
             task_kwargs.update(
@@ -366,7 +367,73 @@ def execute_separate_tasks(
             future_queue.task_done()
 
 
+def execute_tasks_with_dependencies(
+    future_queue: queue.Queue,
+    executor_queue: queue.Queue,
+    executor: ExecutorBase,
+    refresh_rate: float = 0.01
+):
+    """
+    Resolve the dependencies of multiple tasks, by analysing which task requires concurrent.future.Futures objects from
+    other tasks.
+
+    Args:
+        future_queue (Queue): Queue for receiving new tasks.
+        executor_queue (Queue): Queue for the internal executor.
+        executor (ExecutorBase): Executor to execute the tasks with after the dependencies are resolved.
+        refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
+    """
+    wait_lst = []
+    while True:
+        try:
+            task_dict = future_queue.get_nowait()
+        except queue.Empty:
+            task_dict = None
+        if (
+            task_dict is not None
+            and "shutdown" in task_dict.keys()
+            and task_dict["shutdown"]
+        ):
+            executor.shutdown(wait=task_dict["wait"])
+            future_queue.task_done()
+            future_queue.join()
+            break
+        elif (
+            task_dict is not None
+            and "fn" in task_dict.keys()
+            and "future" in task_dict.keys()
+        ):
+            future_lst = [
+                arg for arg in task_dict["args"] if isinstance(arg, Future)
+            ] + [value for value in task_dict["kwargs"] if isinstance(value, Future)]
+            result_lst = [future for future in future_lst if future.done()]
+            if len(future_lst) == 0 or len(future_lst) == len(result_lst):
+                task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
+                    args=task_dict["args"], kwargs=task_dict["kwargs"]
+                )
+                executor_queue.put(task_dict)
+            else:
+                task_dict["future_lst"] = future_lst
+                wait_lst.append(task_dict)
+            future_queue.task_done()
+        elif len(wait_lst) > 0:
+            wait_lst = _submit_waiting_task(
+                wait_lst=wait_lst, executor_queue=executor_queue
+            )
+        else:
+            sleep(refresh_rate)
+
+
 def _get_backend_path(cores: int):
+    """
+    Get command to call backend as a list of two strings
+
+    Args:
+        cores (int): Number of cores used to execute the task, if it is greater than one use mpiexec.py else serial.py
+
+    Returns:
+        list[str]: List of strings containing the python executable path and the backend script to execute
+    """
     command_lst = [sys.executable]
     if cores > 1:
         command_lst += [_get_command_path(executable="mpiexec.py")]
@@ -376,10 +443,73 @@ def _get_backend_path(cores: int):
 
 
 def _get_command_path(executable: str):
+    """
+    Get path of the backend executable script
+
+    Args:
+        executable (str): Name of the backend executable script, either mpiexec.py or serial.py
+
+    Returns:
+        str: absolute path to the executable script
+    """
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def _wait_for_free_slots(active_task_dict, max_cores):
-    while sum(active_task_dict.values()) >= max_cores:
+def _wait_for_free_slots(active_task_dict: dict, cores_requested: int, max_cores: int):
+    """
+    Wait for available computing resources to become available.
+
+    Args:
+        active_task_dict (dict): Dictionary containing the future objects and the number of cores they require
+        cores_requested (int): Number of cores required for executing the next task
+        max_cores (int): Maximum number cores which can be used
+
+    Returns:
+        dict: Dictionary containing the future objects and the number of cores they require
+    """
+    while sum(active_task_dict.values()) + cores_requested > max_cores:
         active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
     return active_task_dict
+
+
+def _submit_waiting_task(wait_lst: List[dict], executor_queue: queue.Queue):
+    """
+    Submit the waiting tasks, which future inputs have been completed, to the executor
+
+    Args:
+        wait_lst (list): List of waiting tasks
+        executor_queue (Queue): Queue of the internal executor
+
+    Returns:
+        list: list tasks which future inputs have not been completed
+    """
+    wait_tmp_lst = []
+    for task_wait_dict in wait_lst:
+        if all([future.done() for future in task_wait_dict["future_lst"]]):
+            del task_wait_dict["future_lst"]
+            task_wait_dict["args"], task_wait_dict["kwargs"] = _update_futures_in_input(
+                args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
+            )
+            executor_queue.put(task_wait_dict)
+        else:
+            wait_tmp_lst.append(task_wait_dict)
+    return wait_tmp_lst
+
+
+def _update_futures_in_input(args: tuple, kwargs: dict):
+    """
+    Evaluate future objects in the arguments and keyword arguments by calling future.result()
+
+    Args:
+        args (tuple): function arguments
+        kwargs (dict): function keyword arguments
+
+    Returns:
+        tuple, dict: arguments and keyword arguments with each future object in them being evaluated
+    """
+    args = [arg if not isinstance(arg, Future) else arg.result() for arg in args]
+    kwargs = {
+        key: value if not isinstance(value, Future) else value.result()
+        for key, value in kwargs.items()
+    }
+    return args, kwargs
