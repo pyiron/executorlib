@@ -145,6 +145,8 @@ with flux.job.FluxExecutor() as flux_exe:
         block_allocation=False, 
         init_function=None,  # only available with block_allocation=True
         command_line_argument_lst=[],  # additional command line arguments for SLURM
+        disable_dependencies=False,  # option to disable input dependency resolution
+        refresh_rate=0.01,  # refresh frequency in seconds for the dependency resolution 
     ) as exe:
         future_obj = exe.submit(
             calc_function, 
@@ -383,6 +385,42 @@ As a result the GPUs available on the two compute nodes are reported:
 >>>  ('/device:GPU:0', 'device: 0, name: Tesla V100S-PCIE-32GB, pci bus id: 0000:84:00.0, compute capability: 7.0', 'cn139')]
 ```
 In this case each compute node `cn138` and `cn139` is equipped with one `Tesla V100S-PCIE-32GB`.
+
+## Coupled Functions 
+For submitting two functions with rather different computing resource requirements it is essential to represent this 
+dependence during the submission process. In `pympipool` this can be achieved by leveraging the separate submission of 
+individual python functions and including the `concurrent.futures.Future` object of the first submitted function as 
+input for the second function during the submission. Consequently, this functionality can be used for directed acyclic 
+graphs, still it does not enable cyclic graphs. As a simple example we can add one to the result of the addition of one
+and two:
+```python
+from pympipool import Executor
+
+def calc_function(parameter_a, parameter_b):
+    return parameter_a + parameter_b
+
+with flux.job.FluxExecutor() as flux_exe:
+    with Executor(max_cores=2, executor=flux_exe) as exe:
+        future_1 = exe.submit(
+            calc_function, 
+            parameter_a=1,
+            parameter_b=2, 
+        )
+        future_2 = exe.submit(
+            calc_function, 
+            parameter_a=1,
+            parameter_b=future_1, 
+        )
+        print(future_2.result())
+```
+Here the first addition `1+2` is computed and the output `3` is returned as the result of `future_1.result()`. Still 
+before the computation of this addition is completed already the next addition is submitted which uses the future object
+as an input `future_1` and adds `1`. The result of both additions is `4` as `1+2+1=4`. 
+
+To disable this functionality the parameter `disable_dependencies=True` can be set on the executor level. Still at the
+current stage the performance improvement of disabling this functionality seem to be minimal. Furthermore, this 
+functionality introduces the `refresh_rate=0.01` parameter, it defines the refresh rate in seconds how frequently the 
+queue of submitted functions is queried. Typically, there is no need to change these default parameters. 
 
 ## SLURM Job Scheduler
 Using `pympipool` without the [flux framework](https://flux-framework.org) results in one `srun` call per worker in 
