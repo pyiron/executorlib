@@ -56,3 +56,25 @@ def check_resource_dict_is_empty(resource_dict):
         raise ValueError(
             "When block_allocation is enabled, the resource requirements have to be defined on the executor level."
         )
+
+
+def check_refresh_rate(refresh_rate):
+    if refresh_rate != 0.01:
+        raise ValueError(
+            "The sleep_interval parameter is only used when disable_dependencies=False."
+        )
+
+
+def check_backend(backend):
+    if backend not in ["auto", "mpi", "slurm", "flux"]:
+        raise ValueError(
+            'The currently implemented backends are ["flux", "mpi", "slurm"]. '
+            'Alternatively, you can select "auto", the default option, to automatically determine the backend. But '
+            + backend
+            + " is not a valid choice."
+        )
+
+
+def check_init_function(block_allocation, init_function):
+    if not block_allocation and init_function is not None:
+        raise ValueError("")
