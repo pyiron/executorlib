@@ -335,18 +335,18 @@ def execute_separate_tasks(
             future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
-            active_task_dict = _wait_for_free_slots(
-                active_task_dict=active_task_dict,
-                max_cores=max_cores,
-            )
             resource_dict = task_dict.pop("resource_dict")
             qtask = queue.Queue()
             qtask.put(task_dict)
             qtask.put({"shutdown": True, "wait": True})
-            if "cores" in resource_dict.keys():
-                active_task_dict[task_dict["future"]] = resource_dict["cores"]
-            else:
-                active_task_dict[task_dict["future"]] = kwargs["cores"]
+            if "cores" not in resource_dict.keys():
+                resource_dict["cores"] = kwargs["cores"]
+            active_task_dict = _wait_for_free_slots(
+                active_task_dict=active_task_dict,
+                cores_requested=resource_dict["cores"],
+                max_cores=max_cores,
+            )
+            active_task_dict[task_dict["future"]] = resource_dict["cores"]
             task_kwargs = kwargs.copy()
             task_kwargs.update(resource_dict)
             task_kwargs.update(
@@ -367,6 +367,15 @@ def execute_separate_tasks(
 
 
 def _get_backend_path(cores: int):
+    """
+    Get command to call backend as a list of two strings
+
+    Args:
+        cores (int): Number of cores used to execute the task, if it is greater than one use mpiexec.py else serial.py
+
+    Returns:
+        list[str]: List of strings containing the python executable path and the backend script to execute
+    """
     command_lst = [sys.executable]
     if cores > 1:
         command_lst += [_get_command_path(executable="mpiexec.py")]
@@ -376,10 +385,30 @@ def _get_backend_path(cores: int):
 
 
 def _get_command_path(executable: str):
+    """
+    Get path of the backend executable script
+
+    Args:
+        executable (str): Name of the backend executable script, either mpiexec.py or serial.py
+
+    Returns:
+        str: absolute path to the executable script
+    """
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def _wait_for_free_slots(active_task_dict, max_cores):
-    while sum(active_task_dict.values()) >= max_cores:
+def _wait_for_free_slots(active_task_dict: dict, cores_requested: int, max_cores: int):
+    """
+    Wait for available computing resources to become available.
+
+    Args:
+        active_task_dict (dict): Dictionary containing the future objects and the number of cores they require
+        cores_requested (int): Number of cores required for executing the next task
+        max_cores (int): Maximum number cores which can be used
+
+    Returns:
+        dict: Dictionary containing the future objects and the number of cores they require
+    """
+    while sum(active_task_dict.values()) + cores_requested > max_cores:
         active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
     return active_task_dict
