@@ -325,7 +325,7 @@ def execute_separate_tasks(
                                      option to true
     """
     active_task_dict = {}
-    process_lst = []
+    process_lst, qtask_lst = [], []
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
@@ -335,14 +335,17 @@ def execute_separate_tasks(
             future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
+            qtask = queue.Queue()
             process = _submit_function_to_separate_process(
                 task_dict=task_dict,
+                qtask=qtask,
                 active_task_dict=active_task_dict,
                 interface_class=interface_class,
                 executor_kwargs=kwargs,
                 max_cores=max_cores,
                 hostname_localhost=hostname_localhost,
             )
+            qtask_lst.append(qtask)
             process_lst.append(process)
             future_queue.task_done()
 
@@ -398,6 +401,7 @@ def _wait_for_free_slots(active_task_dict: dict, cores_requested: int, max_cores
 def _submit_function_to_separate_process(
     task_dict: dict,
     active_task_dict: dict,
+    qtask: queue.Queue,
     interface_class: BaseInterface,
     executor_kwargs: dict,
     max_cores: int,
@@ -410,6 +414,7 @@ def _submit_function_to_separate_process(
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
         active_task_dict (dict): Dictionary containing the future objects and the number of cores they require
+        qtask (queue.Queue): Queue to communicate with the thread linked to the process executing the python function
         interface_class (BaseInterface): Interface to start process on selected compute resources
         executor_kwargs (dict): keyword parameters used to initialize the Executor
         max_cores (int): defines the number cores which can be used in parallel
@@ -425,7 +430,6 @@ def _submit_function_to_separate_process(
         RaisingThread: thread for communicating with the python process which is executing the function
     """
     resource_dict = task_dict.pop("resource_dict")
-    qtask = queue.Queue()
     qtask.put(task_dict)
     qtask.put({"shutdown": True, "wait": True})
     if "cores" not in resource_dict.keys() or (
