@@ -397,19 +397,19 @@ and two:
 import flux.job
 from pympipool import Executor
 
-def add_numbers(parameter_a, parameter_b):
+def calc_function(parameter_a, parameter_b):
     return parameter_a + parameter_b
 
 with flux.job.FluxExecutor() as flux_exe:
     with Executor(max_cores=2, executor=flux_exe) as exe:
         future_1 = exe.submit(
-            add_numbers, 
+            calc_function, 
             1,
             parameter_b=2,
             resource_dict={"cores": 1},
         )
         future_2 = exe.submit(
-            add_numbers, 
+            calc_function, 
             1,
             parameter_b=future_1,
             resource_dict={"cores": 1},
