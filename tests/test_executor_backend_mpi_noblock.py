@@ -16,6 +16,10 @@ def mpi_funct(i):
     return i, size, rank
 
 
+def resource_dict(resource_dict):
+    return resource_dict
+
+
 class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial(self):
         with Executor(
@@ -58,3 +62,13 @@ class TestExecutorBackend(unittest.TestCase):
                 hostname_localhost=True,
                 backend="mpi",
             )
+        with self.assertRaises(ValueError):
+            with Executor(
+                max_cores=1, hostname_localhost=True, backend="mpi", block_allocation=False
+            ) as exe:
+                exe.submit(resource_dict, resource_dict={})
+        with self.assertRaises(ValueError):
+            with Executor(
+                max_cores=1, hostname_localhost=True, backend="mpi", block_allocation=True
+            ) as exe:
+                exe.submit(resource_dict, resource_dict={})

@@ -70,6 +70,8 @@ class ExecutorBase(FutureExecutor):
             raise ValueError(
                 "When block_allocation is enabled, the resource requirements have to be defined on the executor level."
             )
+        if "resource_dict" in inspect.signature(fn).parameters.keys():
+            raise ValueError("The parameter resource_dict is used internally in pympipool, so it cannot be used as parameter in the submitted functions.")
         f = Future()
         self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
         return f
@@ -171,6 +173,8 @@ class ExecutorSteps(ExecutorBase):
         Returns:
             A Future representing the given call.
         """
+        if "resource_dict" in inspect.signature(fn).parameters.keys():
+            raise ValueError("The parameter resource_dict is used internally in pympipool, so it cannot be used as parameter in the submitted functions.")
         f = Future()
         self._future_queue.put(
             {
