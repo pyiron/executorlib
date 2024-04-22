@@ -75,6 +75,8 @@ class Executor:
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
         command_line_argument_lst: list[str] = [],
+        disable_dependencies: bool = False,
+        refresh_rate: float = 0.01,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
