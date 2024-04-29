@@ -13,7 +13,7 @@ challenging, in primarily three aspects:
 
 * **Communication**: Distributing python function calls over hundreds of compute node and gathering the results on a shared file system is technically possible, but highly inefficient. A socket-based communication approach is preferable.
 * **Resource Management**: Assigning Python functions to GPUs or executing Python functions on multiple CPUs using the message passing interface (MPI) requires major modifications to the python workflow.
-* **Integration**: Existing workflow libraries implement a secondary the job management on the Python level rather than leveraging the existing infrastructure provided by the job scheduler of the HPC.
+* **Integration**: Existing workflow libraries implement a secondary job management infrastructure on the Python level rather than leveraging the existing infrastructure provided by the job scheduler of the HPC.
 
 pympipool is ...
 ^^^^^^^^^^^^^^^^

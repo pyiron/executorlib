@@ -11,7 +11,7 @@ queries the central database of the SLURM job scheduler which can decrease the p
 not recommended.
 
 ## pympipool with Flux Framework
-The [flux framework](https://flux-framework.org) uses `libhwloc` and `pmi` to provide slots to specific scientific. 
+The [flux framework](https://flux-framework.org) uses `libhwloc` and `pmi` to understand the hardware it is running on and to booststrap MPI.
 `libhwloc` not only assigns CPU cores but also GPUs. This requires `libhwloc` to be compiled with support for GPUs from 
 your vendor. In the same way the version of `pmi` for your queuing system has to be compatible with the version 
 installed via conda. As `pmi` is typically distributed with the implementation of the Message Passing Interface (MPI), 
@@ -104,4 +104,4 @@ In this case `pympipool` can be installed using:
 conda install -c conda-forge pympipool
 ```
 
-This also includes workstation installations on Windows and MacOS. 
+This also includes workstation installations on Windows and MacOS.
