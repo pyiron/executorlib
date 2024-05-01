@@ -11,12 +11,14 @@ build:
     python: "mambaforge-22.9"
   jobs:
     pre_build:
-      - pip install versioneer[toml]==0.29
-      - pip install . --no-deps --no-build-isolation
+      # Generate the Sphinx configuration for this Jupyter Book so it builds.
+      - "cp README.md docs"
+      - "cp notebooks/*.ipynb docs"
+      - "jupyter-book config sphinx docs/"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-  configuration: docs/source/conf.py
+  builder: html
 
 # Optionally build your docs in additional formats such as PDF and ePub
 formats: []
@@ -24,3 +26,11 @@ formats: []
 # Install pyiron from conda
 conda:
   environment: .ci_support/environment-docs.yml
+
+# Optionally set the version of Python and requirements required to build your docs
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - sphinx

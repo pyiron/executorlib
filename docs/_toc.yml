@@ -1,0 +1,6 @@
+format: jb-book
+root: README
+chapters:
+- file: installation.md
+- file: examples.ipynb
+- file: development.md
