@@ -1,4 +1,4 @@
-# pympipool - up-scale python functions for high performance computing
+# pympipool
 [![Unittests](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pyiron/pympipool/badge.svg?branch=main)](https://coveralls.io/github/pyiron/pympipool?branch=main)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/pympipool/HEAD?labpath=notebooks%2Fexamples.ipynb)
@@ -125,4 +125,3 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   * [Contributions](https://pympipool.readthedocs.io/en/latest/development.html#contributions)
   * [License](https://pympipool.readthedocs.io/en/latest/development.html#license)
   * [Integration](https://pympipool.readthedocs.io/en/latest/development.html#integration)
-* [Module Index](https://pympipool.readthedocs.io/en/latest/py-modindex.html)
