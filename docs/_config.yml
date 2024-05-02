@@ -1,0 +1,14 @@
+title: pympipool
+author: Jan Janssen
+logo: images/pyiron-logo.png
+
+execute:
+  execute_notebooks           : off
+
+repository:
+    url                       : https://github.com/pyiron/pympipool
+    path_to_book              : ""
+
+launch_buttons:
+  notebook_interface          : jupyterlab
+  binderhub_url               : https://mybinder.org
