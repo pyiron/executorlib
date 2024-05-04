@@ -1,5 +1,8 @@
-API Reference
-=============
+API documentation
+=================
 
-.. automodule:: pympipool
-    :members: generate
+.. autosummary::
+   :toctree: _autosummary
+   :recursive:
+
+   pympipool
