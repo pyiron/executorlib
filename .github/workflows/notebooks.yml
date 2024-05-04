@@ -26,11 +26,13 @@ jobs:
           activate-environment: my-env
           environment-file: environment.yml
           use-mamba: true
-      - name: Test
+      - name: Install
         shell: bash -l {0}
         run: |
           pip install versioneer[toml]==0.29
           pip install . --no-deps --no-build-isolation
-          mkdir -p ~/.local/share/jupyter/kernels/flux
-          cp binder/kernel.json ~/.local/share/jupyter/kernels/flux
-          papermill notebooks/examples.ipynb examples-out.ipynb -k "flux"
+      - name: Notebooks
+        shell: bash -l {0}
+        run: >
+          flux start
+          papermill notebooks/examples.ipynb examples-out.ipynb -k "python3"
