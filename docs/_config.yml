@@ -21,5 +21,4 @@ sphinx:
   - 'sphinx.ext.autodoc'
   - 'sphinx.ext.autosummary'
   config:
-    autosummary_generate: True
     add_module_names: False
