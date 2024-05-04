@@ -12,3 +12,14 @@ repository:
 launch_buttons:
   notebook_interface          : jupyterlab
   binderhub_url               : https://mybinder.org
+
+sphinx:
+  extra_extensions:
+  - 'sphinx.ext.autodoc'
+  - 'sphinx.ext.napoleon'
+  - 'sphinx.ext.viewcode'
+  - 'sphinx.ext.autodoc'
+  - 'sphinx.ext.autosummary'
+  config:
+    autosummary_generate: True
+    templates_path: ['_templates']
