@@ -3,6 +3,9 @@
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
+   :members:
+   :show-inheritance:
+   :inherited-members:
 
    {% block methods %}
    .. automethod:: __init__
@@ -11,12 +14,8 @@
    .. rubric:: {{ _('Methods') }}
 
    .. autosummary::
-      :toctree: generated/
-
    {% for item in methods %}
-       {% if item != "__init__" %}
-          ~{{ name }}.{{ item }}
-       {% endif %}
+      ~{{ name }}.{{ item }}
    {%- endfor %}
    {% endif %}
    {% endblock %}
@@ -26,8 +25,6 @@
    .. rubric:: {{ _('Attributes') }}
 
    .. autosummary::
-      :toctree: generated/
-
    {% for item in attributes %}
       ~{{ name }}.{{ item }}
    {%- endfor %}
