@@ -1,0 +1,38 @@
+# This workflow is used to test, if the code is compatible with jupyter notebooks providing usage examples
+
+name: Notebooks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Merge Notebook environment
+        run: |
+          cp binder/environment.yml environment.yml
+          tail --lines=+4 .ci_support/environment-notebooks.yml >> environment.yml
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: "3.12"
+          miniforge-variant: Mambaforge
+          channels: conda-forge
+          channel-priority: strict
+          activate-environment: my-env
+          environment-file: environment.yml
+          use-mamba: true
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          pip install versioneer[toml]==0.29
+          pip install . --no-deps --no-build-isolation
+      - name: Notebooks
+        shell: bash -l {0}
+        run: >
+          flux start
+          papermill notebooks/examples.ipynb examples-out.ipynb -k "python3"
