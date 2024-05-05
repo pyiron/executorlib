@@ -12,7 +12,7 @@ from time import sleep
 import unittest
 
 from pympipool import Executor
-from pympipool.shared.executorbase import cloudpickle_register
+from executorlib_core.base import cloudpickle_register
 
 
 class Foo:

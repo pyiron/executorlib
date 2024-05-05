@@ -4,8 +4,9 @@ from queue import Queue
 import unittest
 
 import numpy as np
+from executorlib_core.base import cloudpickle_register
 
-from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
+from pympipool.shared.executorbase import execute_parallel_tasks
 
 
 try:

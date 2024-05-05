@@ -4,14 +4,14 @@ from time import sleep
 import unittest
 
 import numpy as np
+from executorlib_core.base import (
+    cloudpickle_register,
+    ExecutorBase,
+)
 
 from pympipool.scheduler.mpi import PyMPIExecutor, PyMPIStepExecutor, MpiExecInterface
 from pympipool.shared.backend import call_funct
-from pympipool.shared.executorbase import (
-    cloudpickle_register,
-    execute_parallel_tasks,
-    ExecutorBase,
-)
+from pympipool.shared.executorbase import execute_parallel_tasks
 
 
 def calc(i):
