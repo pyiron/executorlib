@@ -9,8 +9,6 @@ from pympipool.shared.inputcheck import (
     check_backend,
     check_init_function,
     check_refresh_rate,
-    check_resource_dict,
-    check_resource_dict_is_empty,
 )
 
 
@@ -46,14 +44,3 @@ class TestInputCheck(unittest.TestCase):
     def test_check_refresh_rate(self):
         with self.assertRaises(ValueError):
             check_refresh_rate(refresh_rate=1)
-
-    def test_check_resource_dict(self):
-        def simple_function(resource_dict):
-            return resource_dict
-
-        with self.assertRaises(ValueError):
-            check_resource_dict(function=simple_function)
-
-    def test_check_resource_dict_is_empty(self):
-        with self.assertRaises(ValueError):
-            check_resource_dict_is_empty(resource_dict={"a": 1})

@@ -4,7 +4,7 @@ import sys
 
 import cloudpickle
 
-from pympipool.shared.communication import (
+from executorlib_core.communication import (
     interface_connect,
     interface_send,
     interface_shutdown,

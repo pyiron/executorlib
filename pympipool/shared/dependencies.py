@@ -1,6 +1,7 @@
+from executorlib_core.thread import RaisingThread
+
 from pympipool.scheduler import create_executor
 from pympipool.shared.executorbase import ExecutorSteps, execute_tasks_with_dependencies
-from pympipool.shared.thread import RaisingThread
 
 
 class ExecutorWithDependencies(ExecutorSteps):

@@ -1,16 +1,16 @@
 import os
 from typing import Optional
 
+from executorlib_core.base import ExecutorBroker
+from executorlib_core.thread import RaisingThread
 import flux.job
 
 from pympipool.shared.executorbase import (
     execute_parallel_tasks,
     execute_separate_tasks,
-    ExecutorBroker,
     ExecutorSteps,
 )
 from pympipool.shared.interface import BaseInterface
-from pympipool.shared.thread import RaisingThread
 
 
 class PyFluxExecutor(ExecutorBroker):

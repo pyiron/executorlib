@@ -2,7 +2,7 @@ from os.path import abspath
 import sys
 from typing import Optional
 
-from pympipool.shared.communication import (
+from executorlib_core.communication import (
     interface_connect,
     interface_send,
     interface_shutdown,
