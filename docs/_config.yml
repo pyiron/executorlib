@@ -6,8 +6,9 @@ execute:
   execute_notebooks           : off
 
 repository:
-    url                       : https://github.com/pyiron/pympipool
-    path_to_book              : ""
+  url                       : https://github.com/pyiron/pympipool
+html:
+  use_repository_button: true
 
 launch_buttons:
   notebook_interface          : jupyterlab
