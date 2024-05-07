@@ -143,6 +143,7 @@ class Executor:
         """
         if not disable_dependencies:
             return ExecutorWithDependencies(
+                max_workers=max_workers,
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,
@@ -160,6 +161,7 @@ class Executor:
         else:
             _check_refresh_rate(refresh_rate=refresh_rate)
             return create_executor(
+                max_workers=max_workers,
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,
