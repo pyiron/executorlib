@@ -43,7 +43,7 @@ class TestExecutorBackend(unittest.TestCase):
 
     def test_meta_executor_parallel(self):
         with Executor(
-            max_cores=2,
+            max_workers=2,
             cores_per_worker=2,
             hostname_localhost=True,
             backend="mpi",
