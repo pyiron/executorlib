@@ -78,3 +78,10 @@ def check_backend(backend):
 def check_init_function(block_allocation, init_function):
     if not block_allocation and init_function is not None:
         raise ValueError("")
+
+
+def validate_number_of_cores(max_cores, max_workers):
+    # only overwrite max_cores when it is set to 1
+    if max_workers != 1 and max_cores == 1:
+        max_cores = max_workers
+    return max_cores

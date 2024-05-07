@@ -14,6 +14,7 @@ from pympipool.shared.inputcheck import (
     check_executor,
     check_backend,
     check_init_function,
+    validate_number_of_cores,
 )
 from pympipool.scheduler.slurm import (
     PySlurmExecutor,
@@ -36,6 +37,7 @@ slurm_installed = shutil.which(SLURM_COMMAND) is not None
 
 
 def create_executor(
+    max_workers: int = 1,
     max_cores: int = 1,
     cores_per_worker: int = 1,
     threads_per_core: int = 1,
@@ -58,6 +60,9 @@ def create_executor(
     requires the SLURM workload manager to be installed on the system.
 
     Args:
+        max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
+                           cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
+                           recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
         cores_per_worker (int): number of MPI cores to be used for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
@@ -65,12 +70,11 @@ def create_executor(
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
         cwd (str/None): current working directory where the parallel python task is executed
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
-                                  context of an HPC cluster this essential to be able to communicate to an
-                                  Executor running on a different compute node within the same allocation. And
-                                  in principle any computer should be able to resolve that their own hostname
-                                  points to the same address as localhost. Still MacOS >= 12 seems to disable
-                                  this look up for security reasons. So on MacOS it is required to set this
-                                  option to true
+                                      context of an HPC cluster this essential to be able to communicate to an Executor
+                                      running on a different compute node within the same allocation. And in principle
+                                      any computer should be able to resolve that their own hostname points to the same
+                                      address as localhost. Still MacOS >= 12 seems to disable this look up for security
+                                      reasons. So on MacOS it is required to set this option to true
         backend (str): Switch between the different backends "flux", "mpi" or "slurm". Alternatively, when "auto"
                        is selected (the default) the available backend is determined automatically.
         block_allocation (boolean): To accelerate the submission of a series of python functions with the same
@@ -81,6 +85,7 @@ def create_executor(
         command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
 
     """
+    max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_backend(backend=backend)
     if backend == "flux" or (backend == "auto" and flux_installed):

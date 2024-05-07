@@ -19,6 +19,9 @@ class Executor:
     an interactive Jupyter notebook.
 
     Args:
+        max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
+                           cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
+                           recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
         cores_per_worker (int): number of MPI cores to be used for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
@@ -64,6 +67,7 @@ class Executor:
 
     def __init__(
         self,
+        max_workers: int = 1,
         max_cores: int = 1,
         cores_per_worker: int = 1,
         threads_per_core: int = 1,
@@ -84,6 +88,7 @@ class Executor:
 
     def __new__(
         cls,
+        max_workers: int = 1,
         max_cores: int = 1,
         cores_per_worker: int = 1,
         threads_per_core: int = 1,
@@ -108,6 +113,9 @@ class Executor:
         requires the SLURM workload manager to be installed on the system.
 
         Args:
+            max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
+                               number of cores which can be used in parallel - just like the max_cores parameter. Using
+                               max_cores is recommended, as computers have a limited number of compute cores.
             max_cores (int): defines the number cores which can be used in parallel
             cores_per_worker (int): number of MPI cores to be used for each function call
             threads_per_core (int): number of OpenMP threads to be used for each function call
