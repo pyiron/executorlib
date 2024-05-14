@@ -64,11 +64,17 @@ class TestExecutorBackend(unittest.TestCase):
             )
         with self.assertRaises(ValueError):
             with Executor(
-                max_cores=1, hostname_localhost=True, backend="mpi", block_allocation=False
+                max_cores=1,
+                hostname_localhost=True,
+                backend="mpi",
+                block_allocation=False,
             ) as exe:
                 exe.submit(resource_dict, resource_dict={})
         with self.assertRaises(ValueError):
             with Executor(
-                max_cores=1, hostname_localhost=True, backend="mpi", block_allocation=True
+                max_cores=1,
+                hostname_localhost=True,
+                backend="mpi",
+                block_allocation=True,
             ) as exe:
                 exe.submit(resource_dict, resource_dict={})

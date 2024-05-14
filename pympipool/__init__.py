@@ -8,6 +8,10 @@ from pympipool.shared.inputcheck import check_refresh_rate as _check_refresh_rat
 
 
 __version__ = get_versions()["version"]
+__all__ = [
+    SubprocessExecutor,
+    ShellExecutor,
+]
 
 
 class Executor:
