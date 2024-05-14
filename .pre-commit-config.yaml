@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff
+        name: ruff lint
+        args: ["--fix"]
+        files: ^pympipool/
+      - id: ruff-format
+        name: ruff format
