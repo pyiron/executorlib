@@ -22,7 +22,7 @@ For example the [Frontier HPC](https://www.olcf.ornl.gov/frontier/) cluster at O
 AMD MI250X GPUs with cray mpi version which is compatible to mpich `4.X`. So the corresponding versions can be installed
 from conda-forge using: 
 ```
-conda install -c conda-forge flux-core flux-sched mpich>=4 pympipool
+conda install -c conda-forge flux-core flux-sched libhwloc=*=rocm* mpich>=4 pympipool
 ```
 ### Nvidia GPUs with mpich / cray mpi 
 For example the [Perlmutter HPC](https://docs.nersc.gov/systems/perlmutter/) at the National Energy Research Scientific 
