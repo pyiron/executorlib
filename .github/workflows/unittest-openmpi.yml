@@ -60,6 +60,5 @@ jobs:
         cd tests
         python -m unittest discover .
       env:
-        OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
