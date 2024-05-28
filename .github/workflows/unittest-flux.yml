@@ -34,14 +34,14 @@ jobs:
       timeout-minutes: 5
       if:  matrix.label == 'linux-64-py-3-12-openmpi'
       run: |
-        echo "- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0" >> ${{ matrix.environment-file }}
+        printf "- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0" >> ${{ matrix.environment-file }}
         cat ${{ matrix.environment-file }}
     - name: Extend environment mpich
       shell: bash -l {0}
       timeout-minutes: 5
       if:  matrix.label == 'linux-64-py-3-12-mpich'
       run: |
-        echo "- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0" >> ${{ matrix.environment-file }}
+        printf "- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0" >> ${{ matrix.environment-file }}
         cat ${{ matrix.environment-file }}
     - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
