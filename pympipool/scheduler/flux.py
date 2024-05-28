@@ -28,6 +28,7 @@ class PyFluxExecutor(ExecutorBroker):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
+        pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -66,6 +67,7 @@ class PyFluxExecutor(ExecutorBroker):
         init_function: Optional[callable] = None,
         cwd: Optional[str] = None,
         executor: Optional[flux.job.FluxExecutor] = None,
+        pmi: Optional[str] = None,
         hostname_localhost: Optional[bool] = False,
     ):
         super().__init__()
@@ -85,6 +87,7 @@ class PyFluxExecutor(ExecutorBroker):
                         "gpus_per_core": int(gpus_per_worker / cores_per_worker),
                         "cwd": cwd,
                         "executor": executor,
+                        "pmi": pmi,
                     },
                 )
                 for _ in range(max_workers)
@@ -107,6 +110,7 @@ class PyFluxStepExecutor(ExecutorSteps):
         init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
+        pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -142,6 +146,7 @@ class PyFluxStepExecutor(ExecutorSteps):
         gpus_per_worker: int = 0,
         cwd: Optional[str] = None,
         executor: Optional[flux.job.FluxExecutor] = None,
+        pmi: Optional[str] = None,
         hostname_localhost: Optional[bool] = False,
     ):
         super().__init__()
@@ -160,6 +165,7 @@ class PyFluxStepExecutor(ExecutorSteps):
                     "gpus_per_core": int(gpus_per_worker / cores_per_worker),
                     "cwd": cwd,
                     "executor": executor,
+                    "pmi": pmi,
                 },
             )
         )
@@ -174,6 +180,7 @@ class FluxPythonInterface(BaseInterface):
         gpus_per_core: int = 0,
         oversubscribe: bool = False,
         executor: Optional[flux.job.FluxExecutor] = None,
+        pmi: Optional[str] = None,
     ):
         super().__init__(
             cwd=cwd,
@@ -183,6 +190,7 @@ class FluxPythonInterface(BaseInterface):
         self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
         self._executor = executor
+        self._pmi = None
         self._future = None
 
     def bootup(self, command_lst: list[str]):
@@ -201,6 +209,8 @@ class FluxPythonInterface(BaseInterface):
             exclusive=False,
         )
         jobspec.environment = dict(os.environ)
+        if self._pmi is not None:
+            jobspec.setattr_shell_option("pmi", "pmix")
         if self._cwd is not None:
             jobspec.cwd = self._cwd
         self._future = self._executor.submit(jobspec)
