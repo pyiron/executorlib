@@ -36,3 +36,5 @@ jobs:
         run: >
           flux start
           papermill notebooks/examples.ipynb examples-out.ipynb -k "python3"
+        env:
+          PRTE_MCA_rmaps_default_mapping_policy: ':oversubscribe'
