@@ -48,12 +48,17 @@ jobs:
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest discover tests
       env:
         PRTE_MCA_rmaps_default_mapping_policy: ':oversubscribe'
-    - name: Test Flux
+    - name: Flux Resources
       shell: bash -l {0}
       timeout-minutes: 5
       run: >
         flux start
         flux resource list
+    - name: Test Flux
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: >
+        flux start
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
         coverage xml
       env:
