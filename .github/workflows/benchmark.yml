@@ -52,3 +52,5 @@ jobs:
         python tests/benchmark/llh.py block_allocation >> timing.log
         cat timing.log
         python -m unittest tests/benchmark/test_results.py
+      env:
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
