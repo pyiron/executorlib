@@ -46,10 +46,6 @@ jobs:
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest discover tests
-      env:
-        OMPI_MCA_plm: 'isolated'
-        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
-        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
     - name: Test Flux
       shell: bash -l {0}
       timeout-minutes: 5
@@ -57,10 +53,6 @@ jobs:
         flux start
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
         coverage xml
-      env:
-        OMPI_MCA_plm: 'isolated'
-        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
-        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
     - name: Coveralls
       if:  matrix.label == 'linux-64-py-3-12-openmpi'
       uses: coverallsapp/github-action@v2
