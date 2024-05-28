@@ -9,4 +9,5 @@ dependencies:
 - tqdm =4.66.2
 - pyzmq =26.0.0
 - flux-core =0.59.0
+- flux-pmix =0.5.0
 - versioneer =0.28
