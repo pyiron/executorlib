@@ -53,5 +53,4 @@ jobs:
         cat timing.log
         python -m unittest tests/benchmark/test_results.py
       env:
-        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
-        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
+        PRTE_MCA_rmaps_default_mapping_policy: ':oversubscribe'
