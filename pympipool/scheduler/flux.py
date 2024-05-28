@@ -210,7 +210,7 @@ class FluxPythonInterface(BaseInterface):
         )
         jobspec.environment = dict(os.environ)
         if self._pmi is not None:
-            jobspec.setattr_shell_option("pmi", "pmix")
+            jobspec.setattr_shell_option("pmi", self._pmi)
         if self._cwd is not None:
             jobspec.cwd = self._cwd
         self._future = self._executor.submit(jobspec)
