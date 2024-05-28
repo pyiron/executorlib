@@ -47,7 +47,6 @@ jobs:
         pip install . --no-deps --no-build-isolation
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest discover tests
       env:
-        OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
     - name: Test Flux
@@ -58,7 +57,6 @@ jobs:
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
         coverage xml
       env:
-        OMPI_MCA_plm: 'isolated'
         OMPI_MCA_rmaps_base_oversubscribe: 'yes'
         OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
     - name: Coveralls
