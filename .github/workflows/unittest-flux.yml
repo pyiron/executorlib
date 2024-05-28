@@ -53,6 +53,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
+        flux resource list
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
         coverage xml
       env:
