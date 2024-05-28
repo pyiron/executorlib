@@ -29,6 +29,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Extend environment openmpi
+      shell: bash -l {0}
+      timeout-minutes: 5
+      if:  matrix.label == 'linux-64-py-3-12-openmpi'
+      run: |
+        echo "- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0" >> ${{ matrix.environment-file }}
+        cat ${{ matrix.environment-file }}
+    - name: Extend environment mpich
+      shell: bash -l {0}
+      timeout-minutes: 5
+      if:  matrix.label == 'linux-64-py-3-12-mpich'
+      run: |
+        echo "- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0" >> ${{ matrix.environment-file }}
+        cat ${{ matrix.environment-file }}
     - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
         python-version: ${{ matrix.python-version }}
@@ -42,7 +56,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        mamba install -y flux-core=0.59.0 flux-pmix=0.5.0 coverage
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest discover tests
