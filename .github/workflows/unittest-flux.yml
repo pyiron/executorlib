@@ -43,6 +43,7 @@ jobs:
       timeout-minutes: 5
       run: |
         mamba install -y flux-core=0.59.0 coverage
+        conda list
         pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest discover tests
