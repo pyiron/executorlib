@@ -48,6 +48,7 @@ class Executor:
                                     function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
+        pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
 
     Examples:
         ```
@@ -85,6 +86,7 @@ class Executor:
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
         command_line_argument_lst: list[str] = [],
+        pmi: Optional[str] = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
     ):
@@ -106,6 +108,7 @@ class Executor:
         block_allocation: bool = False,
         init_function: Optional[callable] = None,
         command_line_argument_lst: list[str] = [],
+        pmi: Optional[str] = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
     ):
@@ -143,6 +146,7 @@ class Executor:
                                         of the individual function.
             init_function (None): optional function to preset arguments for functions which are submitted later
             command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
+            pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             disable_dependencies (boolean): Disable resolving future objects during the submission.
             refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
 
@@ -162,6 +166,7 @@ class Executor:
                 block_allocation=block_allocation,
                 init_function=init_function,
                 command_line_argument_lst=command_line_argument_lst,
+                pmi=pmi,
                 refresh_rate=refresh_rate,
             )
         else:
@@ -180,4 +185,5 @@ class Executor:
                 block_allocation=block_allocation,
                 init_function=init_function,
                 command_line_argument_lst=command_line_argument_lst,
+                pmi=pmi,
             )

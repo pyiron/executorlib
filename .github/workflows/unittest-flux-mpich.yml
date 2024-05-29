@@ -1,0 +1,40 @@
+name: Unittests-flux-mpich
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Extend environment
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        echo -e '- coverage\n- flux-core =0.59.0\n- versioneer =0.28'>> .ci_support/environment-mpich.yml
+        cat .ci_support/environment-mpich.yml
+    - uses: conda-incubator/setup-miniconda@v2.2.0
+      with:
+        python-version: '3.12'
+        mamba-version: "*"
+        channels: conda-forge
+        miniforge-variant: Mambaforge
+        channel-priority: strict
+        auto-update-conda: true
+        environment-file: .ci_support/environment-mpich.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests
+    - name: Test Flux
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: >
+        flux start
+        python -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;

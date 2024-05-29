@@ -1,5 +1,5 @@
 import inspect
-from typing import List
+from typing import List, Optional
 from concurrent.futures import Executor
 
 
@@ -83,6 +83,15 @@ def validate_backend(
         return "slurm"
     else:
         return "mpi"
+
+
+def check_pmi(backend: str, pmi: Optional[str]):
+    if backend != "flux" and pmi is not None:
+        raise ValueError("The pmi parameter is currently only implemented for flux.")
+    elif backend == "flux" and pmi not in ["pmix", "pmi1", "pmi2", None]:
+        raise ValueError(
+            "The pmi parameter supports [pmix, pmi1, pmi2], but not: " + pmi
+        )
 
 
 def check_init_function(block_allocation: bool, init_function: callable):

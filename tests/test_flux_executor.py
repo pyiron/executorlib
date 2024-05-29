@@ -16,6 +16,7 @@ try:
     )
 
     skip_flux_test = "FLUX_URI" not in os.environ
+    pmi = os.environ.get("PYMPIPOOL_PMIX", None)
 except ImportError:
     skip_flux_test = True
 
@@ -69,7 +70,7 @@ class TestFlux(unittest.TestCase):
 
     def test_flux_executor_parallel(self):
         with PyFluxExecutor(
-            max_workers=1, cores_per_worker=2, executor=self.executor
+            max_workers=1, cores_per_worker=2, executor=self.executor, pmi=pmi
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
@@ -77,7 +78,7 @@ class TestFlux(unittest.TestCase):
 
     def test_single_task(self):
         with PyFluxExecutor(
-            max_workers=1, cores_per_worker=2, executor=self.executor
+            max_workers=1, cores_per_worker=2, executor=self.executor, pmi=pmi
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
