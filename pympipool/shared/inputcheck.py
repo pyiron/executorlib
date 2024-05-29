@@ -80,7 +80,7 @@ def check_backend(backend: str):
 def check_pmi(backend: str, pmi: Optional[str]):
     if backend != "flux" and pmi is not None:
         raise ValueError("The pmi parameter is currently only implemented for flux.")
-    elif backend == "flux" and pmi not in ["pmix", "pmi1", "pmi2"]:
+    elif backend == "flux" and pmi not in ["pmix", "pmi1", "pmi2", None]:
         raise ValueError(
             "The pmi parameter supports [pmix, pmi1, pmi2], but not: " + pmi
         )
