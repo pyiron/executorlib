@@ -67,7 +67,9 @@ def check_refresh_rate(refresh_rate: float):
         )
 
 
-def check_backend(backend: str):
+def validate_backend(
+    backend: str, flux_installed: bool = False, slurm_installed: bool = False
+) -> str:
     if backend not in ["auto", "mpi", "slurm", "flux"]:
         raise ValueError(
             'The currently implemented backends are ["flux", "mpi", "slurm"]. '
@@ -75,6 +77,12 @@ def check_backend(backend: str):
             + backend
             + " is not a valid choice."
         )
+    elif backend == "flux" or (backend == "auto" and flux_installed):
+        return "flux"
+    elif backend == "slurm" or (backend == "auto" and slurm_installed):
+        return "slurm"
+    else:
+        return "mpi"
 
 
 def check_init_function(block_allocation: bool, init_function: callable):

@@ -6,11 +6,11 @@ from pympipool.shared.inputcheck import (
     check_threads_per_core,
     check_oversubscribe,
     check_executor,
-    check_backend,
     check_init_function,
     check_refresh_rate,
     check_resource_dict,
     check_resource_dict_is_empty,
+    validate_backend,
 )
 
 
@@ -37,7 +37,7 @@ class TestInputCheck(unittest.TestCase):
 
     def test_check_backend(self):
         with self.assertRaises(ValueError):
-            check_backend(backend="test")
+            validate_backend(backend="test", slurm_installed=False, flux_installed=False)
 
     def test_check_init_function(self):
         with self.assertRaises(ValueError):
