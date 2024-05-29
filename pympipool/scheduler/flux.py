@@ -40,7 +40,7 @@ class PyFluxExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.flux import PyFluxExecutor
+        >>> from pympipool.scheduler.flux import PyFluxExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -107,7 +107,6 @@ class PyFluxStepExecutor(ExecutorSteps):
         cores_per_worker (int): number of MPI cores to be used for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
-        init_function (None): optional function to preset arguments for functions which are submitted later
         cwd (str/None): current working directory where the parallel python task is executed
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
@@ -122,7 +121,7 @@ class PyFluxStepExecutor(ExecutorSteps):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.flux import PyFluxStepExecutor
+        >>> from pympipool.scheduler.flux import PyFluxStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -190,7 +189,7 @@ class FluxPythonInterface(BaseInterface):
         self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
         self._executor = executor
-        self._pmi = None
+        self._pmi = pmi
         self._future = None
 
     def bootup(self, command_lst: list[str]):
