@@ -12,9 +12,9 @@ from pympipool.shared.inputcheck import (
     check_threads_per_core,
     check_oversubscribe,
     check_executor,
-    validate_backend,
     check_init_function,
     check_pmi,
+    validate_backend,
     validate_number_of_cores,
 )
 from pympipool.scheduler.slurm import (
