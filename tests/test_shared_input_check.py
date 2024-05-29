@@ -37,7 +37,9 @@ class TestInputCheck(unittest.TestCase):
 
     def test_check_backend(self):
         with self.assertRaises(ValueError):
-            validate_backend(backend="test", slurm_installed=False, flux_installed=False)
+            validate_backend(
+                backend="test", slurm_installed=False, flux_installed=False
+            )
 
     def test_check_init_function(self):
         with self.assertRaises(ValueError):

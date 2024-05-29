@@ -87,7 +87,9 @@ def create_executor(
     """
     max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    backend = validate_backend(backend=backend, flux_installed=flux_installed, slurm_installed=slurm_installed)
+    backend = validate_backend(
+        backend=backend, flux_installed=flux_installed, slurm_installed=slurm_installed
+    )
     if backend == "flux":
         check_oversubscribe(oversubscribe=oversubscribe)
         check_command_line_argument_lst(
