@@ -51,8 +51,13 @@ conda install -c conda-forge flux-core flux-sched mpich=>4 pympipool
 Flux is not limited to mpich / cray mpi, it can also be installed in compatibility with openmpi or intel mpi using the 
 openmpi package: 
 ```
-conda install -c conda-forge flux-core flux-sched openmpi pympipool
+conda install -c conda-forge flux-core flux-sched openmpi=4.1.6 pympipool
 ```
+For the version 5 of openmpi the backend changed to `pmix`, this requires the additional `flux-pmix` plugin:
+```
+conda install -c conda-forge flux-core flux-sched flux-pmix openmpi>=5 pympipool
+```
+In addition, the `pmi="pmix"` parameter has to be set for the `pympipool.Executor` to switch to `pmix` as backend.
 
 ## Test Flux Framework
 To validate the installation of flux and confirm the GPUs are correctly recognized, you can start a flux session on the 
