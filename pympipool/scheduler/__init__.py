@@ -14,6 +14,7 @@ from pympipool.shared.inputcheck import (
     check_executor,
     check_backend,
     check_init_function,
+    check_pmi,
     validate_number_of_cores,
 )
 from pympipool.scheduler.slurm import (
@@ -50,6 +51,7 @@ def create_executor(
     block_allocation: bool = False,
     init_function: Optional[callable] = None,
     command_line_argument_lst: list[str] = [],
+    pmi: Optional[str] = None,
 ):
     """
     Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -83,11 +85,13 @@ def create_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
+        pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
 
     """
     max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_backend(backend=backend)
+    check_pmi(backend=backend, pmi=pmi)
     if backend == "flux" or (backend == "auto" and flux_installed):
         check_oversubscribe(oversubscribe=oversubscribe)
         check_command_line_argument_lst(
@@ -103,6 +107,7 @@ def create_executor(
                 cwd=cwd,
                 executor=executor,
                 hostname_localhost=hostname_localhost,
+                pmi=pmi,
             )
         else:
             return PyFluxStepExecutor(
@@ -113,6 +118,7 @@ def create_executor(
                 cwd=cwd,
                 executor=executor,
                 hostname_localhost=hostname_localhost,
+                pmi=pmi,
             )
     elif backend == "slurm" or (backend == "auto" and slurm_installed):
         check_executor(executor=executor)
