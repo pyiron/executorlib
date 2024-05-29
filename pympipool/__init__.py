@@ -32,6 +32,7 @@ class Executor:
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
         cwd (str/None): current working directory where the parallel python task is executed
+        executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -129,6 +130,7 @@ class Executor:
             gpus_per_worker (int): number of GPUs per worker - defaults to 0
             oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
             cwd (str/None): current working directory where the parallel python task is executed
+            executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
