@@ -14,6 +14,7 @@ try:
     )
 
     skip_flux_test = "FLUX_URI" not in os.environ
+    pmi = os.environ.get("PYMPIPOOL_PMIX", None)
 except ImportError:
     skip_flux_test = True
 
@@ -81,6 +82,7 @@ class TestFluxBackend(unittest.TestCase):
             executor=self.executor,
             backend="flux",
             block_allocation=True,
+            pmi=pmi,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
@@ -93,6 +95,7 @@ class TestFluxBackend(unittest.TestCase):
             executor=self.executor,
             backend="flux",
             block_allocation=True,
+            pmi=pmi,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
