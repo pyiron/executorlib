@@ -12,7 +12,7 @@ from pympipool.shared.inputcheck import (
     check_threads_per_core,
     check_oversubscribe,
     check_executor,
-    check_backend,
+    validate_backend,
     check_init_function,
     check_pmi,
     validate_number_of_cores,
@@ -90,9 +90,9 @@ def create_executor(
     """
     max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    check_backend(backend=backend)
+    backend = validate_backend(backend=backend, flux_installed=flux_installed, slurm_installed=slurm_installed)
     check_pmi(backend=backend, pmi=pmi)
-    if backend == "flux" or (backend == "auto" and flux_installed):
+    if backend == "flux":
         check_oversubscribe(oversubscribe=oversubscribe)
         check_command_line_argument_lst(
             command_line_argument_lst=command_line_argument_lst
@@ -120,7 +120,7 @@ def create_executor(
                 hostname_localhost=hostname_localhost,
                 pmi=pmi,
             )
-    elif backend == "slurm" or (backend == "auto" and slurm_installed):
+    elif backend == "slurm":
         check_executor(executor=executor)
         if block_allocation:
             return PySlurmExecutor(
