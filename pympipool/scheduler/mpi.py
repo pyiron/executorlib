@@ -35,7 +35,7 @@ class PyMPIExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.mpi import PyMPIExecutor
+        >>> from pympipool.scheduler.mpi import PyMPIExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -108,7 +108,7 @@ class PyMPIStepExecutor(ExecutorSteps):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.mpi import PyMPIStepExecutor
+        >>> from pympipool.scheduler.mpi import PyMPIStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI

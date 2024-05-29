@@ -36,7 +36,7 @@ class PySlurmExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.slurm import PySlurmExecutor
+        >>> from pympipool.scheduler.slurm import PySlurmExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -117,7 +117,7 @@ class PySlurmStepExecutor(ExecutorSteps):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.slurm import PySlurmStepExecutor
+        >>> from pympipool.scheduler.slurm import PySlurmStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
