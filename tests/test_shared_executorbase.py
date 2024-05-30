@@ -2,7 +2,7 @@ from concurrent.futures import Future, CancelledError
 from queue import Queue
 import unittest
 
-from pympipool.shared.executorbase import cancel_items_in_queue
+from pympipool.shared.executor import cancel_items_in_queue
 
 
 class TestQueue(unittest.TestCase):

@@ -2,7 +2,7 @@ import importlib.util
 import unittest
 
 from pympipool import Executor
-from pympipool.shared.executorbase import cloudpickle_register
+from pympipool.shared.executor import cloudpickle_register
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None

@@ -1,11 +1,11 @@
 import os
 import shutil
 from typing import Optional
-from pympipool.scheduler.universal import (
-    UniversalExecutor,
-    UniversalStepExecutor,
+from pympipool.interactive.executor import (
+    InteractiveExecutor,
+    InteractiveStepExecutor,
 )
-from pympipool.scheduler.interface import (
+from pympipool.shared.interface import (
     MpiExecInterface,
     SLURM_COMMAND,
     SrunInterface,
@@ -23,7 +23,7 @@ from pympipool.shared.inputcheck import (
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
-    from pympipool.scheduler.flux import FluxPythonInterface
+    from pympipool.interactive.flux import FluxPythonInterface
 
     flux_installed = "FLUX_URI" in os.environ
 except ImportError:
@@ -108,13 +108,13 @@ def create_executor(
         executor_kwargs["pmi"] = pmi
         if block_allocation:
             executor_kwargs["init_function"] = init_function
-            return UniversalExecutor(
+            return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
                 interface_class=FluxPythonInterface,
             )
         else:
-            return UniversalStepExecutor(
+            return InteractiveStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
                 interface_class=FluxPythonInterface,
@@ -127,13 +127,13 @@ def create_executor(
         executor_kwargs["oversubscribe"] = oversubscribe
         if block_allocation:
             executor_kwargs["init_function"] = init_function
-            return UniversalExecutor(
+            return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
                 interface_class=SrunInterface,
             )
         else:
-            return UniversalStepExecutor(
+            return InteractiveStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
                 interface_class=SrunInterface,
@@ -148,13 +148,13 @@ def create_executor(
         executor_kwargs["oversubscribe"] = oversubscribe
         if block_allocation:
             executor_kwargs["init_function"] = init_function
-            return UniversalExecutor(
+            return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
                 interface_class=MpiExecInterface,
             )
         else:
-            return UniversalStepExecutor(
+            return InteractiveStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
                 interface_class=MpiExecInterface,

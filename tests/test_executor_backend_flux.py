@@ -8,7 +8,7 @@ from pympipool import Executor
 
 try:
     import flux.job
-    from pympipool.scheduler.flux import FluxPythonInterface
+    from pympipool.interactive.flux import FluxPythonInterface
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)

@@ -10,7 +10,7 @@ from pympipool.shared.communication import (
     interface_shutdown,
     interface_receive,
 )
-from pympipool.shared.backend import call_funct, parse_arguments
+from pympipool.interactive.backend import call_funct, parse_arguments
 
 
 def main():

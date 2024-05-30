@@ -11,7 +11,7 @@ from typing import Tuple
 import cloudpickle
 
 from pympipool.cache.hdf import dump, load, get_output
-from pympipool.shared.executorbase import get_command_path
+from pympipool.shared.executor import get_command_path
 
 
 class FutureItem:
@@ -137,7 +137,7 @@ def _get_execute_command(file_name: str, cores: int = 1) -> list:
     Get command to call backend as a list of two strings
     Args:
         file_name (str):
-        cores (int): Number of cores used to execute the task, if it is greater than one use mpiexec_interactive.py else serial_interactive.py
+        cores (int): Number of cores used to execute the task, if it is greater than one use interactive_parallel.py else interactive_serial.py
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
     """
@@ -146,14 +146,14 @@ def _get_execute_command(file_name: str, cores: int = 1) -> list:
         command_lst = (
             ["mpiexec", "-n", str(cores)]
             + command_lst
-            + [get_command_path(executable="mpiexec_cache.py"), file_name]
+            + [get_command_path(executable="cache_parallel.py"), file_name]
         )
     elif cores > 1:
         raise ImportError(
             "mpi4py is required for parallel calculations. Please install mpi4py."
         )
     else:
-        command_lst += [get_command_path(executable="serial_cache.py"), file_name]
+        command_lst += [get_command_path(executable="cache_serial.py"), file_name]
     return command_lst
 
 

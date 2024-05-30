@@ -2,7 +2,7 @@ import unittest
 from time import sleep
 
 from pympipool import Executor
-from pympipool.shared.executorbase import cloudpickle_register
+from pympipool.shared.executor import cloudpickle_register
 
 
 def add_function(parameter_1, parameter_2):

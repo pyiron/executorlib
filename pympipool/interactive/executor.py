@@ -1,21 +1,21 @@
-from pympipool.shared.executorbase import (
+from pympipool.shared.executor import (
     execute_parallel_tasks,
     execute_separate_tasks,
     ExecutorBroker,
     ExecutorSteps,
 )
-from pympipool.scheduler.interface import BaseInterface
+from pympipool.shared.interface import BaseInterface
 from pympipool.shared.thread import RaisingThread
-from pympipool.scheduler.interface import MpiExecInterface
+from pympipool.shared.interface import MpiExecInterface
 
 
-class UniversalExecutor(ExecutorBroker):
+class InteractiveExecutor(ExecutorBroker):
     """
-    The pympipool.scheduler.universal.UniversalExecutor leverages the pympipool interfaces to distribute python tasks on
-    a workstation or inside a queuing system allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the
-    pympipool.scheduler.universal.UniversalExecutor can be executed in a serial python process and does not require the
-    python script to be executed with MPI. Consequently, it is primarily an abstraction of its functionality to improve
-    the usability in particular when used in combination with Jupyter notebooks.
+    The pympipool.interactive.executor.InteractiveExecutor leverages the pympipool interfaces to distribute python tasks
+    on a workstation or inside a queuing system allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the
+    pympipool.interactive.executor.InteractiveExecutor can be executed in a serial python process and does not require
+    the python script to be executed with MPI. Consequently, it is primarily an abstraction of its functionality to
+    improves the usability in particular when used in combination with Jupyter notebooks.
 
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
@@ -25,7 +25,7 @@ class UniversalExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.scheduler.flux import PyFluxExecutor
+        >>> from pympipool.interactive.executor import InteractiveExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -36,7 +36,7 @@ class UniversalExecutor(ExecutorBroker):
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with PyFluxExecutor(max_workers=2, executor_kwargs={"init_function": init_k}) as p:
+        >>> with InteractiveExecutor(max_workers=2, executor_kwargs={"init_function": init_k}) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
@@ -63,21 +63,23 @@ class UniversalExecutor(ExecutorBroker):
         )
 
 
-class UniversalStepExecutor(ExecutorSteps):
+class InteractiveStepExecutor(ExecutorSteps):
     """
-    The pympipool.flux.PyFluxStepExecutor leverages the flux framework to distribute python tasks within a queuing
-    system allocation. In analogy to the pympipool.slurm.PySlurmExecutur it provides the option to specify the number
-    of threads per worker as well as the number of GPUs per worker in addition to specifying the number of cores per
-    worker.
+    The pympipool.interactive.executor.InteractiveStepExecutor leverages the pympipool interfaces to distribute python
+    tasks. In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.interactive.executor.InteractiveStepExecutor
+    can be executed in a serial python process and does not require the python script to be executed with MPI.
+    Consequently, it is primarily an abstraction of its functionality to improve the usability in particular when used
+    in combination with Jupyter notebooks.
 
     Args:
         max_cores (int): defines the number workers which can execute functions in parallel
         executor_kwargs (dict): keyword arguments for the executor
+        interface_class (BaseInterface): interface class to initiate python processes
 
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.scheduler.flux import PyFluxStepExecutor
+        >>> from pympipool.interactive.executor import InteractiveStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI

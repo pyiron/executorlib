@@ -5,13 +5,13 @@ import unittest
 
 import numpy as np
 
-from pympipool.scheduler.universal import UniversalExecutor
-from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
+from pympipool.interactive.executor import InteractiveExecutor
+from pympipool.shared.executor import cloudpickle_register, execute_parallel_tasks
 
 
 try:
     import flux.job
-    from pympipool.scheduler.flux import FluxPythonInterface
+    from pympipool.interactive.flux import FluxPythonInterface
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)
@@ -47,7 +47,7 @@ class TestFlux(unittest.TestCase):
         self.executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=2,
             executor_kwargs={"executor": self.executor},
             interface_class=FluxPythonInterface,
@@ -60,7 +60,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_threads(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "threads_per_core": 2},
             interface_class=FluxPythonInterface,
@@ -73,7 +73,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_parallel(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
             interface_class=FluxPythonInterface,
@@ -83,7 +83,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
             interface_class=FluxPythonInterface,
@@ -126,7 +126,7 @@ class TestFlux(unittest.TestCase):
         q.join()
 
     def test_internal_memory(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={
                 "executor": self.executor,

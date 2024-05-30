@@ -1,6 +1,6 @@
 import os
 
-from pympipool.shared.executorbase import ExecutorBase
+from pympipool.shared.executor import ExecutorBase
 from pympipool.shared.thread import RaisingThread
 from pympipool.cache.shared import execute_in_subprocess, execute_tasks_h5
 
