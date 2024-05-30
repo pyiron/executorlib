@@ -13,7 +13,7 @@ skip_h5io_test = importlib.util.find_spec("h5io") is None
 
 
 def my_funct(a, b):
-    return a+b
+    return a + b
 
 
 @unittest.skipIf(
@@ -24,7 +24,9 @@ class TestSharedFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = _serialize_funct_h5(
-            my_funct, 1, b=2,
+            my_funct,
+            1,
+            b=2,
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
@@ -35,7 +37,9 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
-        future_file_obj = FutureItem(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, task_key + ".h5out")
+        )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
 
@@ -43,7 +47,9 @@ class TestSharedFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = _serialize_funct_h5(
-            my_funct, 1, 2,
+            my_funct,
+            1,
+            2,
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
@@ -54,7 +60,9 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
-        future_file_obj = FutureItem(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, task_key + ".h5out")
+        )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
 
@@ -62,7 +70,9 @@ class TestSharedFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = _serialize_funct_h5(
-            my_funct, a=1, b=2,
+            my_funct,
+            a=1,
+            b=2,
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
@@ -73,7 +83,9 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
-        future_file_obj = FutureItem(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, task_key + ".h5out")
+        )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
 

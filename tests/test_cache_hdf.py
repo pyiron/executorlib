@@ -10,7 +10,7 @@ skip_h5io_test = importlib.util.find_spec("h5io") is None
 
 
 def my_funct(a, b):
-    return a+b
+    return a + b
 
 
 @unittest.skipIf(
@@ -25,7 +25,7 @@ class TestSharedFunctions(unittest.TestCase):
         b = 2
         dump(
             file_name=file_name,
-            data_dict={"fn": my_funct, "args": [a], "kwargs": {"b": b}}
+            data_dict={"fn": my_funct, "args": [a], "kwargs": {"b": b}},
         )
         data_dict = load(file_name=file_name)
         self.assertTrue("fn" in data_dict.keys())
@@ -38,10 +38,7 @@ class TestSharedFunctions(unittest.TestCase):
         file_name = os.path.join(cache_directory, "test_args.h5")
         a = 1
         b = 2
-        dump(
-            file_name=file_name,
-            data_dict={"fn": my_funct, "args": [a, b]}
-        )
+        dump(file_name=file_name, data_dict={"fn": my_funct, "args": [a, b]})
         data_dict = load(file_name=file_name)
         self.assertTrue("fn" in data_dict.keys())
         self.assertEqual(data_dict["args"], [a, b])
@@ -55,7 +52,7 @@ class TestSharedFunctions(unittest.TestCase):
         b = 2
         dump(
             file_name=file_name,
-            data_dict={"fn": my_funct, "args": (), "kwargs": {"a": a, "b": b}}
+            data_dict={"fn": my_funct, "args": (), "kwargs": {"a": a, "b": b}},
         )
         data_dict = load(file_name=file_name)
         self.assertTrue("fn" in data_dict.keys())

@@ -14,7 +14,7 @@ skip_h5io_test = importlib.util.find_spec("h5io") is None
 
 
 def my_funct(a, b):
-    return a+b
+    return a + b
 
 
 @unittest.skipIf(
@@ -45,10 +45,10 @@ class TestFileExecutor(unittest.TestCase):
         process = RaisingThread(
             target=execute_tasks_h5,
             kwargs={
-                "future_queue":q,
+                "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-            }
+            },
         )
         process.start()
         self.assertFalse(fs1.done())
@@ -70,7 +70,7 @@ class TestFileExecutor(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-            }
+            },
         )
         process.start()
         self.assertFalse(fs2.done())
@@ -92,7 +92,7 @@ class TestFileExecutor(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-            }
+            },
         )
         process.start()
         self.assertFalse(fs2.done())
