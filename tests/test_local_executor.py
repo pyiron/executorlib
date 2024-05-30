@@ -333,7 +333,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.interactive.interface.MpiExecInterface'>",
+            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "init_function": None,
             "cwd": None,
@@ -362,7 +362,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta_step(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.interactive.interface.MpiExecInterface'>",
+            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "cwd": None,
             "oversubscribe": False,
