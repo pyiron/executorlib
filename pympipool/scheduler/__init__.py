@@ -1,15 +1,15 @@
 import os
 import shutil
 from typing import Optional
-from pympipool.scheduler.local import (
-    PyLocalExecutor,
-    PyLocalStepExecutor,
+from pympipool.scheduler.universal import (
+    UniversalExecutor,
+    UniversalStepExecutor,
 )
-from pympipool.scheduler.slurm import (
-    PySlurmExecutor,
-    PySlurmStepExecutor,
+from pympipool.shared.interface import (
+    MpiExecInterface,
+    SLURM_COMMAND,
+    SrunInterface,
 )
-from pympipool.shared.interface import SLURM_COMMAND
 from pympipool.shared.inputcheck import (
     check_command_line_argument_lst,
     check_gpus_per_worker,
@@ -23,10 +23,7 @@ from pympipool.shared.inputcheck import (
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
-    from pympipool.scheduler.flux import (
-        PyFluxExecutor,
-        PyFluxStepExecutor,
-    )
+    from pympipool.scheduler.flux import FluxPythonInterface
 
     flux_installed = "FLUX_URI" in os.environ
 except ImportError:
@@ -111,14 +108,16 @@ def create_executor(
         executor_kwargs["pmi"] = pmi
         if block_allocation:
             executor_kwargs["init_function"] = init_function
-            return PyFluxExecutor(
+            return UniversalExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
+                interface_class=FluxPythonInterface,
             )
         else:
-            return PyFluxStepExecutor(
+            return UniversalStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
+                interface_class=FluxPythonInterface,
             )
     elif backend == "slurm":
         check_executor(executor=executor)
@@ -128,14 +127,16 @@ def create_executor(
         executor_kwargs["oversubscribe"] = oversubscribe
         if block_allocation:
             executor_kwargs["init_function"] = init_function
-            return PySlurmExecutor(
+            return UniversalExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
+                interface_class=SrunInterface,
             )
         else:
-            return PySlurmStepExecutor(
+            return UniversalStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
+                interface_class=SrunInterface,
             )
     else:  # backend="local"
         check_threads_per_core(threads_per_core=threads_per_core)
@@ -147,12 +148,14 @@ def create_executor(
         executor_kwargs["oversubscribe"] = oversubscribe
         if block_allocation:
             executor_kwargs["init_function"] = init_function
-            return PyLocalExecutor(
+            return UniversalExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
+                interface_class=MpiExecInterface,
             )
         else:
-            return PyLocalStepExecutor(
+            return UniversalStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
+                interface_class=MpiExecInterface,
             )
