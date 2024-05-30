@@ -1,9 +1,13 @@
 import os
 import shutil
 from typing import Optional
-from pympipool.scheduler.mpi import (
-    PyMPIExecutor,
-    PyMPIStepExecutor,
+from pympipool.scheduler.local import (
+    PyLocalExecutor,
+    PyLocalStepExecutor,
+)
+from pympipool.scheduler.slurm import (
+    PySlurmExecutor,
+    PySlurmStepExecutor,
 )
 from pympipool.shared.interface import SLURM_COMMAND
 from pympipool.shared.inputcheck import (
@@ -16,10 +20,6 @@ from pympipool.shared.inputcheck import (
     check_pmi,
     validate_backend,
     validate_number_of_cores,
-)
-from pympipool.scheduler.slurm import (
-    PySlurmExecutor,
-    PySlurmStepExecutor,
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
@@ -153,7 +153,7 @@ def create_executor(
         )
         check_executor(executor=executor)
         if block_allocation:
-            return PyMPIExecutor(
+            return PyLocalExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 cores_per_worker=cores_per_worker,
                 init_function=init_function,
@@ -161,7 +161,7 @@ def create_executor(
                 hostname_localhost=hostname_localhost,
             )
         else:
-            return PyMPIStepExecutor(
+            return PyLocalStepExecutor(
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 cwd=cwd,

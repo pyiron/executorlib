@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from pympipool.scheduler.mpi import PyMPIExecutor
+from pympipool.scheduler.local import PyLocalExecutor
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -17,7 +17,7 @@ def calc(i):
 
 class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=1, hostname_localhost=True
         ) as p:
             output = p.submit(calc, i=2)
@@ -31,7 +31,7 @@ class TestFuture(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_serial_multi_core(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
         ) as p:
             output = p.submit(calc, i=2)
@@ -62,7 +62,7 @@ class TestFuture(unittest.TestCase):
             def submit():
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
-                future = PyMPIExecutor(hostname_localhost=True).submit(slow_callable)
+                future = PyLocalExecutor(hostname_localhost=True).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
 
@@ -99,7 +99,7 @@ class TestFuture(unittest.TestCase):
                 def run(self):
                     self.running = True
 
-                    future = PyMPIExecutor(hostname_localhost=True).submit(
+                    future = PyLocalExecutor(hostname_localhost=True).submit(
                         self.return_42
                     )
                     future.add_done_callback(self.finished)
