@@ -60,7 +60,10 @@ def execute_in_subprocess(
 
 
 def execute_tasks_h5(
-    future_queue: queue.Queue, cache_directory: str, cores_per_worker: int, execute_function: callable
+    future_queue: queue.Queue,
+    cache_directory: str,
+    cores_per_worker: int,
+    execute_function: callable,
 ):
     memory_dict, process_dict, file_name_dict = {}, {}, {}
     while True:
@@ -140,7 +143,11 @@ def _get_execute_command(file_name: str, cores: int = 1) -> list:
     """
     command_lst = [sys.executable]
     if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
-        command_lst = ["mpiexec", "-n", str(cores)] + command_lst + [get_command_path(executable="mpiexec_cache.py"), file_name]
+        command_lst = (
+            ["mpiexec", "-n", str(cores)]
+            + command_lst
+            + [get_command_path(executable="mpiexec_cache.py"), file_name]
+        )
     elif cores > 1:
         raise ImportError(
             "mpi4py is required for parallel calculations. Please install mpi4py."

@@ -25,7 +25,8 @@ def mpi_funct(i):
 
 
 @unittest.skipIf(
-    skip_h5io_test or skip_mpi4py_test, "h5io or mpi4py are not installed, so the h5io and mpi4py tests are skipped."
+    skip_h5io_test or skip_mpi4py_test,
+    "h5io or mpi4py are not installed, so the h5io and mpi4py tests are skipped.",
 )
 class TestCacheExecutorMPI(unittest.TestCase):
     def test_executor(self):
