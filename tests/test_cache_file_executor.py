@@ -5,9 +5,9 @@ import shutil
 import unittest
 
 from pympipool.shared.thread import RaisingThread
-from pympipool import FileExecutor
 
 try:
+    from pympipool import FileExecutor
     from pympipool.cache.shared import execute_tasks_h5, execute_in_subprocess
 
     skip_h5io_test = False
