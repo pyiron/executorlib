@@ -5,7 +5,7 @@ from pympipool import Executor
 from pympipool.shared.executorbase import cloudpickle_register
 
 
-mpi4py_installed = importlib.util.find_spec('mpi4py') is not None
+mpi4py_installed = importlib.util.find_spec("mpi4py") is not None
 
 
 def calc(i):
