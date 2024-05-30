@@ -426,7 +426,9 @@ def _get_backend_path(cores: int):
     if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
         command_lst += [_get_command_path(executable="mpiexec.py")]
     elif cores > 1:
-        raise ImportError("mpi4py is required for parallel calculations. Please install mpi4py.")
+        raise ImportError(
+            "mpi4py is required for parallel calculations. Please install mpi4py."
+        )
     else:
         command_lst += [_get_command_path(executable="serial.py")]
     return command_lst
