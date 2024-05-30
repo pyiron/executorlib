@@ -16,6 +16,7 @@ __all__ = [
 
 try:
     from pympipool.cache.executor import FileExecutor
+
     __all__ += [FileExecutor]
 except ImportError:
     pass
