@@ -37,6 +37,10 @@ Repository = "https://github.com/pyiron/pympipool"
 
 [project.optional-dependencies]
 mpi = ["mpi4py==3.1.6"]
+hdf = [
+    "h5py==3.11.0",
+    "h5io==0.2.2",
+]
 
 [tool.setuptools.packages.find]
 include = ["pympipool*"]
