@@ -33,6 +33,7 @@ def main():
             file_name=file_name,
             output=result,
         )
+    MPI.COMM_WORLD.Barrier()
 
 
 if __name__ == "__main__":
