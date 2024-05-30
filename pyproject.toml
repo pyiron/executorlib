@@ -1,5 +1,5 @@
 [build-system]
-requires = ["cloudpickle", "mpi4py", "pyzmq", "setuptools", "tqdm", "versioneer[toml]==0.29"]
+requires = ["cloudpickle", "pyzmq", "setuptools", "tqdm", "versioneer[toml]==0.29"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -25,7 +25,6 @@ classifiers = [
 ]
 dependencies = [
     "cloudpickle==3.0.0",
-    "mpi4py==3.1.6",
     "pyzmq==26.0.3",
     "tqdm==4.66.4",
 ]
@@ -35,6 +34,9 @@ dynamic = ["version"]
 Homepage = "https://github.com/pyiron/pympipool"
 Documentation = "https://pympipool.readthedocs.io"
 Repository = "https://github.com/pyiron/pympipool"
+
+[project.optional-dependencies]
+mpi = ["mpi4py==3.1.6"]
 
 [tool.setuptools.packages.find]
 include = ["pympipool*"]

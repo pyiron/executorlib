@@ -77,7 +77,7 @@ def create_executor(
                                       any computer should be able to resolve that their own hostname points to the same
                                       address as localhost. Still MacOS >= 12 seems to disable this look up for security
                                       reasons. So on MacOS it is required to set this option to true
-        backend (str): Switch between the different backends "flux", "mpi" or "slurm". Alternatively, when "auto"
+        backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
                        is selected (the default) the available backend is determined automatically.
         block_allocation (boolean): To accelerate the submission of a series of python functions with the same
                                     resource requirements, pympipool supports block allocation. In this case all
@@ -145,7 +145,7 @@ def create_executor(
                 cwd=cwd,
                 hostname_localhost=hostname_localhost,
             )
-    else:  # backend="mpi"
+    else:  # backend="local"
         check_threads_per_core(threads_per_core=threads_per_core)
         check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
         check_command_line_argument_lst(

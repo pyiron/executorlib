@@ -1,4 +1,5 @@
 from concurrent.futures import CancelledError, Future
+import importlib.util
 from queue import Queue
 from time import sleep
 import unittest
@@ -12,6 +13,9 @@ from pympipool.shared.executorbase import (
     execute_parallel_tasks,
     ExecutorBase,
 )
+
+
+skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 
 def calc(i):
@@ -127,6 +131,9 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             )
 
 
+@unittest.skipIf(
+    skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+)
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
         with PyMPIExecutor(
@@ -164,6 +171,9 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         self.assertEqual(output, [2, 2])
 
 
+@unittest.skipIf(
+    skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+)
 class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
         with PyMPIStepExecutor(
@@ -300,6 +310,9 @@ class TestFuturePool(unittest.TestCase):
                 fs = p.submit(raise_error)
                 fs.result()
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_meta(self):
         meta_data_exe_dict = {
             "cores": 2,
@@ -339,6 +352,9 @@ class TestFuturePool(unittest.TestCase):
                 else:
                     self.assertEqual(str(exe.info[k]), v)
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_pool_multi_core(self):
         with PyMPIExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
@@ -352,6 +368,9 @@ class TestFuturePool(unittest.TestCase):
             self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_pool_multi_core_map(self):
         with PyMPIExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
@@ -408,6 +427,9 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(f.result(), np.array(4))
         q.join()
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_execute_task_parallel(self):
         f = Future()
         q = Queue()

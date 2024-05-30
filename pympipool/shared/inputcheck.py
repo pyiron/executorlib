@@ -70,9 +70,9 @@ def check_refresh_rate(refresh_rate: float):
 def validate_backend(
     backend: str, flux_installed: bool = False, slurm_installed: bool = False
 ) -> str:
-    if backend not in ["auto", "mpi", "slurm", "flux"]:
+    if backend not in ["auto", "flux", "local", "slurm"]:
         raise ValueError(
-            'The currently implemented backends are ["flux", "mpi", "slurm"]. '
+            'The currently implemented backends are ["auto", "flux", "local", "slurm"]. '
             'Alternatively, you can select "auto", the default option, to automatically determine the backend. But '
             + backend
             + " is not a valid choice."
@@ -90,7 +90,7 @@ def validate_backend(
     elif backend == "slurm" or (backend == "auto" and slurm_installed):
         return "slurm"
     else:
-        return "mpi"
+        return "local"
 
 
 def check_pmi(backend: str, pmi: Optional[str]):

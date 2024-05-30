@@ -1,3 +1,4 @@
+import importlib.util
 import os
 import sys
 import unittest
@@ -16,12 +17,18 @@ from pympipool.shared.executorbase import cloudpickle_register
 from pympipool.shared.interface import MpiExecInterface
 
 
+skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
+
+
 def calc(i):
     return np.array(i**2)
 
 
 class TestInterface(unittest.TestCase):
-    def test_interface(self):
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
+    def test_interface_mpi(self):
         cloudpickle_register(ind=1)
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
@@ -33,6 +40,29 @@ class TestInterface(unittest.TestCase):
                 os.path.abspath(
                     os.path.join(
                         __file__, "..", "..", "pympipool", "backend", "mpiexec.py"
+                    )
+                ),
+                "--zmqport",
+                str(interface.bind_to_random_port()),
+            ]
+        )
+        self.assertEqual(
+            interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
+        )
+        interface.shutdown(wait=True)
+
+    def test_interface_serial(self):
+        cloudpickle_register(ind=1)
+        task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
+        interface = SocketInterface(
+            interface=MpiExecInterface(cwd=None, cores=1, oversubscribe=False)
+        )
+        interface.bootup(
+            command_lst=[
+                sys.executable,
+                os.path.abspath(
+                    os.path.join(
+                        __file__, "..", "..", "pympipool", "backend", "serial.py"
                     )
                 ),
                 "--zmqport",

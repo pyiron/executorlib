@@ -1,0 +1,8 @@
+channels:
+- conda-forge
+dependencies:
+- python
+- numpy
+- cloudpickle =3.0.0
+- tqdm =4.66.4
+- pyzmq =26.0.3
