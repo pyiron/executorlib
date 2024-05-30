@@ -1,4 +1,5 @@
 from concurrent.futures import CancelledError, Future
+import importlib.util
 from queue import Queue
 from time import sleep
 import unittest
@@ -13,12 +14,8 @@ from pympipool.shared.executorbase import (
     ExecutorBase,
 )
 
-try:
-    import mpi4py
 
-    mpi4py_installed = True
-except ImportError:
-    mpi4py_installed = False
+mpi4py_installed = importlib.util.find_spec('mpi4py') is not None
 
 
 def calc(i):

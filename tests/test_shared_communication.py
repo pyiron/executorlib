@@ -1,3 +1,4 @@
+import importlib.util
 import os
 import sys
 import unittest
@@ -16,12 +17,7 @@ from pympipool.shared.executorbase import cloudpickle_register
 from pympipool.shared.interface import MpiExecInterface
 
 
-try:
-    import mpi4py
-
-    mpi4py_installed = True
-except ImportError:
-    mpi4py_installed = False
+mpi4py_installed = importlib.util.find_spec('mpi4py') is not None
 
 
 def calc(i):
