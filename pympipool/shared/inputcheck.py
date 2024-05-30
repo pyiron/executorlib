@@ -78,9 +78,9 @@ def validate_backend(
             + " is not a valid choice."
         )
     elif backend == "flux" and not flux_installed:
-        raise ImportError("'import flux.job' failed.")
+        raise ImportError("Flux backend is selected but not installed. Please install the flux framework.")
     elif backend == "slurm" and not slurm_installed:
-        raise RuntimeError("SLURM command not found.")
+        raise RuntimeError("Slurm backend is selected but not installed. Please ensure SLURM is correctly configured.")
     elif backend == "flux" or (backend == "auto" and flux_installed):
         return "flux"
     elif backend == "slurm" or (backend == "auto" and slurm_installed):
