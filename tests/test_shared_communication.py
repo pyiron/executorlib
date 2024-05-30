@@ -13,8 +13,8 @@ from pympipool.shared.communication import (
     interface_receive,
     SocketInterface,
 )
-from pympipool.shared.executorbase import cloudpickle_register
-from pympipool.scheduler.interface import MpiExecInterface
+from pympipool.shared.executor import cloudpickle_register
+from pympipool.shared.interface import MpiExecInterface
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -44,7 +44,7 @@ class TestInterface(unittest.TestCase):
                         "..",
                         "pympipool",
                         "backend",
-                        "mpiexec_interactive.py",
+                        "interactive_parallel.py",
                     )
                 ),
                 "--zmqport",
@@ -72,7 +72,7 @@ class TestInterface(unittest.TestCase):
                         "..",
                         "pympipool",
                         "backend",
-                        "serial_interactive.py",
+                        "interactive_serial.py",
                     )
                 ),
                 "--zmqport",

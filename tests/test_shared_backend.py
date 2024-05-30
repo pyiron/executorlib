@@ -2,8 +2,8 @@ import os
 import sys
 import unittest
 
-from pympipool.shared.backend import parse_arguments
-from pympipool.scheduler.interface import SrunInterface, MpiExecInterface
+from pympipool.interactive.backend import parse_arguments
+from pympipool.shared.interface import SrunInterface, MpiExecInterface
 
 
 class TestParser(unittest.TestCase):

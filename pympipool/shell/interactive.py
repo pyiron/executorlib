@@ -5,7 +5,7 @@ from concurrent.futures import Future
 import subprocess
 from time import sleep
 
-from pympipool.shared.executorbase import cancel_items_in_queue, ExecutorBase
+from pympipool.shared.executor import cancel_items_in_queue, ExecutorBase
 from pympipool.shared.thread import RaisingThread
 
 

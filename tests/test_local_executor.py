@@ -6,13 +6,13 @@ import unittest
 
 import numpy as np
 
-from pympipool.scheduler.interface import MpiExecInterface
-from pympipool.scheduler.universal import (
-    UniversalExecutor,
-    UniversalStepExecutor,
+from pympipool.shared.interface import MpiExecInterface
+from pympipool.interactive.executor import (
+    InteractiveExecutor,
+    InteractiveStepExecutor,
 )
-from pympipool.shared.backend import call_funct
-from pympipool.shared.executorbase import (
+from pympipool.interactive.backend import call_funct
+from pympipool.shared.executor import (
     cloudpickle_register,
     execute_parallel_tasks,
     ExecutorBase,
@@ -61,7 +61,7 @@ def sleep_one(i):
 
 class TestPyMpiExecutorSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=2,
             executor_kwargs={"hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -75,7 +75,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_pympiexecutor_one_worker(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -91,7 +91,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
 
 class TestPyMpiExecutorStepSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with UniversalStepExecutor(
+        with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -105,7 +105,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_pympiexecutor_one_worker(self):
-        with UniversalStepExecutor(
+        with InteractiveStepExecutor(
             max_cores=1,
             executor_kwargs={"hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -124,7 +124,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
 )
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -135,7 +135,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -155,7 +155,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         )
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -170,7 +170,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 )
 class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
-        with UniversalStepExecutor(
+        with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -181,7 +181,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
-        with UniversalStepExecutor(
+        with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -201,7 +201,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
         )
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
-        with UniversalStepExecutor(
+        with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -213,7 +213,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
 
 class TestPyMpiExecutorInitFunction(unittest.TestCase):
     def test_internal_memory(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={
                 "cores": 1,
@@ -256,7 +256,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -271,7 +271,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_executor_multi_submission(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -284,7 +284,7 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_shutdown(self):
-        p = UniversalExecutor(
+        p = InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -300,7 +300,7 @@ class TestFuturePool(unittest.TestCase):
             fs2.result()
 
     def test_pool_serial_map(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -310,7 +310,7 @@ class TestFuturePool(unittest.TestCase):
 
     def test_executor_exception(self):
         with self.assertRaises(RuntimeError):
-            with UniversalExecutor(
+            with InteractiveExecutor(
                 max_workers=1,
                 executor_kwargs={"cores": 1, "hostname_localhost": True},
                 interface_class=MpiExecInterface,
@@ -319,7 +319,7 @@ class TestFuturePool(unittest.TestCase):
 
     def test_executor_exception_future(self):
         with self.assertRaises(RuntimeError):
-            with UniversalExecutor(
+            with InteractiveExecutor(
                 max_workers=1,
                 executor_kwargs={"cores": 1, "hostname_localhost": True},
                 interface_class=MpiExecInterface,
@@ -333,14 +333,14 @@ class TestFuturePool(unittest.TestCase):
     def test_meta(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.scheduler.interface.MpiExecInterface'>",
+            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "init_function": None,
             "cwd": None,
             "oversubscribe": False,
             "max_workers": 1,
         }
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={
                 "cores": 2,
@@ -362,13 +362,13 @@ class TestFuturePool(unittest.TestCase):
     def test_meta_step(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.scheduler.interface.MpiExecInterface'>",
+            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "cwd": None,
             "oversubscribe": False,
             "max_cores": 2,
         }
-        with UniversalStepExecutor(
+        with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={
                 "cores": 2,
@@ -388,7 +388,7 @@ class TestFuturePool(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -406,7 +406,7 @@ class TestFuturePool(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core_map(self):
-        with UniversalExecutor(
+        with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
             interface_class=MpiExecInterface,

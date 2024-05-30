@@ -6,9 +6,9 @@ from pympipool.shared.communication import (
     interface_shutdown,
     interface_receive,
 )
-from pympipool.shared.executorbase import cancel_items_in_queue
+from pympipool.shared.executor import cancel_items_in_queue
 from pympipool.shared.thread import RaisingThread
-from pympipool.scheduler.interface import MpiExecInterface, SrunInterface
+from pympipool.shared.interface import MpiExecInterface, SrunInterface
 
 
 __all__ = [

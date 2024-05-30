@@ -14,7 +14,7 @@ import cloudpickle
 
 from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
-from pympipool.scheduler.interface import BaseInterface, MpiExecInterface
+from pympipool.shared.interface import BaseInterface, MpiExecInterface
 from pympipool.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
@@ -432,20 +432,20 @@ def _get_backend_path(cores: int) -> list:
     Get command to call backend as a list of two strings
 
     Args:
-        cores (int): Number of cores used to execute the task, if it is greater than one use mpiexec_interactive.py else serial_interactive.py
+        cores (int): Number of cores used to execute the task, if it is greater than one use interactive_parallel.py else interactive_serial.py
 
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
     """
     command_lst = [sys.executable]
     if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
-        command_lst += [get_command_path(executable="mpiexec_interactive.py")]
+        command_lst += [get_command_path(executable="interactive_parallel.py")]
     elif cores > 1:
         raise ImportError(
             "mpi4py is required for parallel calculations. Please install mpi4py."
         )
     else:
-        command_lst += [get_command_path(executable="serial_interactive.py")]
+        command_lst += [get_command_path(executable="interactive_serial.py")]
     return command_lst
 
 
@@ -454,7 +454,7 @@ def _get_command_path(executable: str) -> str:
     Get path of the backend executable script
 
     Args:
-        executable (str): Name of the backend executable script, either mpiexec_interactive.py or serial_interactive.py
+        executable (str): Name of the backend executable script, either interactive_parallel.py or interactive_serial.py
 
     Returns:
         str: absolute path to the executable script

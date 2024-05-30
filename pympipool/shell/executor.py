@@ -2,7 +2,7 @@ import queue
 from concurrent.futures import Future
 import subprocess
 
-from pympipool.shared.executorbase import ExecutorBroker
+from pympipool.shared.executor import ExecutorBroker
 from pympipool.shared.thread import RaisingThread
 
 
