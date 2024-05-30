@@ -11,3 +11,5 @@ dependencies:
 - flux-core =0.59.0
 - flux-pmix =0.5.0
 - versioneer =0.28
+- h5py =3.11.0
+- h5io =0.2.2

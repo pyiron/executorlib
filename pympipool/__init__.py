@@ -14,6 +14,14 @@ __all__ = [
 ]
 
 
+try:
+    from pympipool.cache.executor import FileExecutor
+
+    __all__ += [FileExecutor]
+except ImportError:
+    pass
+
+
 class Executor:
     """
     The pympipool.Executor leverages either the message passing interface (MPI), the SLURM workload manager or preferable
