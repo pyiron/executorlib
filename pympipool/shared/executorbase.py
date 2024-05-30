@@ -21,6 +21,7 @@ from pympipool.shared.inputcheck import (
 
 try:
     import mpi4py
+
     mpi4py_available = True
 except ImportError:
     mpi4py_available = False
@@ -431,7 +432,9 @@ def _get_backend_path(cores: int):
     if cores > 1 and mpi4py_available:
         command_lst += [_get_command_path(executable="mpiexec.py")]
     elif cores > 1 and not mpi4py_available:
-        raise ImportError("mpi4py is required for parallel calculations. Please install mpi4py.")
+        raise ImportError(
+            "mpi4py is required for parallel calculations. Please install mpi4py."
+        )
     else:
         command_lst += [_get_command_path(executable="serial.py")]
     return command_lst

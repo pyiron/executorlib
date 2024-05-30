@@ -18,6 +18,7 @@ from pympipool.shared.interface import MpiExecInterface
 
 try:
     import mpi4py
+
     mpi4py_installed = True
 except ImportError:
     mpi4py_installed = False
@@ -28,7 +29,9 @@ def calc(i):
 
 
 class TestInterface(unittest.TestCase):
-    @unittest.skipIf(mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped.")
+    @unittest.skipIf(
+        mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_interface_mpi(self):
         cloudpickle_register(ind=1)
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
