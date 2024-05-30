@@ -50,7 +50,7 @@ if __name__ == "__main__":
             sigma=1.1,
             runs=32,
             max_cores=4,
-            backend="mpi",
+            backend="local",
             block_allocation=True,
         )
     elif run_mode == "pympipool":
@@ -62,7 +62,7 @@ if __name__ == "__main__":
             sigma=1.1,
             runs=32,
             max_cores=4,
-            backend="mpi",
+            backend="local",
             block_allocation=False,
         )
     elif run_mode == "flux":

@@ -40,7 +40,7 @@ class Executor:
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-        backend (str): Switch between the different backends "flux", "mpi" or "slurm". Alternatively, when "auto"
+        backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
                        is selected (the default) the available backend is determined automatically.
         block_allocation (boolean): To accelerate the submission of a series of python functions with the same resource
                                     requirements, pympipool supports block allocation. In this case all resources have
@@ -138,7 +138,7 @@ class Executor:
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-            backend (str): Switch between the different backends "flux", "mpi" or "slurm". Alternatively, when "auto"
+            backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
                            is selected (the default) the available backend is determined automatically.
             block_allocation (boolean): To accelerate the submission of a series of python functions with the same
                                         resource requirements, pympipool supports block allocation. In this case all
