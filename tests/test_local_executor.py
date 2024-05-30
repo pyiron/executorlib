@@ -327,7 +327,7 @@ class TestFuturePool(unittest.TestCase):
                 "hostname_localhost": True,
                 "init_function": None,
                 "cwd": None,
-                "oversubscribe": False
+                "oversubscribe": False,
             },
         ) as exe:
             for k, v in meta_data_exe_dict.items():
