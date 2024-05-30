@@ -71,6 +71,7 @@ def create_executor(
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
         cwd (str/None): current working directory where the parallel python task is executed
+        executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an Executor
                                       running on a different compute node within the same allocation. And in principle
@@ -94,56 +95,47 @@ def create_executor(
         backend=backend, flux_installed=flux_installed, slurm_installed=slurm_installed
     )
     check_pmi(backend=backend, pmi=pmi)
+    executor_kwargs = {
+        "cores": cores_per_worker,
+        "hostname_localhost": hostname_localhost,
+        "cwd": cwd,
+    }
     if backend == "flux":
         check_oversubscribe(oversubscribe=oversubscribe)
         check_command_line_argument_lst(
             command_line_argument_lst=command_line_argument_lst
         )
+        executor_kwargs["threads_per_core"] = threads_per_core
+        executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
+        executor_kwargs["executor"] = executor
+        executor_kwargs["pmi"] = pmi
         if block_allocation:
+            executor_kwargs["init_function"] = init_function
             return PyFluxExecutor(
                 max_workers=int(max_cores / cores_per_worker),
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                init_function=init_function,
-                cwd=cwd,
-                executor=executor,
-                hostname_localhost=hostname_localhost,
-                pmi=pmi,
+                executor_kwargs=executor_kwargs,
             )
         else:
             return PyFluxStepExecutor(
                 max_cores=max_cores,
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                cwd=cwd,
-                executor=executor,
-                hostname_localhost=hostname_localhost,
-                pmi=pmi,
+                executor_kwargs=executor_kwargs,
             )
     elif backend == "slurm":
         check_executor(executor=executor)
+        executor_kwargs["threads_per_core"] = threads_per_core
+        executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
+        executor_kwargs["command_line_argument_lst"] = command_line_argument_lst
+        executor_kwargs["oversubscribe"] = oversubscribe
         if block_allocation:
+            executor_kwargs["init_function"] = init_function
             return PySlurmExecutor(
                 max_workers=int(max_cores / cores_per_worker),
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                oversubscribe=oversubscribe,
-                init_function=init_function,
-                cwd=cwd,
-                hostname_localhost=hostname_localhost,
+                executor_kwargs=executor_kwargs,
             )
         else:
             return PySlurmStepExecutor(
                 max_cores=max_cores,
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                oversubscribe=oversubscribe,
-                cwd=cwd,
-                hostname_localhost=hostname_localhost,
+                executor_kwargs=executor_kwargs,
             )
     else:  # backend="local"
         check_threads_per_core(threads_per_core=threads_per_core)
@@ -152,18 +144,15 @@ def create_executor(
             command_line_argument_lst=command_line_argument_lst
         )
         check_executor(executor=executor)
+        executor_kwargs["oversubscribe"] = oversubscribe
         if block_allocation:
+            executor_kwargs["init_function"] = init_function
             return PyLocalExecutor(
                 max_workers=int(max_cores / cores_per_worker),
-                cores_per_worker=cores_per_worker,
-                init_function=init_function,
-                cwd=cwd,
-                hostname_localhost=hostname_localhost,
+                executor_kwargs=executor_kwargs,
             )
         else:
             return PyLocalStepExecutor(
                 max_cores=max_cores,
-                cores_per_worker=cores_per_worker,
-                cwd=cwd,
-                hostname_localhost=hostname_localhost,
+                executor_kwargs=executor_kwargs,
             )

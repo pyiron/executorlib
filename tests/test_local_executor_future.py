@@ -18,7 +18,8 @@ def calc(i):
 class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=1, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"hostname_localhost": True, "cores": 1},
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -32,7 +33,8 @@ class TestFuture(unittest.TestCase):
     )
     def test_pool_serial_multi_core(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=2, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"hostname_localhost": True, "cores": 2},
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -62,7 +64,9 @@ class TestFuture(unittest.TestCase):
             def submit():
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
-                future = PyLocalExecutor(hostname_localhost=True).submit(slow_callable)
+                future = PyLocalExecutor(
+                    executor_kwargs={"hostname_localhost": True}
+                ).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
 
@@ -99,9 +103,9 @@ class TestFuture(unittest.TestCase):
                 def run(self):
                     self.running = True
 
-                    future = PyLocalExecutor(hostname_localhost=True).submit(
-                        self.return_42
-                    )
+                    future = PyLocalExecutor(
+                        executor_kwargs={"hostname_localhost": True}
+                    ).submit(self.return_42)
                     future.add_done_callback(self.finished)
 
                     return future
