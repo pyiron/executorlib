@@ -430,21 +430,34 @@ def _get_backend_path(cores: int):
     Get command to call backend as a list of two strings
 
     Args:
-        cores (int): Number of cores used to execute the task, if it is greater than one use mpiexec.py else serial.py
+        cores (int): Number of cores used to execute the task, if it is greater than one use mpiexec_interactive.py else serial_interactive.py
 
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
     """
     command_lst = [sys.executable]
     if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
-        command_lst += [get_command_path(executable="mpiexec.py")]
+        command_lst += [get_command_path(executable="mpiexec_interactive.py")]
     elif cores > 1:
         raise ImportError(
             "mpi4py is required for parallel calculations. Please install mpi4py."
         )
     else:
-        command_lst += [get_command_path(executable="serial.py")]
+        command_lst += [get_command_path(executable="serial_interactive.py")]
     return command_lst
+
+
+def _get_command_path(executable: str):
+    """
+    Get path of the backend executable script
+
+    Args:
+        executable (str): Name of the backend executable script, either mpiexec_interactive.py or serial_interactive.py
+
+    Returns:
+        str: absolute path to the executable script
+    """
+    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
 def _wait_for_free_slots(active_task_dict: dict, cores_requested: int, max_cores: int):
