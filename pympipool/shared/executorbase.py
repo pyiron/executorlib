@@ -14,7 +14,7 @@ import cloudpickle
 
 from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.interface import BaseInterface
+from pympipool.shared.interface import BaseInterface, MpiExecInterface
 from pympipool.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
@@ -255,8 +255,8 @@ def cloudpickle_register(ind: int = 2):
 
 def execute_parallel_tasks(
     future_queue: queue.Queue,
-    cores: int,
-    interface_class: BaseInterface,
+    cores: int = 1,
+    interface_class: BaseInterface = MpiExecInterface,
     hostname_localhost: bool = False,
     init_function: Optional[callable] = None,
     **kwargs,
@@ -309,8 +309,8 @@ def execute_parallel_tasks(
 
 def execute_separate_tasks(
     future_queue: queue.Queue,
-    interface_class: BaseInterface,
-    max_cores: int,
+    interface_class: BaseInterface = MpiExecInterface,
+    max_cores: int = 1,
     hostname_localhost: bool = False,
     **kwargs,
 ):
@@ -331,6 +331,8 @@ def execute_separate_tasks(
     """
     active_task_dict = {}
     process_lst, qtask_lst = [], []
+    if "cores" not in kwargs.keys():
+        kwargs["cores"] = 1
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
@@ -548,7 +550,7 @@ def _submit_function_to_separate_process(
     qtask: queue.Queue,
     interface_class: BaseInterface,
     executor_kwargs: dict,
-    max_cores: int,
+    max_cores: int = 1,
     hostname_localhost: bool = False,
 ):
     """
