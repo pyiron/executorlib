@@ -26,7 +26,9 @@ class FutureItem:
         return get_output(file_name=self._file_name)[0]
 
 
-def execute_in_subprocess(command: list, task_dependent_lst: list = []) -> subprocess.Popen:
+def execute_in_subprocess(
+    command: list, task_dependent_lst: list = []
+) -> subprocess.Popen:
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
             task for task in task_dependent_lst if task.poll() is None
@@ -34,7 +36,9 @@ def execute_in_subprocess(command: list, task_dependent_lst: list = []) -> subpr
     return subprocess.Popen(command, universal_newlines=True)
 
 
-def execute_tasks_h5(future_queue: queue.Queue, cache_directory: str, execute_function: callable):
+def execute_tasks_h5(
+    future_queue: queue.Queue, cache_directory: str, execute_function: callable
+):
     memory_dict, process_dict, file_name_dict = {}, {}, {}
     while True:
         task_dict = None
@@ -101,7 +105,9 @@ def _serialize_funct_h5(fn: callable, *args, **kwargs):
     return task_key, data
 
 
-def _check_task_output(task_key: str, future_obj: Future, cache_directory: str) -> Future:
+def _check_task_output(
+    task_key: str, future_obj: Future, cache_directory: str
+) -> Future:
     file_name = os.path.join(cache_directory, task_key + ".h5out")
     if not os.path.exists(file_name):
         return future_obj
@@ -111,7 +117,9 @@ def _check_task_output(task_key: str, future_obj: Future, cache_directory: str) 
     return future_obj
 
 
-def _convert_args_and_kwargs(task_dict: dict, memory_dict: dict, file_name_dict: dict) -> Tuple:
+def _convert_args_and_kwargs(
+    task_dict: dict, memory_dict: dict, file_name_dict: dict
+) -> Tuple:
     task_args = []
     task_kwargs = {}
     future_wait_key_lst = []
