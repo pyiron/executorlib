@@ -50,6 +50,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
+                "cores_per_worker": 1,
             },
         )
         process.start()
@@ -72,6 +73,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
+                "cores_per_worker": 1,
             },
         )
         process.start()
@@ -94,6 +96,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
+                "cores_per_worker": 1,
             },
         )
         process.start()
