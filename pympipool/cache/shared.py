@@ -1,13 +1,16 @@
 from concurrent.futures import Future
 import hashlib
+import importlib.util
 import os
 import queue
 import re
 import subprocess
+import sys
 from typing import Tuple
 
 import cloudpickle
 
+from pympipool.shared.executorbase import _get_command_path as get_command_path
 from pympipool.cache.hdf import dump, load, get_output
 
 
@@ -57,7 +60,7 @@ def execute_in_subprocess(
 
 
 def execute_tasks_h5(
-    future_queue: queue.Queue, cache_directory: str, execute_function: callable
+    future_queue: queue.Queue, cache_directory: str, cores_per_worker: int, execute_function: callable
 ):
     memory_dict, process_dict, file_name_dict = {}, {}, {}
     while True:
@@ -88,7 +91,10 @@ def execute_tasks_h5(
                     file_name = os.path.join(cache_directory, task_key + ".h5in")
                     dump(file_name=file_name, data_dict=data_dict)
                     process_dict[task_key] = execute_function(
-                        command=_get_execute_command(file_name=file_name),
+                        command=_get_execute_command(
+                            file_name=file_name,
+                            cores=cores_per_worker,
+                        ),
                         task_dependent_lst=[
                             process_dict[k] for k in future_wait_key_lst
                         ],
@@ -123,8 +129,25 @@ def execute_task_in_file(file_name: str):
     )
 
 
-def _get_execute_command(file_name: str) -> list:
-    return ["python", "-m", "pympipool.backend.serial_cache", file_name]
+def _get_execute_command(file_name: str, cores: int = 1) -> list:
+    """
+    Get command to call backend as a list of two strings
+    Args:
+        file_name (str):
+        cores (int): Number of cores used to execute the task, if it is greater than one use mpiexec_interactive.py else serial_interactive.py
+    Returns:
+        list[str]: List of strings containing the python executable path and the backend script to execute
+    """
+    command_lst = [sys.executable]
+    if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
+        command_lst = ["mpiexec", "-n", str(cores)] + command_lst + [get_command_path(executable="mpiexec_cache.py"), file_name]
+    elif cores > 1:
+        raise ImportError(
+            "mpi4py is required for parallel calculations. Please install mpi4py."
+        )
+    else:
+        command_lst += [get_command_path(executable="serial_cache.py"), file_name]
+    return command_lst
 
 
 def _get_hash(binary: bytes):

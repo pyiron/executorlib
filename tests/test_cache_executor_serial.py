@@ -22,7 +22,7 @@ def my_funct(a, b):
 @unittest.skipIf(
     skip_h5io_test, "h5io is not installed, so the h5io tests are skipped."
 )
-class TestFileExecutor(unittest.TestCase):
+class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_mixed(self):
         with FileExecutor() as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
