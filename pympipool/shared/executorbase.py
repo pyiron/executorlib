@@ -14,7 +14,7 @@ import cloudpickle
 
 from pympipool.shared.communication import interface_bootup
 from pympipool.shared.thread import RaisingThread
-from pympipool.scheduler.interface import BaseInterface
+from pympipool.scheduler.interface import BaseInterface, MpiExecInterface
 from pympipool.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
