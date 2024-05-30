@@ -6,8 +6,13 @@ import unittest
 
 try:
     from pympipool.cache.hdf import dump
-    from pympipool.cache.shared import FutureItem, _check_task_output, _serialize_funct_h5
+    from pympipool.cache.shared import (
+        FutureItem,
+        _check_task_output,
+        _serialize_funct_h5,
+    )
     from pympipool.cache.backend import execute_task_in_file
+
     skip_h5io_test = False
 except ImportError:
     skip_h5io_test = True
