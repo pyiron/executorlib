@@ -460,7 +460,9 @@ def _get_command_path(executable: str) -> str:
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def _wait_for_free_slots(active_task_dict: dict, cores_requested: int, max_cores: int) -> dict:
+def _wait_for_free_slots(
+    active_task_dict: dict, cores_requested: int, max_cores: int
+) -> dict:
     """
     Wait for available computing resources to become available.
 
