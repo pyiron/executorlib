@@ -2,6 +2,7 @@ from concurrent.futures import (
     Executor as FutureExecutor,
     Future,
 )
+import importlib.util
 import inspect
 import os
 import queue
@@ -18,12 +19,6 @@ from pympipool.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-
-try:
-    import mpi4py
-    mpi4py_available = True
-except ImportError:
-    mpi4py_available = False
 
 
 class ExecutorBase(FutureExecutor):
@@ -428,9 +423,9 @@ def _get_backend_path(cores: int):
         list[str]: List of strings containing the python executable path and the backend script to execute
     """
     command_lst = [sys.executable]
-    if cores > 1 and mpi4py_available:
+    if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
         command_lst += [_get_command_path(executable="mpiexec.py")]
-    elif cores > 1 and not mpi4py_available:
+    elif cores > 1:
         raise ImportError("mpi4py is required for parallel calculations. Please install mpi4py.")
     else:
         command_lst += [_get_command_path(executable="serial.py")]
