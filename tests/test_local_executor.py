@@ -61,7 +61,7 @@ def sleep_one(i):
 
 class TestPyMpiExecutorSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with PyLocalExecutor(max_workers=2, hostname_localhost=True) as exe:
+        with PyLocalExecutor(max_workers=2, executor_kwargs={"hostname_localhost": True}) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -71,7 +71,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_pympiexecutor_one_worker(self):
-        with PyLocalExecutor(max_workers=1, hostname_localhost=True) as exe:
+        with PyLocalExecutor(max_workers=1, executor_kwargs={"hostname_localhost": True}) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -84,16 +84,12 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
         with self.assertRaises(TypeError):
             PyLocalExecutor(
                 max_workers=1,
-                cores_per_worker=1,
-                threads_per_core=2,
-                hostname_localhost=True,
+                executor_kwargs={"cores": 1, "threads_per_core": 2, "hostname_localhost": True},
             )
         with self.assertRaises(TypeError):
             PyLocalExecutor(
                 max_workers=1,
-                cores_per_worker=1,
-                gpus_per_worker=1,
-                hostname_localhost=True,
+                executor_kwargs={"cores": 1, "gpus_per_core": 1, "hostname_localhost": True},
             )
 
 
@@ -138,7 +134,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
                 executor_kwargs={
                     "hostname_localhost": True,
                     "cores": 1,
-                    "gpus_per_worker": 1,
+                    "gpus_per_core": 1,
                 },
             )
 
