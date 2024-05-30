@@ -5,7 +5,8 @@ import unittest
 
 import numpy as np
 
-from pympipool.scheduler.local import PyLocalExecutor
+from pympipool.scheduler.universal import UniversalExecutor
+from pympipool.scheduler.interface import MpiExecInterface
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -17,9 +18,10 @@ def calc(i):
 
 class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
-        with PyLocalExecutor(
+        with UniversalExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True, "cores": 1},
+            interface_class=MpiExecInterface,
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -32,9 +34,10 @@ class TestFuture(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_serial_multi_core(self):
-        with PyLocalExecutor(
+        with UniversalExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True, "cores": 2},
+            interface_class=MpiExecInterface,
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -64,8 +67,9 @@ class TestFuture(unittest.TestCase):
             def submit():
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
-                future = PyLocalExecutor(
-                    executor_kwargs={"hostname_localhost": True}
+                future = UniversalExecutor(
+                    executor_kwargs={"hostname_localhost": True},
+                    interface_class = MpiExecInterface,
                 ).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
@@ -103,8 +107,9 @@ class TestFuture(unittest.TestCase):
                 def run(self):
                     self.running = True
 
-                    future = PyLocalExecutor(
-                        executor_kwargs={"hostname_localhost": True}
+                    future = UniversalExecutor(
+                        executor_kwargs={"hostname_localhost": True},
+                        interface_class=MpiExecInterface,
                     ).submit(self.return_42)
                     future.add_done_callback(self.finished)
 

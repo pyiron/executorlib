@@ -5,15 +5,13 @@ import unittest
 
 import numpy as np
 
+from pympipool.scheduler.universal import UniversalExecutor
 from pympipool.shared.executorbase import cloudpickle_register, execute_parallel_tasks
 
 
 try:
     import flux.job
-    from pympipool.scheduler.flux import (
-        PyFluxExecutor,
-        FluxPythonInterface,
-    )
+    from pympipool.scheduler.flux import FluxPythonInterface
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)
@@ -49,9 +47,10 @@ class TestFlux(unittest.TestCase):
         self.executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with PyFluxExecutor(
+        with UniversalExecutor(
             max_workers=2,
             executor_kwargs={"executor": self.executor},
+            interface_class=FluxPythonInterface,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -61,9 +60,10 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_threads(self):
-        with PyFluxExecutor(
+        with UniversalExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "threads_per_core": 2},
+            interface_class=FluxPythonInterface,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -73,18 +73,20 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_parallel(self):
-        with PyFluxExecutor(
+        with UniversalExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
+            interface_class=FluxPythonInterface,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with PyFluxExecutor(
+        with UniversalExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
+            interface_class=FluxPythonInterface,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
@@ -124,13 +126,14 @@ class TestFlux(unittest.TestCase):
         q.join()
 
     def test_internal_memory(self):
-        with PyFluxExecutor(
+        with UniversalExecutor(
             max_workers=1,
             executor_kwargs={
                 "executor": self.executor,
                 "cores": 1,
                 "init_function": set_global,
             },
+            interface_class=FluxPythonInterface,
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
