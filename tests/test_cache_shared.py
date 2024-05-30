@@ -1,15 +1,16 @@
 from concurrent.futures import Future
-import importlib.util
 import os
 import shutil
 import unittest
 
-from pympipool.cache.hdf import dump
-from pympipool.cache.shared import FutureItem, _check_task_output, _serialize_funct_h5
-from pympipool.cache.backend import execute_task_in_file
 
-
-skip_h5io_test = importlib.util.find_spec("h5io") is None
+try:
+    from pympipool.cache.hdf import dump
+    from pympipool.cache.shared import FutureItem, _check_task_output, _serialize_funct_h5
+    from pympipool.cache.backend import execute_task_in_file
+    skip_h5io_test = False
+except ImportError:
+    skip_h5io_test = True
 
 
 def my_funct(a, b):

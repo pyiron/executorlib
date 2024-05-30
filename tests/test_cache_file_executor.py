@@ -1,5 +1,4 @@
 from concurrent.futures import Future
-import importlib.util
 import os
 from queue import Queue
 import shutil
@@ -7,10 +6,12 @@ import unittest
 
 from pympipool.shared.thread import RaisingThread
 from pympipool import FileExecutor
-from pympipool.cache.shared import execute_tasks_h5, execute_in_subprocess
 
-
-skip_h5io_test = importlib.util.find_spec("h5io") is None
+try:
+    from pympipool.cache.shared import execute_tasks_h5, execute_in_subprocess
+    skip_h5io_test = False
+except ImportError:
+    skip_h5io_test = True
 
 
 def my_funct(a, b):
