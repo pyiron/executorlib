@@ -14,7 +14,7 @@ from pympipool.shared.communication import (
     SocketInterface,
 )
 from pympipool.shared.executorbase import cloudpickle_register
-from pympipool.shared.interface import MpiExecInterface
+from pympipool.scheduler.interface import MpiExecInterface
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
