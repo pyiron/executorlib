@@ -41,11 +41,7 @@ class PyLocalExecutor(ExecutorBroker):
 
     """
 
-    def __init__(
-        self,
-        max_workers: int = 1,
-        executor_kwargs: dict = {}
-    ):
+    def __init__(self, max_workers: int = 1, executor_kwargs: dict = {}):
         super().__init__()
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["interface_class"] = MpiExecInterface

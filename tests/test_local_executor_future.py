@@ -64,7 +64,9 @@ class TestFuture(unittest.TestCase):
             def submit():
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
-                future = PyLocalExecutor(executor_kwargs={"hostname_localhost": True}).submit(slow_callable)
+                future = PyLocalExecutor(
+                    executor_kwargs={"hostname_localhost": True}
+                ).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
 
@@ -101,9 +103,9 @@ class TestFuture(unittest.TestCase):
                 def run(self):
                     self.running = True
 
-                    future = PyLocalExecutor(executor_kwargs={"hostname_localhost": True}).submit(
-                        self.return_42
-                    )
+                    future = PyLocalExecutor(
+                        executor_kwargs={"hostname_localhost": True}
+                    ).submit(self.return_42)
                     future.add_done_callback(self.finished)
 
                     return future

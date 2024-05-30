@@ -129,7 +129,7 @@ class TestFlux(unittest.TestCase):
             executor_kwargs={
                 "executor": self.executor,
                 "cores": 1,
-                "init_function": set_global
+                "init_function": set_global,
             },
         ) as p:
             f = p.submit(get_global)
