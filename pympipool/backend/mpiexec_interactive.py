@@ -53,6 +53,7 @@ def main():
             if mpi_rank_zero:
                 interface_send(socket=socket, result_dict={"result": True})
                 interface_shutdown(socket=socket, context=context)
+            MPI.COMM_WORLD.Barrier()
             break
         elif (
             "fn" in input_dict.keys()
