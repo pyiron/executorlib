@@ -412,7 +412,20 @@ def execute_tasks_with_dependencies(
             sleep(refresh_rate)
 
 
-def _get_backend_path(cores: int):
+def get_command_path(executable: str) -> str:
+    """
+    Get path of the backend executable script
+
+    Args:
+        executable (str): Name of the backend executable script, either mpiexec.py or serial.py
+
+    Returns:
+        str: absolute path to the executable script
+    """
+    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
+
+
+def _get_backend_path(cores: int) -> list:
     """
     Get command to call backend as a list of two strings
 
@@ -424,17 +437,17 @@ def _get_backend_path(cores: int):
     """
     command_lst = [sys.executable]
     if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
-        command_lst += [_get_command_path(executable="mpiexec_interactive.py")]
+        command_lst += [get_command_path(executable="mpiexec_interactive.py")]
     elif cores > 1:
         raise ImportError(
             "mpi4py is required for parallel calculations. Please install mpi4py."
         )
     else:
-        command_lst += [_get_command_path(executable="serial_interactive.py")]
+        command_lst += [get_command_path(executable="serial_interactive.py")]
     return command_lst
 
 
-def _get_command_path(executable: str):
+def _get_command_path(executable: str) -> str:
     """
     Get path of the backend executable script
 
@@ -447,7 +460,9 @@ def _get_command_path(executable: str):
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def _wait_for_free_slots(active_task_dict: dict, cores_requested: int, max_cores: int):
+def _wait_for_free_slots(
+    active_task_dict: dict, cores_requested: int, max_cores: int
+) -> dict:
     """
     Wait for available computing resources to become available.
 
@@ -464,7 +479,7 @@ def _wait_for_free_slots(active_task_dict: dict, cores_requested: int, max_cores
     return active_task_dict
 
 
-def _submit_waiting_task(wait_lst: List[dict], executor_queue: queue.Queue):
+def _submit_waiting_task(wait_lst: List[dict], executor_queue: queue.Queue) -> list:
     """
     Submit the waiting tasks, which future inputs have been completed, to the executor
 
