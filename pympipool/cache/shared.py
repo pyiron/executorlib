@@ -4,6 +4,7 @@ import os
 import queue
 import re
 import subprocess
+from typing import Tuple
 
 import cloudpickle
 
@@ -25,7 +26,7 @@ class FutureItem:
         return get_output(file_name=self._file_name)[0]
 
 
-def execute_in_subprocess(command, task_dependent_lst=[]):
+def execute_in_subprocess(command: list, task_dependent_lst: list = []) -> subprocess.Popen:
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
             task for task in task_dependent_lst if task.poll() is None
@@ -33,7 +34,7 @@ def execute_in_subprocess(command, task_dependent_lst=[]):
     return subprocess.Popen(command, universal_newlines=True)
 
 
-def execute_tasks_h5(future_queue, cache_directory, execute_function):
+def execute_tasks_h5(future_queue: queue.Queue, cache_directory: str, execute_function: callable):
     memory_dict, process_dict, file_name_dict = {}, {}, {}
     while True:
         task_dict = None
@@ -83,24 +84,24 @@ def execute_tasks_h5(future_queue, cache_directory, execute_function):
             }
 
 
-def _get_execute_command(file_name):
+def _get_execute_command(file_name: str) -> list:
     return ["python", "-m", "pympipool.backend.serial_cache", file_name]
 
 
-def _get_hash(binary):
+def _get_hash(binary: bytes):
     # Remove specification of jupyter kernel from hash to be deterministic
     binary_no_ipykernel = re.sub(b"(?<=/ipykernel_)(.*)(?=/)", b"", binary)
     return str(hashlib.md5(binary_no_ipykernel).hexdigest())
 
 
-def _serialize_funct_h5(fn, *args, **kwargs):
+def _serialize_funct_h5(fn: callable, *args, **kwargs):
     binary_all = cloudpickle.dumps({"fn": fn, "args": args, "kwargs": kwargs})
     task_key = fn.__name__ + _get_hash(binary=binary_all)
     data = {"fn": fn, "args": args, "kwargs": kwargs}
     return task_key, data
 
 
-def _check_task_output(task_key, future_obj, cache_directory):
+def _check_task_output(task_key: str, future_obj: Future, cache_directory: str) -> Future:
     file_name = os.path.join(cache_directory, task_key + ".h5out")
     if not os.path.exists(file_name):
         return future_obj
@@ -110,7 +111,7 @@ def _check_task_output(task_key, future_obj, cache_directory):
     return future_obj
 
 
-def _convert_args_and_kwargs(task_dict, memory_dict, file_name_dict):
+def _convert_args_and_kwargs(task_dict: dict, memory_dict: dict, file_name_dict: dict) -> Tuple:
     task_args = []
     task_kwargs = {}
     future_wait_key_lst = []
