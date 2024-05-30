@@ -4,9 +4,9 @@ from pympipool.shared.executorbase import (
     ExecutorBroker,
     ExecutorSteps,
 )
-from pympipool.shared.interface import BaseInterface
+from pympipool.scheduler.interface import BaseInterface
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.interface import MpiExecInterface
+from pympipool.scheduler.interface import MpiExecInterface
 
 
 class UniversalExecutor(ExecutorBroker):

@@ -3,7 +3,7 @@ from typing import Optional
 
 import flux.job
 
-from pympipool.shared.interface import BaseInterface
+from pympipool.scheduler.interface import BaseInterface
 
 
 class FluxPythonInterface(BaseInterface):

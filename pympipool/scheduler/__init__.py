@@ -5,7 +5,7 @@ from pympipool.scheduler.universal import (
     UniversalExecutor,
     UniversalStepExecutor,
 )
-from pympipool.shared.interface import (
+from pympipool.scheduler.interface import (
     MpiExecInterface,
     SLURM_COMMAND,
     SrunInterface,
