@@ -5,6 +5,7 @@ from pympipool.shared.executorbase import cloudpickle_register
 
 try:
     import mpi4py
+
     mpi4py_installed = True
 except ImportError:
     mpi4py_installed = False
@@ -47,7 +48,9 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
-    @unittest.skipIf(mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped.")
+    @unittest.skipIf(
+        mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_meta_executor_parallel(self):
         with Executor(
             max_workers=2,

@@ -15,7 +15,10 @@ def resource_dict(resource_dict):
 class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial(self):
         with Executor(
-            max_cores=2, hostname_localhost=True, backend="local", block_allocation=False
+            max_cores=2,
+            hostname_localhost=True,
+            backend="local",
+            block_allocation=False,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
@@ -27,7 +30,10 @@ class TestExecutorBackend(unittest.TestCase):
 
     def test_meta_executor_single(self):
         with Executor(
-            max_cores=1, hostname_localhost=True, backend="local", block_allocation=False
+            max_cores=1,
+            hostname_localhost=True,
+            backend="local",
+            block_allocation=False,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
