@@ -15,7 +15,7 @@ from pympipool.shared.executorbase import (
 )
 
 
-mpi4py_installed = importlib.util.find_spec("mpi4py") is not None
+skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 
 def calc(i):
@@ -132,7 +132,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
 
 
 @unittest.skipIf(
-    mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped."
+    skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
 )
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
@@ -172,7 +172,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 
 
 @unittest.skipIf(
-    mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped."
+    skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
 )
 class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
@@ -350,7 +350,7 @@ class TestFuturePool(unittest.TestCase):
                     self.assertEqual(str(exe.info[k]), v)
 
     @unittest.skipIf(
-        mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped."
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core(self):
         with PyMPIExecutor(
@@ -366,7 +366,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
 
     @unittest.skipIf(
-        mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped."
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core_map(self):
         with PyMPIExecutor(

@@ -17,7 +17,7 @@ from pympipool.shared.executorbase import cloudpickle_register
 from pympipool.shared.interface import MpiExecInterface
 
 
-mpi4py_installed = importlib.util.find_spec("mpi4py") is not None
+skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 
 def calc(i):
@@ -26,7 +26,7 @@ def calc(i):
 
 class TestInterface(unittest.TestCase):
     @unittest.skipIf(
-        mpi4py_installed, "mpi4py is not installed, so the mpi4py tests are skipped."
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_interface_mpi(self):
         cloudpickle_register(ind=1)
