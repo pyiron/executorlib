@@ -1,10 +1,14 @@
 from concurrent.futures import Future
+import importlib.util
 from time import sleep
 import unittest
 
 import numpy as np
 
 from pympipool.scheduler.mpi import PyMPIExecutor
+
+
+skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 
 def calc(i):
@@ -23,6 +27,9 @@ class TestFuture(unittest.TestCase):
         self.assertTrue(output.done())
         self.assertEqual(output.result(), np.array(4))
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_pool_serial_multi_core(self):
         with PyMPIExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True

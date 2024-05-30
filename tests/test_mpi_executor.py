@@ -310,6 +310,9 @@ class TestFuturePool(unittest.TestCase):
                 fs = p.submit(raise_error)
                 fs.result()
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_meta(self):
         meta_data_exe_dict = {
             "cores": 2,
@@ -424,6 +427,9 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(f.result(), np.array(4))
         q.join()
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
     def test_execute_task_parallel(self):
         f = Future()
         q = Queue()
