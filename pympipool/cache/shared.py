@@ -84,7 +84,7 @@ def execute_tasks_h5(future_queue, cache_directory, execute_function):
 
 
 def _get_execute_command(file_name):
-    return ["python", "-m", "executorlib_cache", file_name]
+    return ["python", "-m", "pympipool.cache", file_name]
 
 
 def _get_hash(binary):
