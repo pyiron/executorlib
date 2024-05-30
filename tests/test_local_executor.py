@@ -6,7 +6,11 @@ import unittest
 
 import numpy as np
 
-from pympipool.scheduler.mpi import PyMPIExecutor, PyMPIStepExecutor, MpiExecInterface
+from pympipool.scheduler.local import (
+    PyLocalExecutor,
+    PyLocalStepExecutor,
+    MpiExecInterface,
+)
 from pympipool.shared.backend import call_funct
 from pympipool.shared.executorbase import (
     cloudpickle_register,
@@ -57,7 +61,7 @@ def sleep_one(i):
 
 class TestPyMpiExecutorSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with PyMPIExecutor(max_workers=2, hostname_localhost=True) as exe:
+        with PyLocalExecutor(max_workers=2, hostname_localhost=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -67,7 +71,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_pympiexecutor_one_worker(self):
-        with PyMPIExecutor(max_workers=1, hostname_localhost=True) as exe:
+        with PyLocalExecutor(max_workers=1, hostname_localhost=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -78,14 +82,14 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
 
     def test_pympiexecutor_errors(self):
         with self.assertRaises(TypeError):
-            PyMPIExecutor(
+            PyLocalExecutor(
                 max_workers=1,
                 cores_per_worker=1,
                 threads_per_core=2,
                 hostname_localhost=True,
             )
         with self.assertRaises(TypeError):
-            PyMPIExecutor(
+            PyLocalExecutor(
                 max_workers=1,
                 cores_per_worker=1,
                 gpus_per_worker=1,
@@ -95,7 +99,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
 
 class TestPyMpiExecutorStepSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with PyMPIStepExecutor(max_cores=2, hostname_localhost=True) as exe:
+        with PyLocalStepExecutor(max_cores=2, hostname_localhost=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -105,7 +109,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_pympiexecutor_one_worker(self):
-        with PyMPIStepExecutor(max_cores=1, hostname_localhost=True) as exe:
+        with PyLocalStepExecutor(max_cores=1, hostname_localhost=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -116,14 +120,14 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
 
     def test_pympiexecutor_errors(self):
         with self.assertRaises(TypeError):
-            PyMPIStepExecutor(
+            PyLocalStepExecutor(
                 max_cores=1,
                 cores_per_worker=1,
                 threads_per_core=2,
                 hostname_localhost=True,
             )
         with self.assertRaises(TypeError):
-            PyMPIStepExecutor(
+            PyLocalStepExecutor(
                 max_cores=1,
                 cores_per_worker=1,
                 gpus_per_worker=1,
@@ -136,7 +140,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
 )
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
         ) as exe:
             cloudpickle_register(ind=1)
@@ -145,7 +149,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
         ) as p:
             cloudpickle_register(ind=1)
@@ -163,7 +167,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         )
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
         ) as p:
             cloudpickle_register(ind=1)
@@ -176,7 +180,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 )
 class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
-        with PyMPIStepExecutor(
+        with PyLocalStepExecutor(
             max_cores=2, cores_per_worker=2, hostname_localhost=True
         ) as exe:
             cloudpickle_register(ind=1)
@@ -185,7 +189,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
-        with PyMPIStepExecutor(
+        with PyLocalStepExecutor(
             max_cores=2, cores_per_worker=2, hostname_localhost=True
         ) as p:
             cloudpickle_register(ind=1)
@@ -203,7 +207,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
         )
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
-        with PyMPIStepExecutor(
+        with PyLocalStepExecutor(
             max_cores=2, cores_per_worker=2, hostname_localhost=True
         ) as p:
             cloudpickle_register(ind=1)
@@ -213,7 +217,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
 
 class TestPyMpiExecutorInitFunction(unittest.TestCase):
     def test_internal_memory(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1,
             cores_per_worker=1,
             init_function=set_global,
@@ -253,7 +257,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=1, hostname_localhost=True
         ) as p:
             output = p.submit(calc_array, i=2)
@@ -266,7 +270,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_executor_multi_submission(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=1, hostname_localhost=True
         ) as p:
             fs_1 = p.submit(calc_array, i=2)
@@ -277,7 +281,7 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_shutdown(self):
-        p = PyMPIExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True)
+        p = PyLocalExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True)
         fs1 = p.submit(sleep_one, i=2)
         fs2 = p.submit(sleep_one, i=4)
         sleep(1)
@@ -289,7 +293,7 @@ class TestFuturePool(unittest.TestCase):
             fs2.result()
 
     def test_pool_serial_map(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=1, hostname_localhost=True
         ) as p:
             output = p.map(calc_array, [1, 2, 3])
@@ -297,14 +301,14 @@ class TestFuturePool(unittest.TestCase):
 
     def test_executor_exception(self):
         with self.assertRaises(RuntimeError):
-            with PyMPIExecutor(
+            with PyLocalExecutor(
                 max_workers=1, cores_per_worker=1, hostname_localhost=True
             ) as p:
                 p.submit(raise_error)
 
     def test_executor_exception_future(self):
         with self.assertRaises(RuntimeError):
-            with PyMPIExecutor(
+            with PyLocalExecutor(
                 max_workers=1, cores_per_worker=1, hostname_localhost=True
             ) as p:
                 fs = p.submit(raise_error)
@@ -323,7 +327,7 @@ class TestFuturePool(unittest.TestCase):
             "oversubscribe": False,
             "max_workers": 1,
         }
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
         ) as exe:
             for k, v in meta_data_exe_dict.items():
@@ -343,7 +347,7 @@ class TestFuturePool(unittest.TestCase):
             "oversubscribe": False,
             "max_cores": 2,
         }
-        with PyMPIStepExecutor(
+        with PyLocalStepExecutor(
             max_cores=2, cores_per_worker=2, hostname_localhost=True
         ) as exe:
             for k, v in meta_data_exe_dict.items():
@@ -356,7 +360,7 @@ class TestFuturePool(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
         ) as p:
             output = p.submit(mpi_funct, i=2)
@@ -372,7 +376,7 @@ class TestFuturePool(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core_map(self):
-        with PyMPIExecutor(
+        with PyLocalExecutor(
             max_workers=1, cores_per_worker=2, hostname_localhost=True
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])

@@ -10,12 +10,12 @@ from pympipool.shared.interface import MpiExecInterface
 from pympipool.shared.thread import RaisingThread
 
 
-class PyMPIExecutor(ExecutorBroker):
+class PyLocalExecutor(ExecutorBroker):
     """
-    The pympipool.mpi.PyMPIExecutor leverages the message passing interface MPI to distribute python tasks within an
-    MPI allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.mpi.PyMPIExecutor can be executed
+    The pympipool.mpi.PyMPIExecutor leverages the message passing interface MPI to distribute python tasks on a
+    workstation. In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.mpi.PyLocalExecutor can be executed
     in a serial python process and does not require the python script to be executed with MPI. Consequently, it is
-    primarily an abstraction of its functionality to improve the usability in particular when used in combination with \
+    primarily an abstraction of its functionality to improve the usability in particular when used in combination with
     Jupyter notebooks.
 
     Args:
@@ -35,7 +35,7 @@ class PyMPIExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.scheduler.mpi import PyMPIExecutor
+        >>> from pympipool.scheduler.local import PyLocalExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -46,7 +46,7 @@ class PyMPIExecutor(ExecutorBroker):
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with PyMPIExecutor(max_workers=2, init_function=init_k) as p:
+        >>> with PyLocalExecutor(max_workers=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
@@ -84,12 +84,12 @@ class PyMPIExecutor(ExecutorBroker):
         )
 
 
-class PyMPIStepExecutor(ExecutorSteps):
+class PyLocalStepExecutor(ExecutorSteps):
     """
-    The pympipool.mpi.PyMPIStepExecutor leverages the message passing interface MPI to distribute python tasks within an
-    MPI allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.mpi.PyMPIStepExecutor can be executed
+    The pympipool.mpi.PyLocalStepExecutor leverages the message passing interface MPI to distribute python tasks on a
+    workstation. In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.mpi.PyLocalStepExecutor can be executed
     in a serial python process and does not require the python script to be executed with MPI. Consequently, it is
-    primarily an abstraction of its functionality to improve the usability in particular when used in combination with \
+    primarily an abstraction of its functionality to improve the usability in particular when used in combination with
     Jupyter notebooks.
 
     Args:
@@ -108,7 +108,7 @@ class PyMPIStepExecutor(ExecutorSteps):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.scheduler.mpi import PyMPIStepExecutor
+        >>> from pympipool.scheduler.local import PyLocalStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
