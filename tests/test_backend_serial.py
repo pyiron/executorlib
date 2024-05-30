@@ -4,7 +4,7 @@ import unittest
 import cloudpickle
 import zmq
 
-from pympipool.backend.serial import main
+from pympipool.backend.serial_interactive import main
 
 
 def calc(i, j):

@@ -39,7 +39,7 @@ class TestInterface(unittest.TestCase):
                 sys.executable,
                 os.path.abspath(
                     os.path.join(
-                        __file__, "..", "..", "pympipool", "backend", "mpiexec.py"
+                        __file__, "..", "..", "pympipool", "backend", "mpiexec_interactive.py"
                     )
                 ),
                 "--zmqport",
@@ -62,7 +62,7 @@ class TestInterface(unittest.TestCase):
                 sys.executable,
                 os.path.abspath(
                     os.path.join(
-                        __file__, "..", "..", "pympipool", "backend", "serial.py"
+                        __file__, "..", "..", "pympipool", "backend", "serial_interactive.py"
                     )
                 ),
                 "--zmqport",
