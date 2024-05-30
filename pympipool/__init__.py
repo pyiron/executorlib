@@ -1,6 +1,5 @@
 from typing import Optional
 from ._version import get_versions
-from pympipool.cache.executor import FileExecutor
 from pympipool.scheduler import create_executor
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
@@ -10,10 +9,16 @@ from pympipool.shared.inputcheck import check_refresh_rate as _check_refresh_rat
 
 __version__ = get_versions()["version"]
 __all__ = [
-    FileExecutor,
     SubprocessExecutor,
     ShellExecutor,
 ]
+
+
+try:
+    from pympipool.cache.executor import FileExecutor
+    __all__ += [FileExecutor]
+except ImportError:
+    pass
 
 
 class Executor:
