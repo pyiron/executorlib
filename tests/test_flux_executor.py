@@ -49,7 +49,10 @@ class TestFlux(unittest.TestCase):
         self.executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with PyFluxExecutor(max_workers=2, executor=self.executor) as exe:
+        with PyFluxExecutor(
+            max_workers=2,
+            executor_kwargs={"executor": self.executor},
+        ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -59,7 +62,8 @@ class TestFlux(unittest.TestCase):
 
     def test_flux_executor_threads(self):
         with PyFluxExecutor(
-            max_workers=1, threads_per_core=2, executor=self.executor
+            max_workers=1,
+            executor_kwargs={"executor": self.executor, "threads_per_core": 2},
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -70,7 +74,8 @@ class TestFlux(unittest.TestCase):
 
     def test_flux_executor_parallel(self):
         with PyFluxExecutor(
-            max_workers=1, cores_per_worker=2, executor=self.executor, pmi=pmi
+            max_workers=1,
+            executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
@@ -78,7 +83,8 @@ class TestFlux(unittest.TestCase):
 
     def test_single_task(self):
         with PyFluxExecutor(
-            max_workers=1, cores_per_worker=2, executor=self.executor, pmi=pmi
+            max_workers=1,
+            executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
@@ -120,9 +126,11 @@ class TestFlux(unittest.TestCase):
     def test_internal_memory(self):
         with PyFluxExecutor(
             max_workers=1,
-            cores_per_worker=1,
-            init_function=set_global,
-            executor=self.executor,
+            executor_kwargs={
+                "executor": self.executor,
+                "cores": 1,
+                "init_function": set_global
+            },
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())

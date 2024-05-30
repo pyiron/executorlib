@@ -99,7 +99,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
 
 class TestPyMpiExecutorStepSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with PyLocalStepExecutor(max_cores=2, hostname_localhost=True) as exe:
+        with PyLocalStepExecutor(max_cores=2, executor_kwargs={"hostname_localhost": True}) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -109,7 +109,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_pympiexecutor_one_worker(self):
-        with PyLocalStepExecutor(max_cores=1, hostname_localhost=True) as exe:
+        with PyLocalStepExecutor(max_cores=1, executor_kwargs={"hostname_localhost": True}) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -122,16 +122,12 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
         with self.assertRaises(TypeError):
             PyLocalStepExecutor(
                 max_cores=1,
-                cores_per_worker=1,
-                threads_per_core=2,
-                hostname_localhost=True,
+                executor_kwargs={"hostname_localhost": True, "cores": 2, "threads_per_core": 2},
             )
         with self.assertRaises(TypeError):
             PyLocalStepExecutor(
                 max_cores=1,
-                cores_per_worker=1,
-                gpus_per_worker=1,
-                hostname_localhost=True,
+                executor_kwargs={"hostname_localhost": True, "cores": 1, "gpus_per_worker": 1},
             )
 
 
@@ -141,7 +137,8 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=2, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 2, "hostname_localhost": True},
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(mpi_funct, 1)
@@ -150,7 +147,8 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=2, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 2, "hostname_localhost": True},
         ) as p:
             cloudpickle_register(ind=1)
             fs1 = p.submit(mpi_funct, 1)
@@ -168,7 +166,8 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=2, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 2, "hostname_localhost": True},
         ) as p:
             cloudpickle_register(ind=1)
             output = p.submit(echo_funct, 2).result()
@@ -181,7 +180,8 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
         with PyLocalStepExecutor(
-            max_cores=2, cores_per_worker=2, hostname_localhost=True
+            max_cores=2,
+            executor_kwargs={"cores": 2, "hostname_localhost": True},
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(mpi_funct, 1)
@@ -190,7 +190,8 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
         with PyLocalStepExecutor(
-            max_cores=2, cores_per_worker=2, hostname_localhost=True
+            max_cores=2,
+            executor_kwargs={"cores": 2, "hostname_localhost": True},
         ) as p:
             cloudpickle_register(ind=1)
             fs1 = p.submit(mpi_funct, 1)
@@ -208,7 +209,8 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
         with PyLocalStepExecutor(
-            max_cores=2, cores_per_worker=2, hostname_localhost=True
+            max_cores=2,
+            executor_kwargs={"cores": 2, "hostname_localhost": True},
         ) as p:
             cloudpickle_register(ind=1)
             output = p.submit(echo_funct, 2).result()
@@ -219,9 +221,11 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
     def test_internal_memory(self):
         with PyLocalExecutor(
             max_workers=1,
-            cores_per_worker=1,
-            init_function=set_global,
-            hostname_localhost=True,
+            executor_kwargs={
+                "cores": 1,
+                "init_function": set_global,
+                "hostname_localhost": True,
+            },
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
@@ -258,7 +262,8 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=1, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
         ) as p:
             output = p.submit(calc_array, i=2)
             self.assertEqual(len(p), 1)
@@ -271,7 +276,8 @@ class TestFuturePool(unittest.TestCase):
 
     def test_executor_multi_submission(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=1, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
         ) as p:
             fs_1 = p.submit(calc_array, i=2)
             fs_2 = p.submit(calc_array, i=2)
@@ -281,7 +287,10 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_shutdown(self):
-        p = PyLocalExecutor(max_workers=1, cores_per_worker=1, hostname_localhost=True)
+        p = PyLocalExecutor(
+            max_workers=1,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
+        )
         fs1 = p.submit(sleep_one, i=2)
         fs2 = p.submit(sleep_one, i=4)
         sleep(1)
@@ -294,7 +303,8 @@ class TestFuturePool(unittest.TestCase):
 
     def test_pool_serial_map(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=1, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
         ) as p:
             output = p.map(calc_array, [1, 2, 3])
         self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
@@ -302,14 +312,16 @@ class TestFuturePool(unittest.TestCase):
     def test_executor_exception(self):
         with self.assertRaises(RuntimeError):
             with PyLocalExecutor(
-                max_workers=1, cores_per_worker=1, hostname_localhost=True
+                max_workers=1,
+                executor_kwargs={"cores": 1, "hostname_localhost": True},
             ) as p:
                 p.submit(raise_error)
 
     def test_executor_exception_future(self):
         with self.assertRaises(RuntimeError):
             with PyLocalExecutor(
-                max_workers=1, cores_per_worker=1, hostname_localhost=True
+                max_workers=1,
+                executor_kwargs={"cores": 1, "hostname_localhost": True},
             ) as p:
                 fs = p.submit(raise_error)
                 fs.result()
@@ -328,7 +340,8 @@ class TestFuturePool(unittest.TestCase):
             "max_workers": 1,
         }
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=2, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
         ) as exe:
             for k, v in meta_data_exe_dict.items():
                 if k != "interface_class":
@@ -348,7 +361,8 @@ class TestFuturePool(unittest.TestCase):
             "max_cores": 2,
         }
         with PyLocalStepExecutor(
-            max_cores=2, cores_per_worker=2, hostname_localhost=True
+            max_cores=2,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
         ) as exe:
             for k, v in meta_data_exe_dict.items():
                 if k != "interface_class":
@@ -361,7 +375,8 @@ class TestFuturePool(unittest.TestCase):
     )
     def test_pool_multi_core(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=2, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
         ) as p:
             output = p.submit(mpi_funct, i=2)
             self.assertEqual(len(p), 1)
@@ -377,7 +392,8 @@ class TestFuturePool(unittest.TestCase):
     )
     def test_pool_multi_core_map(self):
         with PyLocalExecutor(
-            max_workers=1, cores_per_worker=2, hostname_localhost=True
+            max_workers=1,
+            executor_kwargs={"cores": 1, "hostname_localhost": True},
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
