@@ -1,6 +1,6 @@
 import sys
 
-from pympipool.cache.backend import execute_task_in_file
+from pympipool.cache.shared import execute_task_in_file
 
 
 if __name__ == "__main__":
