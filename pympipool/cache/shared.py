@@ -4,11 +4,13 @@ import os
 import queue
 import re
 import subprocess
+import sys
 from typing import Tuple
 
 import cloudpickle
 
 from pympipool.cache.hdf import dump, load, get_output
+from pympipool.shared.executorbase import get_command_path
 
 
 class FutureItem:
@@ -124,7 +126,7 @@ def execute_task_in_file(file_name: str):
 
 
 def _get_execute_command(file_name: str) -> list:
-    return ["python", "-m", "pympipool.backend.serial_cache", file_name]
+    return [sys.executable, get_command_path(executable="serial_cache.py"), file_name]
 
 
 def _get_hash(binary: bytes):
