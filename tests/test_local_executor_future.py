@@ -69,7 +69,7 @@ class TestFuture(unittest.TestCase):
                 # this function is exits
                 future = UniversalExecutor(
                     executor_kwargs={"hostname_localhost": True},
-                    interface_class = MpiExecInterface,
+                    interface_class=MpiExecInterface,
                 ).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
