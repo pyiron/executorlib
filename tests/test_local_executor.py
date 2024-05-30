@@ -91,7 +91,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
 
 class TestPyMpiExecutorStepSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with UniversalExecutor(
+        with UniversalStepExecutor(
             max_cores=2,
             executor_kwargs={"hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -105,7 +105,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_pympiexecutor_one_worker(self):
-        with UniversalExecutor(
+        with UniversalStepExecutor(
             max_cores=1,
             executor_kwargs={"hostname_localhost": True},
             interface_class=MpiExecInterface,
@@ -333,7 +333,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
+            "interface_class": "<class 'pympipool.scheduler.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "init_function": None,
             "cwd": None,
@@ -362,7 +362,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta_step(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
+            "interface_class": "<class 'pympipool.scheduler.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "cwd": None,
             "oversubscribe": False,
