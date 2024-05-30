@@ -11,7 +11,7 @@ try:
         _check_task_output,
         _serialize_funct_h5,
     )
-    from pympipool.backend.serial_cache import execute_task_in_file
+    from pympipool.cache.shared import execute_task_in_file
 
     skip_h5io_test = False
 except ImportError:

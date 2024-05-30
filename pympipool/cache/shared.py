@@ -8,7 +8,7 @@ from typing import Tuple
 
 import cloudpickle
 
-from pympipool.cache.hdf import dump, get_output
+from pympipool.cache.hdf import dump, load, get_output
 
 
 class FutureItem:
@@ -26,7 +26,29 @@ class FutureItem:
         return get_output(file_name=self._file_name)[0]
 
 
-def execute_in_subprocess(command: list, task_dependent_lst: list = []) -> subprocess.Popen:
+def backend_load_file(file_name: str) -> dict:
+    apply_dict = load(file_name=file_name)
+    apply_dict["args"] = [
+        arg if not isinstance(arg, FutureItem) else arg.result()
+        for arg in apply_dict["args"]
+    ]
+    apply_dict["kwargs"] = {
+        key: arg if not isinstance(arg, FutureItem) else arg.result()
+        for key, arg in apply_dict["kwargs"].items()
+    }
+    return apply_dict
+
+
+def backend_write_file(file_name: str, output):
+    file_name_out = os.path.splitext(file_name)[0]
+    os.rename(file_name, file_name_out + ".h5ready")
+    dump(file_name=file_name_out + ".h5ready", data_dict={"output": output})
+    os.rename(file_name_out + ".h5ready", file_name_out + ".h5out")
+
+
+def execute_in_subprocess(
+    command: list, task_dependent_lst: list = []
+) -> subprocess.Popen:
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
             task for task in task_dependent_lst if task.poll() is None
@@ -34,7 +56,9 @@ def execute_in_subprocess(command: list, task_dependent_lst: list = []) -> subpr
     return subprocess.Popen(command, universal_newlines=True)
 
 
-def execute_tasks_h5(future_queue: queue.Queue, cache_directory: str, execute_function: callable):
+def execute_tasks_h5(
+    future_queue: queue.Queue, cache_directory: str, execute_function: callable
+):
     memory_dict, process_dict, file_name_dict = {}, {}, {}
     while True:
         task_dict = None
@@ -84,6 +108,21 @@ def execute_tasks_h5(future_queue: queue.Queue, cache_directory: str, execute_fu
             }
 
 
+def execute_task_in_file(file_name: str):
+    """
+    Execute the task stored in a given HDF5 file
+
+    Args:
+        file_name (str): file name of the HDF5 file as absolute path
+    """
+    apply_dict = backend_load_file(file_name=file_name)
+    result = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
+    backend_write_file(
+        file_name=file_name,
+        output=result,
+    )
+
+
 def _get_execute_command(file_name: str) -> list:
     return ["python", "-m", "pympipool.backend.serial_cache", file_name]
 
@@ -101,7 +140,9 @@ def _serialize_funct_h5(fn: callable, *args, **kwargs):
     return task_key, data
 
 
-def _check_task_output(task_key: str, future_obj: Future, cache_directory: str) -> Future:
+def _check_task_output(
+    task_key: str, future_obj: Future, cache_directory: str
+) -> Future:
     file_name = os.path.join(cache_directory, task_key + ".h5out")
     if not os.path.exists(file_name):
         return future_obj
@@ -111,7 +152,9 @@ def _check_task_output(task_key: str, future_obj: Future, cache_directory: str) 
     return future_obj
 
 
-def _convert_args_and_kwargs(task_dict: dict, memory_dict: dict, file_name_dict: dict) -> Tuple:
+def _convert_args_and_kwargs(
+    task_dict: dict, memory_dict: dict, file_name_dict: dict
+) -> Tuple:
     task_args = []
     task_kwargs = {}
     future_wait_key_lst = []
