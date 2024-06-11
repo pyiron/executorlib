@@ -40,5 +40,6 @@ jobs:
         coverage xml
       env:
         PYMPIPOOL_PMIX: "pmix"
+        TMPDIR: "/tmp"
     - name: Coveralls
       uses: coverallsapp/github-action@v2
