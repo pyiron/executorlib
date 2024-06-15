@@ -59,6 +59,7 @@ def draw(node_lst, edge_lst):
     from IPython.display import SVG, display  # noqa
     import matplotlib.pyplot as plt  # noqa
     import networkx as nx  # noqa
+
     graph = nx.DiGraph()
     for node in node_lst:
         graph.add_node(node["id"], label=node["name"])
