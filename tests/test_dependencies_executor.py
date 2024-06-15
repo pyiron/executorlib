@@ -28,20 +28,24 @@ class TestExecutorWithDependencies(unittest.TestCase):
         fs1 = Future()
         fs2 = Future()
         q = Queue()
-        q.put({
-            "fn": add_function,
-            "args": (),
-            "kwargs": {"parameter_1": 1, "parameter_2": 2},
-            "future": fs1,
-            "resource_dict": {"cores": 1}
-        })
-        q.put({
-            "fn": add_function,
-            "args": (),
-            "kwargs": {"parameter_1": 1, "parameter_2": fs1},
-            "future": fs2,
-            "resource_dict": {"cores": 1}
-        })
+        q.put(
+            {
+                "fn": add_function,
+                "args": (),
+                "kwargs": {"parameter_1": 1, "parameter_2": 2},
+                "future": fs1,
+                "resource_dict": {"cores": 1},
+            }
+        )
+        q.put(
+            {
+                "fn": add_function,
+                "args": (),
+                "kwargs": {"parameter_1": 1, "parameter_2": fs1},
+                "future": fs2,
+                "resource_dict": {"cores": 1},
+            }
+        )
         executor = create_executor(
             max_workers=1,
             max_cores=2,
