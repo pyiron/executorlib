@@ -1,9 +1,6 @@
 from concurrent.futures import Future
 
 import cloudpickle
-from IPython.display import SVG, display
-import matplotlib.pyplot as plt
-import networkx as nx
 
 
 def generate_nodes_and_edges(task_hash_dict, future_hash_inverse_dict):
@@ -59,6 +56,9 @@ def generate_task_hash(task_dict, future_hash_inverse_dict):
 
 
 def draw(node_lst, edge_lst):
+    from IPython.display import SVG, display  # noqa
+    import matplotlib.pyplot as plt  # noqa
+    import networkx as nx  # noqa
     graph = nx.DiGraph()
     for node in node_lst:
         graph.add_node(node["id"], label=node["name"])

@@ -3,15 +3,7 @@ from concurrent.futures import Future
 from pympipool.interactive import create_executor
 from pympipool.shared.executor import ExecutorSteps, execute_tasks_with_dependencies
 from pympipool.shared.thread import RaisingThread
-
-
-try:
-    from pympipool.shared.plot import generate_task_hash, generate_nodes_and_edges, draw
-
-    graph_extension_available = True
-    import_error = None
-except ImportError:
-    graph_extension_available = False
+from pympipool.shared.plot import generate_task_hash, generate_nodes_and_edges, draw
 
 
 class ExecutorWithDependencies(ExecutorSteps):
@@ -38,8 +30,6 @@ class ExecutorWithDependencies(ExecutorSteps):
         )
         self._future_hash_dict = {}
         self._task_hash_dict = {}
-        if plot_dependency_graph and not graph_extension_available:
-            raise ImportError(import_error)
         self._generate_dependency_graph = plot_dependency_graph
 
     def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs):
