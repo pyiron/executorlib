@@ -67,6 +67,13 @@ def check_refresh_rate(refresh_rate: float):
         )
 
 
+def check_plot_dependency_graph(plot_dependency_graph: bool):
+    if plot_dependency_graph:
+        raise ValueError(
+            "The plot_dependency_graph parameter is only used when disable_dependencies=False."
+        )
+
+
 def validate_backend(
     backend: str, flux_installed: bool = False, slurm_installed: bool = False
 ) -> str:

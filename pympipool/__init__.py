@@ -4,7 +4,10 @@ from pympipool.interactive import create_executor
 from pympipool.shell.executor import SubprocessExecutor
 from pympipool.shell.interactive import ShellExecutor
 from pympipool.interactive.dependencies import ExecutorWithDependencies
-from pympipool.shared.inputcheck import check_refresh_rate as _check_refresh_rate
+from pympipool.shared.inputcheck import (
+    check_refresh_rate as _check_refresh_rate,
+    check_plot_dependency_graph as _check_plot_dependency_graph,
+)
 
 
 __version__ = get_versions()["version"]
@@ -119,6 +122,7 @@ class Executor:
         pmi: Optional[str] = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
+        plot_dependency_graph: bool = False,
     ):
         """
         Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
@@ -157,6 +161,8 @@ class Executor:
             pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             disable_dependencies (boolean): Disable resolving future objects during the submission.
             refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
+            plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
+                                          debugging purposes and to get an overview of the specified dependencies.
 
         """
         if not disable_dependencies:
@@ -176,8 +182,10 @@ class Executor:
                 command_line_argument_lst=command_line_argument_lst,
                 pmi=pmi,
                 refresh_rate=refresh_rate,
+                plot_dependency_graph=plot_dependency_graph,
             )
         else:
+            _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
             _check_refresh_rate(refresh_rate=refresh_rate)
             return create_executor(
                 max_workers=max_workers,

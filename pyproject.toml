@@ -41,6 +41,11 @@ hdf = [
     "h5py==3.11.0",
     "h5io==0.2.3",
 ]
+graph = [
+    "matplotlib==3.8.4",
+    "networkx==3.3",
+    "ipython==8.25.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["pympipool*"]
