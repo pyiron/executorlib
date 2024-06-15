@@ -405,10 +405,14 @@ def execute_tasks_with_dependencies(
                 wait_lst.append(task_dict)
             future_queue.task_done()
         elif len(wait_lst) > 0:
+            number_waiting = len(wait_lst)
             # Check functions in the wait list and execute them if all future objects are now ready
             wait_lst = _submit_waiting_task(
                 wait_lst=wait_lst, executor_queue=executor_queue
             )
+            # if no job is ready, sleep for a moment
+            if len(wait_lst) == number_waiting:
+                sleep(refresh_rate)
         else:
             # If there is nothing else to do, sleep for a moment
             sleep(refresh_rate)
@@ -536,7 +540,7 @@ def _get_future_objects_from_input(task_dict: dict):
         list, boolean: list of future objects and boolean flag if all future objects are already done
     """
     future_lst = [arg for arg in task_dict["args"] if isinstance(arg, Future)] + [
-        value for value in task_dict["kwargs"] if isinstance(value, Future)
+        value for value in task_dict["kwargs"].values() if isinstance(value, Future)
     ]
     boolean_flag = len([future for future in future_lst if future.done()]) == len(
         future_lst
