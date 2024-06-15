@@ -10,7 +10,7 @@ try:
 
     graph_extension_available = True
     import_error = None
-except ImportError as import_error:
+except ImportError:
     graph_extension_available = False
 
 
