@@ -11,6 +11,14 @@ from pympipool.shared.executor import execute_tasks_with_dependencies
 from pympipool.shared.plot import generate_nodes_and_edges
 
 
+try:
+    import graphviz
+
+    skip_graphviz_test = False
+except ImportError:
+    skip_graphviz_test = True
+
+
 def add_function(parameter_1, parameter_2):
     sleep(0.2)
     return parameter_1 + parameter_2
@@ -24,6 +32,9 @@ class TestExecutorWithDependencies(unittest.TestCase):
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertEqual(future_2.result(), 4)
 
+    @unittest.skipIf(
+        skip_graphviz_test, "graphviz is not installed, so the plot_dependency_graph test is skipped."
+    )
     def test_executor_dependency_plot(self):
         with Executor(max_cores=1, backend="local", hostname_localhost=True, plot_dependency_graph=True) as exe:
             cloudpickle_register(ind=1)
