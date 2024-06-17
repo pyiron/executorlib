@@ -1,9 +1,10 @@
 from concurrent.futures import Future
+from typing import Tuple
 
 import cloudpickle
 
 
-def generate_nodes_and_edges(task_hash_dict, future_hash_inverse_dict):
+def generate_nodes_and_edges(task_hash_dict: dict, future_hash_inverse_dict: dict) -> Tuple[list]:
     node_lst, edge_lst = [], []
     hash_id_dict = {}
     for k, v in task_hash_dict.items():
@@ -41,7 +42,7 @@ def generate_nodes_and_edges(task_hash_dict, future_hash_inverse_dict):
     return node_lst, edge_lst
 
 
-def generate_task_hash(task_dict, future_hash_inverse_dict):
+def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes:
     args_for_hash = [
         arg if not isinstance(arg, Future) else future_hash_inverse_dict[arg]
         for arg in task_dict["args"]
@@ -55,7 +56,7 @@ def generate_task_hash(task_dict, future_hash_inverse_dict):
     )
 
 
-def draw(node_lst, edge_lst):
+def draw(node_lst: list, edge_lst: list):
     from IPython.display import SVG, display  # noqa
     import matplotlib.pyplot as plt  # noqa
     import networkx as nx  # noqa
