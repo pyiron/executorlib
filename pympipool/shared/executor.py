@@ -520,9 +520,17 @@ def _update_futures_in_input(args: tuple, kwargs: dict):
     Returns:
         tuple, dict: arguments and keyword arguments with each future object in them being evaluated
     """
-    args = [arg if not isinstance(arg, Future) else arg.result() for arg in args]
+    def get_result(arg):
+        if isinstance(arg, Future):
+            return arg.result()
+        elif isinstance(arg, list):
+            return [get_result(arg=l) for l in arg]
+        else:
+            return arg
+
+    args = [get_result(arg=arg) for arg in args]
     kwargs = {
-        key: value if not isinstance(value, Future) else value.result()
+        key: get_result(arg=value)
         for key, value in kwargs.items()
     }
     return args, kwargs
@@ -539,9 +547,17 @@ def _get_future_objects_from_input(task_dict: dict):
     Returns:
         list, boolean: list of future objects and boolean flag if all future objects are already done
     """
-    future_lst = [arg for arg in task_dict["args"] if isinstance(arg, Future)] + [
-        value for value in task_dict["kwargs"].values() if isinstance(value, Future)
-    ]
+    future_lst = []
+
+    def find_future_in_list(lst):
+        for l in lst:
+            if isinstance(l, Future):
+                future_lst.append(l)
+            elif isinstance(l, list):
+                find_future_in_list(lst=l)
+
+    find_future_in_list(lst=task_dict["args"])
+    find_future_in_list(lst=task_dict["kwargs"].values())
     boolean_flag = len([future for future in future_lst if future.done()]) == len(
         future_lst
     )

@@ -24,6 +24,21 @@ def add_function(parameter_1, parameter_2):
     return parameter_1 + parameter_2
 
 
+def generate_tasks(length):
+    sleep(0.2)
+    return range(length)
+
+
+def calc_from_lst(lst, ind, parameter):
+    sleep(0.2)
+    return lst[ind] + parameter
+
+
+def merge(lst):
+    sleep(0.2)
+    return sum(lst)
+
+
 class TestExecutorWithDependencies(unittest.TestCase):
     def test_executor(self):
         with Executor(max_cores=1, backend="local", hostname_localhost=True) as exe:
@@ -108,3 +123,73 @@ class TestExecutorWithDependencies(unittest.TestCase):
         self.assertTrue(fs1.done())
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
+
+    def test_many_to_one(self):
+        length = 5
+        parameter = 1
+        with Executor(max_cores=2, backend="local", hostname_localhost=True) as exe:
+            cloudpickle_register(ind=1)
+            future_lst = exe.submit(
+                generate_tasks,
+                length=length,
+                resource_dict={"cores": 1},
+            )
+            lst = []
+            for i in range(length):
+                lst.append(exe.submit(
+                    calc_from_lst,
+                    lst=future_lst,
+                    ind=i,
+                    parameter=parameter,
+                    resource_dict={"cores": 1},
+                ))
+            future_sum = exe.submit(
+                merge,
+                lst=lst,
+                resource_dict={"cores": 1},
+            )
+            self.assertEqual(future_sum.result(), 15)
+
+    def test_many_to_one_plot(self):
+        length = 5
+        parameter = 1
+        with Executor(
+            max_cores=2,
+            backend="local",
+            hostname_localhost=True,
+            plot_dependency_graph=True,
+        ) as exe:
+            cloudpickle_register(ind=1)
+            future_lst = exe.submit(
+                generate_tasks,
+                length=length,
+                resource_dict={"cores": 1},
+            )
+            lst = []
+            for i in range(length):
+                lst.append(exe.submit(
+                    calc_from_lst,
+                    lst=future_lst,
+                    ind=i,
+                    parameter=parameter,
+                    resource_dict={"cores": 1},
+                ))
+            future_sum = exe.submit(
+                merge,
+                lst=lst,
+                resource_dict={"cores": 1},
+            )
+            self.assertTrue(future_lst.done())
+            for l in lst:
+                self.assertTrue(l.done())
+            self.assertTrue(future_sum.done())
+            self.assertEqual(len(exe._future_hash_dict), 7)
+            self.assertEqual(len(exe._task_hash_dict), 7)
+            nodes, edges = generate_nodes_and_edges(
+                task_hash_dict=exe._task_hash_dict,
+                future_hash_inverse_dict={
+                    v: k for k, v in exe._future_hash_dict.items()
+                },
+            )
+            self.assertEqual(len(nodes), 18)
+            self.assertEqual(len(edges), 21)
