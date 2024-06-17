@@ -136,13 +136,15 @@ class TestExecutorWithDependencies(unittest.TestCase):
             )
             lst = []
             for i in range(length):
-                lst.append(exe.submit(
-                    calc_from_lst,
-                    lst=future_lst,
-                    ind=i,
-                    parameter=parameter,
-                    resource_dict={"cores": 1},
-                ))
+                lst.append(
+                    exe.submit(
+                        calc_from_lst,
+                        lst=future_lst,
+                        ind=i,
+                        parameter=parameter,
+                        resource_dict={"cores": 1},
+                    )
+                )
             future_sum = exe.submit(
                 merge,
                 lst=lst,
@@ -167,13 +169,15 @@ class TestExecutorWithDependencies(unittest.TestCase):
             )
             lst = []
             for i in range(length):
-                lst.append(exe.submit(
-                    calc_from_lst,
-                    lst=future_lst,
-                    ind=i,
-                    parameter=parameter,
-                    resource_dict={"cores": 1},
-                ))
+                lst.append(
+                    exe.submit(
+                        calc_from_lst,
+                        lst=future_lst,
+                        ind=i,
+                        parameter=parameter,
+                        resource_dict={"cores": 1},
+                    )
+                )
             future_sum = exe.submit(
                 merge,
                 lst=lst,
