@@ -8,6 +8,15 @@ from pympipool.shared.executor import cloudpickle_register
 from pympipool.interactive import create_executor
 from pympipool.shared.thread import RaisingThread
 from pympipool.shared.executor import execute_tasks_with_dependencies
+from pympipool.shared.plot import generate_nodes_and_edges
+
+
+try:
+    import pygraphviz
+
+    skip_graphviz_test = False
+except ImportError:
+    skip_graphviz_test = True
 
 
 def add_function(parameter_1, parameter_2):
@@ -22,6 +31,33 @@ class TestExecutorWithDependencies(unittest.TestCase):
             future_1 = exe.submit(add_function, 1, parameter_2=2)
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertEqual(future_2.result(), 4)
+
+    @unittest.skipIf(
+        skip_graphviz_test,
+        "graphviz is not installed, so the plot_dependency_graph test is skipped.",
+    )
+    def test_executor_dependency_plot(self):
+        with Executor(
+            max_cores=1,
+            backend="local",
+            hostname_localhost=True,
+            plot_dependency_graph=True,
+        ) as exe:
+            cloudpickle_register(ind=1)
+            future_1 = exe.submit(add_function, 1, parameter_2=2)
+            future_2 = exe.submit(add_function, 1, parameter_2=future_1)
+            self.assertTrue(future_1.done())
+            self.assertTrue(future_2.done())
+            self.assertEqual(len(exe._future_hash_dict), 2)
+            self.assertEqual(len(exe._task_hash_dict), 2)
+            nodes, edges = generate_nodes_and_edges(
+                task_hash_dict=exe._task_hash_dict,
+                future_hash_inverse_dict={
+                    v: k for k, v in exe._future_hash_dict.items()
+                },
+            )
+            self.assertEqual(len(nodes), 5)
+            self.assertEqual(len(edges), 4)
 
     def test_dependency_steps(self):
         cloudpickle_register(ind=1)
