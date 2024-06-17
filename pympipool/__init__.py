@@ -97,7 +97,7 @@ class Executor:
         cwd: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
-        backend="auto",
+        backend: str = "auto",
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
         command_line_argument_lst: list[str] = [],
