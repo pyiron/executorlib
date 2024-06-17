@@ -4,7 +4,9 @@ from typing import Tuple
 import cloudpickle
 
 
-def generate_nodes_and_edges(task_hash_dict: dict, future_hash_inverse_dict: dict) -> Tuple[list]:
+def generate_nodes_and_edges(
+    task_hash_dict: dict, future_hash_inverse_dict: dict
+) -> Tuple[list]:
     node_lst, edge_lst = [], []
     hash_id_dict = {}
     for k, v in task_hash_dict.items():
