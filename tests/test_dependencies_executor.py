@@ -12,7 +12,7 @@ from pympipool.shared.plot import generate_nodes_and_edges
 
 
 try:
-    import graphviz
+    import pygraphviz
 
     skip_graphviz_test = False
 except ImportError:
