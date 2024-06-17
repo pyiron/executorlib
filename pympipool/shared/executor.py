@@ -520,6 +520,7 @@ def _update_futures_in_input(args: tuple, kwargs: dict):
     Returns:
         tuple, dict: arguments and keyword arguments with each future object in them being evaluated
     """
+
     def get_result(arg):
         if isinstance(arg, Future):
             return arg.result()
@@ -529,10 +530,7 @@ def _update_futures_in_input(args: tuple, kwargs: dict):
             return arg
 
     args = [get_result(arg=arg) for arg in args]
-    kwargs = {
-        key: get_result(arg=value)
-        for key, value in kwargs.items()
-    }
+    kwargs = {key: get_result(arg=value) for key, value in kwargs.items()}
     return args, kwargs
 
 
