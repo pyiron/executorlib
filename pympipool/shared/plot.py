@@ -24,12 +24,14 @@ def generate_nodes_and_edges(
                 add_element(arg=a, link_to=link_to, label=label)
         else:
             node_id = len(node_lst)
-            node_lst.append({"name": str(arg), "id": node_id})
+            node_lst.append({"name": str(arg), "id": node_id, "shape": "circle"})
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
 
     for k, v in task_hash_dict.items():
         hash_id_dict[k] = len(node_lst)
-        node_lst.append({"name": v["fn"].__name__, "id": hash_id_dict[k]})
+        node_lst.append(
+            {"name": v["fn"].__name__, "id": hash_id_dict[k], "shape": "box"}
+        )
     for k, task_dict in task_hash_dict.items():
         for arg in task_dict["args"]:
             add_element(arg=arg, link_to=hash_id_dict[k], label="")
@@ -72,7 +74,7 @@ def draw(node_lst: list, edge_lst: list):
 
     graph = nx.DiGraph()
     for node in node_lst:
-        graph.add_node(node["id"], label=node["name"])
+        graph.add_node(node["id"], label=node["name"], shape=node["shape"])
     for edge in edge_lst:
         graph.add_edge(edge["start"], edge["end"], label=edge["label"])
     svg = nx.nx_agraph.to_agraph(graph).draw(prog="dot", format="svg")
