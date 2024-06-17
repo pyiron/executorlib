@@ -60,6 +60,10 @@ class Executor:
         init_function (None): optional function to preset arguments for functions which are submitted later
         command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
         pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        disable_dependencies (boolean): Disable resolving future objects during the submission.
+        refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
+        plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
+                                      debugging purposes and to get an overview of the specified dependencies.
 
     Examples:
         ```
@@ -100,6 +104,7 @@ class Executor:
         pmi: Optional[str] = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
+        plot_dependency_graph: bool = False,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
