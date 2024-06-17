@@ -524,7 +524,7 @@ def _update_futures_in_input(args: tuple, kwargs: dict):
         if isinstance(arg, Future):
             return arg.result()
         elif isinstance(arg, list):
-            return [get_result(arg=l) for l in arg]
+            return [get_result(arg=el) for el in arg]
         else:
             return arg
 
@@ -550,11 +550,11 @@ def _get_future_objects_from_input(task_dict: dict):
     future_lst = []
 
     def find_future_in_list(lst):
-        for l in lst:
-            if isinstance(l, Future):
-                future_lst.append(l)
-            elif isinstance(l, list):
-                find_future_in_list(lst=l)
+        for el in lst:
+            if isinstance(el, Future):
+                future_lst.append(el)
+            elif isinstance(el, list):
+                find_future_in_list(lst=el)
 
     find_future_in_list(lst=task_dict["args"])
     find_future_in_list(lst=task_dict["kwargs"].values())
