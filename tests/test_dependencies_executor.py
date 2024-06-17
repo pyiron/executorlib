@@ -33,7 +33,8 @@ class TestExecutorWithDependencies(unittest.TestCase):
             self.assertEqual(future_2.result(), 4)
 
     @unittest.skipIf(
-        skip_graphviz_test, "graphviz is not installed, so the plot_dependency_graph test is skipped."
+        skip_graphviz_test,
+        "graphviz is not installed, so the plot_dependency_graph test is skipped.",
     )
     def test_executor_dependency_plot(self):
         with Executor(
