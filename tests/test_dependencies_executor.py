@@ -49,7 +49,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
 
     @unittest.skipIf(
         skip_graphviz_test,
-        "graphviz is not installed, so the plot_dependency_graph test is skipped.",
+        "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
     )
     def test_executor_dependency_plot(self):
         with Executor(
@@ -152,6 +152,10 @@ class TestExecutorWithDependencies(unittest.TestCase):
             )
             self.assertEqual(future_sum.result(), 15)
 
+    @unittest.skipIf(
+        skip_graphviz_test,
+        "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
+    )
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
