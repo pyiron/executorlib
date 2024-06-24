@@ -283,7 +283,9 @@ def execute_parallel_tasks(
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
-            cores=cores, prefix_path=prefix_path, prefix_name=prefix_name,
+            cores=cores,
+            prefix_path=prefix_path,
+            prefix_name=prefix_name,
         ),
         connections=interface_class(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
