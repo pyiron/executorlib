@@ -42,6 +42,8 @@ def create_executor(
     gpus_per_worker: int = 0,
     oversubscribe: bool = False,
     cwd: Optional[str] = None,
+    conda_environment_name: Optional[str] = None,
+    conda_environment_path: Optional[str] = None,
     executor=None,
     hostname_localhost: bool = False,
     backend: str = "auto",
@@ -68,6 +70,8 @@ def create_executor(
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
         cwd (str/None): current working directory where the parallel python task is executed
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an Executor
@@ -96,6 +100,8 @@ def create_executor(
         "cores": cores_per_worker,
         "hostname_localhost": hostname_localhost,
         "cwd": cwd,
+        "prefix_name": conda_environment_name,
+        "prefix_path": conda_environment_path,
     }
     if backend == "flux":
         check_oversubscribe(oversubscribe=oversubscribe)
