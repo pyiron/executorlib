@@ -62,7 +62,7 @@ class SubprocessExecutorTest(unittest.TestCase):
         env_path = os.path.join(context.root_prefix, "..", "py312")
         with SubprocessExecutor(max_workers=1, conda_environment_path=env_path) as exe:
             future = exe.submit(
-                ["python", "--version"], universal_newlines=True, shell=False
+                ["python", "--version"], universal_newlines=True
             )
             self.assertFalse(future.done())
             self.assertEqual("Python 3.12.1\n", future.result())
