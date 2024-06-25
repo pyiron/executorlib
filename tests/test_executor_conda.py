@@ -24,7 +24,9 @@ class CondaExecutorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.env_name = "py312"
-        cls.env_path = os.path.abspath(os.path.join(context.root_prefix, "..", cls.env_name))
+        cls.env_path = os.path.abspath(
+            os.path.join(context.root_prefix, "..", cls.env_name)
+        )
 
     def test_shell_executor_conda(self):
         with SubprocessExecutor(
