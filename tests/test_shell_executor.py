@@ -3,8 +3,13 @@ import os
 import queue
 import unittest
 
-from conda.base.context import context
 from pympipool.shell.executor import SubprocessExecutor, execute_single_task
+
+try:
+    from conda.base.context import context
+    skip_conda_test = False
+except ImportError:
+    skip_conda_test = True
 
 
 class SubprocessExecutorTest(unittest.TestCase):
@@ -50,6 +55,9 @@ class SubprocessExecutorTest(unittest.TestCase):
             self.assertEqual("test\n", future.result())
             self.assertTrue(future.done())
 
+    @unittest.skipIf(
+        skip_conda_test, "conda is not installed, so the conda tests are skipped."
+    )
     def test_shell_static_executor_conda(self):
         env_path = os.path.join(context.root_prefix, "..", "py312")
         with SubprocessExecutor(max_workers=1, conda_environment_path=env_path) as exe:
