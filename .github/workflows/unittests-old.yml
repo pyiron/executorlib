@@ -27,7 +27,7 @@ jobs:
       timeout-minutes: 5
       run: |
         pip install versioneer[toml]==0.29
-        conda create -y -n py312 python=3.12.1
+        conda create -y -n py312 python=3.12.1 pympipool
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
