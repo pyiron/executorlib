@@ -142,7 +142,9 @@ class TestFlux(unittest.TestCase):
 
     def test_interface_exception(self):
         with self.assertRaises(ValueError):
-            flux_interface = FluxPythonInterface(executor=self.executor, oversubscribe=True)
+            flux_interface = FluxPythonInterface(
+                executor=self.executor, oversubscribe=True
+            )
             flux_interface.bootup(command_lst=[])
         with self.assertRaises(ValueError):
             flux_interface = FluxPythonInterface(executor=self.executor)
