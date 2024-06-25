@@ -78,6 +78,8 @@ class SocketInterface(object):
 
         Args:
             command_lst (list): list of strings to start the client process
+            prefix_name (str): name of the conda environment to initialize
+            prefix_path (str): path of the conda environment to initialize
         """
         self._interface.bootup(
             command_lst=command_lst, prefix_name=prefix_name, prefix_path=prefix_path

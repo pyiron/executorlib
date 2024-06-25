@@ -28,10 +28,27 @@ class FluxPythonInterface(BaseInterface):
         self._pmi = pmi
         self._future = None
 
-    def bootup(self, command_lst: list[str]):
+    def bootup(
+        self,
+        command_lst: list[str],
+        prefix_name: Optional[str] = None,
+        prefix_path: Optional[str] = None,
+    ):
+        """
+        Boot up the client process to connect to the SocketInterface.
+
+        Args:
+            command_lst (list): list of strings to start the client process
+            prefix_name (str): name of the conda environment to initialize
+            prefix_path (str): path of the conda environment to initialize
+        """
         if self._oversubscribe:
             raise ValueError(
                 "Oversubscribing is currently not supported for the Flux adapter."
+            )
+        if prefix_name is not None or prefix_path is not None:
+            raise ValueError(
+                "Conda environments are currently not supported for the Flux adapter."
             )
         if self._executor is None:
             self._executor = flux.job.FluxExecutor()

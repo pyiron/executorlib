@@ -13,7 +13,12 @@ class BaseInterface(ABC):
         self._cores = cores
         self._oversubscribe = oversubscribe
 
-    def bootup(self, command_lst: list[str]):
+    def bootup(
+        self,
+        command_lst: list[str],
+        prefix_name: Optional[str] = None,
+        prefix_path: Optional[str] = None,
+    ):
         raise NotImplementedError
 
     def shutdown(self, wait: bool = True):
