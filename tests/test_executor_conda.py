@@ -18,15 +18,17 @@ def get_conda_env_prefix():
 
 
 @unittest.skipIf(
-        skip_conda_test, "conda is not installed, so the conda tests are skipped."
-    )
+    skip_conda_test, "conda is not installed, so the conda tests are skipped."
+)
 class CondaExecutorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.env_path = os.path.abspath(os.path.join(context.root_prefix, "..", "py312"))
 
     def test_shell_executor_conda(self):
-        with SubprocessExecutor(max_workers=1, conda_environment_path=self.env_path) as exe:
+        with SubprocessExecutor(
+            max_workers=1, conda_environment_path=self.env_path
+        ) as exe:
             future = exe.submit(["python", "--version"], universal_newlines=True)
             self.assertFalse(future.done())
             self.assertEqual("Python 3.12.1\n", future.result())
