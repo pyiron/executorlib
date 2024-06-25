@@ -139,3 +139,14 @@ class TestFlux(unittest.TestCase):
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
             self.assertTrue(f.done())
+
+    def test_interface_exception(self):
+        with self.assertRaises(ValueError):
+            flux_interface = FluxPythonInterface(executor=self.executor, oversubscribe=True)
+            flux_interface.bootup(command_lst=[])
+        with self.assertRaises(ValueError):
+            flux_interface = FluxPythonInterface(executor=self.executor)
+            flux_interface.bootup(command_lst=[], prefix_path="/path/to/conda/env")
+        with self.assertRaises(ValueError):
+            flux_interface = FluxPythonInterface(executor=self.executor)
+            flux_interface.bootup(command_lst=[], prefix_name="conda_env_name")
