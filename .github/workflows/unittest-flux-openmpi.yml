@@ -29,7 +29,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        conda create -y -n py312 python=3.12.1
+        conda create -y -n py312 python=3.12.1 pympipool
         pip install . --no-deps --no-build-isolation
         coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest discover tests
     - name: Test Flux with OpenMPI
