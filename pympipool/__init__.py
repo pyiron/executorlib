@@ -43,6 +43,8 @@ class Executor:
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
         oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
         cwd (str/None): current working directory where the parallel python task is executed
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
         executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -95,6 +97,8 @@ class Executor:
         gpus_per_worker: int = 0,
         oversubscribe: bool = False,
         cwd: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
         backend: str = "auto",
@@ -118,6 +122,8 @@ class Executor:
         gpus_per_worker: int = 0,
         oversubscribe: bool = False,
         cwd: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
         backend: str = "auto",
@@ -147,6 +153,8 @@ class Executor:
             gpus_per_worker (int): number of GPUs per worker - defaults to 0
             oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
             cwd (str/None): current working directory where the parallel python task is executed
+            conda_environment_name (str): name of the conda environment to initialize
+            conda_environment_path (str): path of the conda environment to initialize
             executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -179,6 +187,8 @@ class Executor:
                 gpus_per_worker=gpus_per_worker,
                 oversubscribe=oversubscribe,
                 cwd=cwd,
+                conda_environment_name=conda_environment_name,
+                conda_environment_path=conda_environment_path,
                 executor=executor,
                 hostname_localhost=hostname_localhost,
                 backend=backend,
@@ -200,6 +210,8 @@ class Executor:
                 gpus_per_worker=gpus_per_worker,
                 oversubscribe=oversubscribe,
                 cwd=cwd,
+                conda_environment_name=conda_environment_name,
+                conda_environment_path=conda_environment_path,
                 executor=executor,
                 hostname_localhost=hostname_localhost,
                 backend=backend,

@@ -1,17 +1,24 @@
 import queue
 from concurrent.futures import Future
 import subprocess
+from typing import Optional
 
 from pympipool.shared.executor import ExecutorBroker
 from pympipool.shared.thread import RaisingThread
 
 
-def execute_single_task(future_queue: queue.Queue):
+def execute_single_task(
+    future_queue: queue.Queue,
+    prefix_name: Optional[str] = None,
+    prefix_path: Optional[str] = None,
+):
     """
     Process items received via the queue.
 
     Args:
         future_queue (queue.Queue):
+        prefix_name (str): name of the conda environment to initialize
+        prefix_path (str): path of the conda environment to initialize
     """
     while True:
         task_dict = future_queue.get()
@@ -23,11 +30,23 @@ def execute_single_task(future_queue: queue.Queue):
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 try:
-                    f.set_result(
-                        subprocess.check_output(
-                            *task_dict["args"], **task_dict["kwargs"]
+                    if prefix_name is None and prefix_path is None:
+                        f.set_result(
+                            subprocess.check_output(
+                                *task_dict["args"], **task_dict["kwargs"]
+                            )
                         )
-                    )
+                    else:
+                        import conda_subprocess
+
+                        f.set_result(
+                            conda_subprocess.check_output(
+                                *task_dict["args"],
+                                **task_dict["kwargs"],
+                                prefix_name=prefix_name,
+                                prefix_path=prefix_path,
+                            )
+                        )
                 except Exception as thread_exception:
                     future_queue.task_done()
                     f.set_exception(exception=thread_exception)
@@ -47,6 +66,8 @@ class SubprocessExecutor(ExecutorBroker):
 
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
 
     Examples:
 
@@ -61,6 +82,8 @@ class SubprocessExecutor(ExecutorBroker):
     def __init__(
         self,
         max_workers: int = 1,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
     ):
         super().__init__()
         self._set_process(
@@ -70,6 +93,8 @@ class SubprocessExecutor(ExecutorBroker):
                     kwargs={
                         # Executor Arguments
                         "future_queue": self._future_queue,
+                        "prefix_name": conda_environment_name,
+                        "prefix_path": conda_environment_path,
                     },
                 )
                 for _ in range(max_workers)

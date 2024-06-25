@@ -13,7 +13,12 @@ class BaseInterface(ABC):
         self._cores = cores
         self._oversubscribe = oversubscribe
 
-    def bootup(self, command_lst: list[str]):
+    def bootup(
+        self,
+        command_lst: list[str],
+        prefix_name: Optional[str] = None,
+        prefix_path: Optional[str] = None,
+    ):
         raise NotImplementedError
 
     def shutdown(self, wait: bool = True):
@@ -37,12 +42,28 @@ class SubprocessInterface(BaseInterface):
         )
         self._process = None
 
-    def bootup(self, command_lst: list[str]):
-        self._process = subprocess.Popen(
-            args=self.generate_command(command_lst=command_lst),
-            cwd=self._cwd,
-            stdin=subprocess.DEVNULL,
-        )
+    def bootup(
+        self,
+        command_lst: list[str],
+        prefix_name: Optional[str] = None,
+        prefix_path: Optional[str] = None,
+    ):
+        if prefix_name is None and prefix_path is None:
+            self._process = subprocess.Popen(
+                args=self.generate_command(command_lst=command_lst),
+                cwd=self._cwd,
+                stdin=subprocess.DEVNULL,
+            )
+        else:
+            import conda_subprocess
+
+            self._process = conda_subprocess.Popen(
+                args=self.generate_command(command_lst=command_lst),
+                cwd=self._cwd,
+                stdin=subprocess.DEVNULL,
+                prefix_path=prefix_path,
+                prefix_name=prefix_name,
+            )
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         return command_lst

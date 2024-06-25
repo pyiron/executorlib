@@ -1,4 +1,5 @@
 from socket import gethostname
+from typing import Optional
 
 import cloudpickle
 import zmq
@@ -66,14 +67,23 @@ class SocketInterface(object):
         """
         return self._socket.bind_to_random_port("tcp://*")
 
-    def bootup(self, command_lst: list[str]):
+    def bootup(
+        self,
+        command_lst: list[str],
+        prefix_name: Optional[str] = None,
+        prefix_path: Optional[str] = None,
+    ):
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
+            prefix_name (str): name of the conda environment to initialize
+            prefix_path (str): path of the conda environment to initialize
         """
-        self._interface.bootup(command_lst=command_lst)
+        self._interface.bootup(
+            command_lst=command_lst, prefix_name=prefix_name, prefix_path=prefix_path
+        )
 
     def shutdown(self, wait: bool = True):
         result = None
@@ -99,6 +109,8 @@ def interface_bootup(
     command_lst: list[str],
     connections,
     hostname_localhost: bool = False,
+    prefix_name: Optional[str] = None,
+    prefix_path: Optional[str] = None,
 ):
     """
     Start interface for ZMQ communication
@@ -114,6 +126,8 @@ def interface_bootup(
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+        prefix_name (str): name of the conda environment to initialize
+        prefix_path (str): path of the conda environment to initialize
 
     Returns:
          pympipool.shared.communication.SocketInterface: socket interface for zmq communication
@@ -128,7 +142,9 @@ def interface_bootup(
         "--zmqport",
         str(interface.bind_to_random_port()),
     ]
-    interface.bootup(command_lst=command_lst)
+    interface.bootup(
+        command_lst=command_lst, prefix_name=prefix_name, prefix_path=prefix_path
+    )
     return interface
 
 

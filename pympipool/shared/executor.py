@@ -259,6 +259,8 @@ def execute_parallel_tasks(
     interface_class: BaseInterface = MpiExecInterface,
     hostname_localhost: bool = False,
     init_function: Optional[callable] = None,
+    prefix_name: Optional[str] = None,
+    prefix_path: Optional[str] = None,
     **kwargs,
 ):
     """
@@ -276,11 +278,17 @@ def execute_parallel_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (callable): optional function to preset arguments for functions which are submitted later
+       prefix_name (str): name of the conda environment to initialize
+       prefix_path (str): path of the conda environment to initialize
     """
     interface = interface_bootup(
-        command_lst=_get_backend_path(cores=cores),
+        command_lst=_get_backend_path(
+            cores=cores,
+        ),
         connections=interface_class(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
+        prefix_path=prefix_path,
+        prefix_name=prefix_name,
     )
     if init_function is not None:
         interface.send_dict(
@@ -431,7 +439,9 @@ def get_command_path(executable: str) -> str:
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def _get_backend_path(cores: int) -> list:
+def _get_backend_path(
+    cores: int,
+) -> list:
     """
     Get command to call backend as a list of two strings
 
