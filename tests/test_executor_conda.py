@@ -32,7 +32,7 @@ class CondaExecutorTest(unittest.TestCase):
             cls.env_path = os.path.abspath(
                 os.path.join(context.root_prefix, "envs", cls.env_name)
             )
-        print(cls.env_path)
+        print("Debug path:", context.root_prefix, cls.env_path)
 
     def test_shell_executor_conda(self):
         with SubprocessExecutor(
