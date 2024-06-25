@@ -37,7 +37,12 @@ class SubprocessInterface(BaseInterface):
         )
         self._process = None
 
-    def bootup(self, command_lst: list[str], prefix_name: Optional[str] = None, prefix_path: Optional[str] = None,):
+    def bootup(
+        self,
+        command_lst: list[str],
+        prefix_name: Optional[str] = None,
+        prefix_path: Optional[str] = None,
+    ):
         if prefix_name is None and prefix_path is None:
             self._process = subprocess.Popen(
                 args=self.generate_command(command_lst=command_lst),
@@ -46,6 +51,7 @@ class SubprocessInterface(BaseInterface):
             )
         else:
             import conda_subprocess
+
             self._process = conda_subprocess.Popen(
                 args=self.generate_command(command_lst=command_lst),
                 cwd=self._cwd,
