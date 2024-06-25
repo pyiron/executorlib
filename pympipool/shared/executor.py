@@ -284,11 +284,11 @@ def execute_parallel_tasks(
     interface = interface_bootup(
         command_lst=_get_backend_path(
             cores=cores,
-            prefix_path=prefix_path,
-            prefix_name=prefix_name,
         ),
         connections=interface_class(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
+        prefix_path=prefix_path,
+        prefix_name=prefix_name,
     )
     if init_function is not None:
         interface.send_dict(
@@ -441,26 +441,17 @@ def get_command_path(executable: str) -> str:
 
 def _get_backend_path(
     cores: int,
-    prefix_name: Optional[str] = None,
-    prefix_path: Optional[str] = None,
 ) -> list:
     """
     Get command to call backend as a list of two strings
 
     Args:
         cores (int): Number of cores used to execute the task, if it is greater than one use interactive_parallel.py else interactive_serial.py
-        prefix_name (str): name of the conda environment to initialize
-        prefix_path (str): path of the conda environment to initialize
 
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
     """
-    if prefix_name is not None:
-        command_lst = ["conda", "run", "-n", prefix_name, sys.executable]
-    elif prefix_path is not None:
-        command_lst = ["conda", "run", "-p", prefix_path, sys.executable]
-    else:
-        command_lst = [sys.executable]
+    command_lst = [sys.executable]
     if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
         command_lst += [get_command_path(executable="interactive_parallel.py")]
     elif cores > 1:
