@@ -36,7 +36,7 @@ Documentation = "https://pympipool.readthedocs.io"
 Repository = "https://github.com/pyiron/pympipool"
 
 [project.optional-dependencies]
-conda = ["conda_subprocess==0.0.2"]
+conda = ["conda_subprocess==0.0.4"]
 mpi = ["mpi4py==3.1.6"]
 hdf = [
     "h5py==3.11.0",
