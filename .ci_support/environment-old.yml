@@ -7,7 +7,6 @@ dependencies:
 - cloudpickle =2.0.0
 - conda_subprocess =0.0.3
 - mpi4py =3.1.4
-- tqdm =4.44.0
 - pyzmq =25.0.0
 - h5py =3.6.0
 - h5io =0.2.1

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["cloudpickle", "pyzmq", "setuptools", "tqdm", "versioneer[toml]==0.29"]
+requires = ["cloudpickle", "pyzmq", "setuptools", "versioneer[toml]==0.29"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -26,7 +26,6 @@ classifiers = [
 dependencies = [
     "cloudpickle==3.0.0",
     "pyzmq==26.0.3",
-    "tqdm==4.66.4",
 ]
 dynamic = ["version"]
 
