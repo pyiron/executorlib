@@ -1,25 +1,26 @@
 import os
 import shutil
 from typing import Optional
+
 from pympipool.interactive.executor import (
     InteractiveExecutor,
     InteractiveStepExecutor,
 )
-from pympipool.shared.interface import (
-    MpiExecInterface,
-    SLURM_COMMAND,
-    SrunInterface,
-)
 from pympipool.shared.inputcheck import (
     check_command_line_argument_lst,
-    check_gpus_per_worker,
-    check_threads_per_core,
-    check_oversubscribe,
     check_executor,
+    check_gpus_per_worker,
     check_init_function,
+    check_oversubscribe,
     check_pmi,
+    check_threads_per_core,
     validate_backend,
     validate_number_of_cores,
+)
+from pympipool.shared.interface import (
+    SLURM_COMMAND,
+    MpiExecInterface,
+    SrunInterface,
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.

@@ -1,16 +1,16 @@
-from os.path import abspath
 import pickle
 import sys
+from os.path import abspath
 
 import cloudpickle
 
+from pympipool.interactive.backend import call_funct, parse_arguments
 from pympipool.shared.communication import (
     interface_connect,
+    interface_receive,
     interface_send,
     interface_shutdown,
-    interface_receive,
 )
-from pympipool.interactive.backend import call_funct, parse_arguments
 
 
 def main():

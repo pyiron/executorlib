@@ -1,11 +1,11 @@
 import queue
-import threading
-from typing import Optional
-from concurrent.futures import Future
 import subprocess
+import threading
+from concurrent.futures import Future
 from time import sleep
+from typing import Optional
 
-from pympipool.shared.executor import cancel_items_in_queue, ExecutorBase
+from pympipool.shared.executor import ExecutorBase, cancel_items_in_queue
 from pympipool.shared.thread import RaisingThread
 
 

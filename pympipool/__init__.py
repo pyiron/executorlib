@@ -1,14 +1,17 @@
 from typing import Optional
-from ._version import get_versions
+
 from pympipool.interactive import create_executor
-from pympipool.shell.executor import SubprocessExecutor
-from pympipool.shell.interactive import ShellExecutor
 from pympipool.interactive.dependencies import ExecutorWithDependencies
 from pympipool.shared.inputcheck import (
-    check_refresh_rate as _check_refresh_rate,
     check_plot_dependency_graph as _check_plot_dependency_graph,
 )
+from pympipool.shared.inputcheck import (
+    check_refresh_rate as _check_refresh_rate,
+)
+from pympipool.shell.executor import SubprocessExecutor
+from pympipool.shell.interactive import ShellExecutor
 
+from ._version import get_versions
 
 __version__ = get_versions()["version"]
 __all__ = [

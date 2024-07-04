@@ -1,24 +1,26 @@
-from concurrent.futures import (
-    Executor as FutureExecutor,
-    Future,
-)
 import importlib.util
 import inspect
 import os
 import queue
 import sys
+from concurrent.futures import (
+    Executor as FutureExecutor,
+)
+from concurrent.futures import (
+    Future,
+)
 from time import sleep
-from typing import Optional, List
+from typing import List, Optional
 
 import cloudpickle
 
 from pympipool.shared.communication import interface_bootup
-from pympipool.shared.thread import RaisingThread
-from pympipool.shared.interface import BaseInterface, MpiExecInterface
 from pympipool.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
+from pympipool.shared.interface import BaseInterface, MpiExecInterface
+from pympipool.shared.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor):
