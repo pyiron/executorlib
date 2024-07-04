@@ -1,7 +1,6 @@
-from abc import ABC
 import subprocess
+from abc import ABC
 from typing import Optional
-
 
 MPI_COMMAND = "mpiexec"
 SLURM_COMMAND = "srun"

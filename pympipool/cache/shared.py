@@ -1,4 +1,3 @@
-from concurrent.futures import Future
 import hashlib
 import importlib.util
 import os
@@ -6,11 +5,12 @@ import queue
 import re
 import subprocess
 import sys
+from concurrent.futures import Future
 from typing import Tuple
 
 import cloudpickle
 
-from pympipool.cache.hdf import dump, load, get_output
+from pympipool.cache.hdf import dump, get_output, load
 from pympipool.shared.executor import get_command_path
 
 

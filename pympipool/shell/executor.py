@@ -1,6 +1,6 @@
 import queue
-from concurrent.futures import Future
 import subprocess
+from concurrent.futures import Future
 from typing import Optional
 
 from pympipool.shared.executor import ExecutorBroker

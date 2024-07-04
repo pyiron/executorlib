@@ -1,12 +1,11 @@
 from pympipool.shared.executor import (
-    execute_parallel_tasks,
-    execute_separate_tasks,
     ExecutorBroker,
     ExecutorSteps,
+    execute_parallel_tasks,
+    execute_separate_tasks,
 )
-from pympipool.shared.interface import BaseInterface
+from pympipool.shared.interface import BaseInterface, MpiExecInterface
 from pympipool.shared.thread import RaisingThread
-from pympipool.shared.interface import MpiExecInterface
 
 
 class InteractiveExecutor(ExecutorBroker):
