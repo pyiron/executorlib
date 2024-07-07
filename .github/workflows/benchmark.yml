@@ -16,18 +16,14 @@ jobs:
         include:
         - operating-system: ubuntu-latest
           python-version: '3.12'
-          label: linux-64-py-3-12-openmpi
-          prefix: /Users/runner/miniconda3/envs/my-env
           environment-file: .ci_support/environment-openmpi.yml
 
         - operating-system: ubuntu-latest
           python-version: '3.12'
-          label: linux-64-py-3-12-mpich
-          prefix: /usr/share/miniconda3/envs/my-env
           environment-file: .ci_support/environment-mpich.yml
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
         python-version: ${{ matrix.python-version }}
