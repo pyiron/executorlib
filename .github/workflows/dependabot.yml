@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.actor == 'dependabot[bot]')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }} # Check out the head of the actual branch, not the PR
           fetch-depth: 0 # otherwise, you will fail to push refs to dest repo

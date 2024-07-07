@@ -17,7 +17,7 @@ jobs:
           cp binder/environment.yml environment.yml
           tail --lines=+4 .ci_support/environment-notebooks.yml >> environment.yml
       - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.12"
           miniforge-variant: Mambaforge
