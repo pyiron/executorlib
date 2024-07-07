@@ -9,14 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Extend environment
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
         echo -e '- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0\n- versioneer =0.28' >> .ci_support/environment-openmpi.yml
         cat .ci_support/environment-openmpi.yml
-    - uses: conda-incubator/setup-miniconda@v2.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.12'
         mamba-version: "*"
