@@ -3,7 +3,7 @@ requires = ["cloudpickle", "pyzmq", "setuptools", "versioneer[toml]==0.29"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pympipool"
+name = "executorlib"
 description = "Scale serial and MPI-parallel python functions over hundreds of compute nodes all from within a jupyter notebook or serial python process."
 authors = [
     { name = "Jan Janssen", email = "janssen@lanl.gov" },
@@ -49,7 +49,7 @@ graph = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["pympipool*", "executorlib*"]
+include = ["executorlib*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "executorlib.__version__"}
@@ -59,4 +59,4 @@ VCS = "git"
 style = "pep440-pre"
 versionfile_source = "executorlib/_version.py"
 parentdir_prefix = "executorlib"
-tag_prefix = "pympipool-"
+tag_prefix = "executorlib-"
