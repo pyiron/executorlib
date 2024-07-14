@@ -3,7 +3,7 @@ import os
 import queue
 import unittest
 
-from pympipool.shell.interactive import ShellExecutor, execute_single_task
+from executorlib.shell.interactive import ShellExecutor, execute_single_task
 
 
 class ShellInteractiveExecutorTest(unittest.TestCase):

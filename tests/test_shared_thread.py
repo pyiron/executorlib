@@ -1,6 +1,6 @@
 import unittest
 
-from pympipool.shared.thread import RaisingThread
+from executorlib.shared.thread import RaisingThread
 
 
 def raise_error():

@@ -1,9 +1,9 @@
 from concurrent.futures import Future
 
-from pympipool.interactive import create_executor
-from pympipool.shared.executor import ExecutorSteps, execute_tasks_with_dependencies
-from pympipool.shared.plot import draw, generate_nodes_and_edges, generate_task_hash
-from pympipool.shared.thread import RaisingThread
+from executorlib.interactive import create_executor
+from executorlib.shared.executor import ExecutorSteps, execute_tasks_with_dependencies
+from executorlib.shared.plot import draw, generate_nodes_and_edges, generate_task_hash
+from executorlib.shared.thread import RaisingThread
 
 
 class ExecutorWithDependencies(ExecutorSteps):

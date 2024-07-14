@@ -1,8 +1,8 @@
 import os
 
-from pympipool.cache.shared import execute_in_subprocess, execute_tasks_h5
-from pympipool.shared.executor import ExecutorBase
-from pympipool.shared.thread import RaisingThread
+from executorlib.cache.shared import execute_in_subprocess, execute_tasks_h5
+from executorlib.shared.executor import ExecutorBase
+from executorlib.shared.thread import RaisingThread
 
 
 class FileExecutor(ExecutorBase):

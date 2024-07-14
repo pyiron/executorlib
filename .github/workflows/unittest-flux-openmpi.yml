@@ -31,13 +31,13 @@ jobs:
       run: |
         conda create -y -n py312 python=3.12.1 pympipool
         pip install . --no-deps --no-build-isolation
-        coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest discover tests
+        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest discover tests
     - name: Test Flux with OpenMPI
       shell: bash -l {0}
       timeout-minutes: 5
       run: >
         flux start
-        coverage run -a --omit="pympipool/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
+        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
         coverage xml
       env:
         PYMPIPOOL_PMIX: "pmix"

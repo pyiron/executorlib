@@ -2,8 +2,8 @@ import sys
 from os.path import abspath
 from typing import Optional
 
-from pympipool.interactive.backend import call_funct, parse_arguments
-from pympipool.shared.communication import (
+from executorlib.interactive.backend import call_funct, parse_arguments
+from executorlib.shared.communication import (
     interface_connect,
     interface_receive,
     interface_send,

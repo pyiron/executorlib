@@ -42,7 +42,7 @@ if __name__ == "__main__":
             executor=ThreadPoolExecutor, mean=0.1, sigma=1.1, runs=32, max_workers=4
         )
     elif run_mode == "block_allocation":
-        from pympipool import Executor
+        from executorlib import Executor
 
         run_with_executor(
             executor=Executor,
@@ -53,8 +53,8 @@ if __name__ == "__main__":
             backend="local",
             block_allocation=True,
         )
-    elif run_mode == "pympipool":
-        from pympipool import Executor
+    elif run_mode == "executorlib":
+        from executorlib import Executor
 
         run_with_executor(
             executor=Executor,
@@ -66,7 +66,7 @@ if __name__ == "__main__":
             block_allocation=False,
         )
     elif run_mode == "flux":
-        from pympipool import Executor
+        from executorlib import Executor
 
         run_with_executor(
             executor=Executor,

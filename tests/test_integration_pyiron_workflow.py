@@ -11,8 +11,8 @@ from functools import partialmethod
 from time import sleep
 import unittest
 
-from pympipool import Executor
-from pympipool.shared.executor import cloudpickle_register
+from executorlib import Executor
+from executorlib.shared.executor import cloudpickle_register
 
 
 class Foo:

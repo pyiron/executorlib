@@ -6,7 +6,7 @@ from typing import List, Optional
 def check_oversubscribe(oversubscribe: bool):
     if oversubscribe:
         raise ValueError(
-            "Oversubscribing is not supported for the pympipool.flux.PyFLuxExecutor backend."
+            "Oversubscribing is not supported for the executorlib.flux.PyFLuxExecutor backend."
             "Please use oversubscribe=False instead of oversubscribe=True."
         )
 
@@ -21,7 +21,7 @@ def check_command_line_argument_lst(command_line_argument_lst: List[str]):
 def check_gpus_per_worker(gpus_per_worker: int):
     if gpus_per_worker != 0:
         raise TypeError(
-            "GPU assignment is not supported for the pympipool.mpi.PyMPIExecutor backend."
+            "GPU assignment is not supported for the executorlib.mpi.PyMPIExecutor backend."
             "Please use gpus_per_worker=0 instead of gpus_per_worker="
             + str(gpus_per_worker)
             + "."
@@ -31,7 +31,7 @@ def check_gpus_per_worker(gpus_per_worker: int):
 def check_threads_per_core(threads_per_core: int):
     if threads_per_core != 1:
         raise TypeError(
-            "Thread based parallelism is not supported for the pympipool.mpi.PyMPIExecutor backend."
+            "Thread based parallelism is not supported for the executorlib.mpi.PyMPIExecutor backend."
             "Please use threads_per_core=1 instead of threads_per_core="
             + str(threads_per_core)
             + "."
@@ -48,7 +48,7 @@ def check_executor(executor: Executor):
 def check_resource_dict(function: callable):
     if "resource_dict" in inspect.signature(function).parameters.keys():
         raise ValueError(
-            "The parameter resource_dict is used internally in pympipool, "
+            "The parameter resource_dict is used internally in executorlib, "
             "so it cannot be used as parameter in the submitted functions."
         )
 

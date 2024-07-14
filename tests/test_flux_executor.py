@@ -5,13 +5,13 @@ import unittest
 
 import numpy as np
 
-from pympipool.interactive.executor import InteractiveExecutor
-from pympipool.shared.executor import cloudpickle_register, execute_parallel_tasks
+from executorlib.interactive.executor import InteractiveExecutor
+from executorlib.shared.executor import cloudpickle_register, execute_parallel_tasks
 
 
 try:
     import flux.job
-    from pympipool.interactive.flux import FluxPythonInterface
+    from executorlib.interactive.flux import FluxPythonInterface
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)

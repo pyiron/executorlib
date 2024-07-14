@@ -1,4 +1,4 @@
-title: pympipool
+title: executorlib
 author: Jan Janssen
 logo: images/pyiron-logo.png
 
@@ -6,7 +6,7 @@ execute:
   execute_notebooks           : off
 
 repository:
-  url                       : https://github.com/pyiron/pympipool
+  url                       : https://github.com/pyiron/executorlib
 html:
   use_repository_button: true
 

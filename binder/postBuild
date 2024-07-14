@@ -2,11 +2,11 @@
 mkdir -p /home/jovyan/.local/share/jupyter/kernels/flux
 cp binder/kernel.json /home/jovyan/.local/share/jupyter/kernels/flux
 
-# install pympipool
+# install executorlib
 pip install . --no-deps --no-build-isolation
 
 # copy notebooks
 mv notebooks/*.ipynb .
 
 # clean up
-rm -rf .ci_support .github binder docs notebooks pympipool pympipool.egg-info tests .coveralls.yml .gitignore .readthedocs.yml LICENSE MANIFEST.in README.md pyproject.toml setup.py build
+rm -rf .ci_support .github binder docs notebooks executorlib executorlib.egg-info tests .coveralls.yml .gitignore .readthedocs.yml LICENSE MANIFEST.in README.md pyproject.toml setup.py build

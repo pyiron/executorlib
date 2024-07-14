@@ -6,11 +6,11 @@ installed on the HPC cluster [flux framework](https://flux-framework.org) can be
 to leverage [flux framework](https://flux-framework.org) for the distribution of resources within a given allocation of
 the primary scheduler. 
 
-Alternatively, `pympipool` can directly create job steps in a SLURM allocation using the `srun `command. Still this always 
-queries the central database of the SLURM job scheduler which can decrease the performance of the job scheduler and is 
-not recommended.
+Alternatively, `executorlib` can directly create job steps in a SLURM allocation using the `srun `command. Still this
+always queries the central database of the SLURM job scheduler which can decrease the performance of the job scheduler 
+and is not recommended.
 
-## pympipool with Flux Framework
+## executorlib with Flux Framework
 The [flux framework](https://flux-framework.org) uses `libhwloc` and `pmi` to understand the hardware it is running on and to booststrap MPI.
 `libhwloc` not only assigns CPU cores but also GPUs. This requires `libhwloc` to be compiled with support for GPUs from 
 your vendor. In the same way the version of `pmi` for your queuing system has to be compatible with the version 
@@ -22,14 +22,14 @@ For example the [Frontier HPC](https://www.olcf.ornl.gov/frontier/) cluster at O
 AMD MI250X GPUs with cray mpi version which is compatible to mpich `4.X`. So the corresponding versions can be installed
 from conda-forge using: 
 ```
-conda install -c conda-forge flux-core flux-sched libhwloc=*=rocm* mpich>=4 pympipool
+conda install -c conda-forge flux-core flux-sched libhwloc=*=rocm* mpich>=4 executorlib
 ```
 ### Nvidia GPUs with mpich / cray mpi 
 For example the [Perlmutter HPC](https://docs.nersc.gov/systems/perlmutter/) at the National Energy Research Scientific 
 Computing (NERSC) uses Nvidia A100 GPUs in combination with cray mpi which is compatible to mpich `4.X`. So the 
 corresponding versions can be installed from conda-forge using: 
 ```
-conda install -c conda-forge flux-core flux-sched libhwloc=*=cuda* mpich>=4 pympipool
+conda install -c conda-forge flux-core flux-sched libhwloc=*=cuda* mpich>=4 executorlib
 ```
 When installing on a login node without a GPU the conda install command might fail with an Nvidia cuda related error, in
 this case adding the environment variable:
@@ -44,20 +44,20 @@ For example the [Aurora HPC](https://www.alcf.anl.gov/aurora) cluster at Argonne
 Vecchio GPUs in combination with cray mpi which is compatible to mpich `4.X`. So the corresponding versions can be 
 installed from conda-forge using: 
 ```
-conda install -c conda-forge flux-core flux-sched mpich=>4 pympipool
+conda install -c conda-forge flux-core flux-sched mpich=>4 executorlib
 ```
 
 ### Alternative Installations
 Flux is not limited to mpich / cray mpi, it can also be installed in compatibility with openmpi or intel mpi using the 
 openmpi package: 
 ```
-conda install -c conda-forge flux-core flux-sched openmpi=4.1.6 pympipool
+conda install -c conda-forge flux-core flux-sched openmpi=4.1.6 executorlib
 ```
 For the version 5 of openmpi the backend changed to `pmix`, this requires the additional `flux-pmix` plugin:
 ```
-conda install -c conda-forge flux-core flux-sched flux-pmix openmpi>=5 pympipool
+conda install -c conda-forge flux-core flux-sched flux-pmix openmpi>=5 executorlib
 ```
-In addition, the `pmi="pmix"` parameter has to be set for the `pympipool.Executor` to switch to `pmix` as backend.
+In addition, the `pmi="pmix"` parameter has to be set for the `executorlib.Executor` to switch to `pmix` as backend.
 
 ## Test Flux Framework
 To validate the installation of flux and confirm the GPUs are correctly recognized, you can start a flux session on the 
@@ -70,7 +70,7 @@ the available resources using:
 ```
 flux resource list
 ```
-The output should return a list compareable to the following example output:
+The output should return a list comparable to the following example output:
 ```
      STATE NNODES   NCORES    NGPUS NODELIST
       free      1        6        1 ljubi
@@ -86,7 +86,7 @@ the flux framework. For SLURM this is achieved by calling `flux start` with `sru
 ```
 srun --pty flux start
 ```
-Alternatively, to execute a python script `<script.py>` which uses `pympipool` you can call it with: 
+Alternatively, to execute a python script `<script.py>` which uses `executorlib` you can call it with: 
 ```
 srun flux start python <script.py>
 ```
@@ -99,14 +99,14 @@ srun –mpi=pmi2 flux start python <script.py>
 ```
 
 ## Without Flux Framework
-It is possible to install `pympipool` without flux, for example for using it on a local workstation or in combination
+It is possible to install `executorlib` without flux, for example for using it on a local workstation or in combination
 with the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com). While this is not recommended
-in the high performance computing (HPC) context as `pympipool` with `block_allocation=False` is going to create a SLURM
+in the high performance computing (HPC) context as `executorlib` with `block_allocation=False` is going to create a SLURM
 job step for each submitted python function. 
 
-In this case `pympipool` can be installed using:
+In this case `executorlib` can be installed using:
 ```
-conda install -c conda-forge pympipool
+conda install -c conda-forge executorlib
 ```
 
 This also includes workstation installations on Windows and MacOS.

@@ -1,9 +1,9 @@
 import os
 import unittest
 
-from pympipool import Executor
-from pympipool.shared.executor import cloudpickle_register
-from pympipool.shell.executor import SubprocessExecutor
+from executorlib import Executor
+from executorlib.shared.executor import cloudpickle_register
+from executorlib.shell.executor import SubprocessExecutor
 
 try:
     from conda.base.context import context

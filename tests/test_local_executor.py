@@ -6,13 +6,13 @@ import unittest
 
 import numpy as np
 
-from pympipool.shared.interface import MpiExecInterface
-from pympipool.interactive.executor import (
+from executorlib.shared.interface import MpiExecInterface
+from executorlib.interactive.executor import (
     InteractiveExecutor,
     InteractiveStepExecutor,
 )
-from pympipool.interactive.backend import call_funct
-from pympipool.shared.executor import (
+from executorlib.interactive.backend import call_funct
+from executorlib.shared.executor import (
     cloudpickle_register,
     execute_parallel_tasks,
     ExecutorBase,
@@ -333,7 +333,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
+            "interface_class": "<class 'executorlib.shared.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "init_function": None,
             "cwd": None,
@@ -362,7 +362,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta_step(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "interface_class": "<class 'pympipool.shared.interface.MpiExecInterface'>",
+            "interface_class": "<class 'executorlib.shared.interface.MpiExecInterface'>",
             "hostname_localhost": True,
             "cwd": None,
             "oversubscribe": False,

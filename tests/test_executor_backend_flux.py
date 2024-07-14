@@ -3,12 +3,12 @@ import unittest
 
 import numpy as np
 
-from pympipool import Executor
+from executorlib import Executor
 
 
 try:
     import flux.job
-    from pympipool.interactive.flux import FluxPythonInterface
+    from executorlib.interactive.flux import FluxPythonInterface
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)

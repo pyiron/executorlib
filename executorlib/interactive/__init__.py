@@ -2,11 +2,11 @@ import os
 import shutil
 from typing import Optional
 
-from pympipool.interactive.executor import (
+from executorlib.interactive.executor import (
     InteractiveExecutor,
     InteractiveStepExecutor,
 )
-from pympipool.shared.inputcheck import (
+from executorlib.shared.inputcheck import (
     check_command_line_argument_lst,
     check_executor,
     check_gpus_per_worker,
@@ -17,14 +17,14 @@ from pympipool.shared.inputcheck import (
     validate_backend,
     validate_number_of_cores,
 )
-from pympipool.shared.interface import (
+from executorlib.shared.interface import (
     SLURM_COMMAND,
     MpiExecInterface,
     SrunInterface,
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
-    from pympipool.interactive.flux import FluxPythonInterface
+    from executorlib.interactive.flux import FluxPythonInterface
 
     flux_installed = "FLUX_URI" in os.environ
 except ImportError:
@@ -54,11 +54,11 @@ def create_executor(
     pmi: Optional[str] = None,
 ):
     """
-    Instead of returning a pympipool.Executor object this function returns either a pympipool.mpi.PyMPIExecutor,
-    pympipool.slurm.PySlurmExecutor or pympipool.flux.PyFluxExecutor depending on which backend is available. The
-    pympipool.flux.PyFluxExecutor is the preferred choice while the pympipool.mpi.PyMPIExecutor is primarily used
-    for development and testing. The pympipool.flux.PyFluxExecutor requires flux-core from the flux-framework to be
-    installed and in addition flux-sched to enable GPU scheduling. Finally, the pympipool.slurm.PySlurmExecutor
+    Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
+    executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
+    executorlib.flux.PyFluxExecutor is the preferred choice while the executorlib.mpi.PyMPIExecutor is primarily used
+    for development and testing. The executorlib.flux.PyFluxExecutor requires flux-core from the flux-framework to be
+    installed and in addition flux-sched to enable GPU scheduling. Finally, the executorlib.slurm.PySlurmExecutor
     requires the SLURM workload manager to be installed on the system.
 
     Args:
@@ -83,7 +83,7 @@ def create_executor(
         backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
                        is selected (the default) the available backend is determined automatically.
         block_allocation (boolean): To accelerate the submission of a series of python functions with the same
-                                    resource requirements, pympipool supports block allocation. In this case all
+                                    resource requirements, executorlib supports block allocation. In this case all
                                     resources have to be defined on the executor, rather than during the submission
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
