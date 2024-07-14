@@ -10,8 +10,8 @@ from typing import Tuple
 
 import cloudpickle
 
-from pympipool.cache.hdf import dump, get_output, load
-from pympipool.shared.executor import get_command_path
+from executorlib.cache.hdf import dump, get_output, load
+from executorlib.shared.executor import get_command_path
 
 
 class FutureItem:

@@ -8,9 +8,9 @@ class TestResults(unittest.TestCase):
         timing_dict = {l.split()[0]: float(l.split()[1]) for l in content}
         self.assertEqual(min(timing_dict, key=timing_dict.get), "process")
         self.assertEqual(max(timing_dict, key=timing_dict.get), "static")
-        self.assertTrue(timing_dict["process"] < timing_dict["pympipool"])
+        self.assertTrue(timing_dict["process"] < timing_dict["executorlib"])
         self.assertTrue(timing_dict["block_allocation"] < timing_dict["process"] * 1.1)
-        self.assertTrue(timing_dict["pympipool"] < timing_dict["process"] * 1.35)
+        self.assertTrue(timing_dict["executorlib"] < timing_dict["process"] * 1.35)
         self.assertTrue(timing_dict["process"] < timing_dict["mpi4py"])
         self.assertTrue(timing_dict["block_allocation"] < timing_dict["mpi4py"])
         self.assertTrue(timing_dict["mpi4py"] < timing_dict["process"] * 1.15)

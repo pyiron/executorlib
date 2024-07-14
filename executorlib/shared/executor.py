@@ -14,13 +14,13 @@ from typing import List, Optional
 
 import cloudpickle
 
-from pympipool.shared.communication import interface_bootup
-from pympipool.shared.inputcheck import (
+from executorlib.shared.communication import interface_bootup
+from executorlib.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-from pympipool.shared.interface import BaseInterface, MpiExecInterface
-from pympipool.shared.thread import RaisingThread
+from executorlib.shared.interface import BaseInterface, MpiExecInterface
+from executorlib.shared.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor):
@@ -238,7 +238,7 @@ def cloudpickle_register(ind: int = 2):
     Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
     be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
     https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
-    inspect can help to find the module which is calling pympipool
+    inspect can help to find the module which is calling executorlib
     https://docs.python.org/3/library/inspect.html
     to learn more about inspect another good read is:
     http://pymotw.com/2/inspect/index.html#module-inspect

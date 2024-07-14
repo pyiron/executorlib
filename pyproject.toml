@@ -30,9 +30,9 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://github.com/pyiron/pympipool"
-Documentation = "https://pympipool.readthedocs.io"
-Repository = "https://github.com/pyiron/pympipool"
+Homepage = "https://github.com/pyiron/executorlib"
+Documentation = "https://executorlib.readthedocs.io"
+Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
 conda = ["conda_subprocess==0.0.4"]
@@ -49,14 +49,14 @@ graph = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["pympipool*"]
+include = ["pympipool*", "executorlib*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "pympipool.__version__"}
+version = {attr = "executorlib.__version__"}
 
 [tool.versioneer]
 VCS = "git"
 style = "pep440-pre"
-versionfile_source = "pympipool/_version.py"
-parentdir_prefix = "pympipool"
+versionfile_source = "executorlib/_version.py"
+parentdir_prefix = "executorlib"
 tag_prefix = "pympipool-"

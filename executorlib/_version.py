@@ -51,8 +51,8 @@ def get_config() -> VersioneerConfig:
     cfg.VCS = "git"
     cfg.style = "pep440-pre"
     cfg.tag_prefix = "pympipool-"
-    cfg.parentdir_prefix = "pympipool"
-    cfg.versionfile_source = "pympipool/_version.py"
+    cfg.parentdir_prefix = "executorlib"
+    cfg.versionfile_source = "executorlib/_version.py"
     cfg.verbose = False
     return cfg
 

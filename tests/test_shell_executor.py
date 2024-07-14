@@ -2,7 +2,7 @@ from concurrent.futures import Future
 import queue
 import unittest
 
-from pympipool.shell.executor import SubprocessExecutor, execute_single_task
+from executorlib.shell.executor import SubprocessExecutor, execute_single_task
 
 
 class SubprocessExecutorTest(unittest.TestCase):

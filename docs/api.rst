@@ -1,11 +1,11 @@
 Interface
 =========
 
-Documentation of the classes and functions defined in the :code:`pympipool` package.
+Documentation of the classes and functions defined in the :code:`executorlib` package.
 
 .. autosummary::
    :toctree: _autosummary
    :template: custom-module-template.rst
    :recursive:
 
-   pympipool
+   executorlib

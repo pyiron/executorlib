@@ -3,12 +3,12 @@ import unittest
 from time import sleep
 from queue import Queue
 
-from pympipool import Executor
-from pympipool.shared.executor import cloudpickle_register
-from pympipool.interactive import create_executor
-from pympipool.shared.thread import RaisingThread
-from pympipool.shared.executor import execute_tasks_with_dependencies
-from pympipool.shared.plot import generate_nodes_and_edges
+from executorlib import Executor
+from executorlib.shared.executor import cloudpickle_register
+from executorlib.interactive import create_executor
+from executorlib.shared.thread import RaisingThread
+from executorlib.shared.executor import execute_tasks_with_dependencies
+from executorlib.shared.plot import generate_nodes_and_edges
 
 
 try:

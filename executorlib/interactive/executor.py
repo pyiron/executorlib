@@ -1,18 +1,18 @@
-from pympipool.shared.executor import (
+from executorlib.shared.executor import (
     ExecutorBroker,
     ExecutorSteps,
     execute_parallel_tasks,
     execute_separate_tasks,
 )
-from pympipool.shared.interface import BaseInterface, MpiExecInterface
-from pympipool.shared.thread import RaisingThread
+from executorlib.shared.interface import BaseInterface, MpiExecInterface
+from executorlib.shared.thread import RaisingThread
 
 
 class InteractiveExecutor(ExecutorBroker):
     """
-    The pympipool.interactive.executor.InteractiveExecutor leverages the pympipool interfaces to distribute python tasks
-    on a workstation or inside a queuing system allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the
-    pympipool.interactive.executor.InteractiveExecutor can be executed in a serial python process and does not require
+    The executorlib.interactive.executor.InteractiveExecutor leverages the exeutorlib interfaces to distribute python
+    tasks on a workstation or inside a queuing system allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the
+    executorlib.interactive.executor.InteractiveExecutor can be executed in a serial python process and does not require
     the python script to be executed with MPI. Consequently, it is primarily an abstraction of its functionality to
     improves the usability in particular when used in combination with Jupyter notebooks.
 
@@ -24,7 +24,7 @@ class InteractiveExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.interactive.executor import InteractiveExecutor
+        >>> from executorlib.interactive.executor import InteractiveExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -64,8 +64,8 @@ class InteractiveExecutor(ExecutorBroker):
 
 class InteractiveStepExecutor(ExecutorSteps):
     """
-    The pympipool.interactive.executor.InteractiveStepExecutor leverages the pympipool interfaces to distribute python
-    tasks. In contrast to the mpi4py.futures.MPIPoolExecutor the pympipool.interactive.executor.InteractiveStepExecutor
+    The executorlib.interactive.executor.InteractiveStepExecutor leverages the executorlib interfaces to distribute python
+    tasks. In contrast to the mpi4py.futures.MPIPoolExecutor the executorlib.interactive.executor.InteractiveStepExecutor
     can be executed in a serial python process and does not require the python script to be executed with MPI.
     Consequently, it is primarily an abstraction of its functionality to improve the usability in particular when used
     in combination with Jupyter notebooks.
@@ -78,7 +78,7 @@ class InteractiveStepExecutor(ExecutorSteps):
     Examples:
 
         >>> import numpy as np
-        >>> from pympipool.interactive.executor import InteractiveStepExecutor
+        >>> from executorlib.interactive.executor import InteractiveStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI

@@ -1,4 +1,4 @@
-from pympipool.shared.communication import (
+from executorlib.shared.communication import (
     SocketInterface,
     interface_bootup,
     interface_connect,
@@ -6,9 +6,9 @@ from pympipool.shared.communication import (
     interface_send,
     interface_shutdown,
 )
-from pympipool.shared.executor import cancel_items_in_queue
-from pympipool.shared.interface import MpiExecInterface, SrunInterface
-from pympipool.shared.thread import RaisingThread
+from executorlib.shared.executor import cancel_items_in_queue
+from executorlib.shared.interface import MpiExecInterface, SrunInterface
+from executorlib.shared.thread import RaisingThread
 
 __all__ = [
     SocketInterface,

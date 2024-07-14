@@ -5,8 +5,8 @@ import unittest
 
 import numpy as np
 
-from pympipool.interactive.executor import InteractiveExecutor
-from pympipool.shared.interface import MpiExecInterface
+from executorlib.interactive.executor import InteractiveExecutor
+from executorlib.shared.interface import MpiExecInterface
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None

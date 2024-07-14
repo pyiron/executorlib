@@ -2,8 +2,8 @@ import os
 import sys
 import unittest
 
-from pympipool.interactive.backend import parse_arguments
-from pympipool.shared.interface import SrunInterface, MpiExecInterface
+from executorlib.interactive.backend import parse_arguments
+from executorlib.shared.interface import SrunInterface, MpiExecInterface
 
 
 class TestParser(unittest.TestCase):
@@ -83,7 +83,7 @@ class TestParser(unittest.TestCase):
             "--gpus-per-task=1",
             "--oversubscribe",
             "--account=test",
-            "--job-name=pympipool",
+            "--job-name=executorlib",
             sys.executable,
             "/",
             "--host",
@@ -96,7 +96,7 @@ class TestParser(unittest.TestCase):
             cores=2,
             gpus_per_core=1,
             oversubscribe=True,
-            command_line_argument_lst=["--account=test", "--job-name=pympipool"],
+            command_line_argument_lst=["--account=test", "--job-name=executorlib"],
         )
         self.assertEqual(
             command_lst,

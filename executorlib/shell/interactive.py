@@ -5,8 +5,8 @@ from concurrent.futures import Future
 from time import sleep
 from typing import Optional
 
-from pympipool.shared.executor import ExecutorBase, cancel_items_in_queue
-from pympipool.shared.thread import RaisingThread
+from executorlib.shared.executor import ExecutorBase, cancel_items_in_queue
+from executorlib.shared.thread import RaisingThread
 
 
 def wait_for_process_to_stop(process: threading.Thread, sleep_interval: float = 10e-10):
@@ -88,20 +88,20 @@ def execute_single_task(future_queue: queue.Queue):
 
 class ShellExecutor(ExecutorBase):
     """
-    In contrast to the other pympipool.shell.SubprocessExecutor and the pympipool.Executor the pympipool.shell.ShellExecutor
+    In contrast to the other executorlib.shell.SubprocessExecutor and the executorlib.Executor the executorlib.shell.ShellExecutor
     can only execute a single process at a given time. Still it adds the capability to interact with this process during
-    its execution. The initialization of the pympipool.shell.ShellExecutor takes the same input arguments as the
+    its execution. The initialization of the executorlib.shell.ShellExecutor takes the same input arguments as the
     subprocess.Popen() call for the standard library to start a subprocess.
 
     Examples
 
-        >>> from pympipool import ShellExecutor
+        >>> from executorlib import ShellExecutor
         >>> with ShellExecutor(["python", "count.py"], universal_newlines=True) as exe:
         >>>     future_lines = exe.submit(string_input="4", lines_to_read=5)
         >>>     print(future_lines.done(), future_lines.result(), future_lines.done())
         (False, "0\n1\n2\n3\ndone\n", True)
 
-        >>> from pympipool import ShellExecutor
+        >>> from executorlib import ShellExecutor
         >>> with ShellExecutor(["python", "count.py"], universal_newlines=True) as exe:
         >>>     future_pattern = exe.submit(string_input="4", stop_read_pattern="done")
         >>>     print(future_pattern.done(), future_pattern.result(), future_pattern.done())

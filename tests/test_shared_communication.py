@@ -6,15 +6,15 @@ import unittest
 import numpy as np
 import zmq
 
-from pympipool.shared.communication import (
+from executorlib.shared.communication import (
     interface_connect,
     interface_shutdown,
     interface_send,
     interface_receive,
     SocketInterface,
 )
-from pympipool.shared.executor import cloudpickle_register
-from pympipool.shared.interface import MpiExecInterface
+from executorlib.shared.executor import cloudpickle_register
+from executorlib.shared.interface import MpiExecInterface
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -42,7 +42,7 @@ class TestInterface(unittest.TestCase):
                         __file__,
                         "..",
                         "..",
-                        "pympipool",
+                        "executorlib",
                         "backend",
                         "interactive_parallel.py",
                     )
@@ -70,7 +70,7 @@ class TestInterface(unittest.TestCase):
                         __file__,
                         "..",
                         "..",
-                        "pympipool",
+                        "executorlib",
                         "backend",
                         "interactive_serial.py",
                     )

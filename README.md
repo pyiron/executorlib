@@ -1,7 +1,7 @@
-# pympipool
-[![Unittests](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/pympipool/actions/workflows/unittest-openmpi.yml)
-[![Coverage Status](https://coveralls.io/repos/github/pyiron/pympipool/badge.svg?branch=main)](https://coveralls.io/github/pyiron/pympipool?branch=main)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/pympipool/HEAD?labpath=notebooks%2Fexamples.ipynb)
+# executorlib
+[![Unittests](https://github.com/pyiron/executorlib/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/executorlib/actions/workflows/unittest-openmpi.yml)
+[![Coverage Status](https://coveralls.io/repos/github/pyiron/executorlib/badge.svg?branch=main)](https://coveralls.io/github/pyiron/executorlib?branch=main)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/executorlib/HEAD?labpath=notebooks%2Fexamples.ipynb)
 
 ## Challenges
 In high performance computing (HPC) the Python programming language is commonly used as high-level language to
@@ -16,25 +16,25 @@ challenging, in primarily three aspects:
 * **Integration**: Existing workflow libraries implement a secondary the job management on the Python level rather than
   leveraging the existing infrastructure provided by the job scheduler of the HPC.
 
-### pympipool is ...
-In a given HPC allocation the `pympipool` library addresses these challenges by extending the Executor interface
+### executorlib is ...
+In a given HPC allocation the `executorlib` library addresses these challenges by extending the Executor interface
 of the standard Python library to support the resource assignment in the HPC context. Computing resources can either be
-assigned on a per function call basis or as a block allocation on a per Executor basis. The `pympipool` library
+assigned on a per function call basis or as a block allocation on a per Executor basis. The `executorlib` library
 is built on top of the [flux-framework](https://flux-framework.org) to enable fine-grained resource assignment. In
 addition, [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) is supported as alternative
-queuing system and for workstation installations `pympipool` can be installed without a job scheduler.
+queuing system and for workstation installations `executorlib` can be installed without a job scheduler.
 
-### pympipool is not ...
-The pympipool library is not designed to request an allocation from the job scheduler of an HPC. Instead within a given
-allocation from the job scheduler the `pympipool` library can be employed to distribute a series of python
+### executorlib is not ...
+The executorlib library is not designed to request an allocation from the job scheduler of an HPC. Instead within a given
+allocation from the job scheduler the `executorlib` library can be employed to distribute a series of python
 function calls over the available computing resources to achieve maximum computing resource utilization.
 
 ## Example
-The following examples illustrates how `pympipool` can be used to distribute a series of MPI parallel function calls 
+The following examples illustrates how `executorlib` can be used to distribute a series of MPI parallel function calls 
 within a queuing system allocation. `example.py`:
 ```python
 import flux.job
-from pympipool import Executor
+from executorlib import Executor
 
 def calc(i):
     from mpi4py import MPI
@@ -57,7 +57,7 @@ Which returns:
 ```
 The important part in this example is that [mpi4py](https://mpi4py.readthedocs.io) is only used in the `calc()`
 function, not in the python script, consequently it is not necessary to call the script with `mpiexec` but instead
-a call with the regular python interpreter is sufficient. This highlights how `pympipool` allows the users to
+a call with the regular python interpreter is sufficient. This highlights how `executorlib` allows the users to
 parallelize one function at a time and not having to convert their whole workflow to use [mpi4py](https://mpi4py.readthedocs.io).
 The same code can also be executed inside a jupyter notebook directly which enables an interactive development process.
 
@@ -68,7 +68,7 @@ resulting in a total of four CPU cores being utilized.
 
 After submitting the function `calc()` with the corresponding parameter to the executor `exe.submit(calc, 0)`
 a python [`concurrent.futures.Future`](https://docs.python.org/3/library/concurrent.futures.html#future-objects) is
-returned. Consequently, the `pympipool.Executor` can be used as a drop-in replacement for the
+returned. Consequently, the `executorlib.Executor` can be used as a drop-in replacement for the
 [`concurrent.futures.Executor`](https://docs.python.org/3/library/concurrent.futures.html#module-concurrent.futures)
 which allows the user to add parallelism to their workflow one function at a time.
 
@@ -108,20 +108,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
 # Documentation
-* [Installation](https://pympipool.readthedocs.io/en/latest/installation.html)
-  * [Compatible Job Schedulers](https://pympipool.readthedocs.io/en/latest/installation.html#compatible-job-schedulers)
-  * [pympipool with Flux Framework](https://pympipool.readthedocs.io/en/latest/installation.html#pympipool-with-flux-framework)
-  * [Test Flux Framework](https://pympipool.readthedocs.io/en/latest/installation.html#test-flux-framework)
-  * [Without Flux Framework](https://pympipool.readthedocs.io/en/latest/installation.html#without-flux-framework)
-* [Examples](https://pympipool.readthedocs.io/en/latest/examples.html)
-  * [Compatibility](https://pympipool.readthedocs.io/en/latest/examples.html#compatibility)
-  * [Resource Assignment](https://pympipool.readthedocs.io/en/latest/examples.html#resource-assignment)
-  * [Data Handling](https://pympipool.readthedocs.io/en/latest/examples.html#data-handling)
-  * [Up-Scaling](https://pympipool.readthedocs.io/en/latest/examples.html#up-scaling)
-  * [Coupled Functions](https://pympipool.readthedocs.io/en/latest/examples.html#coupled-functions)
-  * [SLURM Job Scheduler](https://pympipool.readthedocs.io/en/latest/examples.html#slurm-job-scheduler) 
-  * [Workstation Support](https://pympipool.readthedocs.io/en/latest/examples.html#workstation-support)
-* [Development](https://pympipool.readthedocs.io/en/latest/development.html)
-  * [Contributions](https://pympipool.readthedocs.io/en/latest/development.html#contributions)
-  * [License](https://pympipool.readthedocs.io/en/latest/development.html#license)
-  * [Integration](https://pympipool.readthedocs.io/en/latest/development.html#integration)
+* [Installation](https://executorlib.readthedocs.io/en/latest/installation.html)
+  * [Compatible Job Schedulers](https://executorlib.readthedocs.io/en/latest/installation.html#compatible-job-schedulers)
+  * [executorlib with Flux Framework](https://executorlib.readthedocs.io/en/latest/installation.html#executorlib-with-flux-framework)
+  * [Test Flux Framework](https://executorlib.readthedocs.io/en/latest/installation.html#test-flux-framework)
+  * [Without Flux Framework](https://executorlib.readthedocs.io/en/latest/installation.html#without-flux-framework)
+* [Examples](https://executorlib.readthedocs.io/en/latest/examples.html)
+  * [Compatibility](https://executorlib.readthedocs.io/en/latest/examples.html#compatibility)
+  * [Resource Assignment](https://executorlib.readthedocs.io/en/latest/examples.html#resource-assignment)
+  * [Data Handling](https://executorlib.readthedocs.io/en/latest/examples.html#data-handling)
+  * [Up-Scaling](https://executorlib.readthedocs.io/en/latest/examples.html#up-scaling)
+  * [Coupled Functions](https://executorlib.readthedocs.io/en/latest/examples.html#coupled-functions)
+  * [SLURM Job Scheduler](https://executorlib.readthedocs.io/en/latest/examples.html#slurm-job-scheduler) 
+  * [Workstation Support](https://executorlib.readthedocs.io/en/latest/examples.html#workstation-support)
+* [Development](https://executorlib.readthedocs.io/en/latest/development.html)
+  * [Contributions](https://executorlib.readthedocs.io/en/latest/development.html#contributions)
+  * [License](https://executorlib.readthedocs.io/en/latest/development.html#license)
+  * [Integration](https://executorlib.readthedocs.io/en/latest/development.html#integration)

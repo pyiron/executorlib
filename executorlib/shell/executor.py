@@ -3,8 +3,8 @@ import subprocess
 from concurrent.futures import Future
 from typing import Optional
 
-from pympipool.shared.executor import ExecutorBroker
-from pympipool.shared.thread import RaisingThread
+from executorlib.shared.executor import ExecutorBroker
+from executorlib.shared.thread import RaisingThread
 
 
 def execute_single_task(
@@ -59,7 +59,7 @@ def execute_single_task(
 
 class SubprocessExecutor(ExecutorBroker):
     """
-    The pympipool.shell.SubprocessExecutor enables the submission of command line calls via the subprocess.check_output()
+    The executorlib.shell.SubprocessExecutor enables the submission of command line calls via the subprocess.check_output()
     interface of the python standard library. It is based on the concurrent.futures.Executor class and returns a
     concurrent.futures.Future object for every submitted command line call. Still it does not provide any option to
     interact with the external executable during the execution.
@@ -71,7 +71,7 @@ class SubprocessExecutor(ExecutorBroker):
 
     Examples:
 
-        >>> from pympipool import SubprocessExecutor
+        >>> from executorlib import SubprocessExecutor
         >>> with SubprocessExecutor(max_workers=2) as exe:
         >>>     future = exe.submit(["echo", "test"], universal_newlines=True)
         >>> print(future.done(), future.result(), future.done())

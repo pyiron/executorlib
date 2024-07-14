@@ -4,7 +4,7 @@ import unittest
 
 
 try:
-    from pympipool.cache.hdf import dump, load
+    from executorlib.cache.hdf import dump, load
 
     skip_h5io_test = False
 except ImportError:
