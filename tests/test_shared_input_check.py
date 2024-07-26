@@ -52,7 +52,9 @@ class TestInputCheck(unittest.TestCase):
                 backend="slurm", flux_installed=False, slurm_installed=False
             )
         self.assertEqual(
-            validate_backend(backend="slurm", flux_installed=False, slurm_installed=True),
+            validate_backend(
+                backend="slurm", flux_installed=False, slurm_installed=True
+            ),
             "slurm",
         )
 
