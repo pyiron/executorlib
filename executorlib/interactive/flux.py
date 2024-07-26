@@ -16,6 +16,7 @@ class FluxPythonInterface(BaseInterface):
         oversubscribe: bool = False,
         executor: Optional[flux.job.FluxExecutor] = None,
         pmi: Optional[str] = None,
+        nested_flux_executor: bool = False,
     ):
         super().__init__(
             cwd=cwd,
@@ -27,6 +28,7 @@ class FluxPythonInterface(BaseInterface):
         self._executor = executor
         self._pmi = pmi
         self._future = None
+        self._nested_flux_executor = nested_flux_executor
 
     def bootup(
         self,
@@ -41,6 +43,7 @@ class FluxPythonInterface(BaseInterface):
             command_lst (list): list of strings to start the client process
             prefix_name (str): name of the conda environment to initialize
             prefix_path (str): path of the conda environment to initialize
+            nested (bool): nested flux instance
         """
         if self._oversubscribe:
             raise ValueError(
@@ -52,14 +55,24 @@ class FluxPythonInterface(BaseInterface):
             )
         if self._executor is None:
             self._executor = flux.job.FluxExecutor()
-        jobspec = flux.job.JobspecV1.from_command(
-            command=command_lst,
-            num_tasks=self._cores,
-            cores_per_task=self._threads_per_core,
-            gpus_per_task=self._gpus_per_core,
-            num_nodes=None,
-            exclusive=False,
-        )
+        if not self._nested_flux_executor:
+            jobspec = flux.job.JobspecV1.from_command(
+                command=command_lst,
+                num_tasks=self._cores,
+                cores_per_task=self._threads_per_core,
+                gpus_per_task=self._gpus_per_core,
+                num_nodes=None,
+                exclusive=False,
+            )
+        else:
+            jobspec = flux.job.JobspecV1.from_nest_command(
+                command=command_lst,
+                num_slots=self._cores,
+                cores_per_slot=self._threads_per_core,
+                gpus_per_slot=self._gpus_per_core,
+                num_nodes=None,
+                exclusive=False,
+            )
         jobspec.environment = dict(os.environ)
         if self._pmi is not None:
             jobspec.setattr_shell_option("pmi", self._pmi)

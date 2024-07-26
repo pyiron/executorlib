@@ -11,6 +11,7 @@ from executorlib.shared.inputcheck import (
     check_executor,
     check_gpus_per_worker,
     check_init_function,
+    check_nested_flux_executor,
     check_oversubscribe,
     check_pmi,
     check_threads_per_core,
@@ -52,6 +53,7 @@ def create_executor(
     init_function: Optional[callable] = None,
     command_line_argument_lst: list[str] = [],
     pmi: Optional[str] = None,
+    nested_flux_executor: bool = False,
 ):
     """
     Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
@@ -89,6 +91,7 @@ def create_executor(
         init_function (None): optional function to preset arguments for functions which are submitted later
         command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
         pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        nested_flux_executor (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
 
     """
     max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
@@ -113,6 +116,7 @@ def create_executor(
         executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
         executor_kwargs["executor"] = executor
         executor_kwargs["pmi"] = pmi
+        executor_kwargs["nested_flux_executor"] = nested_flux_executor
         if block_allocation:
             executor_kwargs["init_function"] = init_function
             return InteractiveExecutor(
@@ -128,6 +132,7 @@ def create_executor(
             )
     elif backend == "slurm":
         check_executor(executor=executor)
+        check_nested_flux_executor(nested_flux_executor=nested_flux_executor)
         executor_kwargs["threads_per_core"] = threads_per_core
         executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
         executor_kwargs["command_line_argument_lst"] = command_line_argument_lst
@@ -152,6 +157,7 @@ def create_executor(
             command_line_argument_lst=command_line_argument_lst
         )
         check_executor(executor=executor)
+        check_nested_flux_executor(nested_flux_executor=nested_flux_executor)
         executor_kwargs["oversubscribe"] = oversubscribe
         if block_allocation:
             executor_kwargs["init_function"] = init_function

@@ -134,6 +134,7 @@ class Executor:
         init_function: Optional[callable] = None,
         command_line_argument_lst: list[str] = [],
         pmi: Optional[str] = None,
+        nested_flux_executor: bool = False,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
@@ -175,6 +176,7 @@ class Executor:
             init_function (None): optional function to preset arguments for functions which are submitted later
             command_line_argument_lst (list): Additional command line arguments for the srun call (SLURM only)
             pmi (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+            nested_flux_executor (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
             disable_dependencies (boolean): Disable resolving future objects during the submission.
             refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
@@ -199,6 +201,7 @@ class Executor:
                 init_function=init_function,
                 command_line_argument_lst=command_line_argument_lst,
                 pmi=pmi,
+                nested_flux_executor=nested_flux_executor,
                 refresh_rate=refresh_rate,
                 plot_dependency_graph=plot_dependency_graph,
             )
@@ -222,4 +225,5 @@ class Executor:
                 init_function=init_function,
                 command_line_argument_lst=command_line_argument_lst,
                 pmi=pmi,
+                nested_flux_executor=nested_flux_executor,
             )
