@@ -7,6 +7,9 @@ from executorlib.shared.inputcheck import (
     check_oversubscribe,
     check_executor,
     check_init_function,
+    check_nested_flux_executor,
+    check_pmi,
+    check_plot_dependency_graph,
     check_refresh_rate,
     check_resource_dict,
     check_resource_dict_is_empty,
@@ -40,6 +43,18 @@ class TestInputCheck(unittest.TestCase):
             validate_backend(
                 backend="test", flux_installed=False, slurm_installed=False
             )
+        with self.assertRaises(ImportError):
+            validate_backend(
+                backend="flux", flux_installed=False, slurm_installed=False
+            )
+        with self.assertRaises(RuntimeError):
+            validate_backend(
+                backend="slurm", flux_installed=False, slurm_installed=False
+            )
+        self.assertEqual(
+            validate_backend(backend="slurm", flux_installed=False, slurm_installed=True),
+            "slurm",
+        )
 
     def test_check_init_function(self):
         with self.assertRaises(ValueError):
@@ -59,3 +74,17 @@ class TestInputCheck(unittest.TestCase):
     def test_check_resource_dict_is_empty(self):
         with self.assertRaises(ValueError):
             check_resource_dict_is_empty(resource_dict={"a": 1})
+
+    def test_check_pmi(self):
+        with self.assertRaises(ValueError):
+            check_pmi(backend="test", pmi="test")
+        with self.assertRaises(ValueError):
+            check_pmi(backend="flux", pmi="test")
+
+    def test_check_nested_flux_executor(self):
+        with self.assertRaises(ValueError):
+            check_nested_flux_executor(nested_flux_executor=True)
+
+    def test_check_plot_dependency_graph(self):
+        with self.assertRaises(ValueError):
+            check_plot_dependency_graph(plot_dependency_graph=True)
