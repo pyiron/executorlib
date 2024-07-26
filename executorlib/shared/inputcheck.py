@@ -45,6 +45,13 @@ def check_executor(executor: Executor):
         )
 
 
+def check_nested_flux_executor(nested_flux_executor: bool):
+    if nested_flux_executor:
+        raise ValueError(
+            "The nested_flux_executor parameter is only supported for the flux framework backend."
+        )
+
+
 def check_resource_dict(function: callable):
     if "resource_dict" in inspect.signature(function).parameters.keys():
         raise ValueError(
