@@ -6,7 +6,7 @@ dependencies:
 - openmpi
 - cloudpickle =3.0.0
 - conda_subprocess =0.0.4
-- mpi4py =3.1.6
+- mpi4py =4.0.0
 - pyzmq =26.0.3
 - h5py =3.11.0
 - h5io =0.2.4
