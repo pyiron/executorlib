@@ -2,8 +2,6 @@ import subprocess
 from abc import ABC
 from typing import Optional
 
-import conda_subprocess
-
 MPI_COMMAND = "mpiexec"
 SLURM_COMMAND = "srun"
 
@@ -100,6 +98,8 @@ class SubprocessInterface(BaseInterface):
                 stdin=subprocess.DEVNULL,
             )
         else:
+            import conda_subprocess
+            
             self._process = conda_subprocess.Popen(
                 args=self.generate_command(command_lst=command_lst),
                 cwd=self._cwd,
