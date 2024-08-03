@@ -1,7 +1,7 @@
 import queue
 import subprocess
 from concurrent.futures import Future
-from typing import Optional
+from typing import Any, Optional
 
 from executorlib.shared.executor import ExecutorBroker
 from executorlib.shared.thread import RaisingThread
