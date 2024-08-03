@@ -13,7 +13,15 @@ from executorlib.shared.communication import (
 )
 
 
-def main():
+def main() -> None:
+    """
+    Entry point of the program.
+
+    This function initializes MPI, sets up the necessary communication, and executes the requested functions.
+
+    Returns:
+        None
+    """
     from mpi4py import MPI
 
     MPI.pickle.__init__(

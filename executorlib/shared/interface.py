@@ -1,6 +1,7 @@
 import subprocess
 from abc import ABC
 from typing import Optional
+import conda_subprocess
 
 MPI_COMMAND = "mpiexec"
 SLURM_COMMAND = "srun"
@@ -8,6 +9,14 @@ SLURM_COMMAND = "srun"
 
 class BaseInterface(ABC):
     def __init__(self, cwd: str, cores: int = 1, oversubscribe: bool = False):
+        """
+        Base class for interface implementations.
+
+        Args:
+            cwd (str): The current working directory.
+            cores (int, optional): The number of cores to use. Defaults to 1.
+            oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+        """
         self._cwd = cwd
         self._cores = cores
         self._oversubscribe = oversubscribe
@@ -18,12 +27,32 @@ class BaseInterface(ABC):
         prefix_name: Optional[str] = None,
         prefix_path: Optional[str] = None,
     ):
+        """
+        Method to start the interface.
+
+        Args:
+            command_lst (list[str]): The command list to execute.
+            prefix_name (str, optional): The prefix name. Defaults to None.
+            prefix_path (str, optional): The prefix path. Defaults to None.
+        """
         raise NotImplementedError
 
     def shutdown(self, wait: bool = True):
+        """
+        Method to shutdown the interface.
+
+        Args:
+            wait (bool, optional): Whether to wait for the interface to shutdown. Defaults to True.
+        """
         raise NotImplementedError
 
     def poll(self):
+        """
+        Method to check if the interface is running.
+
+        Returns:
+            bool: True if the interface is running, False otherwise.
+        """
         raise NotImplementedError
 
 
@@ -34,6 +63,14 @@ class SubprocessInterface(BaseInterface):
         cores: int = 1,
         oversubscribe: bool = False,
     ):
+        """
+        Subprocess interface implementation.
+
+        Args:
+            cwd (str, optional): The current working directory. Defaults to None.
+            cores (int, optional): The number of cores to use. Defaults to 1.
+            oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+        """
         super().__init__(
             cwd=cwd,
             cores=cores,
@@ -47,6 +84,14 @@ class SubprocessInterface(BaseInterface):
         prefix_name: Optional[str] = None,
         prefix_path: Optional[str] = None,
     ):
+        """
+        Method to start the subprocess interface.
+
+        Args:
+            command_lst (list[str]): The command list to execute.
+            prefix_name (str, optional): The prefix name. Defaults to None.
+            prefix_path (str, optional): The prefix path. Defaults to None.
+        """
         if prefix_name is None and prefix_path is None:
             self._process = subprocess.Popen(
                 args=self.generate_command(command_lst=command_lst),
@@ -54,7 +99,6 @@ class SubprocessInterface(BaseInterface):
                 stdin=subprocess.DEVNULL,
             )
         else:
-            import conda_subprocess
 
             self._process = conda_subprocess.Popen(
                 args=self.generate_command(command_lst=command_lst),
@@ -65,21 +109,51 @@ class SubprocessInterface(BaseInterface):
             )
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
+        """
+        Method to generate the command list.
+
+        Args:
+            command_lst (list[str]): The command list.
+
+        Returns:
+            list[str]: The generated command list.
+        """
         return command_lst
 
     def shutdown(self, wait: bool = True):
+        """
+        Method to shutdown the subprocess interface.
+
+        Args:
+            wait (bool, optional): Whether to wait for the interface to shutdown. Defaults to True.
+        """
         self._process.communicate()
         self._process.terminate()
         if wait:
             self._process.wait()
         self._process = None
 
-    def poll(self):
+    def poll(self) -> bool:
+        """
+        Method to check if the subprocess interface is running.
+
+        Returns:
+            bool: True if the interface is running, False otherwise.
+        """
         return self._process is not None and self._process.poll() is None
 
 
 class MpiExecInterface(SubprocessInterface):
-    def generate_command(self, command_lst: list[str]):
+    def generate_command(self, command_lst: list[str]) -> list[str]:
+        """
+        Generate the command list for the MPIExec interface.
+
+        Args:
+            command_lst (list[str]): The command list.
+
+        Returns:
+            list[str]: The generated command list.
+        """
         command_prepend_lst = generate_mpiexec_command(
             cores=self._cores,
             oversubscribe=self._oversubscribe,
@@ -99,6 +173,17 @@ class SrunInterface(SubprocessInterface):
         oversubscribe: bool = False,
         command_line_argument_lst: list[str] = [],
     ):
+        """
+        Srun interface implementation.
+
+        Args:
+            cwd (str, optional): The current working directory. Defaults to None.
+            cores (int, optional): The number of cores to use. Defaults to 1.
+            threads_per_core (int, optional): The number of threads per core. Defaults to 1.
+            gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
+            oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+            command_line_argument_lst (list[str], optional): Additional command line arguments. Defaults to [].
+        """
         super().__init__(
             cwd=cwd,
             cores=cores,
@@ -109,6 +194,15 @@ class SrunInterface(SubprocessInterface):
         self._command_line_argument_lst = command_line_argument_lst
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
+        """
+        Generate the command list for the Srun interface.
+
+        Args:
+            command_lst (list[str]): The command list.
+
+        Returns:
+            list[str]: The generated command list.
+        """
         command_prepend_lst = generate_slurm_command(
             cores=self._cores,
             cwd=self._cwd,
@@ -123,6 +217,16 @@ class SrunInterface(SubprocessInterface):
 
 
 def generate_mpiexec_command(cores: int, oversubscribe: bool = False) -> list[str]:
+    """
+    Generate the command list for the MPIExec interface.
+
+    Args:
+        cores (int): The number of cores.
+        oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+
+    Returns:
+        list[str]: The generated command list.
+    """
     if cores == 1:
         return []
     else:
@@ -140,6 +244,20 @@ def generate_slurm_command(
     oversubscribe: bool = False,
     command_line_argument_lst: list[str] = [],
 ) -> list[str]:
+    """
+    Generate the command list for the SLURM interface.
+
+    Args:
+        cores (int): The number of cores.
+        cwd (str): The current working directory.
+        threads_per_core (int, optional): The number of threads per core. Defaults to 1.
+        gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
+        oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+        command_line_argument_lst (list[str], optional): Additional command line arguments. Defaults to [].
+
+    Returns:
+        list[str]: The generated command list.
+    """
     command_prepend_lst = [SLURM_COMMAND, "-n", str(cores)]
     if cwd is not None:
         command_prepend_lst += ["-D", cwd]

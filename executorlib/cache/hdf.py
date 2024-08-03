@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 
 
-def dump(file_name: str, data_dict: dict):
+def dump(file_name: str, data_dict: dict) -> None:
     """
     Dump data dictionary into HDF5 file
 
@@ -48,7 +48,7 @@ def load(file_name: str) -> dict:
                 h5io.read_hdf5(fname=hdf, title="function", slash="ignore")
             )
         else:
-            raise TypeError
+            raise TypeError("Function not found in HDF5 file.")
         if "input_args" in hdf:
             data_dict["args"] = cloudpickle.loads(
                 h5io.read_hdf5(fname=hdf, title="input_args", slash="ignore")
@@ -72,7 +72,7 @@ def get_output(file_name: str) -> Tuple[bool, object]:
         file_name (str): file name of the HDF5 file as absolute path
 
     Returns:
-        (bool, object): boolean flag if output is available and the output object itself
+        Tuple[bool, object]: boolean flag indicating if output is available and the output object itself
     """
     with h5py.File(file_name, "r") as hdf:
         if "output" in hdf:

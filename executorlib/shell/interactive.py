@@ -14,19 +14,22 @@ def wait_for_process_to_stop(process: threading.Thread, sleep_interval: float = 
     Wait for the subprocess.Popen() process to stop executing
 
     Args:
-        process (subprocess.Popen): process object
-        sleep_interval (float): interval to sleep during poll() calls
+        process (subprocess.Popen): The process object representing the subprocess
+        sleep_interval (float): The interval to sleep during poll() calls
+
+    Returns:
+        None
     """
     while process.poll() is None:
         sleep(sleep_interval)
 
 
-def execute_single_task(future_queue: queue.Queue):
+def execute_single_task(future_queue: queue.Queue) -> None:
     """
     Process items received via the queue.
 
     Args:
-        future_queue (queue.Queue):
+        future_queue (queue.Queue): The queue containing the tasks to be processed
     """
     process = None
     while True:

@@ -6,7 +6,21 @@ import cloudpickle
 from executorlib.cache.shared import backend_load_file, backend_write_file
 
 
-def main():
+def main() -> None:
+    """
+    Main function for executing the cache_parallel script.
+
+    This function uses MPI (Message Passing Interface) to distribute the execution of a function
+    across multiple processes. It loads a file, broadcasts the data to all processes, executes
+    the function, gathers the results (if there are multiple processes), and writes the output
+    to a file.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     from mpi4py import MPI
 
     MPI.pickle.__init__(

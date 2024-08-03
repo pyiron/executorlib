@@ -11,14 +11,14 @@ def execute_single_task(
     future_queue: queue.Queue,
     prefix_name: Optional[str] = None,
     prefix_path: Optional[str] = None,
-):
+) -> None:
     """
     Process items received via the queue.
 
     Args:
-        future_queue (queue.Queue):
-        prefix_name (str): name of the conda environment to initialize
-        prefix_path (str): path of the conda environment to initialize
+        future_queue (queue.Queue): The queue containing the tasks to be executed.
+        prefix_name (Optional[str]): The name of the conda environment to initialize.
+        prefix_path (Optional[str]): The path of the conda environment to initialize.
     """
     while True:
         task_dict = future_queue.get()
@@ -101,14 +101,18 @@ class SubprocessExecutor(ExecutorBroker):
             ],
         )
 
-    def submit(self, *args, **kwargs):
+    def submit(self, *args: Any, **kwargs: Any) -> Future:
         """
         Submit a command line call to be executed. The given arguments are provided to subprocess.Popen() as additional
         inputs to control the execution.
 
+        Args:
+            *args: Additional arguments to be passed to subprocess.Popen().
+            **kwargs: Additional keyword arguments to be passed to subprocess.Popen().
+
         Returns:
             A Future representing the given call.
         """
-        f = Future()
+        f: Future = Future()
         self._future_queue.put({"future": f, "args": args, "kwargs": kwargs})
         return f
