@@ -4,6 +4,7 @@ from typing import Optional
 import cloudpickle
 import zmq
 
+
 class SocketInterface:
     """
     The SocketInterface is an abstraction layer on top of the zero message queue.

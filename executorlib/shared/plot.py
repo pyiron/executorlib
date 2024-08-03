@@ -3,6 +3,7 @@ from typing import Tuple
 
 import cloudpickle
 
+
 def generate_nodes_and_edges(
     task_hash_dict: dict, future_hash_inverse_dict: dict
 ) -> Tuple[list, list]:
@@ -70,6 +71,7 @@ def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes
     Returns:
         bytes: Hash generated for the task dictionary.
     """
+
     def convert_arg(arg, future_hash_inverse_dict):
         """
         Convert an argument to its hash representation.

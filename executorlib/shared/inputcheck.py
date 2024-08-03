@@ -1,6 +1,6 @@
 import inspect
 from concurrent.futures import Executor
-from typing import List, Optional, Callable
+from typing import Callable, List, Optional
 
 
 def check_oversubscribe(oversubscribe: bool) -> None:

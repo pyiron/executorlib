@@ -10,7 +10,7 @@ from concurrent.futures import (
     Future,
 )
 from time import sleep
-from typing import List, Optional, Callable
+from typing import Callable, List, Optional
 
 import cloudpickle
 
@@ -71,9 +71,7 @@ class ExecutorBase(FutureExecutor):
         """
         return self._future_queue
 
-    def submit(
-        self, fn: callable, *args, resource_dict: dict = {}, **kwargs
-    ) -> Future:
+    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs) -> Future:
         """
         Submits a callable to be executed with the given arguments.
 
