@@ -99,7 +99,7 @@ class SubprocessInterface(BaseInterface):
             )
         else:
             import conda_subprocess
-            
+
             self._process = conda_subprocess.Popen(
                 args=self.generate_command(command_lst=command_lst),
                 cwd=self._cwd,
