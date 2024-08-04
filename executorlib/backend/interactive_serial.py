@@ -1,6 +1,6 @@
 import sys
 from os.path import abspath
-from typing import Optional
+from typing import List, Optional
 
 from executorlib.interactive.backend import call_funct, parse_arguments
 from executorlib.shared.communication import (
@@ -11,7 +11,16 @@ from executorlib.shared.communication import (
 )
 
 
-def main(argument_lst: Optional[list[str]] = None):
+def main(argument_lst: Optional[List[str]] = None):
+    """
+    The main function of the program.
+
+    Args:
+        argument_lst (Optional[List[str]]): List of command line arguments. If None, sys.argv will be used.
+
+    Returns:
+        None
+    """
     if argument_lst is None:
         argument_lst = sys.argv
     argument_dict = parse_arguments(argument_lst=argument_lst)

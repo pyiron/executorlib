@@ -10,7 +10,7 @@ from concurrent.futures import (
     Future,
 )
 from time import sleep
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import cloudpickle
 
@@ -24,13 +24,29 @@ from executorlib.shared.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor):
+    """
+    Base class for the executor.
+
+    Args:
+        FutureExecutor: Base class for the executor.
+    """
+
     def __init__(self):
+        """
+        Initialize the ExecutorBase class.
+        """
         cloudpickle_register(ind=3)
-        self._future_queue = queue.Queue()
-        self._process = None
+        self._future_queue: queue.Queue = queue.Queue()
+        self._process: Optional[RaisingThread] = None
 
     @property
-    def info(self):
+    def info(self) -> Optional[dict]:
+        """
+        Get the information about the executor.
+
+        Returns:
+            Optional[dict]: Information about the executor.
+        """
         if self._process is not None and isinstance(self._process, list):
             meta_data_dict = self._process[0]._kwargs.copy()
             if "future_queue" in meta_data_dict.keys():
@@ -46,10 +62,16 @@ class ExecutorBase(FutureExecutor):
             return None
 
     @property
-    def future_queue(self):
+    def future_queue(self) -> queue.Queue:
+        """
+        Get the future queue.
+
+        Returns:
+            queue.Queue: The future queue.
+        """
         return self._future_queue
 
-    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs):
+    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs) -> Future:
         """
         Submits a callable to be executed with the given arguments.
 
@@ -72,7 +94,7 @@ class ExecutorBase(FutureExecutor):
                                   }
 
         Returns:
-            A Future representing the given call.
+            Future: A Future representing the given call.
         """
         check_resource_dict_is_empty(resource_dict=resource_dict)
         check_resource_dict(function=fn)
@@ -88,10 +110,10 @@ class ExecutorBase(FutureExecutor):
         methods can be called after this one.
 
         Args:
-            wait: If True then shutdown will not return until all running
+            wait (bool): If True then shutdown will not return until all running
                 futures have finished executing and the resources used by the
                 parallel_executors have been reclaimed.
-            cancel_futures: If True then shutdown will cancel all pending
+            cancel_futures (bool): If True then shutdown will cancel all pending
                 futures. Futures that are completed or running will not be
                 cancelled.
         """
@@ -105,13 +127,28 @@ class ExecutorBase(FutureExecutor):
         self._future_queue = None
 
     def _set_process(self, process: RaisingThread):
+        """
+        Set the process for the executor.
+
+        Args:
+            process (RaisingThread): The process for the executor.
+        """
         self._process = process
         self._process.start()
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """
+        Get the length of the executor.
+
+        Returns:
+            int: The length of the executor.
+        """
         return self._future_queue.qsize()
 
     def __del__(self):
+        """
+        Clean-up the resources associated with the Executor.
+        """
         try:
             self.shutdown(wait=False)
         except (AttributeError, RuntimeError):
@@ -146,6 +183,12 @@ class ExecutorBroker(ExecutorBase):
         self._future_queue = None
 
     def _set_process(self, process: List[RaisingThread]):
+        """
+        Set the process for the executor.
+
+        Args:
+            process (List[RaisingThread]): The process for the executor.
+        """
         self._process = process
         for process in self._process:
             process.start()
@@ -260,11 +303,11 @@ def execute_parallel_tasks(
     cores: int = 1,
     interface_class: BaseInterface = MpiExecInterface,
     hostname_localhost: bool = False,
-    init_function: Optional[callable] = None,
+    init_function: Optional[Callable] = None,
     prefix_name: Optional[str] = None,
     prefix_path: Optional[str] = None,
     **kwargs,
-):
+) -> None:
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
 

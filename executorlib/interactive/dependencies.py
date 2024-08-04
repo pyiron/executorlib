@@ -1,4 +1,5 @@
 from concurrent.futures import Future
+from typing import Any, Callable, Dict
 
 from executorlib.interactive import create_executor
 from executorlib.shared.executor import ExecutorSteps, execute_tasks_with_dependencies
@@ -7,13 +8,30 @@ from executorlib.shared.thread import RaisingThread
 
 
 class ExecutorWithDependencies(ExecutorSteps):
+    """
+    ExecutorWithDependencies is a class that extends ExecutorSteps and provides
+    functionality for executing tasks with dependencies.
+
+    Args:
+        refresh_rate (float, optional): The refresh rate for updating the executor queue. Defaults to 0.01.
+        plot_dependency_graph (bool, optional): Whether to generate and plot the dependency graph. Defaults to False.
+        *args: Variable length argument list.
+        **kwargs: Arbitrary keyword arguments.
+
+    Attributes:
+        _future_hash_dict (Dict[str, Future]): A dictionary mapping task hash to future object.
+        _task_hash_dict (Dict[str, Dict]): A dictionary mapping task hash to task dictionary.
+        _generate_dependency_graph (bool): Whether to generate the dependency graph.
+
+    """
+
     def __init__(
         self,
-        *args,
+        *args: Any,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__()
         executor = create_executor(*args, **kwargs)
         self._set_process(
@@ -32,7 +50,26 @@ class ExecutorWithDependencies(ExecutorSteps):
         self._task_hash_dict = {}
         self._generate_dependency_graph = plot_dependency_graph
 
-    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs):
+    def submit(
+        self,
+        fn: Callable[..., Any],
+        *args: Any,
+        resource_dict: Dict[str, Any] = {},
+        **kwargs: Any,
+    ) -> Future:
+        """
+        Submits a task to the executor.
+
+        Args:
+            fn (callable): The function to be executed.
+            *args: Variable length argument list.
+            resource_dict (dict, optional): A dictionary of resources required by the task. Defaults to {}.
+            **kwargs: Arbitrary keyword arguments.
+
+        Returns:
+            Future: A future object representing the result of the task.
+
+        """
         if not self._generate_dependency_graph:
             f = super().submit(fn, *args, resource_dict=resource_dict, **kwargs)
         else:
@@ -55,7 +92,21 @@ class ExecutorWithDependencies(ExecutorSteps):
             self._task_hash_dict[task_hash] = task_dict
         return f
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self,
+        exc_type: Any,
+        exc_val: Any,
+        exc_tb: Any,
+    ) -> None:
+        """
+        Exit method called when exiting the context manager.
+
+        Args:
+            exc_type: The type of the exception.
+            exc_val: The exception instance.
+            exc_tb: The traceback object.
+
+        """
         super().__exit__(exc_type=exc_type, exc_val=exc_val, exc_tb=exc_tb)
         if self._generate_dependency_graph:
             node_lst, edge_lst = generate_nodes_and_edges(

@@ -7,6 +7,20 @@ from executorlib.shared.interface import BaseInterface
 
 
 class FluxPythonInterface(BaseInterface):
+    """
+    A class representing the FluxPythonInterface.
+
+    Args:
+        cwd (str, optional): The current working directory. Defaults to None.
+        cores (int, optional): The number of cores. Defaults to 1.
+        threads_per_core (int, optional): The number of threads per core. Defaults to 1.
+        gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
+        oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
+        executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
+        pmi (str, optional): The PMI option. Defaults to None.
+        nested_flux_executor (bool, optional): Whether to use nested FluxExecutor. Defaults to False.
+    """
+
     def __init__(
         self,
         cwd: Optional[str] = None,
@@ -40,10 +54,11 @@ class FluxPythonInterface(BaseInterface):
         Boot up the client process to connect to the SocketInterface.
 
         Args:
-            command_lst (list): list of strings to start the client process
-            prefix_name (str): name of the conda environment to initialize
-            prefix_path (str): path of the conda environment to initialize
-            nested (bool): nested flux instance
+            command_lst (list[str]): List of strings to start the client process.
+            prefix_name (str, optional): Name of the conda environment to initialize. Defaults to None.
+            prefix_path (str, optional): Path of the conda environment to initialize. Defaults to None.
+        Raises:
+            ValueError: If oversubscribing is not supported for the Flux adapter or if conda environments are not supported.
         """
         if self._oversubscribe:
             raise ValueError(
@@ -81,6 +96,12 @@ class FluxPythonInterface(BaseInterface):
         self._future = self._executor.submit(jobspec)
 
     def shutdown(self, wait: bool = True):
+        """
+        Shutdown the FluxPythonInterface.
+
+        Args:
+            wait (bool, optional): Whether to wait for the execution to complete. Defaults to True.
+        """
         if self.poll():
             self._future.cancel()
         # The flux future objects are not instantly updated,
@@ -89,4 +110,10 @@ class FluxPythonInterface(BaseInterface):
         self._future.result()
 
     def poll(self):
+        """
+        Check if the FluxPythonInterface is running.
+
+        Returns:
+            bool: True if the interface is running, False otherwise.
+        """
         return self._future is not None and not self._future.done()

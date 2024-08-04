@@ -3,6 +3,8 @@ from threading import Thread
 
 class RaisingThread(Thread):
     """
+    A subclass of Thread that allows catching exceptions raised in the thread.
+
     Based on https://stackoverflow.com/questions/2829329/catch-a-threads-exception-in-the-caller-thread
     """
 
@@ -19,13 +21,19 @@ class RaisingThread(Thread):
         )
         self._exception = None
 
-    def run(self):
+    def run(self) -> None:
+        """
+        Run the thread's target function and catch any exceptions raised.
+        """
         try:
             super().run()
         except Exception as e:
             self._exception = e
 
-    def join(self, timeout=None):
+    def join(self, timeout=None) -> None:
+        """
+        Wait for the thread to complete and re-raise any exceptions caught during execution.
+        """
         super().join(timeout=timeout)
         if self._exception:
             raise self._exception

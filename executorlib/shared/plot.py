@@ -7,10 +7,28 @@ import cloudpickle
 def generate_nodes_and_edges(
     task_hash_dict: dict, future_hash_inverse_dict: dict
 ) -> Tuple[list, list]:
+    """
+    Generate nodes and edges for visualization.
+
+    Args:
+        task_hash_dict (dict): Dictionary mapping task hash to task information.
+        future_hash_inverse_dict (dict): Dictionary mapping future hash to future object.
+
+    Returns:
+        Tuple[list, list]: Tuple containing the list of nodes and the list of edges.
+    """
     node_lst, edge_lst = [], []
     hash_id_dict = {}
 
     def add_element(arg, link_to, label=""):
+        """
+        Add element to the node and edge lists.
+
+        Args:
+            arg: Argument to be added.
+            link_to: ID of the node to link the element to.
+            label (str, optional): Label for the edge. Defaults to "".
+        """
         if isinstance(arg, Future):
             edge_lst.append(
                 {
@@ -43,7 +61,28 @@ def generate_nodes_and_edges(
 
 
 def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes:
+    """
+    Generate a hash for a task dictionary.
+
+    Args:
+        task_dict (dict): Dictionary containing task information.
+        future_hash_inverse_dict (dict): Dictionary mapping future hash to future object.
+
+    Returns:
+        bytes: Hash generated for the task dictionary.
+    """
+
     def convert_arg(arg, future_hash_inverse_dict):
+        """
+        Convert an argument to its hash representation.
+
+        Args:
+            arg: Argument to be converted.
+            future_hash_inverse_dict (dict): Dictionary mapping future hash to future object.
+
+        Returns:
+            The hash representation of the argument.
+        """
         if isinstance(arg, Future):
             return future_hash_inverse_dict[arg]
         elif isinstance(arg, list):
@@ -68,6 +107,13 @@ def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes
 
 
 def draw(node_lst: list, edge_lst: list):
+    """
+    Draw the graph visualization of nodes and edges.
+
+    Args:
+        node_lst (list): List of nodes.
+        edge_lst (list): List of edges.
+    """
     from IPython.display import SVG, display  # noqa
     import matplotlib.pyplot as plt  # noqa
     import networkx as nx  # noqa

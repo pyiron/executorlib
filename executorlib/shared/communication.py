@@ -5,7 +5,7 @@ import cloudpickle
 import zmq
 
 
-class SocketInterface(object):
+class SocketInterface:
     """
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
@@ -14,6 +14,12 @@ class SocketInterface(object):
     """
 
     def __init__(self, interface=None):
+        """
+        Initialize the SocketInterface.
+
+        Args:
+            interface (executorlib.shared.interface.BaseInterface): Interface for starting the parallel process
+        """
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
@@ -86,6 +92,12 @@ class SocketInterface(object):
         )
 
     def shutdown(self, wait: bool = True):
+        """
+        Shutdown the SocketInterface and the connected client process.
+
+        Args:
+            wait (bool): Whether to wait for the client process to finish before returning. Default is True.
+        """
         result = None
         if self._interface.poll():
             result = self.send_and_receive_dict(
@@ -102,6 +114,10 @@ class SocketInterface(object):
         return result
 
     def __del__(self):
+        """
+        Destructor for the SocketInterface class.
+        Calls the shutdown method with wait=True to ensure proper cleanup.
+        """
         self.shutdown(wait=True)
 
 

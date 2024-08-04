@@ -6,7 +6,7 @@ import re
 import subprocess
 import sys
 from concurrent.futures import Future
-from typing import Tuple
+from typing import Any, Tuple
 
 import cloudpickle
 
@@ -16,20 +16,51 @@ from executorlib.shared.executor import get_command_path
 
 class FutureItem:
     def __init__(self, file_name: str):
+        """
+        Initialize a FutureItem object.
+
+        Args:
+            file_name (str): The name of the file.
+
+        """
         self._file_name = file_name
 
-    def result(self):
+    def result(self) -> str:
+        """
+        Get the result of the future item.
+
+        Returns:
+            str: The result of the future item.
+
+        """
         exec_flag, result = get_output(file_name=self._file_name)
         if exec_flag:
             return result
         else:
             return self.result()
 
-    def done(self):
+    def done(self) -> bool:
+        """
+        Check if the future item is done.
+
+        Returns:
+            bool: True if the future item is done, False otherwise.
+
+        """
         return get_output(file_name=self._file_name)[0]
 
 
 def backend_load_file(file_name: str) -> dict:
+    """
+    Load the data from an HDF5 file and convert FutureItem objects to their results.
+
+    Args:
+        file_name (str): The name of the HDF5 file.
+
+    Returns:
+        dict: The loaded data from the file.
+
+    """
     apply_dict = load(file_name=file_name)
     apply_dict["args"] = [
         arg if not isinstance(arg, FutureItem) else arg.result()
@@ -42,7 +73,18 @@ def backend_load_file(file_name: str) -> dict:
     return apply_dict
 
 
-def backend_write_file(file_name: str, output):
+def backend_write_file(file_name: str, output: Any) -> None:
+    """
+    Write the output to an HDF5 file.
+
+    Args:
+        file_name (str): The name of the HDF5 file.
+        output (Any): The output to be written.
+
+    Returns:
+        None
+
+    """
     file_name_out = os.path.splitext(file_name)[0]
     os.rename(file_name, file_name_out + ".h5ready")
     dump(file_name=file_name_out + ".h5ready", data_dict={"output": output})
@@ -52,6 +94,17 @@ def backend_write_file(file_name: str, output):
 def execute_in_subprocess(
     command: list, task_dependent_lst: list = []
 ) -> subprocess.Popen:
+    """
+    Execute a command in a subprocess.
+
+    Args:
+        command (list): The command to be executed.
+        task_dependent_lst (list, optional): A list of subprocesses that the current subprocess depends on. Defaults to [].
+
+    Returns:
+        subprocess.Popen: The subprocess object.
+
+    """
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
             task for task in task_dependent_lst if task.poll() is None
@@ -64,7 +117,20 @@ def execute_tasks_h5(
     cache_directory: str,
     cores_per_worker: int,
     execute_function: callable,
-):
+) -> None:
+    """
+    Execute tasks stored in a queue using HDF5 files.
+
+    Args:
+        future_queue (queue.Queue): The queue containing the tasks.
+        cache_directory (str): The directory to store the HDF5 files.
+        cores_per_worker (int): The number of cores per worker.
+        execute_function (callable): The function to execute the tasks.
+
+    Returns:
+        None
+
+    """
     memory_dict, process_dict, file_name_dict = {}, {}, {}
     while True:
         task_dict = None
@@ -117,12 +183,15 @@ def execute_tasks_h5(
             }
 
 
-def execute_task_in_file(file_name: str):
+def execute_task_in_file(file_name: str) -> None:
     """
-    Execute the task stored in a given HDF5 file
+    Execute the task stored in a given HDF5 file.
 
     Args:
-        file_name (str): file name of the HDF5 file as absolute path
+        file_name (str): The file name of the HDF5 file as an absolute path.
+
+    Returns:
+        None
     """
     apply_dict = backend_load_file(file_name=file_name)
     result = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
@@ -135,9 +204,11 @@ def execute_task_in_file(file_name: str):
 def _get_execute_command(file_name: str, cores: int = 1) -> list:
     """
     Get command to call backend as a list of two strings
+
     Args:
-        file_name (str):
-        cores (int): Number of cores used to execute the task, if it is greater than one use interactive_parallel.py else interactive_serial.py
+        file_name (str): The name of the file.
+        cores (int, optional): Number of cores used to execute the task. Defaults to 1.
+
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
     """
@@ -157,13 +228,35 @@ def _get_execute_command(file_name: str, cores: int = 1) -> list:
     return command_lst
 
 
-def _get_hash(binary: bytes):
+def _get_hash(binary: bytes) -> str:
+    """
+    Get the hash of a binary.
+
+    Args:
+        binary (bytes): The binary to be hashed.
+
+    Returns:
+        str: The hash of the binary.
+
+    """
     # Remove specification of jupyter kernel from hash to be deterministic
     binary_no_ipykernel = re.sub(b"(?<=/ipykernel_)(.*)(?=/)", b"", binary)
     return str(hashlib.md5(binary_no_ipykernel).hexdigest())
 
 
-def _serialize_funct_h5(fn: callable, *args, **kwargs):
+def _serialize_funct_h5(fn: callable, *args: Any, **kwargs: Any) -> Tuple[str, dict]:
+    """
+    Serialize a function and its arguments and keyword arguments into an HDF5 file.
+
+    Args:
+        fn (callable): The function to be serialized.
+        *args (Any): The arguments of the function.
+        **kwargs (Any): The keyword arguments of the function.
+
+    Returns:
+        Tuple[str, dict]: A tuple containing the task key and the serialized data.
+
+    """
     binary_all = cloudpickle.dumps({"fn": fn, "args": args, "kwargs": kwargs})
     task_key = fn.__name__ + _get_hash(binary=binary_all)
     data = {"fn": fn, "args": args, "kwargs": kwargs}
@@ -173,6 +266,18 @@ def _serialize_funct_h5(fn: callable, *args, **kwargs):
 def _check_task_output(
     task_key: str, future_obj: Future, cache_directory: str
 ) -> Future:
+    """
+    Check the output of a task and set the result of the future object if available.
+
+    Args:
+        task_key (str): The key of the task.
+        future_obj (Future): The future object associated with the task.
+        cache_directory (str): The directory where the HDF5 files are stored.
+
+    Returns:
+        Future: The updated future object.
+
+    """
     file_name = os.path.join(cache_directory, task_key + ".h5out")
     if not os.path.exists(file_name):
         return future_obj
@@ -184,7 +289,19 @@ def _check_task_output(
 
 def _convert_args_and_kwargs(
     task_dict: dict, memory_dict: dict, file_name_dict: dict
-) -> Tuple:
+) -> Tuple[list, dict, list]:
+    """
+    Convert the arguments and keyword arguments in a task dictionary to the appropriate types.
+
+    Args:
+        task_dict (dict): The task dictionary containing the arguments and keyword arguments.
+        memory_dict (dict): The dictionary mapping future objects to their associated task keys.
+        file_name_dict (dict): The dictionary mapping task keys to their corresponding file names.
+
+    Returns:
+        Tuple[list, dict, list]: A tuple containing the converted arguments, converted keyword arguments, and a list of future wait keys.
+
+    """
     task_args = []
     task_kwargs = {}
     future_wait_key_lst = []
