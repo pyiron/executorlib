@@ -9,7 +9,7 @@ dependencies:
 - openmpi
 - cloudpickle =3.0.0
 - mpi4py =4.0.0
-- pyzmq =26.1.0
+- pyzmq =26.1.1
 - flux-core
 - jupyter-book =1.0.0
 - h5py =3.11.0
