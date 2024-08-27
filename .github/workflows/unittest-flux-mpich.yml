@@ -16,14 +16,12 @@ jobs:
       run: |
         echo -e '- coverage\n- flux-core =0.59.0\n- versioneer =0.28'>> .ci_support/environment-mpich.yml
         cat .ci_support/environment-mpich.yml
+        echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.12'
-        mamba-version: "*"
-        channels: conda-forge
-        miniforge-variant: Mambaforge
-        channel-priority: strict
-        auto-update-conda: true
+        miniforge-version: latest
+        condarc-file: .condarc
         environment-file: .ci_support/environment-mpich.yml
     - name: Test
       shell: bash -l {0}
