@@ -30,7 +30,10 @@ def execute_single_task(
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 try:
-                    if conda_environment_name is None and conda_environment_path is None:
+                    if (
+                        conda_environment_name is None
+                        and conda_environment_path is None
+                    ):
                         f.set_result(
                             subprocess.check_output(
                                 *task_dict["args"], **task_dict["kwargs"]
