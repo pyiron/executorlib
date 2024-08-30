@@ -103,7 +103,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             cores_per_worker=1,
             threads_per_core=1,
             gpus_per_worker=0,
-            oversubscribe=False,
+            openmpi_oversubscribe=False,
             backend="local",
             hostname_localhost=True,
         )
