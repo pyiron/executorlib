@@ -10,20 +10,20 @@ class SocketInterface:
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        interface (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
+        spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
     """
 
-    def __init__(self, interface=None):
+    def __init__(self, spawner=None):
         """
         Initialize the SocketInterface.
 
         Args:
-            interface (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
+            spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
         """
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
-        self._interface = interface
+        self._spawner = spawner
 
     def send_dict(self, input_dict: dict):
         """
@@ -87,7 +87,7 @@ class SocketInterface:
             prefix_name (str): name of the conda environment to initialize
             prefix_path (str): path of the conda environment to initialize
         """
-        self._interface.bootup(
+        self._spawner.bootup(
             command_lst=command_lst, prefix_name=prefix_name, prefix_path=prefix_path
         )
 
@@ -99,11 +99,11 @@ class SocketInterface:
             wait (bool): Whether to wait for the client process to finish before returning. Default is True.
         """
         result = None
-        if self._interface.poll():
+        if self._spawner.poll():
             result = self.send_and_receive_dict(
                 input_dict={"shutdown": True, "wait": wait}
             )
-            self._interface.shutdown(wait=wait)
+            self._spawner.shutdown(wait=wait)
         if self._socket is not None:
             self._socket.close()
         if self._context is not None:
@@ -153,7 +153,7 @@ def interface_bootup(
             "--host",
             gethostname(),
         ]
-    interface = SocketInterface(interface=connections)
+    interface = SocketInterface(spawner=connections)
     command_lst += [
         "--zmqport",
         str(interface.bind_to_random_port()),

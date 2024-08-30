@@ -104,7 +104,7 @@ class TestFlux(unittest.TestCase):
             future_queue=q,
             cores=1,
             executor=self.executor,
-            interface_class=FluxPythonSpawner,
+            spawner=FluxPythonSpawner,
         )
         self.assertEqual(f.result(), 2)
         q.join()
@@ -120,7 +120,7 @@ class TestFlux(unittest.TestCase):
             cores=1,
             threads_per_core=1,
             executor=self.executor,
-            interface_class=FluxPythonSpawner,
+            spawner=FluxPythonSpawner,
         )
         self.assertEqual(f.result(), 2)
         q.join()

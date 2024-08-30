@@ -246,7 +246,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
-            interface_class=MpiExecSpawner,
+            spawner=MpiExecSpawner,
             hostname_localhost=True,
             init_function=set_global,
         )
@@ -427,7 +427,7 @@ class TestFuturePool(unittest.TestCase):
                 future_queue=q,
                 cores=1,
                 openmpi_oversubscribe=False,
-                interface_class=MpiExecSpawner,
+                spawner=MpiExecSpawner,
                 hostname_localhost=True,
             )
         q.join()
@@ -442,7 +442,7 @@ class TestFuturePool(unittest.TestCase):
                 future_queue=q,
                 cores=1,
                 openmpi_oversubscribe=False,
-                interface_class=MpiExecSpawner,
+                spawner=MpiExecSpawner,
                 hostname_localhost=True,
             )
         q.join()
@@ -457,7 +457,7 @@ class TestFuturePool(unittest.TestCase):
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
-            interface_class=MpiExecSpawner,
+            spawner=MpiExecSpawner,
             hostname_localhost=True,
         )
         self.assertEqual(f.result(), np.array(4))
@@ -476,7 +476,7 @@ class TestFuturePool(unittest.TestCase):
             future_queue=q,
             cores=2,
             openmpi_oversubscribe=False,
-            interface_class=MpiExecSpawner,
+            spawner=MpiExecSpawner,
             hostname_localhost=True,
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])

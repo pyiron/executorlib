@@ -301,7 +301,7 @@ def cloudpickle_register(ind: int = 2):
 def execute_parallel_tasks(
     future_queue: queue.Queue,
     cores: int = 1,
-    interface_class: BaseSpawner = MpiExecSpawner,
+    spawner: BaseSpawner = MpiExecSpawner,
     hostname_localhost: bool = False,
     init_function: Optional[Callable] = None,
     prefix_name: Optional[str] = None,
@@ -314,7 +314,7 @@ def execute_parallel_tasks(
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
-       interface_class (BaseSpawner): Interface to start process on selected compute resources
+       spawner (BaseSpawner): Spawner to start process on selected compute resources
        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                      context of an HPC cluster this essential to be able to communicate to an
                                      Executor running on a different compute node within the same allocation. And
@@ -330,7 +330,7 @@ def execute_parallel_tasks(
         command_lst=_get_backend_path(
             cores=cores,
         ),
-        connections=interface_class(cores=cores, **kwargs),
+        connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
         prefix_path=prefix_path,
         prefix_name=prefix_name,
