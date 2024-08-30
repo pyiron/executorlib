@@ -85,6 +85,8 @@ def create_executor(
     """
     max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    if flux_executor is not None and backend != "flux":
+        backend = "flux"
     check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
     executor_kwargs = {
         "cores": cores_per_worker,
@@ -93,8 +95,6 @@ def create_executor(
         "conda_environment_name": conda_environment_name,
         "conda_environment_path": conda_environment_path,
     }
-    if flux_executor is not None and backend != "flux":
-        backend = "flux"
     if backend == "flux":
         check_oversubscribe(oversubscribe=openmpi_oversubscribe)
         check_command_line_argument_lst(command_line_argument_lst=slurm_cmd_args)
