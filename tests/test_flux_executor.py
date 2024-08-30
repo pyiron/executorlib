@@ -50,7 +50,7 @@ class TestFlux(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=2,
             executor_kwargs={"executor": self.executor},
-            interface_class=FluxPythonSpawner,
+            spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -63,7 +63,7 @@ class TestFlux(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "threads_per_core": 2},
-            interface_class=FluxPythonSpawner,
+            spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -76,7 +76,7 @@ class TestFlux(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
-            interface_class=FluxPythonSpawner,
+            spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
@@ -86,7 +86,7 @@ class TestFlux(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
-            interface_class=FluxPythonSpawner,
+            spawner=FluxPythonSpawner,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
@@ -133,7 +133,7 @@ class TestFlux(unittest.TestCase):
                 "cores": 1,
                 "init_function": set_global,
             },
-            interface_class=FluxPythonSpawner,
+            spawner=FluxPythonSpawner,
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
