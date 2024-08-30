@@ -44,12 +44,12 @@ def set_global():
 )
 class TestFlux(unittest.TestCase):
     def setUp(self):
-        self.executor = flux.job.FluxExecutor()
+        self.flux_executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
         with InteractiveExecutor(
             max_workers=2,
-            executor_kwargs={"executor": self.executor},
+            executor_kwargs={"flux_executor": self.flux_executor},
             spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -62,7 +62,7 @@ class TestFlux(unittest.TestCase):
     def test_flux_executor_threads(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"executor": self.executor, "threads_per_core": 2},
+            executor_kwargs={"flux_executor": self.flux_executor, "threads_per_core": 2},
             spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -75,7 +75,7 @@ class TestFlux(unittest.TestCase):
     def test_flux_executor_parallel(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
+            executor_kwargs={"flux_executor": self.flux_executor, "cores": 2, "pmi": pmi},
             spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
@@ -85,7 +85,7 @@ class TestFlux(unittest.TestCase):
     def test_single_task(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"executor": self.executor, "cores": 2, "pmi": pmi},
+            executor_kwargs={"flux_executor": self.flux_executor, "cores": 2, "pmi": pmi},
             spawner=FluxPythonSpawner,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
@@ -103,7 +103,7 @@ class TestFlux(unittest.TestCase):
         execute_parallel_tasks(
             future_queue=q,
             cores=1,
-            executor=self.executor,
+            flux_executor=self.flux_executor,
             spawner=FluxPythonSpawner,
         )
         self.assertEqual(f.result(), 2)
@@ -119,7 +119,7 @@ class TestFlux(unittest.TestCase):
             future_queue=q,
             cores=1,
             threads_per_core=1,
-            executor=self.executor,
+            flux_executor=self.flux_executor,
             spawner=FluxPythonSpawner,
         )
         self.assertEqual(f.result(), 2)
@@ -129,7 +129,7 @@ class TestFlux(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={
-                "executor": self.executor,
+                "flux_executor": self.flux_executor,
                 "cores": 1,
                 "init_function": set_global,
             },
@@ -143,12 +143,12 @@ class TestFlux(unittest.TestCase):
     def test_interface_exception(self):
         with self.assertRaises(ValueError):
             flux_interface = FluxPythonSpawner(
-                flux_executor=self.executor, openmpi_oversubscribe=True
+                flux_executor=self.flux_executor, openmpi_oversubscribe=True
             )
             flux_interface.bootup(command_lst=[])
         with self.assertRaises(ValueError):
-            flux_interface = FluxPythonSpawner(flux_executor=self.executor)
+            flux_interface = FluxPythonSpawner(flux_executor=self.flux_executor)
             flux_interface.bootup(command_lst=[], prefix_path="/path/to/conda/env")
         with self.assertRaises(ValueError):
-            flux_interface = FluxPythonSpawner(flux_executor=self.executor)
+            flux_interface = FluxPythonSpawner(flux_executor=self.flux_executor)
             flux_interface.bootup(command_lst=[], prefix_name="conda_env_name")
