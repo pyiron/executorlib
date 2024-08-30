@@ -52,7 +52,10 @@ class TestParser(unittest.TestCase):
             result_dict["zmqport"],
         ]
         interface = SrunSpawner(
-            cwd=os.path.abspath("."), cores=2, gpus_per_core=1, openmpi_oversubscribe=True
+            cwd=os.path.abspath("."),
+            cores=2,
+            gpus_per_core=1,
+            openmpi_oversubscribe=True,
         )
         self.assertEqual(
             command_lst,
