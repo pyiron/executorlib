@@ -216,7 +216,9 @@ class SrunSpawner(SubprocessSpawner):
         )
 
 
-def generate_mpiexec_command(cores: int, openmpi_oversubscribe: bool = False) -> list[str]:
+def generate_mpiexec_command(
+    cores: int, openmpi_oversubscribe: bool = False
+) -> list[str]:
     """
     Generate the command list for the MPIExec interface.
 
