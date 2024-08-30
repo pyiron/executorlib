@@ -46,7 +46,7 @@ class TestFluxBackend(unittest.TestCase):
     def test_flux_executor_serial(self):
         with Executor(
             max_cores=2,
-            executor=self.executor,
+            flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
         ) as exe:
@@ -61,7 +61,7 @@ class TestFluxBackend(unittest.TestCase):
         with Executor(
             max_cores=1,
             threads_per_core=2,
-            executor=self.executor,
+            flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
         ) as exe:
@@ -76,10 +76,10 @@ class TestFluxBackend(unittest.TestCase):
         with Executor(
             max_cores=2,
             cores_per_worker=2,
-            executor=self.executor,
+            flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
-            pmi=pmi,
+            flux_executor_pmi_mode=pmi,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
@@ -89,10 +89,10 @@ class TestFluxBackend(unittest.TestCase):
         with Executor(
             max_cores=2,
             cores_per_worker=2,
-            executor=self.executor,
+            flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
-            pmi=pmi,
+            flux_executor_pmi_mode=pmi,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
@@ -105,7 +105,7 @@ class TestFluxBackend(unittest.TestCase):
             max_cores=1,
             cores_per_worker=1,
             init_function=set_global,
-            executor=self.executor,
+            flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
         ) as p:

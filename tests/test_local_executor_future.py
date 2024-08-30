@@ -21,7 +21,7 @@ class TestFuture(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True, "cores": 1},
-            interface_class=MpiExecSpawner,
+            spawner=MpiExecSpawner,
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -37,7 +37,7 @@ class TestFuture(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True, "cores": 2},
-            interface_class=MpiExecSpawner,
+            spawner=MpiExecSpawner,
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -69,7 +69,7 @@ class TestFuture(unittest.TestCase):
                 # this function is exits
                 future = InteractiveExecutor(
                     executor_kwargs={"hostname_localhost": True},
-                    interface_class=MpiExecSpawner,
+                    spawner=MpiExecSpawner,
                 ).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
@@ -109,7 +109,7 @@ class TestFuture(unittest.TestCase):
 
                     future = InteractiveExecutor(
                         executor_kwargs={"hostname_localhost": True},
-                        interface_class=MpiExecSpawner,
+                        spawner=MpiExecSpawner,
                     ).submit(self.return_42)
                     future.add_done_callback(self.finished)
 

@@ -22,7 +22,7 @@ class TestParser(unittest.TestCase):
             "--zmqport",
             result_dict["zmqport"],
         ]
-        interface = MpiExecSpawner(cwd=None, cores=2, oversubscribe=True)
+        interface = MpiExecSpawner(cwd=None, cores=2, openmpi_oversubscribe=True)
         self.assertEqual(
             command_lst,
             interface.generate_command(
@@ -52,7 +52,10 @@ class TestParser(unittest.TestCase):
             result_dict["zmqport"],
         ]
         interface = SrunSpawner(
-            cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True
+            cwd=os.path.abspath("."),
+            cores=2,
+            gpus_per_core=1,
+            openmpi_oversubscribe=True,
         )
         self.assertEqual(
             command_lst,
@@ -95,8 +98,8 @@ class TestParser(unittest.TestCase):
             cwd=os.path.abspath("."),
             cores=2,
             gpus_per_core=1,
-            oversubscribe=True,
-            command_line_argument_lst=["--account=test", "--job-name=executorlib"],
+            openmpi_oversubscribe=True,
+            slurm_cmd_args=["--account=test", "--job-name=executorlib"],
         )
         self.assertEqual(
             command_lst,

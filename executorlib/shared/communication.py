@@ -10,20 +10,20 @@ class SocketInterface:
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        interface (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
+        spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
     """
 
-    def __init__(self, interface=None):
+    def __init__(self, spawner=None):
         """
         Initialize the SocketInterface.
 
         Args:
-            interface (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
+            spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
         """
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
-        self._interface = interface
+        self._spawner = spawner
 
     def send_dict(self, input_dict: dict):
         """
@@ -76,19 +76,21 @@ class SocketInterface:
     def bootup(
         self,
         command_lst: list[str],
-        prefix_name: Optional[str] = None,
-        prefix_path: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
     ):
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
-            prefix_name (str): name of the conda environment to initialize
-            prefix_path (str): path of the conda environment to initialize
+            conda_environment_name (str): name of the conda environment to initialize
+            conda_environment_path (str): path of the conda environment to initialize
         """
-        self._interface.bootup(
-            command_lst=command_lst, prefix_name=prefix_name, prefix_path=prefix_path
+        self._spawner.bootup(
+            command_lst=command_lst,
+            conda_environment_name=conda_environment_name,
+            conda_environment_path=conda_environment_path,
         )
 
     def shutdown(self, wait: bool = True):
@@ -99,11 +101,11 @@ class SocketInterface:
             wait (bool): Whether to wait for the client process to finish before returning. Default is True.
         """
         result = None
-        if self._interface.poll():
+        if self._spawner.poll():
             result = self.send_and_receive_dict(
                 input_dict={"shutdown": True, "wait": wait}
             )
-            self._interface.shutdown(wait=wait)
+            self._spawner.shutdown(wait=wait)
         if self._socket is not None:
             self._socket.close()
         if self._context is not None:
@@ -125,8 +127,8 @@ def interface_bootup(
     command_lst: list[str],
     connections,
     hostname_localhost: bool = False,
-    prefix_name: Optional[str] = None,
-    prefix_path: Optional[str] = None,
+    conda_environment_name: Optional[str] = None,
+    conda_environment_path: Optional[str] = None,
 ):
     """
     Start interface for ZMQ communication
@@ -142,8 +144,8 @@ def interface_bootup(
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-        prefix_name (str): name of the conda environment to initialize
-        prefix_path (str): path of the conda environment to initialize
+        conda_environment_name (str): name of the conda environment to initialize
+        conda_environment_path (str): path of the conda environment to initialize
 
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
@@ -153,13 +155,15 @@ def interface_bootup(
             "--host",
             gethostname(),
         ]
-    interface = SocketInterface(interface=connections)
+    interface = SocketInterface(spawner=connections)
     command_lst += [
         "--zmqport",
         str(interface.bind_to_random_port()),
     ]
     interface.bootup(
-        command_lst=command_lst, prefix_name=prefix_name, prefix_path=prefix_path
+        command_lst=command_lst,
+        conda_environment_name=conda_environment_name,
+        conda_environment_path=conda_environment_path,
     )
     return interface
 
