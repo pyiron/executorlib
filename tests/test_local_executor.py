@@ -245,7 +245,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
         execute_parallel_tasks(
             future_queue=q,
             cores=1,
-            oversubscribe=False,
+            openmpi_oversubscribe=False,
             interface_class=MpiExecSpawner,
             hostname_localhost=True,
             init_function=set_global,
@@ -337,7 +337,7 @@ class TestFuturePool(unittest.TestCase):
             "hostname_localhost": True,
             "init_function": None,
             "cwd": None,
-            "oversubscribe": False,
+            "openmpi_oversubscribe": False,
             "max_workers": 1,
         }
         with InteractiveExecutor(
@@ -347,7 +347,7 @@ class TestFuturePool(unittest.TestCase):
                 "hostname_localhost": True,
                 "init_function": None,
                 "cwd": None,
-                "oversubscribe": False,
+                "openmpi_oversubscribe": False,
             },
             interface_class=MpiExecSpawner,
         ) as exe:
@@ -365,7 +365,7 @@ class TestFuturePool(unittest.TestCase):
             "interface_class": "<class 'executorlib.shared.spawner.MpiExecSpawner'>",
             "hostname_localhost": True,
             "cwd": None,
-            "oversubscribe": False,
+            "openmpi_oversubscribe": False,
             "max_cores": 2,
         }
         with InteractiveStepExecutor(
@@ -374,7 +374,7 @@ class TestFuturePool(unittest.TestCase):
                 "cores": 2,
                 "hostname_localhost": True,
                 "cwd": None,
-                "oversubscribe": False,
+                "openmpi_oversubscribe": False,
             },
             interface_class=MpiExecSpawner,
         ) as exe:
@@ -426,7 +426,7 @@ class TestFuturePool(unittest.TestCase):
             execute_parallel_tasks(
                 future_queue=q,
                 cores=1,
-                oversubscribe=False,
+                openmpi_oversubscribe=False,
                 interface_class=MpiExecSpawner,
                 hostname_localhost=True,
             )
@@ -441,7 +441,7 @@ class TestFuturePool(unittest.TestCase):
             execute_parallel_tasks(
                 future_queue=q,
                 cores=1,
-                oversubscribe=False,
+                openmpi_oversubscribe=False,
                 interface_class=MpiExecSpawner,
                 hostname_localhost=True,
             )
@@ -456,7 +456,7 @@ class TestFuturePool(unittest.TestCase):
         execute_parallel_tasks(
             future_queue=q,
             cores=1,
-            oversubscribe=False,
+            openmpi_oversubscribe=False,
             interface_class=MpiExecSpawner,
             hostname_localhost=True,
         )
@@ -475,7 +475,7 @@ class TestFuturePool(unittest.TestCase):
         execute_parallel_tasks(
             future_queue=q,
             cores=2,
-            oversubscribe=False,
+            openmpi_oversubscribe=False,
             interface_class=MpiExecSpawner,
             hostname_localhost=True,
         )

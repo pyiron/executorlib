@@ -143,12 +143,12 @@ class TestFlux(unittest.TestCase):
     def test_interface_exception(self):
         with self.assertRaises(ValueError):
             flux_interface = FluxPythonSpawner(
-                executor=self.executor, oversubscribe=True
+                flux_executor=self.executor, openmpi_oversubscribe=True
             )
             flux_interface.bootup(command_lst=[])
         with self.assertRaises(ValueError):
-            flux_interface = FluxPythonSpawner(executor=self.executor)
+            flux_interface = FluxPythonSpawner(flux_executor=self.executor)
             flux_interface.bootup(command_lst=[], prefix_path="/path/to/conda/env")
         with self.assertRaises(ValueError):
-            flux_interface = FluxPythonSpawner(executor=self.executor)
+            flux_interface = FluxPythonSpawner(flux_executor=self.executor)
             flux_interface.bootup(command_lst=[], prefix_name="conda_env_name")
