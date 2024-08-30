@@ -18,14 +18,14 @@ from executorlib.shared.inputcheck import (
     validate_backend,
     validate_number_of_cores,
 )
-from executorlib.shared.interface import (
+from executorlib.shared.spawner import (
     SLURM_COMMAND,
-    MpiExecInterface,
-    SrunInterface,
+    MpiExecSpawner,
+    SrunSpawner,
 )
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
-    from executorlib.interactive.flux import FluxPythonInterface
+    from executorlib.interactive.flux import FluxPythonSpawner
 
     flux_installed = "FLUX_URI" in os.environ
 except ImportError:
@@ -122,13 +122,13 @@ def create_executor(
             return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
-                interface_class=FluxPythonInterface,
+                interface_class=FluxPythonSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
-                interface_class=FluxPythonInterface,
+                interface_class=FluxPythonSpawner,
             )
     elif backend == "slurm":
         check_executor(executor=executor)
@@ -142,13 +142,13 @@ def create_executor(
             return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
-                interface_class=SrunInterface,
+                interface_class=SrunSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
-                interface_class=SrunInterface,
+                interface_class=SrunSpawner,
             )
     else:  # backend="local"
         check_threads_per_core(threads_per_core=threads_per_core)
@@ -164,11 +164,11 @@ def create_executor(
             return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
                 executor_kwargs=executor_kwargs,
-                interface_class=MpiExecInterface,
+                interface_class=MpiExecSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
                 executor_kwargs=executor_kwargs,
-                interface_class=MpiExecInterface,
+                interface_class=MpiExecSpawner,
             )

@@ -14,7 +14,7 @@ from executorlib.shared.communication import (
     SocketInterface,
 )
 from executorlib.shared.executor import cloudpickle_register
-from executorlib.shared.interface import MpiExecInterface
+from executorlib.shared.spawner import MpiExecSpawner
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -32,7 +32,7 @@ class TestInterface(unittest.TestCase):
         cloudpickle_register(ind=1)
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
-            interface=MpiExecInterface(cwd=None, cores=1, oversubscribe=False)
+            interface=MpiExecSpawner(cwd=None, cores=1, oversubscribe=False)
         )
         interface.bootup(
             command_lst=[
@@ -60,7 +60,7 @@ class TestInterface(unittest.TestCase):
         cloudpickle_register(ind=1)
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
-            interface=MpiExecInterface(cwd=None, cores=1, oversubscribe=False)
+            interface=MpiExecSpawner(cwd=None, cores=1, oversubscribe=False)
         )
         interface.bootup(
             command_lst=[

@@ -8,7 +8,7 @@ from executorlib import Executor
 
 try:
     import flux.job
-    from executorlib.interactive.flux import FluxPythonInterface
+    from executorlib.interactive.flux import FluxPythonSpawner
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)

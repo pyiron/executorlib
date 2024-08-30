@@ -7,7 +7,7 @@ from executorlib.shared.communication import (
     interface_shutdown,
 )
 from executorlib.shared.executor import cancel_items_in_queue
-from executorlib.shared.interface import MpiExecInterface, SrunInterface
+from executorlib.shared.spawner import MpiExecSpawner, SrunSpawner
 from executorlib.shared.thread import RaisingThread
 
 __all__ = [
@@ -19,6 +19,6 @@ __all__ = [
     interface_receive,
     cancel_items_in_queue,
     RaisingThread,
-    MpiExecInterface,
-    SrunInterface,
+    MpiExecSpawner,
+    SrunSpawner,
 ]
