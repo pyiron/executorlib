@@ -90,8 +90,8 @@ def create_executor(
         "cores": cores_per_worker,
         "hostname_localhost": hostname_localhost,
         "cwd": cwd,
-        "prefix_name": conda_environment_name,
-        "prefix_path": conda_environment_path,
+        "conda_environment_name": conda_environment_name,
+        "conda_environment_path": conda_environment_path,
     }
     if flux_executor is not None and backend != "flux":
         backend = "flux"

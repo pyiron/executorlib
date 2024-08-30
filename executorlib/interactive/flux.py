@@ -47,16 +47,16 @@ class FluxPythonSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
-        prefix_name: Optional[str] = None,
-        prefix_path: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
     ):
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list[str]): List of strings to start the client process.
-            prefix_name (str, optional): Name of the conda environment to initialize. Defaults to None.
-            prefix_path (str, optional): Path of the conda environment to initialize. Defaults to None.
+            conda_environment_name (str, optional): Name of the conda environment to initialize. Defaults to None.
+            conda_environment_path (str, optional): Path of the conda environment to initialize. Defaults to None.
         Raises:
             ValueError: If oversubscribing is not supported for the Flux adapter or if conda environments are not supported.
         """
@@ -64,7 +64,7 @@ class FluxPythonSpawner(BaseSpawner):
             raise ValueError(
                 "Oversubscribing is currently not supported for the Flux adapter."
             )
-        if prefix_name is not None or prefix_path is not None:
+        if conda_environment_name is not None or conda_environment_path is not None:
             raise ValueError(
                 "Conda environments are currently not supported for the Flux adapter."
             )

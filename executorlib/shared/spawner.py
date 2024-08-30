@@ -23,16 +23,16 @@ class BaseSpawner(ABC):
     def bootup(
         self,
         command_lst: list[str],
-        prefix_name: Optional[str] = None,
-        prefix_path: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
     ):
         """
         Method to start the interface.
 
         Args:
             command_lst (list[str]): The command list to execute.
-            prefix_name (str, optional): The prefix name. Defaults to None.
-            prefix_path (str, optional): The prefix path. Defaults to None.
+            conda_environment_name (str, optional): The prefix name. Defaults to None.
+            conda_environment_path (str, optional): The prefix path. Defaults to None.
         """
         raise NotImplementedError
 
@@ -80,18 +80,18 @@ class SubprocessSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
-        prefix_name: Optional[str] = None,
-        prefix_path: Optional[str] = None,
+        conda_environment_name: Optional[str] = None,
+        conda_environment_path: Optional[str] = None,
     ):
         """
         Method to start the subprocess interface.
 
         Args:
             command_lst (list[str]): The command list to execute.
-            prefix_name (str, optional): The prefix name. Defaults to None.
-            prefix_path (str, optional): The prefix path. Defaults to None.
+            conda_environment_name (str, optional): The prefix name. Defaults to None.
+            conda_environment_path (str, optional): The prefix path. Defaults to None.
         """
-        if prefix_name is None and prefix_path is None:
+        if conda_environment_name is None and conda_environment_path is None:
             self._process = subprocess.Popen(
                 args=self.generate_command(command_lst=command_lst),
                 cwd=self._cwd,
@@ -104,8 +104,8 @@ class SubprocessSpawner(BaseSpawner):
                 args=self.generate_command(command_lst=command_lst),
                 cwd=self._cwd,
                 stdin=subprocess.DEVNULL,
-                prefix_path=prefix_path,
-                prefix_name=prefix_name,
+                prefix_path=conda_environment_path,
+                prefix_name=conda_environment_name,
             )
 
     def generate_command(self, command_lst: list[str]) -> list[str]:

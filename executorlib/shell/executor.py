@@ -9,16 +9,16 @@ from executorlib.shared.thread import RaisingThread
 
 def execute_single_task(
     future_queue: queue.Queue,
-    prefix_name: Optional[str] = None,
-    prefix_path: Optional[str] = None,
+    conda_environment_name: Optional[str] = None,
+    conda_environment_path: Optional[str] = None,
 ) -> None:
     """
     Process items received via the queue.
 
     Args:
         future_queue (queue.Queue): The queue containing the tasks to be executed.
-        prefix_name (Optional[str]): The name of the conda environment to initialize.
-        prefix_path (Optional[str]): The path of the conda environment to initialize.
+        conda_environment_name (Optional[str]): The name of the conda environment to initialize.
+        conda_environment_path (Optional[str]): The path of the conda environment to initialize.
     """
     while True:
         task_dict = future_queue.get()
@@ -30,7 +30,10 @@ def execute_single_task(
             f = task_dict.pop("future")
             if f.set_running_or_notify_cancel():
                 try:
-                    if prefix_name is None and prefix_path is None:
+                    if (
+                        conda_environment_name is None
+                        and conda_environment_path is None
+                    ):
                         f.set_result(
                             subprocess.check_output(
                                 *task_dict["args"], **task_dict["kwargs"]
@@ -43,8 +46,8 @@ def execute_single_task(
                             conda_subprocess.check_output(
                                 *task_dict["args"],
                                 **task_dict["kwargs"],
-                                prefix_name=prefix_name,
-                                prefix_path=prefix_path,
+                                prefix_name=conda_environment_name,
+                                prefix_path=conda_environment_path,
                             )
                         )
                 except Exception as thread_exception:
@@ -93,8 +96,8 @@ class SubprocessExecutor(ExecutorBroker):
                     kwargs={
                         # Executor Arguments
                         "future_queue": self._future_queue,
-                        "prefix_name": conda_environment_name,
-                        "prefix_path": conda_environment_path,
+                        "conda_environment_name": conda_environment_name,
+                        "conda_environment_path": conda_environment_path,
                     },
                 )
                 for _ in range(max_workers)

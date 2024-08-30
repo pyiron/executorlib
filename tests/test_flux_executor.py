@@ -159,7 +159,11 @@ class TestFlux(unittest.TestCase):
             flux_interface.bootup(command_lst=[])
         with self.assertRaises(ValueError):
             flux_interface = FluxPythonSpawner(flux_executor=self.flux_executor)
-            flux_interface.bootup(command_lst=[], prefix_path="/path/to/conda/env")
+            flux_interface.bootup(
+                command_lst=[], conda_environment_path="/path/to/conda/env"
+            )
         with self.assertRaises(ValueError):
             flux_interface = FluxPythonSpawner(flux_executor=self.flux_executor)
-            flux_interface.bootup(command_lst=[], prefix_name="conda_env_name")
+            flux_interface.bootup(
+                command_lst=[], conda_environment_name="conda_env_name"
+            )
