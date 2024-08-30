@@ -111,35 +111,6 @@ def check_plot_dependency_graph(plot_dependency_graph: bool) -> None:
         )
 
 
-def validate_backend(
-    backend: str, flux_installed: bool = False, slurm_installed: bool = False
-) -> str:
-    """
-    Validate the backend parameter and return the selected backend.
-    """
-    if backend not in ["auto", "flux", "local", "slurm"]:
-        raise ValueError(
-            'The currently implemented backends are ["auto", "flux", "local", "slurm"]. '
-            'Alternatively, you can select "auto", the default option, to automatically determine the backend. But '
-            + backend
-            + " is not a valid choice."
-        )
-    elif backend == "flux" and not flux_installed:
-        raise ImportError(
-            "Flux backend is selected but not installed. Please install the flux framework."
-        )
-    elif backend == "slurm" and not slurm_installed:
-        raise RuntimeError(
-            "Slurm backend is selected but not installed. Please ensure SLURM is correctly configured."
-        )
-    elif backend == "flux" or (backend == "auto" and flux_installed):
-        return "flux"
-    elif backend == "slurm" or (backend == "auto" and slurm_installed):
-        return "slurm"
-    else:
-        return "local"
-
-
 def check_pmi(backend: str, pmi: Optional[str]) -> None:
     """
     Check if pmi is valid for the selected backend and raise a ValueError if it is not.

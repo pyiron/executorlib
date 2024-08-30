@@ -1,5 +1,3 @@
-import os
-import shutil
 from typing import Optional
 
 from executorlib.interactive.executor import (
@@ -15,7 +13,6 @@ from executorlib.shared.inputcheck import (
     check_oversubscribe,
     check_pmi,
     check_threads_per_core,
-    validate_backend,
     validate_number_of_cores,
 )
 from executorlib.shared.interface import (
@@ -26,14 +23,8 @@ from executorlib.shared.interface import (
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
     from executorlib.interactive.flux import FluxPythonInterface
-
-    flux_installed = "FLUX_URI" in os.environ
 except ImportError:
-    flux_installed = False
     pass
-
-# The PySlurmExecutor requires the srun command to be available.
-slurm_installed = shutil.which(SLURM_COMMAND) is not None
 
 
 def create_executor(
@@ -82,8 +73,7 @@ def create_executor(
                                       any computer should be able to resolve that their own hostname points to the same
                                       address as localhost. Still MacOS >= 12 seems to disable this look up for security
                                       reasons. So on MacOS it is required to set this option to true
-        backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
-                       is selected (the default) the available backend is determined automatically.
+        backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
         block_allocation (boolean): To accelerate the submission of a series of python functions with the same
                                     resource requirements, executorlib supports block allocation. In this case all
                                     resources have to be defined on the executor, rather than during the submission
@@ -96,9 +86,6 @@ def create_executor(
     """
     max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    backend = validate_backend(
-        backend=backend, flux_installed=flux_installed, slurm_installed=slurm_installed
-    )
     check_pmi(backend=backend, pmi=pmi)
     executor_kwargs = {
         "cores": cores_per_worker,

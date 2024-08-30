@@ -56,8 +56,7 @@ class Executor:
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-        backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
-                       is selected (the default) the available backend is determined automatically.
+        backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
         block_allocation (boolean): To accelerate the submission of a series of python functions with the same resource
                                     requirements, executorlib supports block allocation. In this case all resources have
                                     to be defined on the executor, rather than during the submission of the individual
@@ -129,7 +128,7 @@ class Executor:
         conda_environment_path: Optional[str] = None,
         executor=None,
         hostname_localhost: bool = False,
-        backend: str = "auto",
+        backend: str = "local",
         block_allocation: bool = False,
         init_function: Optional[callable] = None,
         command_line_argument_lst: list[str] = [],
@@ -167,8 +166,7 @@ class Executor:
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-            backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
-                           is selected (the default) the available backend is determined automatically.
+            backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
             block_allocation (boolean): To accelerate the submission of a series of python functions with the same
                                         resource requirements, executorlib supports block allocation. In this case all
                                         resources have to be defined on the executor, rather than during the submission
