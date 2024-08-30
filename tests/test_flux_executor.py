@@ -62,7 +62,10 @@ class TestFlux(unittest.TestCase):
     def test_flux_executor_threads(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"flux_executor": self.flux_executor, "threads_per_core": 2},
+            executor_kwargs={
+                "flux_executor": self.flux_executor,
+                "threads_per_core": 2,
+            },
             spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -75,7 +78,11 @@ class TestFlux(unittest.TestCase):
     def test_flux_executor_parallel(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"flux_executor": self.flux_executor, "cores": 2, "pmi": pmi},
+            executor_kwargs={
+                "flux_executor": self.flux_executor,
+                "cores": 2,
+                "pmi": pmi,
+            },
             spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
@@ -85,7 +92,11 @@ class TestFlux(unittest.TestCase):
     def test_single_task(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"flux_executor": self.flux_executor, "cores": 2, "pmi": pmi},
+            executor_kwargs={
+                "flux_executor": self.flux_executor,
+                "cores": 2,
+                "pmi": pmi,
+            },
             spawner=FluxPythonSpawner,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
