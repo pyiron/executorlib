@@ -19,7 +19,7 @@ from executorlib.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-from executorlib.shared.interface import BaseInterface, MpiExecInterface
+from executorlib.shared.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.shared.thread import RaisingThread
 
 
@@ -301,7 +301,7 @@ def cloudpickle_register(ind: int = 2):
 def execute_parallel_tasks(
     future_queue: queue.Queue,
     cores: int = 1,
-    interface_class: BaseInterface = MpiExecInterface,
+    interface_class: BaseSpawner = MpiExecSpawner,
     hostname_localhost: bool = False,
     init_function: Optional[Callable] = None,
     prefix_name: Optional[str] = None,
@@ -314,7 +314,7 @@ def execute_parallel_tasks(
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        cores (int): defines the total number of MPI ranks to use
-       interface_class (BaseInterface): Interface to start process on selected compute resources
+       interface_class (BaseSpawner): Interface to start process on selected compute resources
        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                      context of an HPC cluster this essential to be able to communicate to an
                                      Executor running on a different compute node within the same allocation. And
@@ -362,7 +362,7 @@ def execute_parallel_tasks(
 
 def execute_separate_tasks(
     future_queue: queue.Queue,
-    interface_class: BaseInterface = MpiExecInterface,
+    interface_class: BaseSpawner = MpiExecSpawner,
     max_cores: int = 1,
     hostname_localhost: bool = False,
     **kwargs,
@@ -372,7 +372,7 @@ def execute_separate_tasks(
 
     Args:
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
-       interface_class (BaseInterface): Interface to start process on selected compute resources
+       interface_class (BaseSpawner): Interface to start process on selected compute resources
        max_cores (int): defines the number cores which can be used in parallel
        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                      context of an HPC cluster this essential to be able to communicate to an
@@ -621,7 +621,7 @@ def _submit_function_to_separate_process(
     task_dict: dict,
     active_task_dict: dict,
     qtask: queue.Queue,
-    interface_class: BaseInterface,
+    interface_class: BaseSpawner,
     executor_kwargs: dict,
     max_cores: int = 1,
     hostname_localhost: bool = False,
@@ -633,7 +633,7 @@ def _submit_function_to_separate_process(
                           {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
         active_task_dict (dict): Dictionary containing the future objects and the number of cores they require
         qtask (queue.Queue): Queue to communicate with the thread linked to the process executing the python function
-        interface_class (BaseInterface): Interface to start process on selected compute resources
+        interface_class (BaseSpawner): Interface to start process on selected compute resources
         executor_kwargs (dict): keyword parameters used to initialize the Executor
         max_cores (int): defines the number cores which can be used in parallel
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the

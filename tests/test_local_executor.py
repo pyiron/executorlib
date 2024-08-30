@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from executorlib.shared.interface import MpiExecInterface
+from executorlib.shared.spawner import MpiExecSpawner
 from executorlib.interactive.executor import (
     InteractiveExecutor,
     InteractiveStepExecutor,
@@ -64,7 +64,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=2,
             executor_kwargs={"hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
@@ -78,7 +78,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
@@ -94,7 +94,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
         with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
@@ -108,7 +108,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
         with InteractiveStepExecutor(
             max_cores=1,
             executor_kwargs={"hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
@@ -127,7 +127,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(mpi_funct, 1)
@@ -138,7 +138,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
             fs1 = p.submit(mpi_funct, 1)
@@ -158,7 +158,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
             output = p.submit(echo_funct, 2).result()
@@ -173,7 +173,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
         with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(mpi_funct, 1)
@@ -184,7 +184,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
         with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
             fs1 = p.submit(mpi_funct, 1)
@@ -204,7 +204,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
         with InteractiveStepExecutor(
             max_cores=2,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
             output = p.submit(echo_funct, 2).result()
@@ -220,7 +220,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
                 "init_function": set_global,
                 "hostname_localhost": True,
             },
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             f = p.submit(get_global)
             self.assertFalse(f.done())
@@ -246,7 +246,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
             future_queue=q,
             cores=1,
             oversubscribe=False,
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
             hostname_localhost=True,
             init_function=set_global,
         )
@@ -259,7 +259,7 @@ class TestFuturePool(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             output = p.submit(calc_array, i=2)
             self.assertEqual(len(p), 1)
@@ -274,7 +274,7 @@ class TestFuturePool(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             fs_1 = p.submit(calc_array, i=2)
             fs_2 = p.submit(calc_array, i=2)
@@ -287,7 +287,7 @@ class TestFuturePool(unittest.TestCase):
         p = InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         )
         fs1 = p.submit(sleep_one, i=2)
         fs2 = p.submit(sleep_one, i=4)
@@ -303,7 +303,7 @@ class TestFuturePool(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 1, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             output = p.map(calc_array, [1, 2, 3])
         self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
@@ -313,7 +313,7 @@ class TestFuturePool(unittest.TestCase):
             with InteractiveExecutor(
                 max_workers=1,
                 executor_kwargs={"cores": 1, "hostname_localhost": True},
-                interface_class=MpiExecInterface,
+                interface_class=MpiExecSpawner,
             ) as p:
                 p.submit(raise_error)
 
@@ -322,7 +322,7 @@ class TestFuturePool(unittest.TestCase):
             with InteractiveExecutor(
                 max_workers=1,
                 executor_kwargs={"cores": 1, "hostname_localhost": True},
-                interface_class=MpiExecInterface,
+                interface_class=MpiExecSpawner,
             ) as p:
                 fs = p.submit(raise_error)
                 fs.result()
@@ -349,7 +349,7 @@ class TestFuturePool(unittest.TestCase):
                 "cwd": None,
                 "oversubscribe": False,
             },
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             for k, v in meta_data_exe_dict.items():
                 if k != "interface_class":
@@ -376,7 +376,7 @@ class TestFuturePool(unittest.TestCase):
                 "cwd": None,
                 "oversubscribe": False,
             },
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as exe:
             for k, v in meta_data_exe_dict.items():
                 if k != "interface_class":
@@ -391,7 +391,7 @@ class TestFuturePool(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             output = p.submit(mpi_funct, i=2)
             self.assertEqual(len(p), 1)
@@ -409,7 +409,7 @@ class TestFuturePool(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"cores": 2, "hostname_localhost": True},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
@@ -427,7 +427,7 @@ class TestFuturePool(unittest.TestCase):
                 future_queue=q,
                 cores=1,
                 oversubscribe=False,
-                interface_class=MpiExecInterface,
+                interface_class=MpiExecSpawner,
                 hostname_localhost=True,
             )
         q.join()
@@ -442,7 +442,7 @@ class TestFuturePool(unittest.TestCase):
                 future_queue=q,
                 cores=1,
                 oversubscribe=False,
-                interface_class=MpiExecInterface,
+                interface_class=MpiExecSpawner,
                 hostname_localhost=True,
             )
         q.join()
@@ -457,7 +457,7 @@ class TestFuturePool(unittest.TestCase):
             future_queue=q,
             cores=1,
             oversubscribe=False,
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
             hostname_localhost=True,
         )
         self.assertEqual(f.result(), np.array(4))
@@ -476,7 +476,7 @@ class TestFuturePool(unittest.TestCase):
             future_queue=q,
             cores=2,
             oversubscribe=False,
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
             hostname_localhost=True,
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])

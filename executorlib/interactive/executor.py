@@ -4,7 +4,7 @@ from executorlib.shared.executor import (
     execute_parallel_tasks,
     execute_separate_tasks,
 )
-from executorlib.shared.interface import BaseInterface, MpiExecInterface
+from executorlib.shared.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.shared.thread import RaisingThread
 
 
@@ -19,7 +19,7 @@ class InteractiveExecutor(ExecutorBroker):
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
         executor_kwargs (dict): keyword arguments for the executor
-        interface_class (BaseInterface): interface class to initiate python processes
+        interface_class (BaseSpawner): interface class to initiate python processes
 
     Examples:
 
@@ -46,7 +46,7 @@ class InteractiveExecutor(ExecutorBroker):
         self,
         max_workers: int = 1,
         executor_kwargs: dict = {},
-        interface_class: BaseInterface = MpiExecInterface,
+        interface_class: BaseSpawner = MpiExecSpawner,
     ):
         super().__init__()
         executor_kwargs["future_queue"] = self._future_queue
@@ -73,7 +73,7 @@ class InteractiveStepExecutor(ExecutorSteps):
     Args:
         max_cores (int): defines the number workers which can execute functions in parallel
         executor_kwargs (dict): keyword arguments for the executor
-        interface_class (BaseInterface): interface class to initiate python processes
+        interface_class (BaseSpawner): interface class to initiate python processes
 
     Examples:
 
@@ -98,7 +98,7 @@ class InteractiveStepExecutor(ExecutorSteps):
         self,
         max_cores: int = 1,
         executor_kwargs: dict = {},
-        interface_class: BaseInterface = MpiExecInterface,
+        interface_class: BaseSpawner = MpiExecSpawner,
     ):
         super().__init__()
         executor_kwargs["future_queue"] = self._future_queue

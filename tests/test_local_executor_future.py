@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from executorlib.interactive.executor import InteractiveExecutor
-from executorlib.shared.interface import MpiExecInterface
+from executorlib.shared.spawner import MpiExecSpawner
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -21,7 +21,7 @@ class TestFuture(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True, "cores": 1},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -37,7 +37,7 @@ class TestFuture(unittest.TestCase):
         with InteractiveExecutor(
             max_workers=1,
             executor_kwargs={"hostname_localhost": True, "cores": 2},
-            interface_class=MpiExecInterface,
+            interface_class=MpiExecSpawner,
         ) as p:
             output = p.submit(calc, i=2)
             self.assertTrue(isinstance(output, Future))
@@ -69,7 +69,7 @@ class TestFuture(unittest.TestCase):
                 # this function is exits
                 future = InteractiveExecutor(
                     executor_kwargs={"hostname_localhost": True},
-                    interface_class=MpiExecInterface,
+                    interface_class=MpiExecSpawner,
                 ).submit(slow_callable)
                 future.add_done_callback(callback)
                 return future
@@ -109,7 +109,7 @@ class TestFuture(unittest.TestCase):
 
                     future = InteractiveExecutor(
                         executor_kwargs={"hostname_localhost": True},
-                        interface_class=MpiExecInterface,
+                        interface_class=MpiExecSpawner,
                     ).submit(self.return_42)
                     future.add_done_callback(self.finished)
 
