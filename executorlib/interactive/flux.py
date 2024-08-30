@@ -15,10 +15,10 @@ class FluxPythonSpawner(BaseSpawner):
         cores (int, optional): The number of cores. Defaults to 1.
         threads_per_core (int, optional): The number of threads per core. Defaults to 1.
         gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
-        oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
-        executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
-        pmi (str, optional): The PMI option. Defaults to None.
-        nested_flux_executor (bool, optional): Whether to use nested FluxExecutor. Defaults to False.
+        openmpi_oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
+        flux_executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
+        flux_executor_pmi_mode (str, optional): The PMI option. Defaults to None.
+        flux_executor_nesting (bool, optional): Whether to use nested FluxExecutor. Defaults to False.
     """
 
     def __init__(
@@ -27,22 +27,22 @@ class FluxPythonSpawner(BaseSpawner):
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
-        oversubscribe: bool = False,
-        executor: Optional[flux.job.FluxExecutor] = None,
-        pmi: Optional[str] = None,
-        nested_flux_executor: bool = False,
+        openmpi_oversubscribe: bool = False,
+        flux_executor: Optional[flux.job.FluxExecutor] = None,
+        flux_executor_pmi_mode: Optional[str] = None,
+        flux_executor_nesting: bool = False,
     ):
         super().__init__(
             cwd=cwd,
             cores=cores,
-            oversubscribe=oversubscribe,
+            openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
-        self._executor = executor
-        self._pmi = pmi
+        self._flux_executor = flux_executor
+        self._flux_executor_pmi_mode = flux_executor_pmi_mode
+        self._flux_executor_nesting = flux_executor_nesting
         self._future = None
-        self._nested_flux_executor = nested_flux_executor
 
     def bootup(
         self,
@@ -60,7 +60,7 @@ class FluxPythonSpawner(BaseSpawner):
         Raises:
             ValueError: If oversubscribing is not supported for the Flux adapter or if conda environments are not supported.
         """
-        if self._oversubscribe:
+        if self._openmpi_oversubscribe:
             raise ValueError(
                 "Oversubscribing is currently not supported for the Flux adapter."
             )
@@ -68,9 +68,9 @@ class FluxPythonSpawner(BaseSpawner):
             raise ValueError(
                 "Conda environments are currently not supported for the Flux adapter."
             )
-        if self._executor is None:
-            self._executor = flux.job.FluxExecutor()
-        if not self._nested_flux_executor:
+        if self._flux_executor is None:
+            self._flux_executor = flux.job.FluxExecutor()
+        if not self._flux_executor_nesting:
             jobspec = flux.job.JobspecV1.from_command(
                 command=command_lst,
                 num_tasks=self._cores,
@@ -89,11 +89,11 @@ class FluxPythonSpawner(BaseSpawner):
                 exclusive=False,
             )
         jobspec.environment = dict(os.environ)
-        if self._pmi is not None:
-            jobspec.setattr_shell_option("pmi", self._pmi)
+        if self._flux_executor_pmi_mode is not None:
+            jobspec.setattr_shell_option("pmi", self._flux_executor_pmi_mode)
         if self._cwd is not None:
             jobspec.cwd = self._cwd
-        self._future = self._executor.submit(jobspec)
+        self._future = self._flux_executor.submit(jobspec)
 
     def shutdown(self, wait: bool = True):
         """

@@ -19,7 +19,7 @@ class InteractiveExecutor(ExecutorBroker):
     Args:
         max_workers (int): defines the number workers which can execute functions in parallel
         executor_kwargs (dict): keyword arguments for the executor
-        interface_class (BaseSpawner): interface class to initiate python processes
+        spawner (BaseSpawner): interface class to initiate python processes
 
     Examples:
 
@@ -46,11 +46,11 @@ class InteractiveExecutor(ExecutorBroker):
         self,
         max_workers: int = 1,
         executor_kwargs: dict = {},
-        interface_class: BaseSpawner = MpiExecSpawner,
+        spawner: BaseSpawner = MpiExecSpawner,
     ):
         super().__init__()
         executor_kwargs["future_queue"] = self._future_queue
-        executor_kwargs["interface_class"] = interface_class
+        executor_kwargs["spawner"] = spawner
         self._set_process(
             process=[
                 RaisingThread(
@@ -73,7 +73,7 @@ class InteractiveStepExecutor(ExecutorSteps):
     Args:
         max_cores (int): defines the number workers which can execute functions in parallel
         executor_kwargs (dict): keyword arguments for the executor
-        interface_class (BaseSpawner): interface class to initiate python processes
+        spawner (BaseSpawner): interface class to initiate python processes
 
     Examples:
 
@@ -98,11 +98,11 @@ class InteractiveStepExecutor(ExecutorSteps):
         self,
         max_cores: int = 1,
         executor_kwargs: dict = {},
-        interface_class: BaseSpawner = MpiExecSpawner,
+        spawner: BaseSpawner = MpiExecSpawner,
     ):
         super().__init__()
         executor_kwargs["future_queue"] = self._future_queue
-        executor_kwargs["interface_class"] = interface_class
+        executor_kwargs["spawner"] = spawner
         executor_kwargs["max_cores"] = max_cores
         self._set_process(
             RaisingThread(

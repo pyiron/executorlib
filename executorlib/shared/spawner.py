@@ -7,18 +7,18 @@ SLURM_COMMAND = "srun"
 
 
 class BaseSpawner(ABC):
-    def __init__(self, cwd: str, cores: int = 1, oversubscribe: bool = False):
+    def __init__(self, cwd: str, cores: int = 1, openmpi_oversubscribe: bool = False):
         """
         Base class for interface implementations.
 
         Args:
             cwd (str): The current working directory.
             cores (int, optional): The number of cores to use. Defaults to 1.
-            oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+            openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         """
         self._cwd = cwd
         self._cores = cores
-        self._oversubscribe = oversubscribe
+        self._openmpi_oversubscribe = openmpi_oversubscribe
 
     def bootup(
         self,
@@ -60,7 +60,7 @@ class SubprocessSpawner(BaseSpawner):
         self,
         cwd: Optional[str] = None,
         cores: int = 1,
-        oversubscribe: bool = False,
+        openmpi_oversubscribe: bool = False,
     ):
         """
         Subprocess interface implementation.
@@ -73,7 +73,7 @@ class SubprocessSpawner(BaseSpawner):
         super().__init__(
             cwd=cwd,
             cores=cores,
-            oversubscribe=oversubscribe,
+            openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._process = None
 
@@ -156,7 +156,7 @@ class MpiExecSpawner(SubprocessSpawner):
         """
         command_prepend_lst = generate_mpiexec_command(
             cores=self._cores,
-            oversubscribe=self._oversubscribe,
+            openmpi_oversubscribe=self._openmpi_oversubscribe,
         )
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,
@@ -170,8 +170,8 @@ class SrunSpawner(SubprocessSpawner):
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
-        oversubscribe: bool = False,
-        command_line_argument_lst: list[str] = [],
+        openmpi_oversubscribe: bool = False,
+        slurm_cmd_args: list[str] = [],
     ):
         """
         Srun interface implementation.
@@ -181,17 +181,17 @@ class SrunSpawner(SubprocessSpawner):
             cores (int, optional): The number of cores to use. Defaults to 1.
             threads_per_core (int, optional): The number of threads per core. Defaults to 1.
             gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
-            oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
-            command_line_argument_lst (list[str], optional): Additional command line arguments. Defaults to [].
+            openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+            slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
         """
         super().__init__(
             cwd=cwd,
             cores=cores,
-            oversubscribe=oversubscribe,
+            openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
-        self._command_line_argument_lst = command_line_argument_lst
+        self._slurm_cmd_args = slurm_cmd_args
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
@@ -208,21 +208,23 @@ class SrunSpawner(SubprocessSpawner):
             cwd=self._cwd,
             threads_per_core=self._threads_per_core,
             gpus_per_core=self._gpus_per_core,
-            oversubscribe=self._oversubscribe,
-            command_line_argument_lst=self._command_line_argument_lst,
+            openmpi_oversubscribe=self._openmpi_oversubscribe,
+            slurm_cmd_args=self._slurm_cmd_args,
         )
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,
         )
 
 
-def generate_mpiexec_command(cores: int, oversubscribe: bool = False) -> list[str]:
+def generate_mpiexec_command(
+    cores: int, openmpi_oversubscribe: bool = False
+) -> list[str]:
     """
     Generate the command list for the MPIExec interface.
 
     Args:
         cores (int): The number of cores.
-        oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+        openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
 
     Returns:
         list[str]: The generated command list.
@@ -231,7 +233,7 @@ def generate_mpiexec_command(cores: int, oversubscribe: bool = False) -> list[st
         return []
     else:
         command_prepend_lst = [MPI_COMMAND, "-n", str(cores)]
-        if oversubscribe:
+        if openmpi_oversubscribe:
             command_prepend_lst += ["--oversubscribe"]
         return command_prepend_lst
 
@@ -241,8 +243,8 @@ def generate_slurm_command(
     cwd: str,
     threads_per_core: int = 1,
     gpus_per_core: int = 0,
-    oversubscribe: bool = False,
-    command_line_argument_lst: list[str] = [],
+    openmpi_oversubscribe: bool = False,
+    slurm_cmd_args: list[str] = [],
 ) -> list[str]:
     """
     Generate the command list for the SLURM interface.
@@ -252,8 +254,8 @@ def generate_slurm_command(
         cwd (str): The current working directory.
         threads_per_core (int, optional): The number of threads per core. Defaults to 1.
         gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
-        oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
-        command_line_argument_lst (list[str], optional): Additional command line arguments. Defaults to [].
+        openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+        slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
 
     Returns:
         list[str]: The generated command list.
@@ -265,8 +267,8 @@ def generate_slurm_command(
         command_prepend_lst += ["--cpus-per-task" + str(threads_per_core)]
     if gpus_per_core > 0:
         command_prepend_lst += ["--gpus-per-task=" + str(gpus_per_core)]
-    if oversubscribe:
+    if openmpi_oversubscribe:
         command_prepend_lst += ["--oversubscribe"]
-    if len(command_line_argument_lst) > 0:
-        command_prepend_lst += command_line_argument_lst
+    if len(slurm_cmd_args) > 0:
+        command_prepend_lst += slurm_cmd_args
     return command_prepend_lst
