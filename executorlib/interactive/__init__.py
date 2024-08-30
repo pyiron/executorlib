@@ -98,9 +98,7 @@ def create_executor(
         backend = "flux"
     if backend == "flux":
         check_oversubscribe(oversubscribe=openmpi_oversubscribe)
-        check_command_line_argument_lst(
-            command_line_argument_lst=slurm_cmd_args
-        )
+        check_command_line_argument_lst(command_line_argument_lst=slurm_cmd_args)
         executor_kwargs["threads_per_core"] = threads_per_core
         executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
         executor_kwargs["executor"] = flux_executor
@@ -142,9 +140,7 @@ def create_executor(
     else:  # backend="local"
         check_threads_per_core(threads_per_core=threads_per_core)
         check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
-        check_command_line_argument_lst(
-            command_line_argument_lst=slurm_cmd_args
-        )
+        check_command_line_argument_lst(command_line_argument_lst=slurm_cmd_args)
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
         executor_kwargs["oversubscribe"] = openmpi_oversubscribe
