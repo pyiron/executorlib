@@ -3,10 +3,10 @@ from typing import Optional
 
 import flux.job
 
-from executorlib.shared.interface import BaseInterface
+from executorlib.shared.spawner import BaseSpawner
 
 
-class FluxPythonInterface(BaseInterface):
+class FluxPythonSpawner(BaseSpawner):
     """
     A class representing the FluxPythonInterface.
 

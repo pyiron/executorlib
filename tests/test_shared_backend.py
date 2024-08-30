@@ -3,7 +3,7 @@ import sys
 import unittest
 
 from executorlib.interactive.backend import parse_arguments
-from executorlib.shared.interface import SrunInterface, MpiExecInterface
+from executorlib.shared.spawner import SrunSpawner, MpiExecSpawner
 
 
 class TestParser(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestParser(unittest.TestCase):
             "--zmqport",
             result_dict["zmqport"],
         ]
-        interface = MpiExecInterface(cwd=None, cores=2, oversubscribe=True)
+        interface = MpiExecSpawner(cwd=None, cores=2, oversubscribe=True)
         self.assertEqual(
             command_lst,
             interface.generate_command(
@@ -51,7 +51,7 @@ class TestParser(unittest.TestCase):
             "--zmqport",
             result_dict["zmqport"],
         ]
-        interface = SrunInterface(
+        interface = SrunSpawner(
             cwd=os.path.abspath("."), cores=2, gpus_per_core=1, oversubscribe=True
         )
         self.assertEqual(
@@ -91,7 +91,7 @@ class TestParser(unittest.TestCase):
             "--zmqport",
             result_dict["zmqport"],
         ]
-        interface = SrunInterface(
+        interface = SrunSpawner(
             cwd=os.path.abspath("."),
             cores=2,
             gpus_per_core=1,

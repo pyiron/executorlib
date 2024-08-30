@@ -6,7 +6,7 @@ MPI_COMMAND = "mpiexec"
 SLURM_COMMAND = "srun"
 
 
-class BaseInterface(ABC):
+class BaseSpawner(ABC):
     def __init__(self, cwd: str, cores: int = 1, oversubscribe: bool = False):
         """
         Base class for interface implementations.
@@ -55,7 +55,7 @@ class BaseInterface(ABC):
         raise NotImplementedError
 
 
-class SubprocessInterface(BaseInterface):
+class SubprocessSpawner(BaseSpawner):
     def __init__(
         self,
         cwd: Optional[str] = None,
@@ -143,7 +143,7 @@ class SubprocessInterface(BaseInterface):
         return self._process is not None and self._process.poll() is None
 
 
-class MpiExecInterface(SubprocessInterface):
+class MpiExecSpawner(SubprocessSpawner):
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
         Generate the command list for the MPIExec interface.
@@ -163,7 +163,7 @@ class MpiExecInterface(SubprocessInterface):
         )
 
 
-class SrunInterface(SubprocessInterface):
+class SrunSpawner(SubprocessSpawner):
     def __init__(
         self,
         cwd: Optional[str] = None,

@@ -28,14 +28,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Conda config
+      shell: bash -l {0}
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: ${{ matrix.python-version }}
-        mamba-version: "*"
-        channels: conda-forge
-        miniforge-variant: Mambaforge
-        channel-priority: strict
-        auto-update-conda: true
+        miniforge-version: latest
+        condarc-file: .condarc
         environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}

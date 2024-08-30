@@ -10,7 +10,7 @@ class SocketInterface:
     The SocketInterface is an abstraction layer on top of the zero message queue.
 
     Args:
-        interface (executorlib.shared.interface.BaseInterface): Interface for starting the parallel process
+        interface (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
     """
 
     def __init__(self, interface=None):
@@ -18,7 +18,7 @@ class SocketInterface:
         Initialize the SocketInterface.
 
         Args:
-            interface (executorlib.shared.interface.BaseInterface): Interface for starting the parallel process
+            interface (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
         """
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
@@ -133,7 +133,7 @@ def interface_bootup(
 
     Args:
         command_lst (list): List of commands as strings
-        connections (executorlib.shared.interface.BaseInterface): Interface to start parallel process, like MPI, SLURM
+        connections (executorlib.shared.spawner.BaseSpawner): Interface to start parallel process, like MPI, SLURM
                                                                   or Flux
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
