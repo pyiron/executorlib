@@ -101,8 +101,8 @@ def create_executor(
         check_command_line_argument_lst(command_line_argument_lst=slurm_cmd_args)
         executor_kwargs["threads_per_core"] = threads_per_core
         executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
-        executor_kwargs["executor"] = flux_executor
-        executor_kwargs["pmi"] = flux_executor_pmi_mode
+        executor_kwargs["flux_executor"] = flux_executor
+        executor_kwargs["flux_executor_pmi_mode"] = flux_executor_pmi_mode
         executor_kwargs["nested_flux_executor"] = flux_executor_nesting
         if block_allocation:
             executor_kwargs["init_function"] = init_function
@@ -122,8 +122,8 @@ def create_executor(
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
         executor_kwargs["threads_per_core"] = threads_per_core
         executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
-        executor_kwargs["command_line_argument_lst"] = slurm_cmd_args
-        executor_kwargs["oversubscribe"] = openmpi_oversubscribe
+        executor_kwargs["slurm_cmd_args"] = slurm_cmd_args
+        executor_kwargs["openmpi_oversubscribe"] = openmpi_oversubscribe
         if block_allocation:
             executor_kwargs["init_function"] = init_function
             return InteractiveExecutor(
@@ -143,7 +143,7 @@ def create_executor(
         check_command_line_argument_lst(command_line_argument_lst=slurm_cmd_args)
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
-        executor_kwargs["oversubscribe"] = openmpi_oversubscribe
+        executor_kwargs["openmpi_oversubscribe"] = openmpi_oversubscribe
         if block_allocation:
             executor_kwargs["init_function"] = init_function
             return InteractiveExecutor(
