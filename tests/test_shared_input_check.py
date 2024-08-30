@@ -13,7 +13,6 @@ from executorlib.shared.inputcheck import (
     check_refresh_rate,
     check_resource_dict,
     check_resource_dict_is_empty,
-    validate_backend,
 )
 
 
@@ -37,26 +36,6 @@ class TestInputCheck(unittest.TestCase):
     def test_check_executor(self):
         with self.assertRaises(ValueError):
             check_executor(executor=1)
-
-    def test_check_backend(self):
-        with self.assertRaises(ValueError):
-            validate_backend(
-                backend="test", flux_installed=False, slurm_installed=False
-            )
-        with self.assertRaises(ImportError):
-            validate_backend(
-                backend="flux", flux_installed=False, slurm_installed=False
-            )
-        with self.assertRaises(RuntimeError):
-            validate_backend(
-                backend="slurm", flux_installed=False, slurm_installed=False
-            )
-        self.assertEqual(
-            validate_backend(
-                backend="slurm", flux_installed=False, slurm_installed=True
-            ),
-            "slurm",
-        )
 
     def test_check_init_function(self):
         with self.assertRaises(ValueError):

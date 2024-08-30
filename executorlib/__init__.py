@@ -94,7 +94,7 @@ class Executor:
     def __init__(
         self,
         max_workers: int = 1,
-        backend: str = "auto",
+        backend: str = "local",
         max_cores: int = 1,
         cores_per_worker: int = 1,
         threads_per_core: int = 1,
@@ -120,7 +120,7 @@ class Executor:
     def __new__(
         cls,
         max_workers: int = 1,
-        backend: str = "auto",
+        backend: str = "local",
         max_cores: int = 1,
         cores_per_worker: int = 1,
         threads_per_core: int = 1,

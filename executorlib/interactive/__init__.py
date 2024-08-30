@@ -1,5 +1,3 @@
-import os
-import shutil
 from typing import Optional
 
 from executorlib.interactive.executor import (
@@ -15,7 +13,6 @@ from executorlib.shared.inputcheck import (
     check_oversubscribe,
     check_pmi,
     check_threads_per_core,
-    validate_backend,
     validate_number_of_cores,
 )
 from executorlib.shared.spawner import (
@@ -26,19 +23,13 @@ from executorlib.shared.spawner import (
 
 try:  # The PyFluxExecutor requires flux-core to be installed.
     from executorlib.interactive.flux import FluxPythonSpawner
-
-    flux_installed = "FLUX_URI" in os.environ
 except ImportError:
-    flux_installed = False
     pass
-
-# The PySlurmExecutor requires the srun command to be available.
-slurm_installed = shutil.which(SLURM_COMMAND) is not None
 
 
 def create_executor(
     max_workers: int = 1,
-    backend: str = "auto",
+    backend: str = "local",
     max_cores: int = 1,
     cores_per_worker: int = 1,
     threads_per_core: int = 1,
@@ -68,8 +59,7 @@ def create_executor(
                            cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
                            recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
-        backend (str): Switch between the different backends "flux", "local" or "slurm". Alternatively, when "auto"
-                       is selected (the default) the available backend is determined automatically.
+        backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
         cores_per_worker (int): number of MPI cores to be used for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
@@ -95,9 +85,8 @@ def create_executor(
     """
     max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    backend = validate_backend(
-        backend=backend, flux_installed=flux_installed, slurm_installed=slurm_installed
-    )
+    if flux_executor is not None and backend != "flux":
+        backend = "flux"
     check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
     executor_kwargs = {
         "cores": cores_per_worker,
