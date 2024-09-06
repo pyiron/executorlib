@@ -68,7 +68,7 @@
    **Note**:
 
    - Make sure to replace `"/srv/conda/envs/notebook/bin/python"` with the correct path to your Python executable. You can find this by running `which python` or `where python` in your terminal.
-   - If you installed `flux` in a different environment, you have to write the absolute path to `flux` in the `argv` array.
+   - If you installed `flux` in a specific environment, you have to write the absolute path to `flux` in the `argv` array.
 
 #### Step 2: Restart Jupyter Notebook
 
