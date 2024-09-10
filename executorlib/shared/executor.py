@@ -13,7 +13,6 @@ from time import sleep
 from typing import Callable, List, Optional
 
 import cloudpickle
-from pylammpsmpi.mpi.lmpmpi import commands_list
 
 from executorlib.shared.communication import interface_bootup
 from executorlib.shared.inputcheck import (
