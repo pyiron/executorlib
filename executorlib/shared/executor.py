@@ -326,10 +326,11 @@ def execute_parallel_tasks(
        conda_environment_name (str): name of the conda environment to initialize
        conda_environment_path (str): path of the conda environment to initialize
     """
+    conda = conda_environment_name is not None or conda_environment_path is not None
     interface = interface_bootup(
         command_lst=_get_backend_path(
             cores=cores,
-            conda=conda_environment_name is not None or conda_environment_path is not None,
+            conda=conda,
         ),
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
