@@ -329,7 +329,7 @@ def execute_parallel_tasks(
     interface = interface_bootup(
         command_lst=_get_backend_path(
             cores=cores,
-            conda=prefix_name is not None or prefix_path is not None,
+            conda=conda_environment_name is not None or conda_environment_path is not None,
         ),
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
