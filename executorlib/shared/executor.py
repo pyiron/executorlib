@@ -13,6 +13,7 @@ from time import sleep
 from typing import Callable, List, Optional
 
 import cloudpickle
+from pylammpsmpi.mpi.lmpmpi import commands_list
 
 from executorlib.shared.communication import interface_bootup
 from executorlib.shared.inputcheck import (
@@ -329,6 +330,7 @@ def execute_parallel_tasks(
     interface = interface_bootup(
         command_lst=_get_backend_path(
             cores=cores,
+            conda=prefix_name is not None or prefix_path is not None,
         ),
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
@@ -486,6 +488,7 @@ def get_command_path(executable: str) -> str:
 
 def _get_backend_path(
     cores: int,
+    conda: bool = False,
 ) -> list:
     """
     Get command to call backend as a list of two strings
@@ -496,7 +499,10 @@ def _get_backend_path(
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
     """
-    command_lst = [sys.executable]
+    if not conda:
+        command_lst = [sys.executable]
+    else:
+        commands_lst = ["python"]
     if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
         command_lst += [get_command_path(executable="interactive_parallel.py")]
     elif cores > 1:
