@@ -5,7 +5,7 @@ dependencies:
 - numpy
 - msmpi
 - cloudpickle =3.0.0
-- conda_subprocess =0.0.4
+- conda_subprocess =0.0.5
 - mpi4py =4.0.0
 - pyzmq =26.2.0
 - h5py =3.11.0
