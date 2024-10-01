@@ -24,8 +24,9 @@ def dump(file_name: str, data_dict: dict) -> None:
             if data_key in group_dict.keys():
                 fname.create_dataset(
                     name="/" + group_dict[data_key],
-                    data=np.void(cloudpickle.dumps(data_value))
+                    data=np.void(cloudpickle.dumps(data_value)),
                 )
+
 
 def load(file_name: str) -> dict:
     """
