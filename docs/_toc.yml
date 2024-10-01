@@ -4,4 +4,5 @@ chapters:
 - file: installation.md
 - file: examples.ipynb
 - file: development.md
+- file: trouble_shooting.md
 - file: api.rst

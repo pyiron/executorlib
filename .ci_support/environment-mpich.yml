@@ -5,11 +5,11 @@ dependencies:
 - numpy
 - mpich
 - cloudpickle =3.0.0
-- conda_subprocess =0.0.4
+- conda_subprocess =0.0.5
 - mpi4py =4.0.0
 - pyzmq =26.2.0
 - h5py =3.11.0
 - matplotlib =3.9.2
 - networkx =3.3
-- pygraphviz =1.13
+- pygraphviz =1.14
 - ipython =8.27.0

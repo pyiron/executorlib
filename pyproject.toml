@@ -35,13 +35,13 @@ Documentation = "https://executorlib.readthedocs.io"
 Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
-conda = ["conda_subprocess==0.0.4"]
+conda = ["conda_subprocess==0.0.5"]
 mpi = ["mpi4py==4.0.0"]
 hdf = [
     "h5py==3.11.0",
 ]
 graph = [
-    "pygraphviz==1.13",
+    "pygraphviz==1.14",
     "matplotlib==3.9.2",
     "networkx==3.3",
     "ipython==8.27.0",
