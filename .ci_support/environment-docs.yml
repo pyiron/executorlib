@@ -13,4 +13,3 @@ dependencies:
 - flux-core
 - jupyter-book =1.0.0
 - h5py =3.11.0
-- h5io =0.2.4
