@@ -1,6 +1,5 @@
 title: executorlib
 author: Jan Janssen
-logo: images/pyiron-logo.png
 
 execute:
   execute_notebooks           : off

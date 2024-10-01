@@ -41,7 +41,7 @@ hdf = [
     "h5io==0.2.4",
 ]
 graph = [
-    "pygraphviz==1.13",
+    "pygraphviz==1.14",
     "matplotlib==3.9.2",
     "networkx==3.3",
     "ipython==8.27.0",
