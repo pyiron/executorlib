@@ -304,8 +304,6 @@ def execute_parallel_tasks(
     spawner: BaseSpawner = MpiExecSpawner,
     hostname_localhost: bool = False,
     init_function: Optional[Callable] = None,
-    conda_environment_name: Optional[str] = None,
-    conda_environment_path: Optional[str] = None,
     **kwargs,
 ) -> None:
     """
@@ -323,8 +321,6 @@ def execute_parallel_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (callable): optional function to preset arguments for functions which are submitted later
-       conda_environment_name (str): name of the conda environment to initialize
-       conda_environment_path (str): path of the conda environment to initialize
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
@@ -332,8 +328,6 @@ def execute_parallel_tasks(
         ),
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
-        conda_environment_path=conda_environment_path,
-        conda_environment_name=conda_environment_name,
     )
     if init_function is not None:
         interface.send_dict(

@@ -157,13 +157,3 @@ class TestFlux(unittest.TestCase):
                 flux_executor=self.flux_executor, openmpi_oversubscribe=True
             )
             flux_interface.bootup(command_lst=[])
-        with self.assertRaises(ValueError):
-            flux_interface = FluxPythonSpawner(flux_executor=self.flux_executor)
-            flux_interface.bootup(
-                command_lst=[], conda_environment_path="/path/to/conda/env"
-            )
-        with self.assertRaises(ValueError):
-            flux_interface = FluxPythonSpawner(flux_executor=self.flux_executor)
-            flux_interface.bootup(
-                command_lst=[], conda_environment_name="conda_env_name"
-            )

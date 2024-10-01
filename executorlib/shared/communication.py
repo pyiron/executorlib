@@ -1,5 +1,4 @@
 from socket import gethostname
-from typing import Optional
 
 import cloudpickle
 import zmq
@@ -76,21 +75,15 @@ class SocketInterface:
     def bootup(
         self,
         command_lst: list[str],
-        conda_environment_name: Optional[str] = None,
-        conda_environment_path: Optional[str] = None,
     ):
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
-            conda_environment_name (str): name of the conda environment to initialize
-            conda_environment_path (str): path of the conda environment to initialize
         """
         self._spawner.bootup(
             command_lst=command_lst,
-            conda_environment_name=conda_environment_name,
-            conda_environment_path=conda_environment_path,
         )
 
     def shutdown(self, wait: bool = True):
@@ -127,8 +120,6 @@ def interface_bootup(
     command_lst: list[str],
     connections,
     hostname_localhost: bool = False,
-    conda_environment_name: Optional[str] = None,
-    conda_environment_path: Optional[str] = None,
 ):
     """
     Start interface for ZMQ communication
@@ -144,8 +135,6 @@ def interface_bootup(
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-        conda_environment_name (str): name of the conda environment to initialize
-        conda_environment_path (str): path of the conda environment to initialize
 
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
@@ -162,8 +151,6 @@ def interface_bootup(
     ]
     interface.bootup(
         command_lst=command_lst,
-        conda_environment_name=conda_environment_name,
-        conda_environment_path=conda_environment_path,
     )
     return interface
 
