@@ -1,7 +1,6 @@
 from typing import Tuple
 
 import cloudpickle
-import h5io
 import h5py
 import numpy as np
 
@@ -23,13 +22,10 @@ def dump(file_name: str, data_dict: dict) -> None:
     with h5py.File(file_name, "a") as fname:
         for data_key, data_value in data_dict.items():
             if data_key in group_dict.keys():
-                h5io.write_hdf5(
-                    fname=fname,
-                    data=np.void(cloudpickle.dumps(data_value)),
-                    overwrite="update",
-                    title=group_dict[data_key],
+                fname.create_dataset(
+                    name="/" + group_dict[data_key],
+                    data=np.void(cloudpickle.dumps(data_value))
                 )
-
 
 def load(file_name: str) -> dict:
     """
@@ -44,21 +40,15 @@ def load(file_name: str) -> dict:
     with h5py.File(file_name, "r") as hdf:
         data_dict = {}
         if "function" in hdf:
-            data_dict["fn"] = cloudpickle.loads(
-                h5io.read_hdf5(fname=hdf, title="function", slash="ignore")
-            )
+            data_dict["fn"] = cloudpickle.loads(np.void(hdf["/function"]))
         else:
             raise TypeError("Function not found in HDF5 file.")
         if "input_args" in hdf:
-            data_dict["args"] = cloudpickle.loads(
-                h5io.read_hdf5(fname=hdf, title="input_args", slash="ignore")
-            )
+            data_dict["args"] = cloudpickle.loads(np.void(hdf["/input_args"]))
         else:
             data_dict["args"] = ()
         if "input_kwargs" in hdf:
-            data_dict["kwargs"] = cloudpickle.loads(
-                h5io.read_hdf5(fname=hdf, title="input_kwargs", slash="ignore")
-            )
+            data_dict["kwargs"] = cloudpickle.loads(np.void(hdf["/input_kwargs"]))
         else:
             data_dict["kwargs"] = {}
         return data_dict
@@ -76,8 +66,6 @@ def get_output(file_name: str) -> Tuple[bool, object]:
     """
     with h5py.File(file_name, "r") as hdf:
         if "output" in hdf:
-            return True, cloudpickle.loads(
-                h5io.read_hdf5(fname=hdf, title="output", slash="ignore")
-            )
+            return True, cloudpickle.loads(np.void(hdf["/output"]))
         else:
             return False, None

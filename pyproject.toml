@@ -39,7 +39,6 @@ conda = ["conda_subprocess==0.0.4"]
 mpi = ["mpi4py==4.0.0"]
 hdf = [
     "h5py==3.11.0",
-    "h5io==0.2.4",
 ]
 graph = [
     "pygraphviz==1.13",
