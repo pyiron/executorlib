@@ -25,6 +25,6 @@ sphinx:
 # Optionally build your docs in additional formats such as PDF and ePub
 formats: []
 
-# Install pyiron from conda
+# Install executorlib from conda
 conda:
   environment: .ci_support/environment-docs.yml

@@ -51,8 +51,6 @@ class Executor:
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
-        conda_environment_name (str): name of the conda environment to initialize
-        conda_environment_path (str): path of the conda environment to initialize
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -105,8 +103,6 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
-        conda_environment_name: Optional[str] = None,
-        conda_environment_path: Optional[str] = None,
         hostname_localhost: bool = False,
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
@@ -131,8 +127,6 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
-        conda_environment_name: Optional[str] = None,
-        conda_environment_path: Optional[str] = None,
         hostname_localhost: bool = False,
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
@@ -163,8 +157,6 @@ class Executor:
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
-            conda_environment_name (str): name of the conda environment to initialize
-            conda_environment_path (str): path of the conda environment to initialize
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -197,8 +189,6 @@ class Executor:
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
-                conda_environment_name=conda_environment_name,
-                conda_environment_path=conda_environment_path,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
@@ -221,8 +211,6 @@ class Executor:
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
-                conda_environment_name=conda_environment_name,
-                conda_environment_path=conda_environment_path,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
