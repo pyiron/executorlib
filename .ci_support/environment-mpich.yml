@@ -9,6 +9,6 @@ dependencies:
 - pyzmq =26.2.0
 - h5py =3.11.0
 - matplotlib =3.9.2
-- networkx =3.3
+- networkx =3.4
 - pygraphviz =1.14
 - ipython =8.27.0
