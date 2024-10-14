@@ -35,7 +35,7 @@ Documentation = "https://executorlib.readthedocs.io"
 Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
-mpi = ["mpi4py==4.0.0"]
+mpi = ["mpi4py==4.0.1"]
 hdf = [
     "h5py==3.11.0",
 ]

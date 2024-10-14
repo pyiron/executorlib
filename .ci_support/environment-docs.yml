@@ -8,7 +8,7 @@ dependencies:
 - numpy
 - openmpi
 - cloudpickle =3.0.0
-- mpi4py =4.0.0
+- mpi4py =4.0.1
 - pyzmq =26.2.0
 - flux-core
 - jupyter-book =1.0.0
