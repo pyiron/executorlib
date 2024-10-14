@@ -42,7 +42,7 @@ hdf = [
 graph = [
     "pygraphviz==1.14",
     "matplotlib==3.9.2",
-    "networkx==3.4",
+    "networkx==3.4.1",
     "ipython==8.28.0",
 ]
 
