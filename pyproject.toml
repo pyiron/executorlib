@@ -37,7 +37,7 @@ Repository = "https://github.com/pyiron/executorlib"
 [project.optional-dependencies]
 mpi = ["mpi4py==4.0.1"]
 hdf = [
-    "h5py==3.11.0",
+    "h5py==3.12.1",
 ]
 graph = [
     "pygraphviz==1.14",
