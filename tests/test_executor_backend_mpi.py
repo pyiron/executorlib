@@ -22,9 +22,7 @@ def mpi_funct(i):
 
 class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial(self):
-        with Executor(
-            max_cores=2, hostname_localhost=True, backend="local", block_allocation=True
-        ) as exe:
+        with Executor(max_cores=2, backend="local", block_allocation=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -34,9 +32,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_single(self):
-        with Executor(
-            max_cores=1, hostname_localhost=True, backend="local", block_allocation=True
-        ) as exe:
+        with Executor(max_cores=1, backend="local", block_allocation=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -52,7 +48,6 @@ class TestExecutorBackend(unittest.TestCase):
         with Executor(
             max_workers=2,
             cores_per_worker=2,
-            hostname_localhost=True,
             backend="local",
             block_allocation=True,
         ) as exe:
@@ -67,7 +62,6 @@ class TestExecutorBackend(unittest.TestCase):
                 max_cores=1,
                 cores_per_worker=1,
                 threads_per_core=2,
-                hostname_localhost=True,
                 backend="local",
             )
         with self.assertRaises(TypeError):
@@ -75,6 +69,5 @@ class TestExecutorBackend(unittest.TestCase):
                 max_cores=1,
                 cores_per_worker=1,
                 gpus_per_worker=1,
-                hostname_localhost=True,
                 backend="local",
             )
