@@ -8,7 +8,7 @@ from executorlib.shared.thread import RaisingThread
 
 try:
     from executorlib import FileExecutor
-    from executorlib.cache.shared import execute_tasks_h5, execute_in_subprocess
+    from executorlib.shared.cache import execute_tasks_h5, execute_in_subprocess
 
     skip_h5io_test = False
 except ImportError:
