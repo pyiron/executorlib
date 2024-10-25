@@ -4,8 +4,6 @@ from executorlib.interactive import create_executor
 from executorlib.interactive.dependencies import ExecutorWithDependencies
 from executorlib.shared.inputcheck import (
     check_plot_dependency_graph as _check_plot_dependency_graph,
-)
-from executorlib.shared.inputcheck import (
     check_refresh_rate as _check_refresh_rate,
 )
 from executorlib.shell.executor import SubprocessExecutor
@@ -103,7 +101,7 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
-        hostname_localhost: bool = False,
+        hostname_localhost: Optional[bool] = None,
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
         disable_dependencies: bool = False,
@@ -127,7 +125,7 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
-        hostname_localhost: bool = False,
+        hostname_localhost: Optional[bool] = None,
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
         disable_dependencies: bool = False,

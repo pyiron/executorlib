@@ -16,7 +16,6 @@ class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial(self):
         with Executor(
             max_cores=2,
-            hostname_localhost=True,
             backend="local",
             block_allocation=False,
         ) as exe:
@@ -31,7 +30,6 @@ class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_single(self):
         with Executor(
             max_cores=1,
-            hostname_localhost=True,
             backend="local",
             block_allocation=False,
         ) as exe:
@@ -49,7 +47,6 @@ class TestExecutorBackend(unittest.TestCase):
                 max_cores=1,
                 cores_per_worker=1,
                 threads_per_core=2,
-                hostname_localhost=True,
                 backend="local",
             )
         with self.assertRaises(TypeError):
@@ -57,13 +54,11 @@ class TestExecutorBackend(unittest.TestCase):
                 max_cores=1,
                 cores_per_worker=1,
                 gpus_per_worker=1,
-                hostname_localhost=True,
                 backend="local",
             )
         with self.assertRaises(ValueError):
             with Executor(
                 max_cores=1,
-                hostname_localhost=True,
                 backend="local",
                 block_allocation=False,
             ) as exe:
@@ -71,7 +66,6 @@ class TestExecutorBackend(unittest.TestCase):
         with self.assertRaises(ValueError):
             with Executor(
                 max_cores=1,
-                hostname_localhost=True,
                 backend="local",
                 block_allocation=True,
             ) as exe:
