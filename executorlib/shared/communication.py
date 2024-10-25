@@ -1,5 +1,5 @@
-from socket import gethostname
 import sys
+from socket import gethostname
 from typing import Optional
 
 import cloudpickle

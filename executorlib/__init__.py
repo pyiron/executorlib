@@ -4,6 +4,8 @@ from executorlib.interactive import create_executor
 from executorlib.interactive.dependencies import ExecutorWithDependencies
 from executorlib.shared.inputcheck import (
     check_plot_dependency_graph as _check_plot_dependency_graph,
+)
+from executorlib.shared.inputcheck import (
     check_refresh_rate as _check_refresh_rate,
 )
 from executorlib.shell.executor import SubprocessExecutor
