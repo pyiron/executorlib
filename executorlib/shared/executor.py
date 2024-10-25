@@ -324,6 +324,7 @@ def execute_parallel_tasks(
        init_function (callable): optional function to preset arguments for functions which are submitted later
        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
     """
+
     def execute_task(task_dict: dict, future_queue: queue.Queue):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():
@@ -360,6 +361,7 @@ def execute_parallel_tasks(
                 execute_task(task_dict=task_dict, future_queue=future_queue)
             else:
                 pass
+
 
 def execute_separate_tasks(
     future_queue: queue.Queue,

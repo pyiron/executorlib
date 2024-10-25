@@ -150,7 +150,7 @@ def execute_tasks_h5(
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
                 task_dict=task_dict,
                 memory_dict=memory_dict,
-                file_name_dict=file_name_dict, 
+                file_name_dict=file_name_dict,
             )
             task_key, data_dict = serialize_funct_h5(
                 task_dict["fn"], *task_args, **task_kwargs
