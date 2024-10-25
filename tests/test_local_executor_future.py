@@ -20,7 +20,7 @@ class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"hostname_localhost": True, "cores": 1},
+            executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
         ) as p:
             output = p.submit(calc, i=2)
@@ -36,7 +36,7 @@ class TestFuture(unittest.TestCase):
     def test_pool_serial_multi_core(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"hostname_localhost": True, "cores": 2},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
             output = p.submit(calc, i=2)
@@ -68,7 +68,7 @@ class TestFuture(unittest.TestCase):
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
                 future = InteractiveExecutor(
-                    executor_kwargs={"hostname_localhost": True},
+                    executor_kwargs={},
                     spawner=MpiExecSpawner,
                 ).submit(slow_callable)
                 future.add_done_callback(callback)
@@ -108,7 +108,7 @@ class TestFuture(unittest.TestCase):
                     self.running = True
 
                     future = InteractiveExecutor(
-                        executor_kwargs={"hostname_localhost": True},
+                        executor_kwargs={},
                         spawner=MpiExecSpawner,
                     ).submit(self.return_42)
                     future.add_done_callback(self.finished)

@@ -302,7 +302,7 @@ def execute_parallel_tasks(
     future_queue: queue.Queue,
     cores: int = 1,
     spawner: BaseSpawner = MpiExecSpawner,
-    hostname_localhost: bool = False,
+    hostname_localhost: Optional[bool] = None,
     init_function: Optional[Callable] = None,
     cache_directory: Optional[str] = None,
     **kwargs,
@@ -365,7 +365,7 @@ def execute_separate_tasks(
     future_queue: queue.Queue,
     spawner: BaseSpawner = MpiExecSpawner,
     max_cores: int = 1,
-    hostname_localhost: bool = False,
+    hostname_localhost: Optional[bool] = None,
     cache_directory: Optional[str] = None,
     **kwargs,
 ):
@@ -615,7 +615,7 @@ def _submit_function_to_separate_process(
     spawner: BaseSpawner,
     executor_kwargs: dict,
     max_cores: int = 1,
-    hostname_localhost: bool = False,
+    hostname_localhost: Optional[bool] = None,
 ):
     """
     Submit function to be executed in separate Python process

@@ -1,4 +1,6 @@
+import sys
 from socket import gethostname
+from typing import Optional
 
 import cloudpickle
 import zmq
@@ -119,7 +121,7 @@ class SocketInterface:
 def interface_bootup(
     command_lst: list[str],
     connections,
-    hostname_localhost: bool = False,
+    hostname_localhost: Optional[bool] = None,
 ):
     """
     Start interface for ZMQ communication
@@ -139,6 +141,10 @@ def interface_bootup(
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
     """
+    if hostname_localhost is None and sys.platform == "darwin":
+        hostname_localhost = True
+    elif hostname_localhost is None:
+        hostname_localhost = False
     if not hostname_localhost:
         command_lst += [
             "--host",

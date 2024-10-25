@@ -41,7 +41,7 @@ def merge(lst):
 
 class TestExecutorWithDependencies(unittest.TestCase):
     def test_executor(self):
-        with Executor(max_cores=1, backend="local", hostname_localhost=True) as exe:
+        with Executor(max_cores=1, backend="local") as exe:
             cloudpickle_register(ind=1)
             future_1 = exe.submit(add_function, 1, parameter_2=2)
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
@@ -55,7 +55,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
         with Executor(
             max_cores=1,
             backend="local",
-            hostname_localhost=True,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -105,7 +104,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
             gpus_per_worker=0,
             openmpi_oversubscribe=False,
             backend="local",
-            hostname_localhost=True,
         )
         process = RaisingThread(
             target=execute_tasks_with_dependencies,
@@ -127,7 +125,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one(self):
         length = 5
         parameter = 1
-        with Executor(max_cores=2, backend="local", hostname_localhost=True) as exe:
+        with Executor(max_cores=2, backend="local") as exe:
             cloudpickle_register(ind=1)
             future_lst = exe.submit(
                 generate_tasks,
@@ -162,7 +160,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
         with Executor(
             max_cores=2,
             backend="local",
-            hostname_localhost=True,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)

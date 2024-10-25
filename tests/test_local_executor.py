@@ -63,7 +63,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
         with InteractiveExecutor(
             max_workers=2,
-            executor_kwargs={"hostname_localhost": True},
+            executor_kwargs={},
             spawner=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -77,7 +77,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
     def test_pympiexecutor_one_worker(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"hostname_localhost": True},
+            executor_kwargs={},
             spawner=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -93,7 +93,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
         with InteractiveStepExecutor(
             max_cores=2,
-            executor_kwargs={"hostname_localhost": True},
+            executor_kwargs={},
             spawner=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -107,7 +107,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
     def test_pympiexecutor_one_worker(self):
         with InteractiveStepExecutor(
             max_cores=1,
-            executor_kwargs={"hostname_localhost": True},
+            executor_kwargs={},
             spawner=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -126,7 +126,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -137,7 +137,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
@@ -157,7 +157,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
@@ -172,7 +172,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
         with InteractiveStepExecutor(
             max_cores=2,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -183,7 +183,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
         with InteractiveStepExecutor(
             max_cores=2,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
@@ -203,7 +203,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
         with InteractiveStepExecutor(
             max_cores=2,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
             cloudpickle_register(ind=1)
@@ -218,7 +218,6 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
             executor_kwargs={
                 "cores": 1,
                 "init_function": set_global,
-                "hostname_localhost": True,
             },
             spawner=MpiExecSpawner,
         ) as p:
@@ -247,7 +246,6 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
-            hostname_localhost=True,
             init_function=set_global,
         )
         self.assertEqual(f.result(), np.array([5]))
@@ -258,7 +256,7 @@ class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 1, "hostname_localhost": True},
+            executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
         ) as p:
             output = p.submit(calc_array, i=2)
@@ -273,7 +271,7 @@ class TestFuturePool(unittest.TestCase):
     def test_executor_multi_submission(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 1, "hostname_localhost": True},
+            executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
         ) as p:
             fs_1 = p.submit(calc_array, i=2)
@@ -286,7 +284,7 @@ class TestFuturePool(unittest.TestCase):
     def test_shutdown(self):
         p = InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 1, "hostname_localhost": True},
+            executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
         )
         fs1 = p.submit(sleep_one, i=2)
@@ -302,7 +300,7 @@ class TestFuturePool(unittest.TestCase):
     def test_pool_serial_map(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 1, "hostname_localhost": True},
+            executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
         ) as p:
             output = p.map(calc_array, [1, 2, 3])
@@ -312,7 +310,7 @@ class TestFuturePool(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             with InteractiveExecutor(
                 max_workers=1,
-                executor_kwargs={"cores": 1, "hostname_localhost": True},
+                executor_kwargs={"cores": 1},
                 spawner=MpiExecSpawner,
             ) as p:
                 p.submit(raise_error)
@@ -321,7 +319,7 @@ class TestFuturePool(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             with InteractiveExecutor(
                 max_workers=1,
-                executor_kwargs={"cores": 1, "hostname_localhost": True},
+                executor_kwargs={"cores": 1},
                 spawner=MpiExecSpawner,
             ) as p:
                 fs = p.submit(raise_error)
@@ -390,7 +388,7 @@ class TestFuturePool(unittest.TestCase):
     def test_pool_multi_core(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
             output = p.submit(mpi_funct, i=2)
@@ -408,7 +406,7 @@ class TestFuturePool(unittest.TestCase):
     def test_pool_multi_core_map(self):
         with InteractiveExecutor(
             max_workers=1,
-            executor_kwargs={"cores": 2, "hostname_localhost": True},
+            executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
@@ -428,7 +426,6 @@ class TestFuturePool(unittest.TestCase):
                 cores=1,
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
-                hostname_localhost=True,
             )
         q.join()
 
@@ -443,7 +440,6 @@ class TestFuturePool(unittest.TestCase):
                 cores=1,
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
-                hostname_localhost=True,
             )
         q.join()
 
@@ -458,7 +454,6 @@ class TestFuturePool(unittest.TestCase):
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
-            hostname_localhost=True,
         )
         self.assertEqual(f.result(), np.array(4))
         q.join()
@@ -477,7 +472,6 @@ class TestFuturePool(unittest.TestCase):
             cores=2,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
-            hostname_localhost=True,
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])
         q.join()

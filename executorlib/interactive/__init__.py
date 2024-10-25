@@ -41,7 +41,7 @@ def create_executor(
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
-    hostname_localhost: bool = False,
+    hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[callable] = None,
 ):
