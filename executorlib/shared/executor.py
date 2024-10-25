@@ -304,6 +304,7 @@ def execute_parallel_tasks(
     spawner: BaseSpawner = MpiExecSpawner,
     hostname_localhost: bool = False,
     init_function: Optional[Callable] = None,
+    cache_directory: Optional[str] = None,
     **kwargs,
 ) -> None:
     """
@@ -321,7 +322,21 @@ def execute_parallel_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (callable): optional function to preset arguments for functions which are submitted later
+       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
     """
+    def execute_task(task_dict: dict, future_queue: queue.Queue):
+        f = task_dict.pop("future")
+        if f.set_running_or_notify_cancel():
+            try:
+                f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+            except Exception as thread_exception:
+                interface.shutdown(wait=True)
+                future_queue.task_done()
+                f.set_exception(exception=thread_exception)
+                raise thread_exception
+            else:
+                future_queue.task_done()
+
     interface = interface_bootup(
         command_lst=_get_backend_path(
             cores=cores,
@@ -341,24 +356,17 @@ def execute_parallel_tasks(
             future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
-            f = task_dict.pop("future")
-            if f.set_running_or_notify_cancel():
-                try:
-                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-                except Exception as thread_exception:
-                    interface.shutdown(wait=True)
-                    future_queue.task_done()
-                    f.set_exception(exception=thread_exception)
-                    raise thread_exception
-                else:
-                    future_queue.task_done()
-
+            if cache_directory is None:
+                execute_task(task_dict=task_dict, future_queue=future_queue)
+            else:
+                pass
 
 def execute_separate_tasks(
     future_queue: queue.Queue,
     spawner: BaseSpawner = MpiExecSpawner,
     max_cores: int = 1,
     hostname_localhost: bool = False,
+    cache_directory: Optional[str] = None,
     **kwargs,
 ):
     """
@@ -375,6 +383,7 @@ def execute_separate_tasks(
                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
+       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
     """
     active_task_dict = {}
     process_lst, qtask_lst = [], []
@@ -390,6 +399,7 @@ def execute_separate_tasks(
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             qtask = queue.Queue()
+            # access cache here
             process, active_task_dict = _submit_function_to_separate_process(
                 task_dict=task_dict,
                 qtask=qtask,

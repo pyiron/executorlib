@@ -41,6 +41,7 @@ class Executor:
                            cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
                            recommended, as computers have a limited number of compute cores.
         backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
+        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         max_cores (int): defines the number cores which can be used in parallel
         cores_per_worker (int): number of MPI cores to be used for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
@@ -93,6 +94,7 @@ class Executor:
         self,
         max_workers: int = 1,
         backend: str = "local",
+        cache_directory: Optional[str] = None,
         max_cores: int = 1,
         cores_per_worker: int = 1,
         threads_per_core: int = 1,
@@ -117,6 +119,7 @@ class Executor:
         cls,
         max_workers: int = 1,
         backend: str = "local",
+        cache_directory: Optional[str] = None,
         max_cores: int = 1,
         cores_per_worker: int = 1,
         threads_per_core: int = 1,
@@ -147,6 +150,7 @@ class Executor:
                                number of cores which can be used in parallel - just like the max_cores parameter. Using
                                max_cores is recommended, as computers have a limited number of compute cores.
             backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
+            cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
             max_cores (int): defines the number cores which can be used in parallel
             cores_per_worker (int): number of MPI cores to be used for each function call
             threads_per_core (int): number of OpenMP threads to be used for each function call
@@ -179,6 +183,7 @@ class Executor:
             return ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
+                cache_directory=cache_directory,
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,
@@ -201,6 +206,7 @@ class Executor:
             return create_executor(
                 max_workers=max_workers,
                 backend=backend,
+                cache_directory=cache_directory,
                 max_cores=max_cores,
                 cores_per_worker=cores_per_worker,
                 threads_per_core=threads_per_core,

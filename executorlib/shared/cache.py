@@ -150,9 +150,9 @@ def execute_tasks_h5(
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
                 task_dict=task_dict,
                 memory_dict=memory_dict,
-                file_name_dict=file_name_dict,
+                file_name_dict=file_name_dict, 
             )
-            task_key, data_dict = _serialize_funct_h5(
+            task_key, data_dict = serialize_funct_h5(
                 task_dict["fn"], *task_args, **task_kwargs
             )
             if task_key not in memory_dict.keys():
@@ -244,7 +244,7 @@ def _get_hash(binary: bytes) -> str:
     return str(hashlib.md5(binary_no_ipykernel).hexdigest())
 
 
-def _serialize_funct_h5(fn: callable, *args: Any, **kwargs: Any) -> Tuple[str, dict]:
+def serialize_funct_h5(fn: callable, *args: Any, **kwargs: Any) -> Tuple[str, dict]:
     """
     Serialize a function and its arguments and keyword arguments into an HDF5 file.
 
