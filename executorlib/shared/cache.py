@@ -10,8 +10,8 @@ from typing import Any, Tuple
 
 import cloudpickle
 
-from executorlib.cache.hdf import dump, get_output, load
 from executorlib.shared.executor import get_command_path
+from executorlib.shared.hdf import dump, get_output, load
 
 
 class FutureItem:

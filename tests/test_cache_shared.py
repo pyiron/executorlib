@@ -5,13 +5,13 @@ import unittest
 
 
 try:
-    from executorlib.cache.hdf import dump
-    from executorlib.cache.shared import (
+    from executorlib.shared.hdf import dump
+    from executorlib.shared.cache import (
         FutureItem,
         _check_task_output,
         _serialize_funct_h5,
     )
-    from executorlib.cache.shared import execute_task_in_file
+    from executorlib.shared.cache import execute_task_in_file
 
     skip_h5io_test = False
 except ImportError:

@@ -1,6 +1,6 @@
 import os
 
-from executorlib.cache.shared import execute_in_subprocess, execute_tasks_h5
+from executorlib.shared.cache import execute_in_subprocess, execute_tasks_h5
 from executorlib.shared.executor import ExecutorBase
 from executorlib.shared.thread import RaisingThread
 
