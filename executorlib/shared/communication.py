@@ -1,6 +1,6 @@
 import sys
 from socket import gethostname
-from typing import Optional
+from typing import Optional, Tuple
 
 import cloudpickle
 import zmq
@@ -36,7 +36,7 @@ class SocketInterface:
         """
         self._socket.send(cloudpickle.dumps(input_dict))
 
-    def receive_dict(self):
+    def receive_dict(self) -> dict:
         """
         Receive a dictionary from a connected client process.
 
@@ -64,7 +64,7 @@ class SocketInterface:
         self.send_dict(input_dict=input_dict)
         return self.receive_dict()
 
-    def bind_to_random_port(self):
+    def bind_to_random_port(self) -> int:
         """
         Identify a random port typically in the range from 49152 to 65536 to bind the SocketInterface instance to. Other
         processes can then connect to this port to receive instructions and send results.
@@ -161,7 +161,7 @@ def interface_bootup(
     return interface
 
 
-def interface_connect(host: str, port: str):
+def interface_connect(host: str, port: str) -> Tuple[zmq.Context, zmq.Socket]:
     """
     Connect to an existing SocketInterface instance by providing the hostname and the port as strings.
 
@@ -186,7 +186,7 @@ def interface_send(socket: zmq.Socket, result_dict: dict):
     socket.send(cloudpickle.dumps(result_dict))
 
 
-def interface_receive(socket: zmq.Socket):
+def interface_receive(socket: zmq.Socket) -> dict:
     """
     Receive instructions from a SocketInterface instance.
 
