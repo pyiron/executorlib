@@ -10,7 +10,7 @@ from typing import Any, Tuple
 
 import cloudpickle
 
-from executorlib.shared.executor import get_command_path
+from executorlib.shared.command import get_command_path
 from executorlib.shared.hdf import dump, get_output, load
 
 
