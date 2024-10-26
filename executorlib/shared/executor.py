@@ -14,7 +14,8 @@ from typing import Callable, List, Optional
 
 import cloudpickle
 
-from executorlib.shared.cache import dump, get_output, serialize_funct_h5
+from executorlib.shared.serialize import serialize_funct_h5
+from executorlib.shared.command import get_command_path
 from executorlib.shared.communication import SocketInterface, interface_bootup
 from executorlib.shared.inputcheck import (
     check_resource_dict,
@@ -349,21 +350,12 @@ def execute_parallel_tasks(
                     interface=interface, task_dict=task_dict, future_queue=future_queue
                 )
             else:
-                task_key, data_dict = serialize_funct_h5(
-                    task_dict["fn"], *task_dict["args"], **task_dict["kwargs"]
+                _execute_task_with_cache(
+                    interface=interface,
+                    task_dict=task_dict,
+                    future_queue=future_queue,
+                    cache_directory=cache_directory
                 )
-                file_name = os.path.join(cache_directory, task_key + ".h5out")
-                if task_key + ".h5out" not in os.listdir(cache_directory):
-                    _execute_task(
-                        interface=interface,
-                        task_dict=task_dict,
-                        future_queue=future_queue,
-                    )
-                    data_dict["output"] = task_dict["future"].result()
-                    dump(file_name=file_name, data_dict=data_dict)
-                else:
-                    _, result = get_output(file_name=file_name)
-                    task_dict["future"].set_result(result)
 
 
 def execute_separate_tasks(
@@ -476,19 +468,6 @@ def execute_tasks_with_dependencies(
         else:
             # If there is nothing else to do, sleep for a moment
             sleep(refresh_rate)
-
-
-def get_command_path(executable: str) -> str:
-    """
-    Get path of the backend executable script
-
-    Args:
-        executable (str): Name of the backend executable script, either mpiexec.py or serial.py
-
-    Returns:
-        str: absolute path to the executable script
-    """
-    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
 def _get_backend_path(
@@ -695,3 +674,33 @@ def _execute_task(
             raise thread_exception
         else:
             future_queue.task_done()
+
+
+def _execute_task_with_cache(interface: SocketInterface, task_dict: dict, future_queue: queue.Queue, cache_directory: str):
+    """
+    Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
+
+    Args:
+        interface (SocketInterface): socket interface for zmq communication
+        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
+                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+        future_queue (Queue): Queue for receiving new tasks.
+        cache_directory (str): The directory to store cache files.
+    """
+    from executorlib.shared.hdf import dump, get_output
+
+    task_key, data_dict = serialize_funct_h5(
+        task_dict["fn"], *task_dict["args"], **task_dict["kwargs"]
+    )
+    file_name = os.path.join(cache_directory, task_key + ".h5out")
+    if task_key + ".h5out" not in os.listdir(cache_directory):
+        _execute_task(
+            interface=interface,
+            task_dict=task_dict,
+            future_queue=future_queue,
+        )
+        data_dict["output"] = task_dict["future"].result()
+        dump(file_name=file_name, data_dict=data_dict)
+    else:
+        _, result = get_output(file_name=file_name)
+        task_dict["future"].set_result(result)
