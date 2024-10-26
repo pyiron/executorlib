@@ -122,7 +122,7 @@ def interface_bootup(
     command_lst: list[str],
     connections,
     hostname_localhost: Optional[bool] = None,
-):
+) -> SocketInterface:
     """
     Start interface for ZMQ communication
 
