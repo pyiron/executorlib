@@ -1,17 +1,14 @@
-import hashlib
 import importlib.util
 import os
 import queue
-import re
 import subprocess
 import sys
 from concurrent.futures import Future
 from typing import Any, Tuple
 
-import cloudpickle
-
 from executorlib.shared.command import get_command_path
 from executorlib.shared.hdf import dump, get_output, load
+from executorlib.shared.serialize import serialize_funct_h5
 
 
 class FutureItem:
@@ -152,7 +149,7 @@ def execute_tasks_h5(
                 memory_dict=memory_dict,
                 file_name_dict=file_name_dict,
             )
-            task_key, data_dict = _serialize_funct_h5(
+            task_key, data_dict = serialize_funct_h5(
                 task_dict["fn"], *task_args, **task_kwargs
             )
             if task_key not in memory_dict.keys():
@@ -226,41 +223,6 @@ def _get_execute_command(file_name: str, cores: int = 1) -> list:
     else:
         command_lst += [get_command_path(executable="cache_serial.py"), file_name]
     return command_lst
-
-
-def _get_hash(binary: bytes) -> str:
-    """
-    Get the hash of a binary.
-
-    Args:
-        binary (bytes): The binary to be hashed.
-
-    Returns:
-        str: The hash of the binary.
-
-    """
-    # Remove specification of jupyter kernel from hash to be deterministic
-    binary_no_ipykernel = re.sub(b"(?<=/ipykernel_)(.*)(?=/)", b"", binary)
-    return str(hashlib.md5(binary_no_ipykernel).hexdigest())
-
-
-def _serialize_funct_h5(fn: callable, *args: Any, **kwargs: Any) -> Tuple[str, dict]:
-    """
-    Serialize a function and its arguments and keyword arguments into an HDF5 file.
-
-    Args:
-        fn (callable): The function to be serialized.
-        *args (Any): The arguments of the function.
-        **kwargs (Any): The keyword arguments of the function.
-
-    Returns:
-        Tuple[str, dict]: A tuple containing the task key and the serialized data.
-
-    """
-    binary_all = cloudpickle.dumps({"fn": fn, "args": args, "kwargs": kwargs})
-    task_key = fn.__name__ + _get_hash(binary=binary_all)
-    data = {"fn": fn, "args": args, "kwargs": kwargs}
-    return task_key, data
 
 
 def _check_task_output(

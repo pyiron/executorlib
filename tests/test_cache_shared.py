@@ -5,13 +5,13 @@ import unittest
 
 
 try:
-    from executorlib.shared.hdf import dump
     from executorlib.shared.cache import (
         FutureItem,
+        execute_task_in_file,
         _check_task_output,
-        _serialize_funct_h5,
     )
-    from executorlib.shared.cache import execute_task_in_file
+    from executorlib.shared.hdf import dump
+    from executorlib.shared.serialize import serialize_funct_h5
 
     skip_h5io_test = False
 except ImportError:
@@ -29,7 +29,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_mixed(self):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = _serialize_funct_h5(
+        task_key, data_dict = serialize_funct_h5(
             my_funct,
             1,
             b=2,
@@ -52,7 +52,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_args(self):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = _serialize_funct_h5(
+        task_key, data_dict = serialize_funct_h5(
             my_funct,
             1,
             2,
@@ -75,7 +75,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_kwargs(self):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = _serialize_funct_h5(
+        task_key, data_dict = serialize_funct_h5(
             my_funct,
             a=1,
             b=2,
