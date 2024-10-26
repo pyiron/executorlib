@@ -5,7 +5,6 @@ import unittest
 
 
 try:
-    from executorlib.shared.hdf import dump
     from executorlib.shared.cache import (
         FutureItem,
         execute_task_in_file,
