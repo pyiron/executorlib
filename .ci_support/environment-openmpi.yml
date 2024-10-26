@@ -11,4 +11,4 @@ dependencies:
 - matplotlib =3.9.2
 - networkx =3.4.2
 - pygraphviz =1.14
-- ipython =8.28.0
+- ipython =8.29.0

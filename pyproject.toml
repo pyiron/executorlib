@@ -43,7 +43,7 @@ graph = [
     "pygraphviz==1.14",
     "matplotlib==3.9.2",
     "networkx==3.4.2",
-    "ipython==8.28.0",
+    "ipython==8.29.0",
 ]
 
 [tool.setuptools.packages.find]
