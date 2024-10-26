@@ -700,8 +700,8 @@ def _execute_task_with_cache(
     file_name = os.path.join(cache_directory, task_key + ".h5out")
     if not os.path.exists(cache_directory):
         os.mkdir(cache_directory)
+    future = task_dict["future"]
     if task_key + ".h5out" not in os.listdir(cache_directory):
-        future = task_dict["future"]
         _execute_task(
             interface=interface,
             task_dict=task_dict,
@@ -711,4 +711,6 @@ def _execute_task_with_cache(
         dump(file_name=file_name, data_dict=data_dict)
     else:
         _, result = get_output(file_name=file_name)
-        task_dict["future"].set_result(result)
+        future = task_dict["future"]
+        future.set_result(result)
+        future_queue.task_done()
