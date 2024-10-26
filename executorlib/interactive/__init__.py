@@ -31,6 +31,7 @@ def create_executor(
     max_workers: int = 1,
     backend: str = "local",
     max_cores: int = 1,
+    cache_directory: Optional[str] = None,
     cores_per_worker: int = 1,
     threads_per_core: int = 1,
     gpus_per_worker: int = 0,
@@ -56,8 +57,9 @@ def create_executor(
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
                            cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
                            recommended, as computers have a limited number of compute cores.
-        max_cores (int): defines the number cores which can be used in parallel
         backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
+        max_cores (int): defines the number cores which can be used in parallel
+        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         cores_per_worker (int): number of MPI cores to be used for each function call
         threads_per_core (int): number of OpenMP threads to be used for each function call
         gpus_per_worker (int): number of GPUs per worker - defaults to 0
@@ -88,6 +90,7 @@ def create_executor(
         "cores": cores_per_worker,
         "hostname_localhost": hostname_localhost,
         "cwd": cwd,
+        "cache_directory": cache_directory,
     }
     if backend == "flux":
         check_oversubscribe(oversubscribe=openmpi_oversubscribe)

@@ -1,5 +1,6 @@
 import importlib.util
 import inspect
+import os
 import queue
 import sys
 from concurrent.futures import (
@@ -14,11 +15,12 @@ from typing import Callable, List, Optional
 import cloudpickle
 
 from executorlib.shared.command import get_command_path
-from executorlib.shared.communication import interface_bootup
+from executorlib.shared.communication import SocketInterface, interface_bootup
 from executorlib.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
+from executorlib.shared.serialize import serialize_funct_h5
 from executorlib.shared.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.shared.thread import RaisingThread
 
@@ -304,6 +306,7 @@ def execute_parallel_tasks(
     spawner: BaseSpawner = MpiExecSpawner,
     hostname_localhost: Optional[bool] = None,
     init_function: Optional[Callable] = None,
+    cache_directory: Optional[str] = None,
     **kwargs,
 ) -> None:
     """
@@ -321,6 +324,7 @@ def execute_parallel_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (callable): optional function to preset arguments for functions which are submitted later
+       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
@@ -341,17 +345,17 @@ def execute_parallel_tasks(
             future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
-            f = task_dict.pop("future")
-            if f.set_running_or_notify_cancel():
-                try:
-                    f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-                except Exception as thread_exception:
-                    interface.shutdown(wait=True)
-                    future_queue.task_done()
-                    f.set_exception(exception=thread_exception)
-                    raise thread_exception
-                else:
-                    future_queue.task_done()
+            if cache_directory is None:
+                _execute_task(
+                    interface=interface, task_dict=task_dict, future_queue=future_queue
+                )
+            else:
+                _execute_task_with_cache(
+                    interface=interface,
+                    task_dict=task_dict,
+                    future_queue=future_queue,
+                    cache_directory=cache_directory,
+                )
 
 
 def execute_separate_tasks(
@@ -644,3 +648,68 @@ def _submit_function_to_separate_process(
     )
     process.start()
     return process, active_task_dict
+
+
+def _execute_task(
+    interface: SocketInterface, task_dict: dict, future_queue: queue.Queue
+):
+    """
+    Execute the task in the task_dict by communicating it via the interface.
+
+    Args:
+        interface (SocketInterface): socket interface for zmq communication
+        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
+                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+        future_queue (Queue): Queue for receiving new tasks.
+    """
+    f = task_dict.pop("future")
+    if f.set_running_or_notify_cancel():
+        try:
+            f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+        except Exception as thread_exception:
+            interface.shutdown(wait=True)
+            future_queue.task_done()
+            f.set_exception(exception=thread_exception)
+            raise thread_exception
+        else:
+            future_queue.task_done()
+
+
+def _execute_task_with_cache(
+    interface: SocketInterface,
+    task_dict: dict,
+    future_queue: queue.Queue,
+    cache_directory: str,
+):
+    """
+    Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
+
+    Args:
+        interface (SocketInterface): socket interface for zmq communication
+        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
+                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+        future_queue (Queue): Queue for receiving new tasks.
+        cache_directory (str): The directory to store cache files.
+    """
+    from executorlib.shared.hdf import dump, get_output
+
+    task_key, data_dict = serialize_funct_h5(
+        task_dict["fn"], *task_dict["args"], **task_dict["kwargs"]
+    )
+    file_name = os.path.join(cache_directory, task_key + ".h5out")
+    if not os.path.exists(cache_directory):
+        os.mkdir(cache_directory)
+    future = task_dict["future"]
+    if task_key + ".h5out" not in os.listdir(cache_directory):
+        _execute_task(
+            interface=interface,
+            task_dict=task_dict,
+            future_queue=future_queue,
+        )
+        data_dict["output"] = future.result()
+        dump(file_name=file_name, data_dict=data_dict)
+    else:
+        _, result = get_output(file_name=file_name)
+        future = task_dict["future"]
+        future.set_result(result)
+        future_queue.task_done()
