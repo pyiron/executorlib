@@ -394,7 +394,6 @@ def execute_separate_tasks(
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             qtask = queue.Queue()
-            # access cache here
             process, active_task_dict = _submit_function_to_separate_process(
                 task_dict=task_dict,
                 qtask=qtask,
