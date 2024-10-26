@@ -14,13 +14,13 @@ from typing import Callable, List, Optional
 
 import cloudpickle
 
-from executorlib.shared.serialize import serialize_funct_h5
 from executorlib.shared.command import get_command_path
 from executorlib.shared.communication import SocketInterface, interface_bootup
 from executorlib.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
+from executorlib.shared.serialize import serialize_funct_h5
 from executorlib.shared.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.shared.thread import RaisingThread
 
@@ -354,7 +354,7 @@ def execute_parallel_tasks(
                     interface=interface,
                     task_dict=task_dict,
                     future_queue=future_queue,
-                    cache_directory=cache_directory
+                    cache_directory=cache_directory,
                 )
 
 
@@ -676,7 +676,12 @@ def _execute_task(
             future_queue.task_done()
 
 
-def _execute_task_with_cache(interface: SocketInterface, task_dict: dict, future_queue: queue.Queue, cache_directory: str):
+def _execute_task_with_cache(
+    interface: SocketInterface,
+    task_dict: dict,
+    future_queue: queue.Queue,
+    cache_directory: str,
+):
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
 
