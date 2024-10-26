@@ -1,6 +1,5 @@
 import importlib.util
 import inspect
-import os
 import queue
 import sys
 from concurrent.futures import (
@@ -14,6 +13,7 @@ from typing import Callable, List, Optional
 
 import cloudpickle
 
+from executorlib.shared.command import get_command_path
 from executorlib.shared.communication import interface_bootup
 from executorlib.shared.inputcheck import (
     check_resource_dict,
@@ -463,19 +463,6 @@ def execute_tasks_with_dependencies(
         else:
             # If there is nothing else to do, sleep for a moment
             sleep(refresh_rate)
-
-
-def get_command_path(executable: str) -> str:
-    """
-    Get path of the backend executable script
-
-    Args:
-        executable (str): Name of the backend executable script, either mpiexec.py or serial.py
-
-    Returns:
-        str: absolute path to the executable script
-    """
-    return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
 def _get_backend_path(
