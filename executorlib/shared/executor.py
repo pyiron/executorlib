@@ -14,14 +14,14 @@ from typing import Callable, List, Optional
 
 import cloudpickle
 
-from executorlib.shared.communication import interface_bootup, SocketInterface
+from executorlib.shared.cache import dump, get_output, serialize_funct_h5
+from executorlib.shared.communication import SocketInterface, interface_bootup
 from executorlib.shared.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
 from executorlib.shared.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.shared.thread import RaisingThread
-from executorlib.shared.cache import dump, get_output, serialize_funct_h5
 
 
 class ExecutorBase(FutureExecutor):
@@ -345,14 +345,20 @@ def execute_parallel_tasks(
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             if cache_directory is None:
-                _execute_task(interface=interface, task_dict=task_dict, future_queue=future_queue)
+                _execute_task(
+                    interface=interface, task_dict=task_dict, future_queue=future_queue
+                )
             else:
                 task_key, data_dict = serialize_funct_h5(
                     task_dict["fn"], *task_dict["args"], **task_dict["kwargs"]
                 )
                 file_name = os.path.join(cache_directory, task_key + ".h5out")
                 if task_key + ".h5out" not in os.listdir(cache_directory):
-                    _execute_task(interface=interface, task_dict=task_dict, future_queue=future_queue)
+                    _execute_task(
+                        interface=interface,
+                        task_dict=task_dict,
+                        future_queue=future_queue,
+                    )
                     data_dict["output"] = task_dict["future"].result()
                     dump(file_name=file_name, data_dict=data_dict)
                 else:
@@ -666,7 +672,9 @@ def _submit_function_to_separate_process(
     return process, active_task_dict
 
 
-def _execute_task(interface: SocketInterface, task_dict: dict, future_queue: queue.Queue):
+def _execute_task(
+    interface: SocketInterface, task_dict: dict, future_queue: queue.Queue
+):
     """
     Execute the task in the task_dict by communicating it via the interface.
 
