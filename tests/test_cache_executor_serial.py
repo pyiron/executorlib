@@ -8,8 +8,8 @@ from executorlib.standalone.thread import RaisingThread
 
 try:
     from executorlib import FileExecutor
-    from executorlib.cache.shared import (
-        execute_tasks_h5,
+    from executorlib.cache.shared import execute_tasks_h5
+    from executorlib.standalone.cache.spawner import (
         execute_in_subprocess,
         terminate_subprocess,
     )

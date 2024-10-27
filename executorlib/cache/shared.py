@@ -1,9 +1,7 @@
 import importlib.util
 import os
 import queue
-import subprocess
 import sys
-import time
 from concurrent.futures import Future
 from typing import Optional, Tuple
 
@@ -46,36 +44,6 @@ class FutureItem:
 
         """
         return get_output(file_name=self._file_name)[0]
-
-
-def execute_in_subprocess(
-    command: list,
-    task_dependent_lst: list = [],
-    cwd: Optional[str] = None,
-) -> subprocess.Popen:
-    """
-    Execute a command in a subprocess.
-
-    Args:
-        command (list): The command to be executed.
-        task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
-        cwd (str/None): current working directory where the parallel python task is executed
-
-    Returns:
-        subprocess.Popen: The subprocess object.
-
-    """
-    while len(task_dependent_lst) > 0:
-        task_dependent_lst = [
-            task for task in task_dependent_lst if task.poll() is None
-        ]
-    return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
-
-
-def terminate_subprocess(task):
-    task.terminate()
-    while task.poll() is None:
-        time.sleep(0.1)
 
 
 def execute_tasks_h5(
