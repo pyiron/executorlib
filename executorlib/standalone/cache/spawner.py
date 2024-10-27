@@ -29,6 +29,8 @@ def execute_in_subprocess(
         ]
     if resource_dict is None:
         resource_dict = {"cwd": None}
+    elif len(resource_dict) == 0:
+        resource_dict = {"cwd": None}
     return subprocess.Popen(command, universal_newlines=True, cwd=resource_dict["cwd"])
 
 

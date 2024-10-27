@@ -93,7 +93,7 @@ def execute_tasks_h5(
                 memory_dict=memory_dict,
                 file_name_dict=file_name_dict,
             )
-            resource_dict = task_dict["resource_dict"]
+            resource_dict = task_dict["resource_dict"].copy()
             if "cores" not in resource_dict:
                 resource_dict["cores"] = cores_per_worker
             if "cwd" not in resource_dict:
