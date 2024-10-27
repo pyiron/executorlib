@@ -7,10 +7,7 @@ from concurrent.futures import (
 )
 from typing import Optional
 
-from executorlib.standalone.inputcheck import (
-    check_resource_dict,
-    check_resource_dict_is_empty,
-)
+from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.thread import RaisingThread
@@ -89,10 +86,17 @@ class ExecutorBase(FutureExecutor):
         Returns:
             Future: A Future representing the given call.
         """
-        check_resource_dict_is_empty(resource_dict=resource_dict)
         check_resource_dict(function=fn)
         f = Future()
-        self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
+        self._future_queue.put(
+            {
+                "fn": fn,
+                "args": args,
+                "kwargs": kwargs,
+                "future": f,
+                "resource_dict": resource_dict,
+            }
+        )
         return f
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
