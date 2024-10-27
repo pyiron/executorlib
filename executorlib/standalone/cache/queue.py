@@ -1,4 +1,5 @@
 from typing import List, Optional
+
 from pysqa import QueueAdapter
 
 
@@ -7,7 +8,7 @@ def execute_with_pysqa(
     resource_dict: dict,
     task_dependent_lst: List[int] = [],
     config_directory: Optional[str] = None,
-    backend: Optional[str] = None
+    backend: Optional[str] = None,
 ) -> int:
     """
     Execute a command by submitting it to the queuing system

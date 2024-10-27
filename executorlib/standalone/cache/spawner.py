@@ -32,7 +32,9 @@ def execute_in_subprocess(
             task for task in task_dependent_lst if task.poll() is None
         ]
     if config_directory is not None:
-        raise ValueError("config_directory parameter is not supported for subprocess spawner.")
+        raise ValueError(
+            "config_directory parameter is not supported for subprocess spawner."
+        )
     if backend is not None:
         raise ValueError("backend parameter is not supported for subprocess spawner.")
     if resource_dict is None:
