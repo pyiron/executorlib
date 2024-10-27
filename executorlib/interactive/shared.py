@@ -1,160 +1,18 @@
 import importlib.util
-import inspect
 import os
 import queue
 import sys
-from concurrent.futures import (
-    Executor as FutureExecutor,
-)
-from concurrent.futures import (
-    Future,
-)
+from concurrent.futures import Future
 from time import sleep
 from typing import Callable, List, Optional
 
-import cloudpickle
-
-from executorlib.shared.command import get_command_path
-from executorlib.shared.communication import SocketInterface, interface_bootup
-from executorlib.shared.inputcheck import (
-    check_resource_dict,
-    check_resource_dict_is_empty,
-)
-from executorlib.shared.serialize import serialize_funct_h5
-from executorlib.shared.spawner import BaseSpawner, MpiExecSpawner
-from executorlib.shared.thread import RaisingThread
-
-
-class ExecutorBase(FutureExecutor):
-    """
-    Base class for the executor.
-
-    Args:
-        FutureExecutor: Base class for the executor.
-    """
-
-    def __init__(self):
-        """
-        Initialize the ExecutorBase class.
-        """
-        cloudpickle_register(ind=3)
-        self._future_queue: queue.Queue = queue.Queue()
-        self._process: Optional[RaisingThread] = None
-
-    @property
-    def info(self) -> Optional[dict]:
-        """
-        Get the information about the executor.
-
-        Returns:
-            Optional[dict]: Information about the executor.
-        """
-        if self._process is not None and isinstance(self._process, list):
-            meta_data_dict = self._process[0]._kwargs.copy()
-            if "future_queue" in meta_data_dict.keys():
-                del meta_data_dict["future_queue"]
-            meta_data_dict["max_workers"] = len(self._process)
-            return meta_data_dict
-        elif self._process is not None:
-            meta_data_dict = self._process._kwargs.copy()
-            if "future_queue" in meta_data_dict.keys():
-                del meta_data_dict["future_queue"]
-            return meta_data_dict
-        else:
-            return None
-
-    @property
-    def future_queue(self) -> queue.Queue:
-        """
-        Get the future queue.
-
-        Returns:
-            queue.Queue: The future queue.
-        """
-        return self._future_queue
-
-    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs) -> Future:
-        """
-        Submits a callable to be executed with the given arguments.
-
-        Schedules the callable to be executed as fn(*args, **kwargs) and returns
-        a Future instance representing the execution of the callable.
-
-        Args:
-            fn (callable): function to submit for execution
-            args: arguments for the submitted function
-            kwargs: keyword arguments for the submitted function
-            resource_dict (dict): resource dictionary, which defines the resources used for the execution of the
-                                  function. Example resource dictionary: {
-                                      cores: 1,
-                                      threads_per_core: 1,
-                                      gpus_per_worker: 0,
-                                      oversubscribe: False,
-                                      cwd: None,
-                                      executor: None,
-                                      hostname_localhost: False,
-                                  }
-
-        Returns:
-            Future: A Future representing the given call.
-        """
-        check_resource_dict_is_empty(resource_dict=resource_dict)
-        check_resource_dict(function=fn)
-        f = Future()
-        self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
-        return f
-
-    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
-        """
-        Clean-up the resources associated with the Executor.
-
-        It is safe to call this method several times. Otherwise, no other
-        methods can be called after this one.
-
-        Args:
-            wait (bool): If True then shutdown will not return until all running
-                futures have finished executing and the resources used by the
-                parallel_executors have been reclaimed.
-            cancel_futures (bool): If True then shutdown will cancel all pending
-                futures. Futures that are completed or running will not be
-                cancelled.
-        """
-        if cancel_futures:
-            cancel_items_in_queue(que=self._future_queue)
-        self._future_queue.put({"shutdown": True, "wait": wait})
-        if wait and self._process is not None:
-            self._process.join()
-            self._future_queue.join()
-        self._process = None
-        self._future_queue = None
-
-    def _set_process(self, process: RaisingThread):
-        """
-        Set the process for the executor.
-
-        Args:
-            process (RaisingThread): The process for the executor.
-        """
-        self._process = process
-        self._process.start()
-
-    def __len__(self) -> int:
-        """
-        Get the length of the executor.
-
-        Returns:
-            int: The length of the executor.
-        """
-        return self._future_queue.qsize()
-
-    def __del__(self):
-        """
-        Clean-up the resources associated with the Executor.
-        """
-        try:
-            self.shutdown(wait=False)
-        except (AttributeError, RuntimeError):
-            pass
+from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
+from executorlib.standalone.command import get_command_path
+from executorlib.standalone.interactive.communication import SocketInterface, interface_bootup
+from executorlib.standalone.inputcheck import check_resource_dict
+from executorlib.standalone.serialize import serialize_funct_h5
+from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
+from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBroker(ExecutorBase):
@@ -258,46 +116,6 @@ class ExecutorSteps(ExecutorBase):
                 self._future_queue.join()
         self._process = None
         self._future_queue = None
-
-
-def cancel_items_in_queue(que: queue.Queue):
-    """
-    Cancel items which are still waiting in the queue. If the executor is busy tasks remain in the queue, so the future
-    objects have to be cancelled when the executor shuts down.
-
-    Args:
-        que (queue.Queue): Queue with task objects which should be executed
-    """
-    while True:
-        try:
-            item = que.get_nowait()
-            if isinstance(item, dict) and "future" in item.keys():
-                item["future"].cancel()
-                que.task_done()
-        except queue.Empty:
-            break
-
-
-def cloudpickle_register(ind: int = 2):
-    """
-    Cloudpickle can either pickle by value or pickle by reference. The functions which are communicated have to
-    be pickled by value rather than by reference, so the module which calls the map function is pickled by value.
-    https://github.com/cloudpipe/cloudpickle#overriding-pickles-serialization-mechanism-for-importable-constructs
-    inspect can help to find the module which is calling executorlib
-    https://docs.python.org/3/library/inspect.html
-    to learn more about inspect another good read is:
-    http://pymotw.com/2/inspect/index.html#module-inspect
-    1 refers to 1 level higher than the map function
-
-    Args:
-        ind (int): index of the level at which pickle by value starts while for the rest pickle by reference is used
-    """
-    try:  # When executed in a jupyter notebook this can cause a ValueError - in this case we just ignore it.
-        cloudpickle.register_pickle_by_value(inspect.getmodule(inspect.stack()[ind][0]))
-    except IndexError:
-        cloudpickle_register(ind=ind - 1)
-    except ValueError:
-        pass
 
 
 def execute_parallel_tasks(
@@ -691,7 +509,7 @@ def _execute_task_with_cache(
         future_queue (Queue): Queue for receiving new tasks.
         cache_directory (str): The directory to store cache files.
     """
-    from executorlib.shared.hdf import dump, get_output
+    from executorlib.standalone.hdf import dump, get_output
 
     task_key, data_dict = serialize_funct_h5(
         task_dict["fn"], *task_dict["args"], **task_dict["kwargs"]

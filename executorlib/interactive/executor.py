@@ -1,11 +1,11 @@
-from executorlib.shared.executor import (
+from executorlib.interactive.shared import (
     ExecutorBroker,
     ExecutorSteps,
     execute_parallel_tasks,
     execute_separate_tasks,
 )
-from executorlib.shared.spawner import BaseSpawner, MpiExecSpawner
-from executorlib.shared.thread import RaisingThread
+from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
+from executorlib.standalone.thread import RaisingThread
 
 
 class InteractiveExecutor(ExecutorBroker):

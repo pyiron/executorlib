@@ -4,7 +4,7 @@ from executorlib.interactive.executor import (
     InteractiveExecutor,
     InteractiveStepExecutor,
 )
-from executorlib.shared.inputcheck import (
+from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_executor,
     check_gpus_per_worker,
@@ -15,13 +15,12 @@ from executorlib.shared.inputcheck import (
     check_threads_per_core,
     validate_number_of_cores,
 )
-from executorlib.shared.spawner import (
-    SLURM_COMMAND,
+from executorlib.standalone.interactive.spawner import (
     MpiExecSpawner,
     SrunSpawner,
 )
 
-try:  # The PyFluxExecutor requires flux-core to be installed.
+try:  # The PyFluxExecutor requires flux-base to be installed.
     from executorlib.interactive.flux import FluxPythonSpawner
 except ImportError:
     pass
@@ -49,7 +48,7 @@ def create_executor(
     Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
     executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
     executorlib.flux.PyFluxExecutor is the preferred choice while the executorlib.mpi.PyMPIExecutor is primarily used
-    for development and testing. The executorlib.flux.PyFluxExecutor requires flux-core from the flux-framework to be
+    for development and testing. The executorlib.flux.PyFluxExecutor requires flux-base from the flux-framework to be
     installed and in addition flux-sched to enable GPU scheduling. Finally, the executorlib.slurm.PySlurmExecutor
     requires the SLURM workload manager to be installed on the system.
 

@@ -4,11 +4,11 @@ from time import sleep
 from queue import Queue
 
 from executorlib import Executor
-from executorlib.shared.executor import cloudpickle_register
+from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.interactive import create_executor
-from executorlib.shared.thread import RaisingThread
-from executorlib.shared.executor import execute_tasks_with_dependencies
-from executorlib.shared.plot import generate_nodes_and_edges
+from executorlib.standalone.thread import RaisingThread
+from executorlib.interactive.shared import execute_tasks_with_dependencies
+from executorlib.standalone.plot import generate_nodes_and_edges
 
 
 try:

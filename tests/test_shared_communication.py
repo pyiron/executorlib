@@ -6,15 +6,15 @@ import unittest
 import numpy as np
 import zmq
 
-from executorlib.shared.communication import (
+from executorlib.standalone.interactive.communication import (
     interface_connect,
     interface_shutdown,
     interface_send,
     interface_receive,
     SocketInterface,
 )
-from executorlib.shared.executor import cloudpickle_register
-from executorlib.shared.spawner import MpiExecSpawner
+from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None

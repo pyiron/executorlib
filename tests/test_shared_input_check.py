@@ -1,6 +1,6 @@
 import unittest
 
-from executorlib.shared.inputcheck import (
+from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_gpus_per_worker,
     check_threads_per_core,

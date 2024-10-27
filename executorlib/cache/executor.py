@@ -1,8 +1,8 @@
 import os
 
-from executorlib.shared.cache import execute_in_subprocess, execute_tasks_h5
-from executorlib.shared.executor import ExecutorBase
-from executorlib.shared.thread import RaisingThread
+from executorlib.cache.shared import execute_in_subprocess, execute_tasks_h5
+from executorlib.base.executor import ExecutorBase
+from executorlib.standalone.thread import RaisingThread
 
 
 class FileExecutor(ExecutorBase):

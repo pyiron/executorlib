@@ -4,8 +4,9 @@ import queue
 import unittest
 
 from executorlib import Executor
-from executorlib.shared.executor import cloudpickle_register, execute_parallel_tasks
-from executorlib.shared.spawner import MpiExecSpawner
+from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.interactive.shared import execute_parallel_tasks
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
 def submit_shell_command(
