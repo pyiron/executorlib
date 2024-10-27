@@ -55,7 +55,15 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_function(self):
         fs1 = Future()
         q = Queue()
-        q.put({"fn": my_funct, "args": (), "kwargs": {"a": 1, "b": 2}, "future": fs1, "resource_dict": {}})
+        q.put(
+            {
+                "fn": my_funct,
+                "args": (),
+                "kwargs": {"a": 1, "b": 2},
+                "future": fs1,
+                "resource_dict": {},
+            }
+        )
         cache_dir = os.path.abspath("cache")
         os.makedirs(cache_dir, exist_ok=True)
         process = RaisingThread(
@@ -80,8 +88,24 @@ class TestCacheExecutorSerial(unittest.TestCase):
         fs1 = Future()
         fs2 = Future()
         q = Queue()
-        q.put({"fn": my_funct, "args": (), "kwargs": {"a": 1, "b": 2}, "future": fs1, "resource_dict": {}})
-        q.put({"fn": my_funct, "args": (), "kwargs": {"a": 1, "b": fs1}, "future": fs2, "resource_dict": {}})
+        q.put(
+            {
+                "fn": my_funct,
+                "args": (),
+                "kwargs": {"a": 1, "b": 2},
+                "future": fs1,
+                "resource_dict": {},
+            }
+        )
+        q.put(
+            {
+                "fn": my_funct,
+                "args": (),
+                "kwargs": {"a": 1, "b": fs1},
+                "future": fs2,
+                "resource_dict": {},
+            }
+        )
         cache_dir = os.path.abspath("cache")
         os.makedirs(cache_dir, exist_ok=True)
         process = RaisingThread(
@@ -106,8 +130,24 @@ class TestCacheExecutorSerial(unittest.TestCase):
         fs1 = Future()
         fs2 = Future()
         q = Queue()
-        q.put({"fn": my_funct, "args": (), "kwargs": {"a": 1, "b": 2}, "future": fs1, "resource_dict": {}})
-        q.put({"fn": my_funct, "args": [fs1], "kwargs": {"b": 2}, "future": fs2, "resource_dict": {}})
+        q.put(
+            {
+                "fn": my_funct,
+                "args": (),
+                "kwargs": {"a": 1, "b": 2},
+                "future": fs1,
+                "resource_dict": {},
+            }
+        )
+        q.put(
+            {
+                "fn": my_funct,
+                "args": [fs1],
+                "kwargs": {"b": 2},
+                "future": fs2,
+                "resource_dict": {},
+            }
+        )
         cache_dir = os.path.abspath("cache")
         os.makedirs(cache_dir, exist_ok=True)
         process = RaisingThread(
