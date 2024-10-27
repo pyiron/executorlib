@@ -8,7 +8,10 @@ from typing import Callable, List, Optional
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path
-from executorlib.standalone.inputcheck import check_resource_dict, check_resource_dict_is_empty
+from executorlib.standalone.inputcheck import (
+    check_resource_dict,
+    check_resource_dict_is_empty,
+)
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
