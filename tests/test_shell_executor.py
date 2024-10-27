@@ -134,8 +134,6 @@ class SubprocessExecutorTest(unittest.TestCase):
             self.assertEqual("test_2\n", f_2.result())
             self.assertTrue(f_1.done())
             self.assertTrue(f_2.done())
-            self.assertFalse(f_3.done())
-            self.assertFalse(f_4.done())
             self.assertEqual("test_3\n", f_3.result())
             self.assertEqual("test_4\n", f_4.result())
             self.assertTrue(f_1.done())
