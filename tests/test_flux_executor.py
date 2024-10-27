@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.executor import InteractiveExecutor
+from executorlib.interactive.shared import InteractiveExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.interactive.shared import execute_parallel_tasks
 

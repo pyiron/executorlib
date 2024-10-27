@@ -8,13 +8,13 @@ import numpy as np
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
-from executorlib.interactive.executor import (
+from executorlib.interactive.shared import (
     InteractiveExecutor,
     InteractiveStepExecutor,
+    execute_parallel_tasks,
 )
 from executorlib.standalone.interactive.backend import call_funct
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.interactive.shared import execute_parallel_tasks
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None

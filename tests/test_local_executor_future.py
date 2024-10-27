@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.executor import InteractiveExecutor
+from executorlib.interactive.shared import InteractiveExecutor
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 

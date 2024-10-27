@@ -1,10 +1,8 @@
-import queue
 from concurrent.futures import (
     Executor as FutureExecutor,
-)
-from concurrent.futures import (
     Future,
 )
+import queue
 from typing import Optional
 
 from executorlib.standalone.inputcheck import (
