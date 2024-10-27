@@ -23,6 +23,10 @@ def my_funct(a, b):
     return a + b
 
 
+def list_files_in_working_directory():
+    return os.listdir(os.getcwd())
+
+
 @unittest.skipIf(
     skip_h5io_test, "h5io is not installed, so the h5io tests are skipped."
 )
@@ -42,6 +46,12 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
 
+    def test_executor_working_directory(self):
+        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        with FileExecutor(cwd=cwd) as exe:
+            fs1 = exe.submit(list_files_in_working_directory)
+            self.assertEqual(fs1.result(), os.listdir(cwd))
+
     def test_executor_function(self):
         fs1 = Future()
         q = Queue()
@@ -55,6 +65,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
+                "cwd": None,
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -63,6 +74,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(fs1.result(), 3)
         self.assertTrue(fs1.done())
         q.put({"shutdown": True, "wait": True})
+        process.join()
 
     def test_executor_function_dependence_kwargs(self):
         fs1 = Future()
@@ -79,6 +91,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
+                "cwd": None,
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -87,6 +100,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(fs2.result(), 4)
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
+        process.join()
 
     def test_executor_function_dependence_args(self):
         fs1 = Future()
@@ -103,6 +117,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
+                "cwd": None,
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -111,6 +126,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(fs2.result(), 5)
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
+        process.join()
 
     def tearDown(self):
         if os.path.exists("cache"):
