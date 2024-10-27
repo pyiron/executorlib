@@ -1,7 +1,6 @@
 import importlib.util
 import os
 import queue
-import subprocess
 import sys
 from concurrent.futures import Future
 from typing import Optional, Tuple
@@ -47,36 +46,13 @@ class FutureItem:
         return get_output(file_name=self._file_name)[0]
 
 
-def execute_in_subprocess(
-    command: list,
-    task_dependent_lst: list = [],
-    cwd: Optional[str] = None,
-) -> subprocess.Popen:
-    """
-    Execute a command in a subprocess.
-
-    Args:
-        command (list): The command to be executed.
-        task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
-        cwd (str/None): current working directory where the parallel python task is executed
-
-    Returns:
-        subprocess.Popen: The subprocess object.
-
-    """
-    while len(task_dependent_lst) > 0:
-        task_dependent_lst = [
-            task for task in task_dependent_lst if task.poll() is None
-        ]
-    return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
-
-
 def execute_tasks_h5(
     future_queue: queue.Queue,
     cache_directory: str,
     cores_per_worker: int,
     execute_function: callable,
     cwd: Optional[str],
+    terminate_function: Optional[callable] = None,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -87,6 +63,7 @@ def execute_tasks_h5(
         cores_per_worker (int): The number of cores per worker.
         execute_function (callable): The function to execute the tasks.
         cwd (str/None): current working directory where the parallel python task is executed
+        terminate_function (callable): The function to terminate the tasks.
 
     Returns:
         None
@@ -104,6 +81,9 @@ def execute_tasks_h5(
             and "shutdown" in task_dict.keys()
             and task_dict["shutdown"]
         ):
+            if terminate_function is not None:
+                for task in process_dict.values():
+                    terminate_function(task=task)
             future_queue.task_done()
             future_queue.join()
             break

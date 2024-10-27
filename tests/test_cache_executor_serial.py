@@ -8,7 +8,11 @@ from executorlib.standalone.thread import RaisingThread
 
 try:
     from executorlib import FileExecutor
-    from executorlib.cache.shared import execute_tasks_h5, execute_in_subprocess
+    from executorlib.cache.shared import execute_tasks_h5
+    from executorlib.standalone.cache.spawner import (
+        execute_in_subprocess,
+        terminate_subprocess,
+    )
 
     skip_h5io_test = False
 except ImportError:
@@ -62,6 +66,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
                 "cwd": None,
+                "terminate_function": terminate_subprocess,
             },
         )
         process.start()
@@ -87,6 +92,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
                 "cwd": None,
+                "terminate_function": terminate_subprocess,
             },
         )
         process.start()
@@ -112,6 +118,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
                 "cwd": None,
+                "terminate_function": terminate_subprocess,
             },
         )
         process.start()

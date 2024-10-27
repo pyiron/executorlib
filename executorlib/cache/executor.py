@@ -2,7 +2,11 @@ import os
 from typing import Optional
 
 from executorlib.base.executor import ExecutorBase
-from executorlib.cache.shared import execute_in_subprocess, execute_tasks_h5
+from executorlib.cache.shared import execute_tasks_h5
+from executorlib.standalone.cache.spawner import (
+    execute_in_subprocess,
+    terminate_subprocess,
+)
 from executorlib.standalone.thread import RaisingThread
 
 
@@ -13,6 +17,7 @@ class FileExecutor(ExecutorBase):
         execute_function: callable = execute_in_subprocess,
         cores_per_worker: int = 1,
         cwd: Optional[str] = None,
+        terminate_function: Optional[callable] = None,
     ):
         """
         Initialize the FileExecutor.
@@ -22,8 +27,11 @@ class FileExecutor(ExecutorBase):
             execute_function (callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
             cores_per_worker (int, optional): The number of CPU cores per worker. Defaults to 1.
             cwd (str/None): current working directory where the parallel python task is executed
+            terminate_function (callable, optional): The function to terminate the tasks.
         """
         super().__init__()
+        if execute_function == execute_in_subprocess and terminate_function is None:
+            terminate_function = terminate_subprocess
         cache_directory_path = os.path.abspath(cache_directory)
         os.makedirs(cache_directory_path, exist_ok=True)
         self._set_process(
@@ -35,6 +43,7 @@ class FileExecutor(ExecutorBase):
                     "cache_directory": cache_directory_path,
                     "cores_per_worker": cores_per_worker,
                     "cwd": cwd,
+                    "terminate_function": terminate_function,
                 },
             )
         )
