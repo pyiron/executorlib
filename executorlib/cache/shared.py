@@ -53,6 +53,8 @@ def execute_tasks_h5(
     cores_per_worker: int = 1,
     cwd: Optional[str] = None,
     terminate_function: Optional[callable] = None,
+    config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -64,6 +66,8 @@ def execute_tasks_h5(
         execute_function (callable): The function to execute the tasks.
         cwd (str/None): current working directory where the parallel python task is executed
         terminate_function (callable): The function to terminate the tasks.
+        config_directory (str, optional): path to the config directory.
+        backend (str, optional): name of the backend used to spawn tasks.
 
     Returns:
         None
@@ -117,6 +121,8 @@ def execute_tasks_h5(
                             process_dict[k] for k in future_wait_key_lst
                         ],
                         resource_dict=resource_dict,
+                        config_directory=config_directory,
+                        backend=backend,
                     )
                 file_name_dict[task_key] = os.path.join(
                     cache_directory, task_key + ".h5out"

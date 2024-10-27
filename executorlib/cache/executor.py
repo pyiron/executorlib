@@ -18,6 +18,8 @@ class FileExecutor(ExecutorBase):
         cwd: Optional[str] = None,
         execute_function: callable = execute_in_subprocess,
         terminate_function: Optional[callable] = None,
+        config_directory: Optional[str] = None,
+        backend: Optional[str] = None,
     ):
         """
         Initialize the FileExecutor.
@@ -27,7 +29,9 @@ class FileExecutor(ExecutorBase):
             execute_function (callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
             cores_per_worker (int, optional): The number of CPU cores per worker. Defaults to 1.
             terminate_function (callable, optional): The function to terminate the tasks.
-            cwd (str/None): current working directory where the parallel python task is executed
+            cwd (str, optional): current working directory where the parallel python task is executed
+            config_directory (str, optional): path to the config directory.
+            backend (str, optional): name of the backend used to spawn tasks.
         """
         super().__init__()
         if execute_function == execute_in_subprocess and terminate_function is None:
@@ -44,6 +48,8 @@ class FileExecutor(ExecutorBase):
                     "cores_per_worker": cores_per_worker,
                     "cwd": cwd,
                     "terminate_function": terminate_function,
+                    "config_directory": config_directory,
+                    "backend": backend,
                 },
             )
         )

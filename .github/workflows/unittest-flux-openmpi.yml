@@ -34,7 +34,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
+        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py tests/test_cache_executor_pysqa_flux.py;
         coverage xml
       env:
         PYMPIPOOL_PMIX: "pmix"

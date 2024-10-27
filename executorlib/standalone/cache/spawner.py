@@ -7,6 +7,8 @@ def execute_in_subprocess(
     command: list,
     task_dependent_lst: list = [],
     resource_dict: Optional[dict] = None,
+    config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
 ) -> subprocess.Popen:
     """
     Execute a command in a subprocess.
@@ -18,6 +20,8 @@ def execute_in_subprocess(
                               Example resource dictionary: {
                                   cwd: None,
                               }
+        config_directory (str, optional): path to the config directory.
+        backend (str, optional): name of the backend used to spawn tasks.
 
     Returns:
         subprocess.Popen: The subprocess object.
@@ -27,6 +31,10 @@ def execute_in_subprocess(
         task_dependent_lst = [
             task for task in task_dependent_lst if task.poll() is None
         ]
+    if config_directory is not None:
+        raise ValueError("config_directory parameter is not supported for subprocess spawner.")
+    if backend is not None:
+        raise ValueError("backend parameter is not supported for subprocess spawner.")
     if resource_dict is None:
         resource_dict = {"cwd": None}
     elif len(resource_dict) == 0:
