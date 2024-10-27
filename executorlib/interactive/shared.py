@@ -618,13 +618,12 @@ def _execute_task_with_cache(
     """
     from executorlib.standalone.hdf import dump, get_output
 
+    future = task_dict["future"]
     task_key, data_dict = serialize_funct_h5(
         task_dict["fn"], *task_dict["args"], **task_dict["kwargs"]
     )
+    os.makedirs(cache_directory, exist_ok=True)
     file_name = os.path.join(cache_directory, task_key + ".h5out")
-    if not os.path.exists(cache_directory):
-        os.mkdir(cache_directory)
-    future = task_dict["future"]
     if task_key + ".h5out" not in os.listdir(cache_directory):
         _execute_task(
             interface=interface,
