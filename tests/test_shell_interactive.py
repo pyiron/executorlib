@@ -1,62 +1,116 @@
 from concurrent.futures import Future
 import os
+import subprocess
 import queue
 import unittest
 
-from executorlib.shell.interactive import ShellExecutor, execute_single_task
+from executorlib import Executor
+from executorlib.shared.executor import cloudpickle_register, execute_parallel_tasks
+from executorlib.shared.spawner import MpiExecSpawner
+
+
+executable_path = os.path.join(os.path.dirname(__file__), "executables", "count.py")
+
+
+def init_process():
+    return {
+        "process": subprocess.Popen(
+            ["/Users/jan/mambaforge/bin/python", executable_path],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+            shell=False
+        )
+    }
+
+
+def interact(shell_input, process, lines_to_read=None, stop_read_pattern=None):
+    process.stdin.write(shell_input)
+    process.stdin.flush()
+    lines_count = 0
+    output = ""
+    while True:
+        output_current = process.stdout.readline()
+        output += output_current
+        lines_count += 1
+        if stop_read_pattern is not None and stop_read_pattern in output_current:
+            break
+        elif lines_to_read is not None and lines_to_read == lines_count:
+            break
+    return output
+
+
+def shutdown(process):
+    process.stdin.write("shutdown\n")
+    process.stdin.flush()
 
 
 class ShellInteractiveExecutorTest(unittest.TestCase):
-    def setUp(self):
-        self.executable_path = os.path.join(
-            os.path.dirname(__file__), "executables", "count.py"
-        )
-
     def test_execute_single_task(self):
         test_queue = queue.Queue()
         future_lines = Future()
         future_pattern = Future()
+        future_shutdown = Future()
         test_queue.put(
             {
-                "init": True,
-                "args": [["python", self.executable_path]],
-                "kwargs": {"universal_newlines": True},
-            }
-        )
-        test_queue.put(
-            {
+                "fn": interact,
                 "future": future_lines,
-                "input": "4\n",
-                "lines_to_read": 5,
-                "stop_read_pattern": None,
+                "args": (),
+                "kwargs": {
+                    "shell_input": "4\n",
+                    "lines_to_read": 5,
+                    "stop_read_pattern": None,
+                },
             }
         )
         test_queue.put(
             {
+                "fn": interact,
                 "future": future_pattern,
-                "input": "4\n",
-                "lines_to_read": None,
-                "stop_read_pattern": "done",
+                "args": (),
+                "kwargs": {
+                    "shell_input": "4\n",
+                    "lines_to_read": None,
+                    "stop_read_pattern": "done",
+                },
             }
         )
-        test_queue.put({"shutdown": True})
+        test_queue.put(
+            {
+                "fn": shutdown,
+                "future": future_shutdown,
+                "args": (),
+                "kwargs": {},
+            }
+        )
+        test_queue.put({"shutdown": True, "wait": True})
+        cloudpickle_register(ind=1)
         self.assertFalse(future_lines.done())
         self.assertFalse(future_pattern.done())
-        execute_single_task(future_queue=test_queue)
+        execute_parallel_tasks(
+            future_queue=test_queue,
+            cores=1,
+            openmpi_oversubscribe=False,
+            spawner=MpiExecSpawner,
+            init_function=init_process,
+        )
         self.assertTrue(future_lines.done())
         self.assertTrue(future_pattern.done())
+        self.assertTrue(future_shutdown.done())
         self.assertEqual("0\n1\n2\n3\ndone\n", future_lines.result())
         self.assertEqual("0\n1\n2\n3\ndone\n", future_pattern.result())
+        test_queue.join()
 
     def test_shell_interactive_executor(self):
-        with ShellExecutor(
-            ["python", self.executable_path], universal_newlines=True
-        ) as exe:
+        with (Executor(
+            init_function=init_process,
+            block_allocation=True,
+        ) as exe):
             future_lines = exe.submit(
-                string_input="4", lines_to_read=5, stop_read_pattern=None
+                interact, shell_input="4\n", lines_to_read=5, stop_read_pattern=None
             )
             future_pattern = exe.submit(
-                string_input="4", lines_to_read=None, stop_read_pattern="done"
+                interact, shell_input="4\n", lines_to_read=None, stop_read_pattern="done"
             )
             self.assertFalse(future_lines.done())
             self.assertFalse(future_pattern.done())
@@ -64,7 +118,6 @@ class ShellInteractiveExecutorTest(unittest.TestCase):
             self.assertEqual("0\n1\n2\n3\ndone\n", future_pattern.result())
             self.assertTrue(future_lines.done())
             self.assertTrue(future_pattern.done())
-
-    def test_meta(self):
-        with ShellExecutor(["sleep"]) as exe:
-            self.assertEqual(exe.info, {})
+            future_shutdown = exe.submit(shutdown)
+            self.assertIsNone(future_shutdown.result())
+            self.assertTrue(future_shutdown.done())
