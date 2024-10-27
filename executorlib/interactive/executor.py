@@ -1,8 +1,8 @@
 from concurrent.futures import Future
 from typing import Any, Callable, Dict, Optional
 
+from executorlib.base.executor import ExecutorBase
 from executorlib.interactive.shared import (
-    ExecutorSteps,
     InteractiveExecutor,
     InteractiveStepExecutor,
     execute_tasks_with_dependencies,
@@ -35,10 +35,10 @@ except ImportError:
     pass
 
 
-class ExecutorWithDependencies(ExecutorSteps):
+class ExecutorWithDependencies(ExecutorBase):
     """
-    ExecutorWithDependencies is a class that extends ExecutorSteps and provides
-    functionality for executing tasks with dependencies.
+    ExecutorWithDependencies is a class that extends ExecutorBase and provides functionality for executing tasks with
+    dependencies.
 
     Args:
         refresh_rate (float, optional): The refresh rate for updating the executor queue. Defaults to 0.01.
