@@ -8,10 +8,13 @@ from typing import Callable, List, Optional
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path
-from executorlib.standalone.interactive.communication import SocketInterface, interface_bootup
 from executorlib.standalone.inputcheck import check_resource_dict
-from executorlib.standalone.serialize import serialize_funct_h5
+from executorlib.standalone.interactive.communication import (
+    SocketInterface,
+    interface_bootup,
+)
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
+from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.standalone.thread import RaisingThread
 
 

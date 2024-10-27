@@ -1,5 +1,5 @@
-import inspect
 import hashlib
+import inspect
 import re
 from typing import Any, Tuple
 

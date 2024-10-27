@@ -1,6 +1,8 @@
 import queue
 from concurrent.futures import (
     Executor as FutureExecutor,
+)
+from concurrent.futures import (
     Future,
 )
 from typing import Optional
@@ -9,9 +11,9 @@ from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-from executorlib.standalone.thread import RaisingThread
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor):
