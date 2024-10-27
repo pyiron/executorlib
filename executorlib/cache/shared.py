@@ -3,8 +3,9 @@ import os
 import queue
 import subprocess
 import sys
+import time
 from concurrent.futures import Future
-from typing import Tuple
+from typing import Tuple, Optional
 
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.hdf import dump, get_output
@@ -68,11 +69,18 @@ def execute_in_subprocess(
     return subprocess.Popen(command, universal_newlines=True)
 
 
+def terminate_subprocess(task):
+    task.terminate()
+    while task.poll() is None:
+        time.sleep(0.1)
+
+
 def execute_tasks_h5(
     future_queue: queue.Queue,
     cache_directory: str,
     cores_per_worker: int,
     execute_function: callable,
+    terminate_function: Optional[callable] = None,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -82,6 +90,7 @@ def execute_tasks_h5(
         cache_directory (str): The directory to store the HDF5 files.
         cores_per_worker (int): The number of cores per worker.
         execute_function (callable): The function to execute the tasks.
+        terminate_function (callable): The function to terminate the tasks.
 
     Returns:
         None
@@ -99,6 +108,9 @@ def execute_tasks_h5(
             and "shutdown" in task_dict.keys()
             and task_dict["shutdown"]
         ):
+            if terminate_function is not None:
+                for task in process_dict.values():
+                    terminate_function(task=task)
             future_queue.task_done()
             future_queue.join()
             break
