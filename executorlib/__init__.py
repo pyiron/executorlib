@@ -8,16 +8,11 @@ from executorlib.shared.inputcheck import (
 from executorlib.shared.inputcheck import (
     check_refresh_rate as _check_refresh_rate,
 )
-from executorlib.shell.executor import SubprocessExecutor
-from executorlib.shell.interactive import ShellExecutor
 
 from ._version import get_versions
 
 __version__ = get_versions()["version"]
-__all__ = [
-    SubprocessExecutor,
-    ShellExecutor,
-]
+__all__ = []
 
 
 try:
