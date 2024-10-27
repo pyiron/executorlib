@@ -1,6 +1,6 @@
 import unittest
 
-from executorlib.shared.thread import RaisingThread
+from executorlib.standalone.thread import RaisingThread
 
 
 def raise_error():

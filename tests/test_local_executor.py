@@ -6,17 +6,15 @@ import unittest
 
 import numpy as np
 
-from executorlib.shared.spawner import MpiExecSpawner
-from executorlib.interactive.executor import (
+from executorlib.base.executor import ExecutorBase
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
+from executorlib.interactive.shared import (
     InteractiveExecutor,
     InteractiveStepExecutor,
-)
-from executorlib.interactive.backend import call_funct
-from executorlib.shared.executor import (
-    cloudpickle_register,
     execute_parallel_tasks,
-    ExecutorBase,
 )
+from executorlib.standalone.interactive.backend import call_funct
+from executorlib.standalone.serialize import cloudpickle_register
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -331,7 +329,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "spawner": "<class 'executorlib.shared.spawner.MpiExecSpawner'>",
+            "spawner": "<class 'executorlib.standalone.interactive.spawner.MpiExecSpawner'>",
             "hostname_localhost": True,
             "init_function": None,
             "cwd": None,
@@ -360,7 +358,7 @@ class TestFuturePool(unittest.TestCase):
     def test_meta_step(self):
         meta_data_exe_dict = {
             "cores": 2,
-            "spawner": "<class 'executorlib.shared.spawner.MpiExecSpawner'>",
+            "spawner": "<class 'executorlib.standalone.interactive.spawner.MpiExecSpawner'>",
             "hostname_localhost": True,
             "cwd": None,
             "openmpi_oversubscribe": False,

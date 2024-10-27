@@ -4,7 +4,7 @@ import unittest
 
 
 try:
-    from executorlib.shared.hdf import dump, load
+    from executorlib.standalone.hdf import dump, load
 
     skip_h5io_test = False
 except ImportError:

@@ -5,8 +5,8 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.executor import InteractiveExecutor
-from executorlib.shared.spawner import MpiExecSpawner
+from executorlib.interactive.shared import InteractiveExecutor
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None

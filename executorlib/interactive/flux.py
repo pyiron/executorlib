@@ -3,7 +3,7 @@ from typing import Optional
 
 import flux.job
 
-from executorlib.shared.spawner import BaseSpawner
+from executorlib.standalone.interactive.spawner import BaseSpawner
 
 
 class FluxPythonSpawner(BaseSpawner):
@@ -13,8 +13,8 @@ class FluxPythonSpawner(BaseSpawner):
     Args:
         cwd (str, optional): The current working directory. Defaults to None.
         cores (int, optional): The number of cores. Defaults to 1.
-        threads_per_core (int, optional): The number of threads per core. Defaults to 1.
-        gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
+        threads_per_core (int, optional): The number of threads per base. Defaults to 1.
+        gpus_per_core (int, optional): The number of GPUs per base. Defaults to 0.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
         flux_executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
         flux_executor_pmi_mode (str, optional): The PMI option. Defaults to None.

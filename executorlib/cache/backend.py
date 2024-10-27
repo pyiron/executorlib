@@ -1,8 +1,8 @@
 import os
 from typing import Any
 
-from executorlib.shared.cache import FutureItem
-from executorlib.shared.hdf import dump, load
+from executorlib.cache.shared import FutureItem
+from executorlib.standalone.hdf import dump, load
 
 
 def backend_load_file(file_name: str) -> dict:

@@ -1,4 +1,4 @@
-from executorlib.shared.communication import (
+from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
     interface_connect,
@@ -6,9 +6,8 @@ from executorlib.shared.communication import (
     interface_send,
     interface_shutdown,
 )
-from executorlib.shared.executor import cancel_items_in_queue
-from executorlib.shared.spawner import MpiExecSpawner, SrunSpawner
-from executorlib.shared.thread import RaisingThread
+from executorlib.standalone.interactive.spawner import MpiExecSpawner, SrunSpawner
+from executorlib.standalone.thread import RaisingThread
 
 __all__ = [
     SocketInterface,
@@ -17,7 +16,6 @@ __all__ = [
     interface_send,
     interface_shutdown,
     interface_receive,
-    cancel_items_in_queue,
     RaisingThread,
     MpiExecSpawner,
     SrunSpawner,

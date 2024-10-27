@@ -12,7 +12,7 @@ from time import sleep
 import unittest
 
 from executorlib import Executor
-from executorlib.shared.executor import cloudpickle_register
+from executorlib.standalone.serialize import cloudpickle_register
 
 
 class Foo:

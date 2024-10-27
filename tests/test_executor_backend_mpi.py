@@ -4,7 +4,7 @@ import time
 import unittest
 
 from executorlib import Executor
-from executorlib.shared.executor import cloudpickle_register
+from executorlib.standalone.serialize import cloudpickle_register
 
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None

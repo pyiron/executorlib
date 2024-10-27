@@ -4,8 +4,8 @@ from os.path import abspath
 
 import cloudpickle
 
-from executorlib.interactive.backend import call_funct, parse_arguments
-from executorlib.shared.communication import (
+from executorlib.standalone.interactive.backend import call_funct, parse_arguments
+from executorlib.standalone.interactive.communication import (
     interface_connect,
     interface_receive,
     interface_send,

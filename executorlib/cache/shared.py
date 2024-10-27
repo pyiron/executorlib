@@ -6,9 +6,9 @@ import sys
 from concurrent.futures import Future
 from typing import Tuple
 
-from executorlib.shared.command import get_command_path
-from executorlib.shared.hdf import dump, get_output
-from executorlib.shared.serialize import serialize_funct_h5
+from executorlib.standalone.command import get_command_path
+from executorlib.standalone.hdf import dump, get_output
+from executorlib.standalone.serialize import serialize_funct_h5
 
 
 class FutureItem:
