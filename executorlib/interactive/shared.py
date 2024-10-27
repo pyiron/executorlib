@@ -96,30 +96,6 @@ class ExecutorSteps(ExecutorBase):
         )
         return f
 
-    def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
-        """Clean-up the resources associated with the Executor.
-
-        It is safe to call this method several times. Otherwise, no other
-        methods can be called after this one.
-
-        Args:
-            wait: If True then shutdown will not return until all running
-                futures have finished executing and the resources used by the
-                parallel_executors have been reclaimed.
-            cancel_futures: If True then shutdown will cancel all pending
-                futures. Futures that are completed or running will not be
-                cancelled.
-        """
-        if cancel_futures:
-            cancel_items_in_queue(que=self._future_queue)
-        if self._process is not None:
-            self._future_queue.put({"shutdown": True, "wait": wait})
-            if wait:
-                self._process.join()
-                self._future_queue.join()
-        self._process = None
-        self._future_queue = None
-
 
 class InteractiveExecutor(ExecutorBroker):
     """
