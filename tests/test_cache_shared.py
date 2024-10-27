@@ -5,11 +5,8 @@ import unittest
 
 
 try:
-    from executorlib.cache.shared import (
-        execute_task_in_file,
-        _check_task_output,
-    )
-    from executorlib.cache.backend import FutureItem
+    from executorlib.cache.backend import backend_execute_task_in_file
+    from executorlib.cache.shared import _check_task_output, FutureItem
     from executorlib.standalone.hdf import dump
     from executorlib.standalone.serialize import serialize_funct_h5
 
@@ -36,7 +33,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
-        execute_task_in_file(file_name=file_name)
+        backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
             task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
@@ -59,7 +56,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
-        execute_task_in_file(file_name=file_name)
+        backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
             task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
@@ -82,7 +79,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
-        execute_task_in_file(file_name=file_name)
+        backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
             task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
