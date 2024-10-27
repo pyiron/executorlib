@@ -34,4 +34,4 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        python -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py;
+        python -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py tests/test_cache_executor_pysqa_flux.py;

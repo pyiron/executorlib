@@ -36,15 +36,14 @@ Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
 mpi = ["mpi4py==4.0.1"]
-hdf = [
-    "h5py==3.12.1",
-]
+hdf = ["h5py==3.12.1"]
 graph = [
     "pygraphviz==1.14",
     "matplotlib==3.9.2",
     "networkx==3.4.2",
     "ipython==8.29.0",
 ]
+queue = ["pysqa==0.2.0"]
 
 [tool.setuptools.packages.find]
 include = ["executorlib*"]
