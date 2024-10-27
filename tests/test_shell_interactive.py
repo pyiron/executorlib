@@ -19,7 +19,7 @@ def init_process():
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             universal_newlines=True,
-            shell=False
+            shell=False,
         )
     }
 
@@ -102,15 +102,18 @@ class ShellInteractiveExecutorTest(unittest.TestCase):
         test_queue.join()
 
     def test_shell_interactive_executor(self):
-        with (Executor(
+        with Executor(
             init_function=init_process,
             block_allocation=True,
-        ) as exe):
+        ) as exe:
             future_lines = exe.submit(
                 interact, shell_input="4\n", lines_to_read=5, stop_read_pattern=None
             )
             future_pattern = exe.submit(
-                interact, shell_input="4\n", lines_to_read=None, stop_read_pattern="done"
+                interact,
+                shell_input="4\n",
+                lines_to_read=None,
+                stop_read_pattern="done",
             )
             self.assertFalse(future_lines.done())
             self.assertFalse(future_pattern.done())

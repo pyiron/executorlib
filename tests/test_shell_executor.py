@@ -8,8 +8,12 @@ from executorlib.shared.executor import cloudpickle_register, execute_parallel_t
 from executorlib.shared.spawner import MpiExecSpawner
 
 
-def submit_shell_command(command: list, universal_newlines: bool = True, shell: bool = False):
-    return subprocess.check_output(command, universal_newlines=universal_newlines, shell=shell)
+def submit_shell_command(
+    command: list, universal_newlines: bool = True, shell: bool = False
+):
+    return subprocess.check_output(
+        command, universal_newlines=universal_newlines, shell=shell
+    )
 
 
 class SubprocessExecutorTest(unittest.TestCase):
@@ -77,31 +81,51 @@ class SubprocessExecutorTest(unittest.TestCase):
 
     def test_shell_static_executor_args(self):
         with Executor(max_workers=1) as exe:
-            future = exe.submit(submit_shell_command, ["echo", "test"], universal_newlines=True, shell=False)
+            future = exe.submit(
+                submit_shell_command,
+                ["echo", "test"],
+                universal_newlines=True,
+                shell=False,
+            )
             self.assertFalse(future.done())
             self.assertEqual("test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_static_executor_binary(self):
         with Executor(max_workers=1) as exe:
-            future = exe.submit(submit_shell_command, ["echo", "test"], universal_newlines=False, shell=False)
+            future = exe.submit(
+                submit_shell_command,
+                ["echo", "test"],
+                universal_newlines=False,
+                shell=False,
+            )
             self.assertFalse(future.done())
             self.assertEqual(b"test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_static_executor_shell(self):
         with Executor(max_workers=1) as exe:
-            future = exe.submit(submit_shell_command, "echo test", universal_newlines=True, shell=True)
+            future = exe.submit(
+                submit_shell_command, "echo test", universal_newlines=True, shell=True
+            )
             self.assertFalse(future.done())
             self.assertEqual("test\n", future.result())
             self.assertTrue(future.done())
 
     def test_shell_executor(self):
         with Executor(max_workers=2) as exe:
-            f_1 = exe.submit(submit_shell_command, ["echo", "test_1"], universal_newlines=True)
-            f_2 = exe.submit(submit_shell_command, ["echo", "test_2"], universal_newlines=True)
-            f_3 = exe.submit(submit_shell_command, ["echo", "test_3"], universal_newlines=True)
-            f_4 = exe.submit(submit_shell_command, ["echo", "test_4"], universal_newlines=True)
+            f_1 = exe.submit(
+                submit_shell_command, ["echo", "test_1"], universal_newlines=True
+            )
+            f_2 = exe.submit(
+                submit_shell_command, ["echo", "test_2"], universal_newlines=True
+            )
+            f_3 = exe.submit(
+                submit_shell_command, ["echo", "test_3"], universal_newlines=True
+            )
+            f_4 = exe.submit(
+                submit_shell_command, ["echo", "test_4"], universal_newlines=True
+            )
             self.assertFalse(f_1.done())
             self.assertFalse(f_2.done())
             self.assertFalse(f_3.done())
