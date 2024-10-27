@@ -4,7 +4,7 @@ import queue
 import subprocess
 import sys
 from concurrent.futures import Future
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.hdf import dump, get_output
@@ -48,7 +48,9 @@ class FutureItem:
 
 
 def execute_in_subprocess(
-    command: list, task_dependent_lst: list = [], cwd: Optional[str] = None,
+    command: list,
+    task_dependent_lst: list = [],
+    cwd: Optional[str] = None,
 ) -> subprocess.Popen:
     """
     Execute a command in a subprocess.
