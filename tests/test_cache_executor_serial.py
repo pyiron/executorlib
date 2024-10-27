@@ -61,6 +61,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
+                "cwd": None,
             },
         )
         process.start()
@@ -68,6 +69,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(fs1.result(), 3)
         self.assertTrue(fs1.done())
         q.put({"shutdown": True, "wait": True})
+        process.join()
 
     def test_executor_function_dependence_kwargs(self):
         fs1 = Future()
@@ -84,6 +86,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
+                "cwd": None,
             },
         )
         process.start()
@@ -91,6 +94,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(fs2.result(), 4)
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
+        process.join()
 
     def test_executor_function_dependence_args(self):
         fs1 = Future()
@@ -107,6 +111,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
+                "cwd": None,
             },
         )
         process.start()
@@ -114,6 +119,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(fs2.result(), 5)
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
+        process.join()
 
     def tearDown(self):
         if os.path.exists("cache"):
