@@ -1,5 +1,6 @@
 from typing import Optional
 
+from executorlib._version import get_versions as _get_versions
 from executorlib.interactive import create_executor
 from executorlib.interactive.dependencies import ExecutorWithDependencies
 from executorlib.shared.inputcheck import (
@@ -7,9 +8,6 @@ from executorlib.shared.inputcheck import (
 )
 from executorlib.shared.inputcheck import (
     check_refresh_rate as _check_refresh_rate,
-)
-from executorlib._version import (
-    get_versions as _get_versions
 )
 
 __version__ = _get_versions()["version"]
