@@ -15,7 +15,7 @@ executable_path = os.path.join(os.path.dirname(__file__), "executables", "count.
 def init_process():
     return {
         "process": subprocess.Popen(
-            ["/Users/jan/mambaforge/bin/python", executable_path],
+            ["python", executable_path],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             universal_newlines=True,
