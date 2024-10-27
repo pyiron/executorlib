@@ -102,6 +102,7 @@ class ShellInteractiveExecutorTest(unittest.TestCase):
         test_queue.join()
 
     def test_shell_interactive_executor(self):
+        cloudpickle_register(ind=1)
         with Executor(
             init_function=init_process,
             block_allocation=True,
