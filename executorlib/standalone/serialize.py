@@ -28,7 +28,9 @@ def cloudpickle_register(ind: int = 2):
         pass
 
 
-def serialize_funct_h5(fn: callable, fn_args: list = [], fn_kwargs: dict = {}, resource_dict: dict = {}) -> Tuple[str, dict]:
+def serialize_funct_h5(
+    fn: callable, fn_args: list = [], fn_kwargs: dict = {}, resource_dict: dict = {}
+) -> Tuple[str, dict]:
     """
     Serialize a function and its arguments and keyword arguments into an HDF5 file.
 
@@ -51,9 +53,16 @@ def serialize_funct_h5(fn: callable, fn_args: list = [], fn_kwargs: dict = {}, r
         Tuple[str, dict]: A tuple containing the task key and the serialized data.
 
     """
-    binary_all = cloudpickle.dumps({"fn": fn, "args": fn_args, "kwargs": fn_kwargs, "resource_dict": resource_dict})
+    binary_all = cloudpickle.dumps(
+        {"fn": fn, "args": fn_args, "kwargs": fn_kwargs, "resource_dict": resource_dict}
+    )
     task_key = fn.__name__ + _get_hash(binary=binary_all)
-    data = {"fn": fn, "args": fn_args, "kwargs": fn_kwargs, "resource_dict": resource_dict}
+    data = {
+        "fn": fn,
+        "args": fn_args,
+        "kwargs": fn_kwargs,
+        "resource_dict": resource_dict,
+    }
     return task_key, data
 
 
