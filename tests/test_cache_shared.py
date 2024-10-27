@@ -6,10 +6,10 @@ import unittest
 
 try:
     from executorlib.shared.cache import (
-        FutureItem,
         execute_task_in_file,
         _check_task_output,
     )
+    from executorlib.cache.backend import FutureItem
     from executorlib.shared.hdf import dump
     from executorlib.shared.serialize import serialize_funct_h5
 

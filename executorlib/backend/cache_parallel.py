@@ -3,7 +3,7 @@ import sys
 
 import cloudpickle
 
-from executorlib.shared.cache import backend_load_file, backend_write_file
+from executorlib.cache.backend import backend_load_file, backend_write_file
 
 
 def main() -> None:

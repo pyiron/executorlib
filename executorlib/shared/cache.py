@@ -4,10 +4,10 @@ import queue
 import subprocess
 import sys
 from concurrent.futures import Future
-from typing import Any, Tuple
+from typing import Tuple
 
 from executorlib.shared.command import get_command_path
-from executorlib.shared.hdf import dump, get_output, load
+from executorlib.shared.hdf import dump, get_output
 from executorlib.shared.serialize import serialize_funct_h5
 
 
@@ -45,47 +45,6 @@ class FutureItem:
 
         """
         return get_output(file_name=self._file_name)[0]
-
-
-def backend_load_file(file_name: str) -> dict:
-    """
-    Load the data from an HDF5 file and convert FutureItem objects to their results.
-
-    Args:
-        file_name (str): The name of the HDF5 file.
-
-    Returns:
-        dict: The loaded data from the file.
-
-    """
-    apply_dict = load(file_name=file_name)
-    apply_dict["args"] = [
-        arg if not isinstance(arg, FutureItem) else arg.result()
-        for arg in apply_dict["args"]
-    ]
-    apply_dict["kwargs"] = {
-        key: arg if not isinstance(arg, FutureItem) else arg.result()
-        for key, arg in apply_dict["kwargs"].items()
-    }
-    return apply_dict
-
-
-def backend_write_file(file_name: str, output: Any) -> None:
-    """
-    Write the output to an HDF5 file.
-
-    Args:
-        file_name (str): The name of the HDF5 file.
-        output (Any): The output to be written.
-
-    Returns:
-        None
-
-    """
-    file_name_out = os.path.splitext(file_name)[0]
-    os.rename(file_name, file_name_out + ".h5ready")
-    dump(file_name=file_name_out + ".h5ready", data_dict={"output": output})
-    os.rename(file_name_out + ".h5ready", file_name_out + ".h5out")
 
 
 def execute_in_subprocess(
@@ -178,24 +137,6 @@ def execute_tasks_h5(
                 for key, value in memory_dict.items()
                 if not value.done()
             }
-
-
-def execute_task_in_file(file_name: str) -> None:
-    """
-    Execute the task stored in a given HDF5 file.
-
-    Args:
-        file_name (str): The file name of the HDF5 file as an absolute path.
-
-    Returns:
-        None
-    """
-    apply_dict = backend_load_file(file_name=file_name)
-    result = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
-    backend_write_file(
-        file_name=file_name,
-        output=result,
-    )
 
 
 def _get_execute_command(file_name: str, cores: int = 1) -> list:
