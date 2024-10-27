@@ -30,9 +30,9 @@ class TestSharedFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
-            my_funct,
-            1,
-            b=2,
+            fn=my_funct,
+            fn_args=[1],
+            fn_kwargs={"b": 2},
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
@@ -53,9 +53,9 @@ class TestSharedFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
-            my_funct,
-            1,
-            2,
+            fn=my_funct,
+            fn_args=[1, 2],
+            fn_kwargs={},
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)
@@ -76,9 +76,9 @@ class TestSharedFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
-            my_funct,
-            a=1,
-            b=2,
+            fn=my_funct,
+            fn_args=[],
+            fn_kwargs={"a": 1, "b": 2},
         )
         file_name = os.path.join(cache_directory, task_key + ".h5in")
         dump(file_name=file_name, data_dict=data_dict)

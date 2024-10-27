@@ -94,7 +94,7 @@ def execute_tasks_h5(
                 file_name_dict=file_name_dict,
             )
             task_key, data_dict = serialize_funct_h5(
-                task_dict["fn"], *task_args, **task_kwargs
+                fn=task_dict["fn"], fn_args=task_args, fn_kwargs=task_kwargs
             )
             if task_key not in memory_dict.keys():
                 if task_key + ".h5out" not in os.listdir(cache_directory):
