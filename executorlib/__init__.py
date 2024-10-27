@@ -8,10 +8,11 @@ from executorlib.shared.inputcheck import (
 from executorlib.shared.inputcheck import (
     check_refresh_rate as _check_refresh_rate,
 )
+from executorlib._version import (
+    get_versions as _get_versions
+)
 
-from ._version import get_versions
-
-__version__ = get_versions()["version"]
+__version__ = _get_versions()["version"]
 __all__ = []
 
 
