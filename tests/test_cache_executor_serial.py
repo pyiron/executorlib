@@ -19,6 +19,10 @@ def my_funct(a, b):
     return a + b
 
 
+def list_files_in_working_directory():
+    return os.listdir(os.getcwd())
+
+
 @unittest.skipIf(
     skip_h5io_test, "h5io is not installed, so the h5io tests are skipped."
 )
@@ -37,6 +41,12 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertFalse(fs2.done())
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
+
+    def test_executor_working_directory(self):
+        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        with FileExecutor(cwd=cwd) as exe:
+            fs1 = exe.submit(list_files_in_working_directory)
+            self.assertEqual(fs1.result(), os.listdir(cwd))
 
     def test_executor_function(self):
         fs1 = Future()
