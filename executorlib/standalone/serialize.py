@@ -36,7 +36,7 @@ def serialize_funct_h5(
 
     Args:
         fn (callable): The function to be serialized.
-        fn_args (tuple): The arguments of the function.
+        fn_args (list): The arguments of the function.
         fn_kwargs (dict): The keyword arguments of the function.
         resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.
                               Example resource dictionary: {
