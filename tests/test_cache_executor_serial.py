@@ -73,7 +73,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
-                "cwd": None,
+                "resource_dict": {"cwd": None},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -115,7 +115,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
-                "cwd": None,
+                "resource_dict": {"cwd": None},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -157,7 +157,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
                 "cores_per_worker": 1,
-                "cwd": None,
+                "resource_dict": {"cwd": None},
                 "terminate_function": terminate_subprocess,
             },
         )

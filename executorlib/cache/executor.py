@@ -14,9 +14,11 @@ class FileExecutor(ExecutorBase):
     def __init__(
         self,
         cache_directory: str = "cache",
-        execute_function: callable = execute_in_subprocess,
         cores_per_worker: int = 1,
+        threads_per_core: int = 1,
+        gpus_per_worker: int = 0,
         cwd: Optional[str] = None,
+        execute_function: callable = execute_in_subprocess,
         terminate_function: Optional[callable] = None,
     ):
         """
@@ -26,8 +28,10 @@ class FileExecutor(ExecutorBase):
             cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
             execute_function (callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
             cores_per_worker (int, optional): The number of CPU cores per worker. Defaults to 1.
-            cwd (str/None): current working directory where the parallel python task is executed
             terminate_function (callable, optional): The function to terminate the tasks.
+            threads_per_core (int): number of OpenMP threads to be used for each function call
+            gpus_per_worker (int): number of GPUs per worker - defaults to 0
+            cwd (str/None): current working directory where the parallel python task is executed
         """
         super().__init__()
         if execute_function == execute_in_subprocess and terminate_function is None:
@@ -42,6 +46,8 @@ class FileExecutor(ExecutorBase):
                     "execute_function": execute_function,
                     "cache_directory": cache_directory_path,
                     "cores_per_worker": cores_per_worker,
+                    "threads_per_core": threads_per_core,
+                    "gpus_per_worker": gpus_per_worker,
                     "cwd": cwd,
                     "terminate_function": terminate_function,
                 },

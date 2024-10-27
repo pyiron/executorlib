@@ -6,7 +6,7 @@ from typing import Optional
 def execute_in_subprocess(
     command: list,
     task_dependent_lst: list = [],
-    cwd: Optional[str] = None,
+    resource_dict: Optional[dict] = None,
 ) -> subprocess.Popen:
     """
     Execute a command in a subprocess.
@@ -14,7 +14,10 @@ def execute_in_subprocess(
     Args:
         command (list): The command to be executed.
         task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
-        cwd (str/None): current working directory where the parallel python task is executed
+        resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.
+                              Example resource dictionary: {
+                                  cwd: None,
+                              }
 
     Returns:
         subprocess.Popen: The subprocess object.
@@ -24,7 +27,9 @@ def execute_in_subprocess(
         task_dependent_lst = [
             task for task in task_dependent_lst if task.poll() is None
         ]
-    return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
+    if resource_dict is None:
+        resource_dict = {"cwd": None}
+    return subprocess.Popen(command, universal_newlines=True, cwd=resource_dict["cwd"])
 
 
 def terminate_subprocess(task):

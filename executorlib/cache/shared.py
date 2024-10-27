@@ -51,7 +51,9 @@ def execute_tasks_h5(
     cache_directory: str,
     cores_per_worker: int,
     execute_function: callable,
-    cwd: Optional[str],
+    threads_per_core: int = 1,
+    gpus_per_worker: int = 0,
+    cwd: Optional[str] = None,
     terminate_function: Optional[callable] = None,
 ) -> None:
     """
@@ -61,6 +63,8 @@ def execute_tasks_h5(
         future_queue (queue.Queue): The queue containing the tasks.
         cache_directory (str): The directory to store the HDF5 files.
         cores_per_worker (int): The number of cores per worker.
+        threads_per_core (int): number of OpenMP threads to be used for each function call
+        gpus_per_worker (int): number of GPUs per worker - defaults to 0
         execute_function (callable): The function to execute the tasks.
         cwd (str/None): current working directory where the parallel python task is executed
         terminate_function (callable): The function to terminate the tasks.
@@ -93,11 +97,20 @@ def execute_tasks_h5(
                 memory_dict=memory_dict,
                 file_name_dict=file_name_dict,
             )
+            resource_dict = task_dict["resource_dict"]
+            if "cores" not in resource_dict:
+                resource_dict["cores"] = cores_per_worker
+            if "gpus_per_core" not in resource_dict:
+                resource_dict["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
+            if "threads_per_core" not in resource_dict:
+                resource_dict["threads_per_core"] = threads_per_core
+            if "cwd" not in resource_dict:
+                resource_dict["cwd"] = cwd
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
                 fn_kwargs=task_kwargs,
-                resource_dict=task_dict["resource_dict"],
+                resource_dict=resource_dict,
             )
             if task_key not in memory_dict.keys():
                 if task_key + ".h5out" not in os.listdir(cache_directory):
@@ -111,7 +124,7 @@ def execute_tasks_h5(
                         task_dependent_lst=[
                             process_dict[k] for k in future_wait_key_lst
                         ],
-                        cwd=cwd,
+                        resource_dict=resource_dict,
                     )
                 file_name_dict[task_key] = os.path.join(
                     cache_directory, task_key + ".h5out"
