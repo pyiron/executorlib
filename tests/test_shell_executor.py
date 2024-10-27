@@ -81,6 +81,7 @@ class SubprocessExecutorTest(unittest.TestCase):
 
     def test_shell_static_executor_args(self):
         with Executor(max_workers=1) as exe:
+            cloudpickle_register(ind=1)
             future = exe.submit(
                 submit_shell_command,
                 ["echo", "test"],
@@ -93,6 +94,7 @@ class SubprocessExecutorTest(unittest.TestCase):
 
     def test_shell_static_executor_binary(self):
         with Executor(max_workers=1) as exe:
+            cloudpickle_register(ind=1)
             future = exe.submit(
                 submit_shell_command,
                 ["echo", "test"],
@@ -105,6 +107,7 @@ class SubprocessExecutorTest(unittest.TestCase):
 
     def test_shell_static_executor_shell(self):
         with Executor(max_workers=1) as exe:
+            cloudpickle_register(ind=1)
             future = exe.submit(
                 submit_shell_command, "echo test", universal_newlines=True, shell=True
             )
@@ -114,6 +117,7 @@ class SubprocessExecutorTest(unittest.TestCase):
 
     def test_shell_executor(self):
         with Executor(max_workers=2) as exe:
+            cloudpickle_register(ind=1)
             f_1 = exe.submit(
                 submit_shell_command, ["echo", "test_1"], universal_newlines=True
             )
