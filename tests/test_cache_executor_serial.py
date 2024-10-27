@@ -8,7 +8,11 @@ from executorlib.standalone.thread import RaisingThread
 
 try:
     from executorlib import FileExecutor
-    from executorlib.cache.shared import execute_tasks_h5, execute_in_subprocess, terminate_subprocess
+    from executorlib.cache.shared import (
+        execute_tasks_h5,
+        execute_in_subprocess,
+        terminate_subprocess,
+    )
 
     skip_h5io_test = False
 except ImportError:

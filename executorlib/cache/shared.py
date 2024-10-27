@@ -5,7 +5,7 @@ import subprocess
 import sys
 import time
 from concurrent.futures import Future
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.hdf import dump, get_output
