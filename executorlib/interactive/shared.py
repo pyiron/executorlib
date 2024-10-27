@@ -620,7 +620,10 @@ def _execute_task_with_cache(
 
     future = task_dict["future"]
     task_key, data_dict = serialize_funct_h5(
-        fn=task_dict["fn"], fn_args=task_dict["args"], fn_kwargs=task_dict["kwargs"]
+        fn=task_dict["fn"],
+        fn_args=task_dict["args"],
+        fn_kwargs=task_dict["kwargs"],
+        resource_dict=task_dict["resource_dict"],
     )
     os.makedirs(cache_directory, exist_ok=True)
     file_name = os.path.join(cache_directory, task_key + ".h5out")
