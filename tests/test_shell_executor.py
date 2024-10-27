@@ -52,6 +52,7 @@ class SubprocessExecutorTest(unittest.TestCase):
                 "future": f,
             }
         )
+        cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
                 future_queue=test_queue,
@@ -71,6 +72,7 @@ class SubprocessExecutorTest(unittest.TestCase):
                 "future": f,
             }
         )
+        cloudpickle_register(ind=1)
         with self.assertRaises(FileNotFoundError):
             execute_parallel_tasks(
                 future_queue=test_queue,
