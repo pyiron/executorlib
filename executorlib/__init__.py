@@ -13,14 +13,6 @@ __version__ = _get_versions()["version"]
 __all__ = []
 
 
-try:
-    from executorlib.cache.executor import FileExecutor
-
-    __all__ += [FileExecutor]
-except ImportError:
-    pass
-
-
 class Executor:
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
