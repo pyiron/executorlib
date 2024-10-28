@@ -5,7 +5,7 @@ import shutil
 
 try:
     import flux.job
-    from executorlib import FileExecutor
+    from executorlib.cache.executor import FileExecutor
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)
