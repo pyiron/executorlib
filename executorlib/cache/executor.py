@@ -82,7 +82,7 @@ class FileExecutor(ExecutorBase):
                     "cache_directory": cache_directory_path,
                     "resource_dict": resource_dict,
                     "terminate_function": terminate_function,
-                    "config_directory": pysqa_config_directory,
+                    "pysqa_config_directory": pysqa_config_directory,
                     "backend": backend,
                 },
             )
