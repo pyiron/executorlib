@@ -33,21 +33,9 @@ def mpi_funct(i):
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
         with Executor(
-            max_workers=1,
             backend="pysqa_flux",
-            cache_directory="cache",
-            max_cores=1,
             resource_dict={"cores": 2, "cwd": os.path.abspath("cwd")},
-            flux_executor=None,
-            flux_executor_pmi_mode=None,
-            flux_executor_nesting=False,
-            pysqa_config_directory=None,
-            hostname_localhost=None,
             block_allocation=False,
-            init_function=None,
-            disable_dependencies=False,
-            refresh_rate=0.01,
-            plot_dependency_graph=False,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
