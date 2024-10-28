@@ -3,6 +3,12 @@ from typing import Optional
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.cache.shared import execute_tasks_h5
+from executorlib.standalone.inputcheck import (
+    check_command_line_argument_lst,
+    check_oversubscribe,
+    check_threads_per_core,
+    check_gpus_per_worker,
+)
 from executorlib.standalone.cache.spawner import (
     execute_in_subprocess,
     terminate_subprocess,
@@ -23,7 +29,7 @@ class FileExecutor(ExecutorBase):
         resource_dict: Optional[dict] = None,
         execute_function: callable = execute_with_pysqa,
         terminate_function: Optional[callable] = None,
-        config_directory: Optional[str] = None,
+        pysqa_config_directory: Optional[str] = None,
         backend: Optional[str] = None,
     ):
         """
@@ -36,19 +42,33 @@ class FileExecutor(ExecutorBase):
                               - cwd (str/None): current working directory where the parallel python task is executed
             execute_function (callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
             terminate_function (callable, optional): The function to terminate the tasks.
-            config_directory (str, optional): path to the config directory.
+            pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str, optional): name of the backend used to spawn tasks.
         """
         super().__init__()
         default_resource_dict = {
             "cores": 1,
+            "threads_per_core": 1,
+            "gpus_per_core": 0,
             "cwd": None,
+            "openmpi_oversubscribe": False,
+            "slurm_cmd_args": [],
         }
         if resource_dict is None:
             resource_dict = {}
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
+        check_oversubscribe(oversubscribe=resource_dict["openmpi_oversubscribe"])
+        check_command_line_argument_lst(
+            command_line_argument_lst=resource_dict["slurm_cmd_args"]
+        )
+        check_threads_per_core(threads_per_core=resource_dict["threads_per_core"])
+        check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
+        del resource_dict["threads_per_core"]
+        del resource_dict["gpus_per_core"]
+        del resource_dict["openmpi_oversubscribe"]
+        del resource_dict["slurm_cmd_args"]
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
         cache_directory_path = os.path.abspath(cache_directory)
@@ -62,7 +82,7 @@ class FileExecutor(ExecutorBase):
                     "cache_directory": cache_directory_path,
                     "resource_dict": resource_dict,
                     "terminate_function": terminate_function,
-                    "config_directory": config_directory,
+                    "config_directory": pysqa_config_directory,
                     "backend": backend,
                 },
             )

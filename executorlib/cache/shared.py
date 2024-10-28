@@ -52,7 +52,7 @@ def execute_tasks_h5(
     execute_function: callable,
     resource_dict: dict,
     terminate_function: Optional[callable] = None,
-    config_directory: Optional[str] = None,
+    pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
 ) -> None:
     """
@@ -66,7 +66,7 @@ def execute_tasks_h5(
                               - cwd (str/None): current working directory where the parallel python task is executed
         execute_function (callable): The function to execute the tasks.
         terminate_function (callable): The function to terminate the tasks.
-        config_directory (str, optional): path to the config directory.
+        pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         backend (str, optional): name of the backend used to spawn tasks.
 
     Returns:
@@ -120,7 +120,7 @@ def execute_tasks_h5(
                             process_dict[k] for k in future_wait_key_lst
                         ],
                         resource_dict=task_resource_dict,
-                        config_directory=config_directory,
+                        config_directory=pysqa_config_directory,
                         backend=backend,
                     )
                 file_name_dict[task_key] = os.path.join(

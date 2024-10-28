@@ -5,7 +5,7 @@ import shutil
 
 try:
     import flux.job
-    from executorlib import FileExecutor
+    from executorlib import Executor
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)
@@ -30,9 +30,9 @@ def mpi_funct(i):
 )
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
-        with FileExecutor(
+        with Executor(
             resource_dict={"cores": 2},
-            backend="flux",
+            backend="pysqa_flux",
         ) as exe:
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
