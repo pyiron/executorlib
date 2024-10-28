@@ -3,16 +3,16 @@ from typing import Optional
 from executorlib._version import get_versions as _get_versions
 from executorlib.interactive.executor import ExecutorWithDependencies, create_executor
 from executorlib.standalone.inputcheck import (
-    check_plot_dependency_graph as _check_plot_dependency_graph,
-)
-from executorlib.standalone.inputcheck import (
-    check_refresh_rate as _check_refresh_rate,
-)
-from executorlib.standalone.inputcheck import (
     check_executor as _check_executor,
 )
 from executorlib.standalone.inputcheck import (
     check_nested_flux_executor as _check_nested_flux_executor,
+)
+from executorlib.standalone.inputcheck import (
+    check_plot_dependency_graph as _check_plot_dependency_graph,
+)
+from executorlib.standalone.inputcheck import (
+    check_refresh_rate as _check_refresh_rate,
 )
 
 __version__ = _get_versions()["version"]
@@ -210,15 +210,25 @@ class Executor:
             if cache_directory is None:
                 cache_directory = "executorlib_cache"
             if max_workers != 1:
-                raise ValueError("The number of workers cannot be controlled with the pysqa based backend.")
+                raise ValueError(
+                    "The number of workers cannot be controlled with the pysqa based backend."
+                )
             if max_cores != 1:
-                raise ValueError("The number of cores cannot be controlled with the pysqa based backend.")
+                raise ValueError(
+                    "The number of cores cannot be controlled with the pysqa based backend."
+                )
             if hostname_localhost is not None:
-                raise ValueError("The option to connect to hosts based on their hostname is not available with the pysqa based backend.")
+                raise ValueError(
+                    "The option to connect to hosts based on their hostname is not available with the pysqa based backend."
+                )
             if block_allocation:
-                raise ValueError("The option block_allocation is not available with the pysqa based backend.")
+                raise ValueError(
+                    "The option block_allocation is not available with the pysqa based backend."
+                )
             if init_function is not None:
-                raise ValueError("The option to specify an init_function is not available with the pysqa based backend.")
+                raise ValueError(
+                    "The option to specify an init_function is not available with the pysqa based backend."
+                )
             _check_executor(executor=flux_executor)
             _check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
             return FileExecutor(

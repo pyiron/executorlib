@@ -3,15 +3,15 @@ from typing import Optional
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.cache.shared import execute_tasks_h5
-from executorlib.standalone.inputcheck import (
-    check_command_line_argument_lst,
-    check_oversubscribe,
-    check_threads_per_core,
-    check_gpus_per_worker,
-)
 from executorlib.standalone.cache.spawner import (
     execute_in_subprocess,
     terminate_subprocess,
+)
+from executorlib.standalone.inputcheck import (
+    check_command_line_argument_lst,
+    check_gpus_per_worker,
+    check_oversubscribe,
+    check_threads_per_core,
 )
 from executorlib.standalone.thread import RaisingThread
 
