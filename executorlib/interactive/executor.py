@@ -261,12 +261,12 @@ def create_executor(
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
         check_threads_per_core(threads_per_core=resource_dict["threads_per_core"])
-        check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_worker"])
+        check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
         check_command_line_argument_lst(
             command_line_argument_lst=resource_dict["slurm_cmd_args"]
         )
         del resource_dict["threads_per_core"]
-        del resource_dict["gpus_per_worker"]
+        del resource_dict["gpus_per_core"]
         del resource_dict["slurm_cmd_args"]
         if block_allocation:
             resource_dict["init_function"] = init_function
