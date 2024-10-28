@@ -6,9 +6,9 @@ import unittest
 try:
     from executorlib.standalone.hdf import dump, load
 
-    skip_h5io_test = False
+    skip_h5py_test = False
 except ImportError:
-    skip_h5io_test = True
+    skip_h5py_test = True
 
 
 def my_funct(a, b):
@@ -16,7 +16,7 @@ def my_funct(a, b):
 
 
 @unittest.skipIf(
-    skip_h5io_test, "h5io is not installed, so the h5io tests are skipped."
+    skip_h5py_test, "h5py is not installed, so the h5io tests are skipped."
 )
 class TestSharedFunctions(unittest.TestCase):
     def test_hdf_mixed(self):
