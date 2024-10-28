@@ -185,7 +185,7 @@ class Executor:
                 max_cores=max_cores,
                 cache_directory=cache_directory,
                 resource_dict=resource_dict,
-                flux_executor=None,
+                flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
                 pysqa_config_directory=pysqa_config_directory,
