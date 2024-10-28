@@ -11,7 +11,7 @@ from executorlib.standalone.cache.spawner import (
 from executorlib.standalone.thread import RaisingThread
 
 try:
-    from executorlib import FileExecutor
+    from executorlib.cache.executor import FileExecutor
     from executorlib.cache.shared import execute_tasks_h5
 
     skip_h5py_test = False
