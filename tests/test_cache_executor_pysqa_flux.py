@@ -33,6 +33,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
         with Executor(
             resource_dict={"cores": 2},
             backend="pysqa_flux",
+            block_allocation=False,
         ) as exe:
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
