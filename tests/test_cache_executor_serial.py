@@ -4,19 +4,19 @@ from queue import Queue
 import shutil
 import unittest
 
+from executorlib.standalone.cache.spawner import (
+    execute_in_subprocess,
+    terminate_subprocess,
+)
 from executorlib.standalone.thread import RaisingThread
 
 try:
     from executorlib import FileExecutor
     from executorlib.cache.shared import execute_tasks_h5
-    from executorlib.standalone.cache.spawner import (
-        execute_in_subprocess,
-        terminate_subprocess,
-    )
 
-    skip_h5io_test = False
+    skip_h5py_test = False
 except ImportError:
-    skip_h5io_test = True
+    skip_h5py_test = True
 
 
 def my_funct(a, b):
@@ -28,18 +28,18 @@ def list_files_in_working_directory():
 
 
 @unittest.skipIf(
-    skip_h5io_test, "h5io is not installed, so the h5io tests are skipped."
+    skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
 )
 class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_mixed(self):
-        with FileExecutor() as exe:
+        with FileExecutor(execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
     def test_executor_dependence_mixed(self):
-        with FileExecutor() as exe:
+        with FileExecutor(execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             fs2 = exe.submit(my_funct, 1, b=fs1)
             self.assertFalse(fs2.done())
@@ -48,7 +48,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
-        with FileExecutor(resource_dict={"cwd": cwd}) as exe:
+        with FileExecutor(resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
 

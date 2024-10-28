@@ -9,13 +9,19 @@ from executorlib.standalone.cache.spawner import (
 )
 from executorlib.standalone.thread import RaisingThread
 
+try:
+    from executorlib.standalone.cache.queue import execute_with_pysqa
+except ImportError:
+    # If pysqa is not available fall back to executing tasks in a subprocess
+    execute_with_pysqa = execute_in_subprocess
+
 
 class FileExecutor(ExecutorBase):
     def __init__(
         self,
         cache_directory: str = "cache",
         resource_dict: Optional[dict] = None,
-        execute_function: callable = execute_in_subprocess,
+        execute_function: callable = execute_with_pysqa,
         terminate_function: Optional[callable] = None,
         config_directory: Optional[str] = None,
         backend: Optional[str] = None,
@@ -29,9 +35,7 @@ class FileExecutor(ExecutorBase):
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
             execute_function (callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
-            cores_per_worker (int, optional): The number of CPU cores per worker. Defaults to 1.
             terminate_function (callable, optional): The function to terminate the tasks.
-            cwd (str, optional): current working directory where the parallel python task is executed
             config_directory (str, optional): path to the config directory.
             backend (str, optional): name of the backend used to spawn tasks.
         """
