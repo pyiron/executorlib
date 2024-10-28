@@ -35,7 +35,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             backend="pysqa_flux",
             cache_directory="cache",
             max_cores=1,
-            resource_dict={"cores": 2},
+            resource_dict={"cores": 2, "cwd": "cache"},
             flux_executor=None,
             flux_executor_pmi_mode=None,
             flux_executor_nesting=False,
