@@ -176,23 +176,7 @@ class Executor:
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
-        if not disable_dependencies:
-            return ExecutorWithDependencies(
-                max_workers=max_workers,
-                backend=backend,
-                cache_directory=cache_directory,
-                max_cores=max_cores,
-                resource_dict=resource_dict,
-                flux_executor=flux_executor,
-                flux_executor_pmi_mode=flux_executor_pmi_mode,
-                flux_executor_nesting=flux_executor_nesting,
-                hostname_localhost=hostname_localhost,
-                block_allocation=block_allocation,
-                init_function=init_function,
-                refresh_rate=refresh_rate,
-                plot_dependency_graph=plot_dependency_graph,
-            )
-        elif "pysqa_" in backend and not plot_dependency_graph:
+        if "pysqa_" in backend and not plot_dependency_graph:
             from executorlib.cache.executor import create_file_executor
 
             return create_file_executor(
@@ -208,6 +192,22 @@ class Executor:
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
+            )
+        elif not disable_dependencies:
+            return ExecutorWithDependencies(
+                max_workers=max_workers,
+                backend=backend,
+                cache_directory=cache_directory,
+                max_cores=max_cores,
+                resource_dict=resource_dict,
+                flux_executor=flux_executor,
+                flux_executor_pmi_mode=flux_executor_pmi_mode,
+                flux_executor_nesting=flux_executor_nesting,
+                hostname_localhost=hostname_localhost,
+                block_allocation=block_allocation,
+                init_function=init_function,
+                refresh_rate=refresh_rate,
+                plot_dependency_graph=plot_dependency_graph,
             )
         else:
             _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
