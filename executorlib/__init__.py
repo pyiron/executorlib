@@ -195,7 +195,9 @@ class Executor:
             )
         elif not disable_dependencies:
             if pysqa_config_directory is not None:
-                raise ValueError("The pysqa_config_directory is only required for the pysqa backend.")
+                raise ValueError(
+                    "The pysqa_config_directory is only required for the pysqa backend."
+                )
             return ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
@@ -215,7 +217,9 @@ class Executor:
             _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
             _check_refresh_rate(refresh_rate=refresh_rate)
             if pysqa_config_directory is not None:
-                raise ValueError("The pysqa_config_directory is only required for the pysqa backend.")
+                raise ValueError(
+                    "The pysqa_config_directory is only required for the pysqa backend."
+                )
             return create_executor(
                 max_workers=max_workers,
                 backend=backend,
