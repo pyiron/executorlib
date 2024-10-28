@@ -172,18 +172,21 @@ class Executor:
                                           debugging purposes and to get an overview of the specified dependencies.
 
         """
+        resource_dict = {
+            "cores": cores_per_worker,
+            "threads_per_core": threads_per_core,
+            "gpus_per_core": int(gpus_per_worker / cores_per_worker),
+            "cwd": cwd,
+            "openmpi_oversubscribe": openmpi_oversubscribe,
+            "slurm_cmd_args": slurm_cmd_args,
+        }
         if not disable_dependencies:
             return ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
                 cache_directory=cache_directory,
                 max_cores=max_cores,
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                cwd=cwd,
-                openmpi_oversubscribe=openmpi_oversubscribe,
-                slurm_cmd_args=slurm_cmd_args,
+                resource_dict=resource_dict,
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
@@ -201,12 +204,7 @@ class Executor:
                 backend=backend,
                 cache_directory=cache_directory,
                 max_cores=max_cores,
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                cwd=cwd,
-                openmpi_oversubscribe=openmpi_oversubscribe,
-                slurm_cmd_args=slurm_cmd_args,
+                resource_dict=resource_dict,
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,

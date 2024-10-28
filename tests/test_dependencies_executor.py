@@ -99,10 +99,12 @@ class TestExecutorWithDependencies(unittest.TestCase):
         executor = create_executor(
             max_workers=1,
             max_cores=2,
-            cores_per_worker=1,
-            threads_per_core=1,
-            gpus_per_worker=0,
-            openmpi_oversubscribe=False,
+            resource_dict={
+                "cores_per_worker": 1,
+                "threads_per_core": 1,
+                "gpus_per_worker": 0,
+                "openmpi_oversubscribe": False,
+            },
             backend="local",
         )
         process = RaisingThread(
