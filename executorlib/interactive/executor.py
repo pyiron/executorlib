@@ -151,12 +151,7 @@ def create_executor(
     backend: str = "local",
     max_cores: int = 1,
     cache_directory: Optional[str] = None,
-    cores_per_worker: int = 1,
-    threads_per_core: int = 1,
-    gpus_per_worker: int = 0,
-    cwd: Optional[str] = None,
-    openmpi_oversubscribe: bool = False,
-    slurm_cmd_args: list[str] = [],
+    resource_dict: Optional[dict] = None,
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
@@ -179,12 +174,14 @@ def create_executor(
         backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
         max_cores (int): defines the number cores which can be used in parallel
         cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
-        cores_per_worker (int): number of MPI cores to be used for each function call
-        threads_per_core (int): number of OpenMP threads to be used for each function call
-        gpus_per_worker (int): number of GPUs per worker - defaults to 0
-        cwd (str/None): current working directory where the parallel python task is executed
-        openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
-        slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+                              - cores_per_worker (int): number of MPI cores to be used for each function call
+                              - threads_per_core (int): number of OpenMP threads to be used for each function call
+                              - gpus_per_worker (int): number of GPUs per worker - defaults to 0
+                              - cwd (str/None): current working directory where the parallel python task is executed
+                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
+                                                              SLURM only) - default False
+                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -205,70 +202,69 @@ def create_executor(
     if flux_executor is not None and backend != "flux":
         backend = "flux"
     check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
-    executor_kwargs = {
-        "cores": cores_per_worker,
-        "hostname_localhost": hostname_localhost,
-        "cwd": cwd,
-        "cache_directory": cache_directory,
-    }
+    cores_per_worker = resource_dict["cores"]
+    resource_dict["cache_directory"] = cache_directory
+    resource_dict["hostname_localhost"] = hostname_localhost
     if backend == "flux":
-        check_oversubscribe(oversubscribe=openmpi_oversubscribe)
-        check_command_line_argument_lst(command_line_argument_lst=slurm_cmd_args)
-        executor_kwargs["threads_per_core"] = threads_per_core
-        executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
-        executor_kwargs["flux_executor"] = flux_executor
-        executor_kwargs["flux_executor_pmi_mode"] = flux_executor_pmi_mode
-        executor_kwargs["flux_executor_nesting"] = flux_executor_nesting
+        check_oversubscribe(oversubscribe=resource_dict["openmpi_oversubscribe"])
+        check_command_line_argument_lst(
+            command_line_argument_lst=resource_dict["slurm_cmd_args"]
+        )
+        del resource_dict["openmpi_oversubscribe"]
+        del resource_dict["slurm_cmd_args"]
+        resource_dict["flux_executor"] = flux_executor
+        resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
+        resource_dict["flux_executor_nesting"] = flux_executor_nesting
         if block_allocation:
-            executor_kwargs["init_function"] = init_function
+            resource_dict["init_function"] = init_function
             return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
-                executor_kwargs=executor_kwargs,
+                executor_kwargs=resource_dict,
                 spawner=FluxPythonSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
-                executor_kwargs=executor_kwargs,
+                executor_kwargs=resource_dict,
                 spawner=FluxPythonSpawner,
             )
     elif backend == "slurm":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
-        executor_kwargs["threads_per_core"] = threads_per_core
-        executor_kwargs["gpus_per_core"] = int(gpus_per_worker / cores_per_worker)
-        executor_kwargs["slurm_cmd_args"] = slurm_cmd_args
-        executor_kwargs["openmpi_oversubscribe"] = openmpi_oversubscribe
         if block_allocation:
-            executor_kwargs["init_function"] = init_function
+            resource_dict["init_function"] = init_function
             return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
-                executor_kwargs=executor_kwargs,
+                executor_kwargs=resource_dict,
                 spawner=SrunSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
-                executor_kwargs=executor_kwargs,
+                executor_kwargs=resource_dict,
                 spawner=SrunSpawner,
             )
     else:  # backend="local"
-        check_threads_per_core(threads_per_core=threads_per_core)
-        check_gpus_per_worker(gpus_per_worker=gpus_per_worker)
-        check_command_line_argument_lst(command_line_argument_lst=slurm_cmd_args)
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
-        executor_kwargs["openmpi_oversubscribe"] = openmpi_oversubscribe
+        check_threads_per_core(threads_per_core=resource_dict["threads_per_core"])
+        check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
+        check_command_line_argument_lst(
+            command_line_argument_lst=resource_dict["slurm_cmd_args"]
+        )
+        del resource_dict["threads_per_core"]
+        del resource_dict["gpus_per_core"]
+        del resource_dict["slurm_cmd_args"]
         if block_allocation:
-            executor_kwargs["init_function"] = init_function
+            resource_dict["init_function"] = init_function
             return InteractiveExecutor(
                 max_workers=int(max_cores / cores_per_worker),
-                executor_kwargs=executor_kwargs,
+                executor_kwargs=resource_dict,
                 spawner=MpiExecSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
-                executor_kwargs=executor_kwargs,
+                executor_kwargs=resource_dict,
                 spawner=MpiExecSpawner,
             )

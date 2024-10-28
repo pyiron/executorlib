@@ -36,12 +36,14 @@ class Executor:
         backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
         cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         max_cores (int): defines the number cores which can be used in parallel
-        cores_per_worker (int): number of MPI cores to be used for each function call
-        threads_per_core (int): number of OpenMP threads to be used for each function call
-        gpus_per_worker (int): number of GPUs per worker - defaults to 0
-        cwd (str/None): current working directory where the parallel python task is executed
-        openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
-        slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+                              - cores_per_worker (int): number of MPI cores to be used for each function call
+                              - threads_per_core (int): number of OpenMP threads to be used for each function call
+                              - gpus_per_worker (int): number of GPUs per worker - defaults to 0
+                              - cwd (str/None): current working directory where the parallel python task is executed
+                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
+                                                              SLURM only) - default False
+                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -89,12 +91,7 @@ class Executor:
         backend: str = "local",
         cache_directory: Optional[str] = None,
         max_cores: int = 1,
-        cores_per_worker: int = 1,
-        threads_per_core: int = 1,
-        gpus_per_worker: int = 0,
-        cwd: Optional[str] = None,
-        openmpi_oversubscribe: bool = False,
-        slurm_cmd_args: list[str] = [],
+        resource_dict: Optional[dict] = None,
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
@@ -114,12 +111,7 @@ class Executor:
         backend: str = "local",
         cache_directory: Optional[str] = None,
         max_cores: int = 1,
-        cores_per_worker: int = 1,
-        threads_per_core: int = 1,
-        gpus_per_worker: int = 0,
-        cwd: Optional[str] = None,
-        openmpi_oversubscribe: bool = False,
-        slurm_cmd_args: list[str] = [],
+        resource_dict: Optional[dict] = None,
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
@@ -145,12 +137,15 @@ class Executor:
             backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
             cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
             max_cores (int): defines the number cores which can be used in parallel
-            cores_per_worker (int): number of MPI cores to be used for each function call
-            threads_per_core (int): number of OpenMP threads to be used for each function call
-            gpus_per_worker (int): number of GPUs per worker - defaults to 0
-            openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
-            slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
-            cwd (str/None): current working directory where the parallel python task is executed
+            resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+                                  - cores_per_worker (int): number of MPI cores to be used for each function call
+                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  - gpus_per_worker (int): number of GPUs per worker - defaults to 0
+                                  - cwd (str/None): current working directory where the parallel python task is executed
+                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
+                                                                  and SLURM only) - default False
+                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
+                                                           only)
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -172,18 +167,26 @@ class Executor:
                                           debugging purposes and to get an overview of the specified dependencies.
 
         """
+        default_resource_dict = {
+            "cores": 1,
+            "threads_per_core": 1,
+            "gpus_per_core": 0,
+            "cwd": None,
+            "openmpi_oversubscribe": False,
+            "slurm_cmd_args": [],
+        }
+        if resource_dict is None:
+            resource_dict = {}
+        resource_dict.update(
+            {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
+        )
         if not disable_dependencies:
             return ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
                 cache_directory=cache_directory,
                 max_cores=max_cores,
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                cwd=cwd,
-                openmpi_oversubscribe=openmpi_oversubscribe,
-                slurm_cmd_args=slurm_cmd_args,
+                resource_dict=resource_dict,
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
@@ -201,12 +204,7 @@ class Executor:
                 backend=backend,
                 cache_directory=cache_directory,
                 max_cores=max_cores,
-                cores_per_worker=cores_per_worker,
-                threads_per_core=threads_per_core,
-                gpus_per_worker=gpus_per_worker,
-                cwd=cwd,
-                openmpi_oversubscribe=openmpi_oversubscribe,
-                slurm_cmd_args=slurm_cmd_args,
+                resource_dict=resource_dict,
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,

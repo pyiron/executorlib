@@ -43,7 +43,7 @@ def calc(i):
     return i, size, rank
 
 with flux.job.FluxExecutor() as flux_exe:
-    with Executor(max_cores=2, cores_per_worker=2, executor=flux_exe) as exe:
+    with Executor(max_cores=2, executor=flux_exe, resource_dict={"cores": 2}) as exe:
         fs = exe.submit(calc, 3)
         print(fs.result())
 ```
