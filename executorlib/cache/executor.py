@@ -7,6 +7,10 @@ from executorlib.standalone.cache.spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
+from executorlib.standalone.inputcheck import (
+    check_executor,
+    check_nested_flux_executor,
+)
 from executorlib.standalone.thread import RaisingThread
 
 try:
@@ -23,7 +27,7 @@ class FileExecutor(ExecutorBase):
         resource_dict: Optional[dict] = None,
         execute_function: callable = execute_with_pysqa,
         terminate_function: Optional[callable] = None,
-        config_directory: Optional[str] = None,
+        pysqa_config_directory: Optional[str] = None,
         backend: Optional[str] = None,
     ):
         """
@@ -36,7 +40,7 @@ class FileExecutor(ExecutorBase):
                               - cwd (str/None): current working directory where the parallel python task is executed
             execute_function (callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
             terminate_function (callable, optional): The function to terminate the tasks.
-            config_directory (str, optional): path to the config directory.
+            pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str, optional): name of the backend used to spawn tasks.
         """
         super().__init__()
@@ -62,8 +66,58 @@ class FileExecutor(ExecutorBase):
                     "cache_directory": cache_directory_path,
                     "resource_dict": resource_dict,
                     "terminate_function": terminate_function,
-                    "config_directory": config_directory,
+                    "pysqa_config_directory": pysqa_config_directory,
                     "backend": backend,
                 },
             )
         )
+
+
+def create_file_executor(
+    max_workers: int = 1,
+    backend: str = "pysqa_flux",
+    max_cores: int = 1,
+    cache_directory: Optional[str] = None,
+    resource_dict: Optional[dict] = None,
+    flux_executor=None,
+    flux_executor_pmi_mode: Optional[str] = None,
+    flux_executor_nesting: bool = False,
+    pysqa_config_directory: Optional[str] = None,
+    hostname_localhost: Optional[bool] = None,
+    block_allocation: bool = False,
+    init_function: Optional[callable] = None,
+):
+    if cache_directory is None:
+        cache_directory = "executorlib_cache"
+    if max_workers != 1:
+        raise ValueError(
+            "The number of workers cannot be controlled with the pysqa based backend."
+        )
+    if max_cores != 1:
+        raise ValueError(
+            "The number of cores cannot be controlled with the pysqa based backend."
+        )
+    if hostname_localhost is not None:
+        raise ValueError(
+            "The option to connect to hosts based on their hostname is not available with the pysqa based backend."
+        )
+    if block_allocation:
+        raise ValueError(
+            "The option block_allocation is not available with the pysqa based backend."
+        )
+    if init_function is not None:
+        raise ValueError(
+            "The option to specify an init_function is not available with the pysqa based backend."
+        )
+    if flux_executor_pmi_mode is not None:
+        raise ValueError(
+            "The option to specify the flux pmi mode is not available with the pysqa based backend."
+        )
+    check_executor(executor=flux_executor)
+    check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
+    return FileExecutor(
+        cache_directory=cache_directory,
+        resource_dict=resource_dict,
+        pysqa_config_directory=pysqa_config_directory,
+        backend=backend.split("pysqa_")[-1],
+    )

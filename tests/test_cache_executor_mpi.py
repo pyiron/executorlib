@@ -7,7 +7,7 @@ from executorlib.standalone.cache.spawner import execute_in_subprocess
 
 
 try:
-    from executorlib import FileExecutor
+    from executorlib.cache.executor import FileExecutor
 
     skip_h5py_test = False
 except ImportError:

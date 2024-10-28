@@ -3,9 +3,11 @@ import importlib
 import unittest
 import shutil
 
+from executorlib import Executor
+from executorlib.standalone.serialize import cloudpickle_register
+
 try:
     import flux.job
-    from executorlib import FileExecutor
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("PYMPIPOOL_PMIX", None)
@@ -30,10 +32,12 @@ def mpi_funct(i):
 )
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
-        with FileExecutor(
-            resource_dict={"cores": 2},
-            backend="flux",
+        with Executor(
+            backend="pysqa_flux",
+            resource_dict={"cores": 2, "cwd": os.path.abspath("cwd")},
+            block_allocation=False,
         ) as exe:
+            cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
