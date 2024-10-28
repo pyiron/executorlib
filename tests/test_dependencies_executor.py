@@ -100,9 +100,9 @@ class TestExecutorWithDependencies(unittest.TestCase):
             max_workers=1,
             max_cores=2,
             resource_dict={
-                "cores_per_worker": 1,
+                "cores": 1,
                 "threads_per_core": 1,
-                "gpus_per_worker": 0,
+                "gpus_per_core": 0,
                 "openmpi_oversubscribe": False,
             },
             backend="local",
