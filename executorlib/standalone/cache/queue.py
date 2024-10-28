@@ -35,5 +35,9 @@ def execute_with_pysqa(
         "working_directory": resource_dict["cwd"],
     }
     del resource_dict["cwd"]
+    unsupported_keys = ["threads_per_core", "gpus_per_core", "openmpi_oversubscribe", "slurm_cmd_args"]
+    for k in unsupported_keys:
+        if k in resource_dict:
+            del resource_dict[k]
     submit_kwargs.update(resource_dict)
     return qa.submit_job(**submit_kwargs)
