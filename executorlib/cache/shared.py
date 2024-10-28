@@ -50,8 +50,7 @@ def execute_tasks_h5(
     future_queue: queue.Queue,
     cache_directory: str,
     execute_function: callable,
-    cores_per_worker: int = 1,
-    cwd: Optional[str] = None,
+    resource_dict: dict,
     terminate_function: Optional[callable] = None,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -62,9 +61,10 @@ def execute_tasks_h5(
     Args:
         future_queue (queue.Queue): The queue containing the tasks.
         cache_directory (str): The directory to store the HDF5 files.
-        cores_per_worker (int): The number of cores per worker.
+        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+                              - cores (int): number of MPI cores to be used for each function call
+                              - cwd (str/None): current working directory where the parallel python task is executed
         execute_function (callable): The function to execute the tasks.
-        cwd (str/None): current working directory where the parallel python task is executed
         terminate_function (callable): The function to terminate the tasks.
         config_directory (str, optional): path to the config directory.
         backend (str, optional): name of the backend used to spawn tasks.
@@ -97,16 +97,15 @@ def execute_tasks_h5(
                 memory_dict=memory_dict,
                 file_name_dict=file_name_dict,
             )
-            resource_dict = task_dict["resource_dict"].copy()
-            if "cores" not in resource_dict:
-                resource_dict["cores"] = cores_per_worker
-            if "cwd" not in resource_dict:
-                resource_dict["cwd"] = cwd
+            task_resource_dict = task_dict["resource_dict"].copy()
+            task_resource_dict.update(
+                {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
+            )
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
                 fn_kwargs=task_kwargs,
-                resource_dict=resource_dict,
+                resource_dict=task_resource_dict,
             )
             if task_key not in memory_dict.keys():
                 if task_key + ".h5out" not in os.listdir(cache_directory):
@@ -115,12 +114,12 @@ def execute_tasks_h5(
                     process_dict[task_key] = execute_function(
                         command=_get_execute_command(
                             file_name=file_name,
-                            cores=cores_per_worker,
+                            cores=task_resource_dict["cores"],
                         ),
                         task_dependent_lst=[
                             process_dict[k] for k in future_wait_key_lst
                         ],
-                        resource_dict=resource_dict,
+                        resource_dict=task_resource_dict,
                         config_directory=config_directory,
                         backend=backend,
                     )

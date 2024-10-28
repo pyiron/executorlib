@@ -48,7 +48,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
-        with FileExecutor(cwd=cwd) as exe:
+        with FileExecutor(resource_dict={"cwd": cwd}) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
 
@@ -72,7 +72,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "cores_per_worker": 1,
+                "resource_dict": {"cores": 1, "cwd": None},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -113,7 +113,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "cores_per_worker": 1,
+                "resource_dict": {"cores": 1, "cwd": None},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -154,7 +154,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "cores_per_worker": 1,
+                "resource_dict": {"cores": 1, "cwd": None},
                 "terminate_function": terminate_subprocess,
             },
         )

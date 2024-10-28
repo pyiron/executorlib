@@ -29,7 +29,7 @@ def mpi_funct(i):
 )
 class TestCacheExecutorMPI(unittest.TestCase):
     def test_executor(self):
-        with FileExecutor(cores_per_worker=2) as exe:
+        with FileExecutor(resource_dict={"cores": 2}) as exe:
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])

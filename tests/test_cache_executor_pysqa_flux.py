@@ -32,7 +32,7 @@ def mpi_funct(i):
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
         with FileExecutor(
-            cores_per_worker=2,
+            resource_dict={"cores": 2},
             execute_function=execute_with_pysqa,
             backend="flux",
         ) as exe:
