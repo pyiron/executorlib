@@ -31,8 +31,9 @@ def mpi_funct(i):
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
         with Executor(
-            resource_dict={"cores": 2},
+            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             backend="pysqa_flux",
+            cache_directory="executorlib_cache",
             block_allocation=False,
         ) as exe:
             fs1 = exe.submit(mpi_funct, 1)
