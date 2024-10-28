@@ -28,7 +28,7 @@ class FileExecutor(ExecutorBase):
     def __init__(
         self,
         cache_directory: str = "cache",
-        resource_dict: Optional[dict] = None,
+        resource_dict: dict = {},
         execute_function: callable = execute_with_pysqa,
         terminate_function: Optional[callable] = None,
         pysqa_config_directory: Optional[str] = None,
@@ -48,16 +48,20 @@ class FileExecutor(ExecutorBase):
             backend (str, optional): name of the backend used to spawn tasks.
         """
         super().__init__()
-        check_oversubscribe(oversubscribe=resource_dict["openmpi_oversubscribe"])
-        check_command_line_argument_lst(
-            command_line_argument_lst=resource_dict["slurm_cmd_args"]
-        )
-        check_threads_per_core(threads_per_core=resource_dict["threads_per_core"])
-        check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
-        del resource_dict["threads_per_core"]
-        del resource_dict["gpus_per_core"]
-        del resource_dict["openmpi_oversubscribe"]
-        del resource_dict["slurm_cmd_args"]
+        if "openmpi_oversubscribe" in resource_dict:
+            check_oversubscribe(oversubscribe=resource_dict["openmpi_oversubscribe"])
+            del resource_dict["openmpi_oversubscribe"]
+        if "slurm_cmd_args" in resource_dict:
+            check_command_line_argument_lst(
+                command_line_argument_lst=resource_dict["slurm_cmd_args"]
+            )
+            del resource_dict["slurm_cmd_args"]
+        if "threads_per_core" in resource_dict:
+            check_threads_per_core(threads_per_core=resource_dict["threads_per_core"])
+            del resource_dict["threads_per_core"]
+        if "gpus_per_core" in resource_dict:
+            check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
+            del resource_dict["gpus_per_core"]
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
         cache_directory_path = os.path.abspath(cache_directory)

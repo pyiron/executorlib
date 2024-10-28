@@ -36,11 +36,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             execute_function=execute_in_subprocess,
             resource_dict={
                 "cores": 1,
-                "threads_per_core": 1,
-                "gpus_per_core": 0,
                 "cwd": None,
-                "openmpi_oversubscribe": False,
-                "slurm_cmd_args": [],
             },
         ) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
@@ -53,11 +49,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             execute_function=execute_in_subprocess,
             resource_dict={
                 "cores": 1,
-                "threads_per_core": 1,
-                "gpus_per_core": 0,
                 "cwd": None,
-                "openmpi_oversubscribe": False,
-                "slurm_cmd_args": [],
             },
         ) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
@@ -71,11 +63,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         with FileExecutor(
             resource_dict={
                 "cores": 1,
-                "threads_per_core": 1,
-                "gpus_per_core": 0,
                 "cwd": cwd,
-                "openmpi_oversubscribe": False,
-                "slurm_cmd_args": [],
             },
             execute_function=execute_in_subprocess,
         ) as exe:
@@ -104,11 +92,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "execute_function": execute_in_subprocess,
                 "resource_dict": {
                     "cores": 1,
-                    "threads_per_core": 1,
-                    "gpus_per_core": 0,
                     "cwd": None,
-                    "openmpi_oversubscribe": False,
-                    "slurm_cmd_args": [],
                 },
                 "terminate_function": terminate_subprocess,
             },
@@ -152,11 +136,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "execute_function": execute_in_subprocess,
                 "resource_dict": {
                     "cores": 1,
-                    "threads_per_core": 1,
-                    "gpus_per_core": 0,
                     "cwd": None,
-                    "openmpi_oversubscribe": False,
-                    "slurm_cmd_args": [],
                 },
                 "terminate_function": terminate_subprocess,
             },
@@ -200,11 +180,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "execute_function": execute_in_subprocess,
                 "resource_dict": {
                     "cores": 1,
-                    "threads_per_core": 1,
-                    "gpus_per_core": 0,
                     "cwd": None,
-                    "openmpi_oversubscribe": False,
-                    "slurm_cmd_args": [],
                 },
                 "terminate_function": terminate_subprocess,
             },
