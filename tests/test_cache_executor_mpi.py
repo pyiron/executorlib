@@ -32,7 +32,15 @@ def mpi_funct(i):
 class TestCacheExecutorMPI(unittest.TestCase):
     def test_executor(self):
         with FileExecutor(
-            resource_dict={"cores": 2}, execute_function=execute_in_subprocess
+            resource_dict={
+                "cores": 2,
+                "threads_per_core": 1,
+                "gpus_per_core": 0,
+                "cwd": None,
+                "openmpi_oversubscribe": False,
+                "slurm_cmd_args": [],
+            },
+            execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())

@@ -11,7 +11,7 @@ from executorlib.standalone.cache.spawner import (
 from executorlib.standalone.thread import RaisingThread
 
 try:
-    from executorlib import FileExecutor
+    from executorlib.cache.executor import FileExecutor
     from executorlib.cache.shared import execute_tasks_h5
 
     skip_h5py_test = False
@@ -32,14 +32,34 @@ def list_files_in_working_directory():
 )
 class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_mixed(self):
-        with FileExecutor(execute_function=execute_in_subprocess) as exe:
+        with FileExecutor(
+            execute_function=execute_in_subprocess,
+            resource_dict={
+                "cores": 1,
+                "threads_per_core": 1,
+                "gpus_per_core": 0,
+                "cwd": None,
+                "openmpi_oversubscribe": False,
+                "slurm_cmd_args": [],
+            },
+        ) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
     def test_executor_dependence_mixed(self):
-        with FileExecutor(execute_function=execute_in_subprocess) as exe:
+        with FileExecutor(
+            execute_function=execute_in_subprocess,
+            resource_dict={
+                "cores": 1,
+                "threads_per_core": 1,
+                "gpus_per_core": 0,
+                "cwd": None,
+                "openmpi_oversubscribe": False,
+                "slurm_cmd_args": [],
+            },
+        ) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             fs2 = exe.submit(my_funct, 1, b=fs1)
             self.assertFalse(fs2.done())
@@ -49,7 +69,15 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
         with FileExecutor(
-            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
+            resource_dict={
+                "cores": 1,
+                "threads_per_core": 1,
+                "gpus_per_core": 0,
+                "cwd": cwd,
+                "openmpi_oversubscribe": False,
+                "slurm_cmd_args": [],
+            },
+            execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
