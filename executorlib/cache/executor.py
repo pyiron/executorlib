@@ -7,11 +7,11 @@ from executorlib.standalone.cache.spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
-from executorlib.standalone.thread import RaisingThread
 from executorlib.standalone.inputcheck import (
     check_executor,
     check_nested_flux_executor,
 )
+from executorlib.standalone.thread import RaisingThread
 
 try:
     from executorlib.standalone.cache.queue import execute_with_pysqa
