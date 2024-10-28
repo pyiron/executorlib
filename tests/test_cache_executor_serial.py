@@ -77,7 +77,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "openmpi_oversubscribe": False,
                 "slurm_cmd_args": [],
             },
-            execute_function=execute_in_subprocess
+            execute_function=execute_in_subprocess,
         ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))

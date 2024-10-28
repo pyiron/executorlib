@@ -40,7 +40,7 @@ class TestCacheExecutorMPI(unittest.TestCase):
                 "openmpi_oversubscribe": False,
                 "slurm_cmd_args": [],
             },
-            execute_function=execute_in_subprocess
+            execute_function=execute_in_subprocess,
         ) as exe:
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())

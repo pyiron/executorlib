@@ -9,11 +9,11 @@ from executorlib.standalone.cache.spawner import (
 )
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
+    check_executor,
     check_gpus_per_worker,
+    check_nested_flux_executor,
     check_oversubscribe,
     check_threads_per_core,
-    check_executor,
-    check_nested_flux_executor,
 )
 from executorlib.standalone.thread import RaisingThread
 
