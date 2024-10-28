@@ -47,6 +47,7 @@ class Executor:
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
+        pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -95,6 +96,7 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
+        pysqa_config_directory: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
@@ -115,6 +117,7 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
+        pysqa_config_directory: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = True,
         init_function: Optional[callable] = None,
@@ -149,6 +152,7 @@ class Executor:
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
+            pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -180,7 +184,24 @@ class Executor:
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
-        if not disable_dependencies:
+        if "pysqa_" in backend and not plot_dependency_graph:
+            from executorlib.cache.executor import create_file_executor
+
+            return create_file_executor(
+                max_workers=max_workers,
+                backend=backend,
+                max_cores=max_cores,
+                cache_directory=cache_directory,
+                resource_dict=resource_dict,
+                flux_executor=flux_executor,
+                flux_executor_pmi_mode=flux_executor_pmi_mode,
+                flux_executor_nesting=flux_executor_nesting,
+                pysqa_config_directory=pysqa_config_directory,
+                hostname_localhost=hostname_localhost,
+                block_allocation=block_allocation,
+                init_function=init_function,
+            )
+        elif not disable_dependencies:
             return ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
