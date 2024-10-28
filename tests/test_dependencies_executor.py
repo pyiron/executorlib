@@ -103,7 +103,9 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 "cores": 1,
                 "threads_per_core": 1,
                 "gpus_per_core": 0,
+                "cwd": None,
                 "openmpi_oversubscribe": False,
+                "slurm_cmd_args": [],
             },
             backend="local",
         )

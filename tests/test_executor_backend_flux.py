@@ -60,7 +60,7 @@ class TestFluxBackend(unittest.TestCase):
     def test_flux_executor_threads(self):
         with Executor(
             max_cores=1,
-            threads_per_core=2,
+            resource_dict={"threads_per_core": 2},
             flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
@@ -75,7 +75,7 @@ class TestFluxBackend(unittest.TestCase):
     def test_flux_executor_parallel(self):
         with Executor(
             max_cores=2,
-            cores_per_worker=2,
+            resource_dict={"cores": 2},
             flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
@@ -88,7 +88,7 @@ class TestFluxBackend(unittest.TestCase):
     def test_single_task(self):
         with Executor(
             max_cores=2,
-            cores_per_worker=2,
+            resource_dict={"cores": 2},
             flux_executor=self.executor,
             backend="flux",
             block_allocation=True,
@@ -103,7 +103,7 @@ class TestFluxBackend(unittest.TestCase):
     def test_internal_memory(self):
         with Executor(
             max_cores=1,
-            cores_per_worker=1,
+            resource_dict={"cores": 1},
             init_function=set_global,
             flux_executor=self.executor,
             backend="flux",

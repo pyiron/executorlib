@@ -45,15 +45,19 @@ class TestExecutorBackend(unittest.TestCase):
         with self.assertRaises(TypeError):
             Executor(
                 max_cores=1,
-                cores_per_worker=1,
-                threads_per_core=2,
+                resource_dict={
+                    "cores": 1,
+                    "threads_per_core": 2,
+                },
                 backend="local",
             )
         with self.assertRaises(TypeError):
             Executor(
                 max_cores=1,
-                cores_per_worker=1,
-                gpus_per_worker=1,
+                resource_dict={
+                    "cores": 1,
+                    "gpus_per_core": 1,
+                },
                 backend="local",
             )
         with self.assertRaises(ValueError):

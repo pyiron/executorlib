@@ -202,19 +202,6 @@ def create_executor(
     if flux_executor is not None and backend != "flux":
         backend = "flux"
     check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
-    default_resource_dict = {
-        "cores": 1,
-        "threads_per_core": 1,
-        "gpus_per_core": 0,
-        "cwd": None,
-        "openmpi_oversubscribe": False,
-        "slurm_cmd_args": [],
-    }
-    if resource_dict is None:
-        resource_dict = {}
-    resource_dict.update(
-        {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
-    )
     cores_per_worker = resource_dict["cores"]
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
