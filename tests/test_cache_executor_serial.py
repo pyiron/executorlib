@@ -48,7 +48,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
-        with FileExecutor(resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess) as exe:
+        with FileExecutor(
+            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
+        ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
 
