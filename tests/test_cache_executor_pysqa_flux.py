@@ -34,8 +34,9 @@ class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
         with Executor(
             backend="pysqa_flux",
-            resource_dict={"cores": 2, "cwd": "exe_working_directory"},
+            resource_dict={"cores": 2, "cwd": "cache"},
             block_allocation=False,
+            cache_directory="cache",
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
