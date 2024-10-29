@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 
 from pysqa import QueueAdapter
@@ -32,7 +33,7 @@ def execute_with_pysqa(
     submit_kwargs = {
         "command": " ".join(command),
         "dependency_list": [str(qid) for qid in task_dependent_lst],
-        "working_directory": resource_dict["cwd"],
+        "working_directory": os.path.abspath(resource_dict["cwd"]),
     }
     del resource_dict["cwd"]
     unsupported_keys = [

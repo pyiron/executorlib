@@ -34,7 +34,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
         with Executor(
             backend="pysqa_flux",
-            resource_dict={"cores": 2, "cwd": os.path.abspath("cwd")},
+            resource_dict={"cores": 2, "cwd": "exe_working_directory"},
             block_allocation=False,
         ) as exe:
             cloudpickle_register(ind=1)
