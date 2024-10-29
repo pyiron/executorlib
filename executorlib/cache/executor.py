@@ -9,6 +9,9 @@ from executorlib.standalone.cache.spawner import (
 )
 from executorlib.standalone.inputcheck import (
     check_executor,
+    check_flux_executor_pmi_mode,
+    check_hostname_localhost,
+    check_max_workers_and_cores,
     check_nested_flux_executor,
 )
 from executorlib.standalone.thread import RaisingThread
@@ -89,18 +92,6 @@ def create_file_executor(
 ):
     if cache_directory is None:
         cache_directory = "executorlib_cache"
-    if max_workers != 1:
-        raise ValueError(
-            "The number of workers cannot be controlled with the pysqa based backend."
-        )
-    if max_cores != 1:
-        raise ValueError(
-            "The number of cores cannot be controlled with the pysqa based backend."
-        )
-    if hostname_localhost is not None:
-        raise ValueError(
-            "The option to connect to hosts based on their hostname is not available with the pysqa based backend."
-        )
     if block_allocation:
         raise ValueError(
             "The option block_allocation is not available with the pysqa based backend."
@@ -109,10 +100,9 @@ def create_file_executor(
         raise ValueError(
             "The option to specify an init_function is not available with the pysqa based backend."
         )
-    if flux_executor_pmi_mode is not None:
-        raise ValueError(
-            "The option to specify the flux pmi mode is not available with the pysqa based backend."
-        )
+    check_flux_executor_pmi_mode(flux_executor_pmi_mode=flux_executor_pmi_mode)
+    check_max_workers_and_cores(max_cores=max_cores, max_workers=max_workers)
+    check_hostname_localhost(hostname_localhost=hostname_localhost)
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     return FileExecutor(

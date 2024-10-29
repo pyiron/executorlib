@@ -13,6 +13,10 @@ from executorlib.standalone.inputcheck import (
     check_refresh_rate,
     check_resource_dict,
     check_resource_dict_is_empty,
+    check_flux_executor_pmi_mode,
+    check_max_workers_and_cores,
+    check_hostname_localhost,
+    check_pysqa_config_directory,
 )
 
 
@@ -69,3 +73,25 @@ class TestInputCheck(unittest.TestCase):
     def test_check_plot_dependency_graph(self):
         with self.assertRaises(ValueError):
             check_plot_dependency_graph(plot_dependency_graph=True)
+
+    def test_check_flux_executor_pmi_mode(self):
+        with self.assertRaises(ValueError):
+            check_flux_executor_pmi_mode(flux_executor_pmi_mode="test")
+
+    def test_check_max_workers_and_cores(self):
+        with self.assertRaises(ValueError):
+            check_max_workers_and_cores(max_workers=2, max_cores=1)
+        with self.assertRaises(ValueError):
+            check_max_workers_and_cores(max_workers=1, max_cores=2)
+        with self.assertRaises(ValueError):
+            check_max_workers_and_cores(max_workers=2, max_cores=2)
+
+    def test_check_hostname_localhost(self):
+        with self.assertRaises(ValueError):
+            check_hostname_localhost(hostname_localhost=True)
+        with self.assertRaises(ValueError):
+            check_hostname_localhost(hostname_localhost=False)
+
+    def test_check_pysqa_config_directory(self):
+        with self.assertRaises(ValueError):
+            check_pysqa_config_directory(pysqa_config_directory="path/to/config")
