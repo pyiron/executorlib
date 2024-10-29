@@ -90,7 +90,7 @@ class TestInputCheck(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_hostname_localhost(hostname_localhost=True)
         with self.assertRaises(ValueError):
-            check_hostname_localhost(hostname_localhost=True)
+            check_hostname_localhost(hostname_localhost=False)
 
     def test_check_pysqa_config_directory(self):
         with self.assertRaises(ValueError):
