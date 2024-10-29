@@ -4,7 +4,7 @@ import unittest
 
 
 try:
-    from executorlib.standalone.hdf import dump, load
+    from executorlib.standalone.hdf import dump, load, get_output
 
     skip_h5py_test = False
 except ImportError:
@@ -33,6 +33,9 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue("fn" in data_dict.keys())
         self.assertEqual(data_dict["args"], [a])
         self.assertEqual(data_dict["kwargs"], {"b": b})
+        flag, output = get_output(file_name=file_name)
+        self.assertFalse(flag)
+        self.assertIsNone(output)
 
     def test_hdf_args(self):
         cache_directory = os.path.abspath("cache")
@@ -45,6 +48,9 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue("fn" in data_dict.keys())
         self.assertEqual(data_dict["args"], [a, b])
         self.assertEqual(data_dict["kwargs"], {})
+        flag, output = get_output(file_name=file_name)
+        self.assertFalse(flag)
+        self.assertIsNone(output)
 
     def test_hdf_kwargs(self):
         cache_directory = os.path.abspath("cache")
@@ -60,6 +66,9 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue("fn" in data_dict.keys())
         self.assertEqual(data_dict["args"], ())
         self.assertEqual(data_dict["kwargs"], {"a": a, "b": b})
+        flag, output = get_output(file_name=file_name)
+        self.assertFalse(flag)
+        self.assertIsNone(output)
 
     def tearDown(self):
         if os.path.exists("cache"):

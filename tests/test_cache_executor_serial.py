@@ -167,6 +167,12 @@ class TestCacheExecutorSerial(unittest.TestCase):
         q.put({"shutdown": True, "wait": True})
         process.join()
 
+    def test_execute_in_subprocess_errors(self):
+        with self.assertRaises(ValueError):
+            execute_in_subprocess(command=[], config_directory="test")
+        with self.assertRaises(ValueError):
+            execute_in_subprocess(command=[], backend="flux")
+
     def tearDown(self):
         if os.path.exists("cache"):
             shutil.rmtree("cache")
