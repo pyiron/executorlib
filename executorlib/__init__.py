@@ -8,6 +8,9 @@ from executorlib.standalone.inputcheck import (
 from executorlib.standalone.inputcheck import (
     check_refresh_rate as _check_refresh_rate,
 )
+from executorlib.standalone.inputcheck import (
+    check_pysqa_config_directory as _check_pysqa_config_directory
+)
 
 __version__ = _get_versions()["version"]
 __all__ = []
@@ -194,6 +197,7 @@ class Executor:
                 init_function=init_function,
             )
         elif not disable_dependencies:
+            _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
             return ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
@@ -210,6 +214,7 @@ class Executor:
                 plot_dependency_graph=plot_dependency_graph,
             )
         else:
+            _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
             _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
             _check_refresh_rate(refresh_rate=refresh_rate)
             return create_executor(
