@@ -17,7 +17,7 @@ class TestPysqaExecuteCommand(unittest.TestCase):
             commands=["echo", "test"],
             working_directory=None,
             split_output=True,
-            shell=False,
+            shell=True,
             error_filename="pysqa.err",
         )
         self.assertEqual(len(out), 2)
