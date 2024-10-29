@@ -27,12 +27,12 @@ class TestPysqaExecuteCommand(unittest.TestCase):
         out = _pysqa_execute_command(
             commands="echo test",
             working_directory=None,
-            split_output=True,
+            split_output=False,
             shell=False,
             error_filename="pysqa.err",
         )
-        self.assertEqual(len(out), 2)
-        self.assertEqual("test", out[0])
+        self.assertEqual(len(out), 5)
+        self.assertEqual("test\n", out)
 
     def test_pysqa_execute_command_fail(self):
         with self.assertRaises(FileNotFoundError):
