@@ -12,9 +12,20 @@ except ImportError:
     skip_pysqa_test, "pysqa is not installed, so the pysqa tests are skipped."
 )
 class TestPysqaExecuteCommand(unittest.TestCase):
-    def test_pysqa_execute_command_echo(self):
+    def test_pysqa_execute_command_list(self):
         out = _pysqa_execute_command(
             commands=["echo", "test"],
+            working_directory=None,
+            split_output=True,
+            shell=False,
+            error_filename="pysqa.err",
+        )
+        self.assertEqual(len(out), 2)
+        self.assertEqual("test", out[0])
+
+    def test_pysqa_execute_command_string(self):
+        out = _pysqa_execute_command(
+            commands="echo test",
             working_directory=None,
             split_output=True,
             shell=False,
