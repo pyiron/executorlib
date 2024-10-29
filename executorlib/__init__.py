@@ -6,10 +6,10 @@ from executorlib.standalone.inputcheck import (
     check_plot_dependency_graph as _check_plot_dependency_graph,
 )
 from executorlib.standalone.inputcheck import (
-    check_refresh_rate as _check_refresh_rate,
+    check_pysqa_config_directory as _check_pysqa_config_directory,
 )
 from executorlib.standalone.inputcheck import (
-    check_pysqa_config_directory as _check_pysqa_config_directory
+    check_refresh_rate as _check_refresh_rate,
 )
 
 __version__ = _get_versions()["version"]

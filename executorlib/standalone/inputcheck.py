@@ -141,6 +141,7 @@ def check_max_workers_and_cores(max_workers: int, max_cores: int) -> None:
             "The number of cores cannot be controlled with the pysqa based backend."
         )
 
+
 def check_hostname_localhost(hostname_localhost: Optional[bool]) -> None:
     if hostname_localhost is not None:
         raise ValueError(

@@ -9,10 +9,10 @@ from executorlib.standalone.cache.spawner import (
 )
 from executorlib.standalone.inputcheck import (
     check_executor,
-    check_nested_flux_executor,
     check_flux_executor_pmi_mode,
-    check_max_workers_and_cores,
     check_hostname_localhost,
+    check_max_workers_and_cores,
+    check_nested_flux_executor,
 )
 from executorlib.standalone.thread import RaisingThread
 
