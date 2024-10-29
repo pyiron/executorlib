@@ -131,6 +131,41 @@ def check_init_function(block_allocation: bool, init_function: Callable) -> None
         raise ValueError("")
 
 
+def check_max_workers_and_cores(max_workers: int, max_cores: int) -> None:
+    if max_workers != 1:
+        raise ValueError(
+            "The number of workers cannot be controlled with the pysqa based backend."
+        )
+    if max_cores != 1:
+        raise ValueError(
+            "The number of cores cannot be controlled with the pysqa based backend."
+        )
+
+
+def check_hostname_localhost(hostname_localhost: Optional[bool]) -> None:
+    if hostname_localhost is not None:
+        raise ValueError(
+            "The option to connect to hosts based on their hostname is not available with the pysqa based backend."
+        )
+
+
+def check_flux_executor_pmi_mode(flux_executor_pmi_mode: Optional[str]) -> None:
+    if flux_executor_pmi_mode is not None:
+        raise ValueError(
+            "The option to specify the flux pmi mode is not available with the pysqa based backend."
+        )
+
+
+def check_pysqa_config_directory(pysqa_config_directory: Optional[str]) -> None:
+    """
+    Check if pysqa_config_directory is None and raise a ValueError if it is not.
+    """
+    if pysqa_config_directory is not None:
+        raise ValueError(
+            "pysqa_config_directory parameter is only supported for pysqa backend."
+        )
+
+
 def validate_number_of_cores(max_cores: int, max_workers: int) -> int:
     """
     Validate the number of cores and return the appropriate value.
