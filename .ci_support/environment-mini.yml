@@ -5,3 +5,4 @@ dependencies:
 - numpy
 - cloudpickle =3.1.0
 - pyzmq =26.0.3
+- setuptools =75.1.0

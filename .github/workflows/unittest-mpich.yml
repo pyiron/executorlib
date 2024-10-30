@@ -15,7 +15,10 @@ jobs:
       matrix:
         include:
         - operating-system: macos-latest
-          python-version: '3.12'
+          python-version: '3.13'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.13'
 
         - operating-system: ubuntu-latest
           python-version: '3.12'
