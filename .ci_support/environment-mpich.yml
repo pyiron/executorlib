@@ -13,3 +13,4 @@ dependencies:
 - pygraphviz =1.14
 - ipython =8.29.0
 - pysqa =0.2.0
+- setuptools =75.1.0
