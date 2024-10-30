@@ -44,7 +44,7 @@ graph = [
     "networkx==3.4.2",
     "ipython==8.29.0",
 ]
-queue = ["pysqa==0.2.0"]
+queue = ["pysqa==0.2.1"]
 
 [tool.setuptools.packages.find]
 include = ["executorlib*"]
