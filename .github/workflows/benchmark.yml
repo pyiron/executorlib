@@ -15,11 +15,11 @@ jobs:
       matrix:
         include:
         - operating-system: ubuntu-latest
-          python-version: '3.12'
+          python-version: '3.13'
           environment-file: .ci_support/environment-openmpi.yml
 
         - operating-system: ubuntu-latest
-          python-version: '3.12'
+          python-version: '3.13'
           environment-file: .ci_support/environment-mpich.yml
 
     steps:
