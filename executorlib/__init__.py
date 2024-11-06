@@ -83,10 +83,10 @@ class Executor:
 
     def __init__(
         self,
-        max_workers: int = 1,
+        max_workers: Optional[int] = None,
         backend: str = "local",
         cache_directory: Optional[str] = None,
-        max_cores: int = 1,
+        max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
@@ -104,10 +104,10 @@ class Executor:
 
     def __new__(
         cls,
-        max_workers: int = 1,
+        max_workers: Optional[int] = None,
         backend: str = "local",
         cache_directory: Optional[str] = None,
-        max_cores: int = 1,
+        max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
