@@ -98,6 +98,12 @@ class TestInputCheck(unittest.TestCase):
             check_pysqa_config_directory(pysqa_config_directory="path/to/config")
 
     def test_validate_number_of_cores(self):
-        self.assertIsInstance(validate_number_of_cores(max_cores=None, max_workers=None), int)
-        self.assertIsInstance(validate_number_of_cores(max_cores=1, max_workers=None), int)
-        self.assertIsInstance(validate_number_of_cores(max_cores=None, max_workers=1), int)
+        self.assertIsInstance(
+            validate_number_of_cores(max_cores=None, max_workers=None), int
+        )
+        self.assertIsInstance(
+            validate_number_of_cores(max_cores=1, max_workers=None), int
+        )
+        self.assertIsInstance(
+            validate_number_of_cores(max_cores=None, max_workers=1), int
+        )
