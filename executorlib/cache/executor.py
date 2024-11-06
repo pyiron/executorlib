@@ -32,6 +32,7 @@ class FileExecutor(ExecutorBase):
         terminate_function: Optional[callable] = None,
         pysqa_config_directory: Optional[str] = None,
         backend: Optional[str] = None,
+        disable_dependencies: bool = False,
     ):
         """
         Initialize the FileExecutor.
@@ -45,6 +46,7 @@ class FileExecutor(ExecutorBase):
             terminate_function (callable, optional): The function to terminate the tasks.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str, optional): name of the backend used to spawn tasks.
+            disable_dependencies (boolean): Disable resolving future objects during the submission.
         """
         super().__init__()
         default_resource_dict = {
@@ -71,6 +73,7 @@ class FileExecutor(ExecutorBase):
                     "terminate_function": terminate_function,
                     "pysqa_config_directory": pysqa_config_directory,
                     "backend": backend,
+                    "disable_dependencies": disable_dependencies,
                 },
             )
         )
@@ -89,6 +92,7 @@ def create_file_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[callable] = None,
+    disable_dependencies: bool = False,
 ):
     if cache_directory is None:
         cache_directory = "executorlib_cache"
@@ -110,4 +114,5 @@ def create_file_executor(
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,
         backend=backend.split("pysqa_")[-1],
+        disable_dependencies=disable_dependencies,
     )

@@ -54,6 +54,7 @@ def execute_tasks_h5(
     terminate_function: Optional[callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
+    disable_dependencies: bool = False,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -111,14 +112,20 @@ def execute_tasks_h5(
                 if task_key + ".h5out" not in os.listdir(cache_directory):
                     file_name = os.path.join(cache_directory, task_key + ".h5in")
                     dump(file_name=file_name, data_dict=data_dict)
+                    if not disable_dependencies:
+                        task_dependent_lst = [
+                            process_dict[k] for k in future_wait_key_lst
+                        ]
+                    else:
+                        if len(future_wait_key_lst) > 0:
+                            raise ValueError("Future objects are not supported as input if disable_dependencies=True.")
+                        task_dependent_lst = []
                     process_dict[task_key] = execute_function(
                         command=_get_execute_command(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
                         ),
-                        task_dependent_lst=[
-                            process_dict[k] for k in future_wait_key_lst
-                        ],
+                        task_dependent_lst=task_dependent_lst,
                         resource_dict=task_resource_dict,
                         config_directory=pysqa_config_directory,
                         backend=backend,
