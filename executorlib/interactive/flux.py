@@ -102,7 +102,7 @@ class FluxPythonSpawner(BaseSpawner):
         self._future.result()
         # shutdown flux executor
         if self._flux_executor is not None:
-            self._flux_executor.shutdown(wait=wait)
+            self._flux_executor.shutdown(wait=False)
 
     def poll(self):
         """
