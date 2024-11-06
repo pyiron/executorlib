@@ -17,6 +17,7 @@ from executorlib.standalone.inputcheck import (
     check_max_workers_and_cores,
     check_hostname_localhost,
     check_pysqa_config_directory,
+    validate_number_of_cores,
 )
 
 
@@ -80,9 +81,9 @@ class TestInputCheck(unittest.TestCase):
 
     def test_check_max_workers_and_cores(self):
         with self.assertRaises(ValueError):
-            check_max_workers_and_cores(max_workers=2, max_cores=1)
+            check_max_workers_and_cores(max_workers=2, max_cores=None)
         with self.assertRaises(ValueError):
-            check_max_workers_and_cores(max_workers=1, max_cores=2)
+            check_max_workers_and_cores(max_workers=None, max_cores=2)
         with self.assertRaises(ValueError):
             check_max_workers_and_cores(max_workers=2, max_cores=2)
 
@@ -95,3 +96,14 @@ class TestInputCheck(unittest.TestCase):
     def test_check_pysqa_config_directory(self):
         with self.assertRaises(ValueError):
             check_pysqa_config_directory(pysqa_config_directory="path/to/config")
+
+    def test_validate_number_of_cores(self):
+        self.assertIsInstance(
+            validate_number_of_cores(max_cores=None, max_workers=None), int
+        )
+        self.assertIsInstance(
+            validate_number_of_cores(max_cores=1, max_workers=None), int
+        )
+        self.assertIsInstance(
+            validate_number_of_cores(max_cores=None, max_workers=1), int
+        )
