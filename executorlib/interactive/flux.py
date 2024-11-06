@@ -100,9 +100,6 @@ class FluxPythonSpawner(BaseSpawner):
         # still showing running after cancel was called,
         # so we wait until the execution is completed.
         self._future.result()
-        # shutdown flux executor
-        if self._flux_executor is not None:
-            self._flux_executor.shutdown(wait=False)
 
     def poll(self):
         """
