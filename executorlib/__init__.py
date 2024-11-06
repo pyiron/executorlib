@@ -195,6 +195,7 @@ class Executor:
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
+                disable_dependencies=disable_dependencies,
             )
         elif not disable_dependencies:
             _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)

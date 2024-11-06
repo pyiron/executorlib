@@ -46,6 +46,13 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
 
+    def test_executor_dependence_error(self):
+        with self.assertRaises(ValueError):
+            with FileExecutor(
+                execute_function=execute_in_subprocess, disable_dependencies=True
+            ) as exe:
+                exe.submit(my_funct, 1, b=exe.submit(my_funct, 1, b=2))
+
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
         with FileExecutor(
