@@ -105,6 +105,7 @@ class ShellInteractiveExecutorTest(unittest.TestCase):
     def test_shell_interactive_executor(self):
         cloudpickle_register(ind=1)
         with Executor(
+            max_workers=1,
             init_function=init_process,
             block_allocation=True,
         ) as exe:
