@@ -31,6 +31,7 @@ jobs:
           pip install . --no-deps --no-build-isolation
       - name: Notebooks
         shell: bash -l {0}
+        timeout-minutes: 5
         run: >
           flux start
           papermill notebooks/examples.ipynb examples-out.ipynb -k "python3"
