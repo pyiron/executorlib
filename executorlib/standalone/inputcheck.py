@@ -1,4 +1,5 @@
 import inspect
+import multiprocessing
 from concurrent.futures import Executor
 from typing import Callable, List, Optional
 
@@ -173,7 +174,7 @@ def validate_number_of_cores(max_cores: int, max_workers: int) -> int:
     Validate the number of cores and return the appropriate value.
     """
     if max_workers is None and max_cores is None:
-        return 1
+        return multiprocessing.cpu_count()
     elif max_workers is not None and max_cores is None:
         return max_workers
     else:
