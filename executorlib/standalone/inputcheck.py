@@ -131,7 +131,9 @@ def check_init_function(block_allocation: bool, init_function: Callable) -> None
         raise ValueError("")
 
 
-def check_max_workers_and_cores(max_workers: Optional[int], max_cores: Optional[int]) -> None:
+def check_max_workers_and_cores(
+    max_workers: Optional[int], max_cores: Optional[int]
+) -> None:
     if max_workers is not None:
         raise ValueError(
             "The number of workers cannot be controlled with the pysqa based backend."
