@@ -68,6 +68,7 @@ class TestFuture(unittest.TestCase):
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
                 future = InteractiveExecutor(
+                    max_workers=1,
                     executor_kwargs={},
                     spawner=MpiExecSpawner,
                 ).submit(slow_callable)
@@ -108,6 +109,7 @@ class TestFuture(unittest.TestCase):
                     self.running = True
 
                     future = InteractiveExecutor(
+                        max_workers=1,
                         executor_kwargs={},
                         spawner=MpiExecSpawner,
                     ).submit(self.return_42)

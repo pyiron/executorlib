@@ -147,9 +147,9 @@ class ExecutorWithDependencies(ExecutorBase):
 
 
 def create_executor(
-    max_workers: int = 1,
+    max_workers: Optional[int] = None,
     backend: str = "local",
-    max_cores: int = 1,
+    max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     flux_executor=None,
