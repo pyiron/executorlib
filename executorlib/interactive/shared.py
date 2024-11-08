@@ -593,7 +593,7 @@ def _execute_task_with_cache(
         fn=task_dict["fn"],
         fn_args=task_dict["args"],
         fn_kwargs=task_dict["kwargs"],
-        resource_dict=task_dict["resource_dict"],
+        resource_dict=task_dict.get("resource_dict", {}),
     )
     os.makedirs(cache_directory, exist_ok=True)
     file_name = os.path.join(cache_directory, task_key + ".h5out")
