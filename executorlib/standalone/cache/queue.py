@@ -11,7 +11,7 @@ def execute_with_pysqa(
     task_dependent_lst: List[int] = [],
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
-    cache_directory: Optional[str] = None
+    cache_directory: Optional[str] = None,
 ) -> int:
     """
     Execute a command by submitting it to the queuing system
