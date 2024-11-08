@@ -11,6 +11,7 @@ def execute_with_pysqa(
     task_dependent_lst: List[int] = [],
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
+    cache_directory: Optional[str] = None,
 ) -> int:
     """
     Execute a command by submitting it to the queuing system
@@ -24,12 +25,17 @@ def execute_with_pysqa(
                               }
         config_directory (str, optional): path to the config directory.
         backend (str, optional): name of the backend used to spawn tasks.
+        cache_directory (str): The directory to store the HDF5 files.
 
     Returns:
         int: queuing system ID
     """
     if resource_dict is None:
-        resource_dict = {"cwd": "."}
+        resource_dict = {}
+    if "cwd" in resource_dict and resource_dict["cwd"] is not None:
+        cwd = resource_dict["cwd"]
+    else:
+        cwd = cache_directory
     qa = QueueAdapter(
         directory=config_directory,
         queue_type=backend,
@@ -38,9 +44,10 @@ def execute_with_pysqa(
     submit_kwargs = {
         "command": " ".join(command),
         "dependency_list": [str(qid) for qid in task_dependent_lst],
-        "working_directory": os.path.abspath(resource_dict["cwd"]),
+        "working_directory": os.path.abspath(cwd),
     }
-    del resource_dict["cwd"]
+    if "cwd" in resource_dict:
+        del resource_dict["cwd"]
     unsupported_keys = [
         "threads_per_core",
         "gpus_per_core",
