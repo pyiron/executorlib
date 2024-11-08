@@ -40,10 +40,8 @@ def execute_in_subprocess(
     if backend is not None:
         raise ValueError("backend parameter is not supported for subprocess spawner.")
     if resource_dict is None:
-        resource_dict = {"cwd": cache_directory}
-    elif len(resource_dict) == 0:
-        resource_dict = {"cwd": cache_directory}
-    return subprocess.Popen(command, universal_newlines=True, cwd=resource_dict["cwd"])
+        resource_dict = {}
+    return subprocess.Popen(command, universal_newlines=True, cwd=resource_dict.get("cwd", cache_directory))
 
 
 def terminate_subprocess(task):
