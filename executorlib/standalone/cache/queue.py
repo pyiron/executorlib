@@ -31,11 +31,7 @@ def execute_with_pysqa(
         int: queuing system ID
     """
     if resource_dict is None:
-        resource_dict = {"cwd": cache_directory}
-    elif len(resource_dict) == 0:
-        resource_dict = {"cwd": cache_directory}
-    elif "cwd" in resource_dict and resource_dict["cwd"] is None:
-        resource_dict["cwd"] = cache_directory
+        resource_dict = {}
     qa = QueueAdapter(
         directory=config_directory,
         queue_type=backend,
@@ -44,9 +40,10 @@ def execute_with_pysqa(
     submit_kwargs = {
         "command": " ".join(command),
         "dependency_list": [str(qid) for qid in task_dependent_lst],
-        "working_directory": os.path.abspath(resource_dict["cwd"]),
+        "working_directory": os.path.abspath(resource_dict.get("cwd", cache_directory)),
     }
-    del resource_dict["cwd"]
+    if "cwd" in resource_dict:
+        del resource_dict["cwd"]
     unsupported_keys = [
         "threads_per_core",
         "gpus_per_core",
