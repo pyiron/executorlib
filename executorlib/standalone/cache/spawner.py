@@ -9,6 +9,7 @@ def execute_in_subprocess(
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
+    cache_directory: Optional[str] = None,
 ) -> subprocess.Popen:
     """
     Execute a command in a subprocess.
@@ -22,6 +23,7 @@ def execute_in_subprocess(
                               }
         config_directory (str, optional): path to the config directory.
         backend (str, optional): name of the backend used to spawn tasks.
+        cache_directory (str): The directory to store the HDF5 files.
 
     Returns:
         subprocess.Popen: The subprocess object.
@@ -38,9 +40,9 @@ def execute_in_subprocess(
     if backend is not None:
         raise ValueError("backend parameter is not supported for subprocess spawner.")
     if resource_dict is None:
-        resource_dict = {"cwd": None}
+        resource_dict = {"cwd": cache_directory}
     elif len(resource_dict) == 0:
-        resource_dict = {"cwd": None}
+        resource_dict = {"cwd": cache_directory}
     return subprocess.Popen(command, universal_newlines=True, cwd=resource_dict["cwd"])
 
 
