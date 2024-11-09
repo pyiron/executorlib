@@ -514,7 +514,7 @@ def _submit_function_to_separate_process(
         RaisingThread, dict: thread for communicating with the python process which is executing the function and
                              dictionary containing the future objects and the number of cores they require
     """
-    resource_dict = task_dict.pop("resource_dict")
+    resource_dict = task_dict.pop("resource_dict").copy()
     qtask.put(task_dict)
     qtask.put({"shutdown": True, "wait": True})
     if "cores" not in resource_dict.keys() or (
