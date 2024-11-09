@@ -3,6 +3,7 @@ from typing import Any
 
 from executorlib.cache.shared import FutureItem
 from executorlib.standalone.hdf import dump, load
+import executorlib.standalone.hdf
 
 
 def backend_load_file(file_name: str) -> dict:
@@ -18,11 +19,11 @@ def backend_load_file(file_name: str) -> dict:
     """
     apply_dict = load(file_name=file_name)
     apply_dict["args"] = [
-        arg if not isinstance(arg, FutureItem) else arg.result()
+        arg if not _isinstance(arg, FutureItem) else arg.result()
         for arg in apply_dict["args"]
     ]
     apply_dict["kwargs"] = {
-        key: arg if not isinstance(arg, FutureItem) else arg.result()
+        key: arg if not _isinstance(arg, FutureItem) else arg.result()
         for key, arg in apply_dict["kwargs"].items()
     }
     return apply_dict
@@ -62,3 +63,7 @@ def backend_execute_task_in_file(file_name: str) -> None:
         file_name=file_name,
         output=result,
     )
+
+
+def _isinstance(obj: Any, cls: type) -> bool:
+    return str(obj.__class__) == str(cls)
