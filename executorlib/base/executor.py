@@ -18,14 +18,15 @@ class ExecutorBase(FutureExecutor):
     Base class for the executor.
 
     Args:
-        FutureExecutor: Base class for the executor.
+        max_cores (int): defines the number cores which can be used in parallel
     """
 
-    def __init__(self):
+    def __init__(self, max_cores: Optional[int] = None):
         """
         Initialize the ExecutorBase class.
         """
         cloudpickle_register(ind=3)
+        self._max_cores = max_cores
         self._future_queue: queue.Queue = queue.Queue()
         self._process: Optional[RaisingThread] = None
 
@@ -86,6 +87,9 @@ class ExecutorBase(FutureExecutor):
         Returns:
             Future: A Future representing the given call.
         """
+        cores = resource_dict.get("cores", None)
+        if cores is not None and self._max_cores is not None and cores > self._max_cores:
+            raise ValueError("The specified number of cores is larger than the available number of cores.")
         check_resource_dict(function=fn)
         f = Future()
         self._future_queue.put(

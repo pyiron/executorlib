@@ -48,7 +48,7 @@ class FileExecutor(ExecutorBase):
             backend (str, optional): name of the backend used to spawn tasks.
             disable_dependencies (boolean): Disable resolving future objects during the submission.
         """
-        super().__init__()
+        super().__init__(max_cores=None)
         default_resource_dict = {
             "cores": 1,
             "cwd": None,
