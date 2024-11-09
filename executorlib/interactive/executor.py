@@ -220,6 +220,7 @@ def create_executor(
                 max_workers=validate_number_of_cores(
                     max_cores=max_cores,
                     max_workers=max_workers,
+                    cores_per_worker=cores_per_worker,
                     set_local_cores=False,
                 ),
                 executor_kwargs=resource_dict,
@@ -241,6 +242,7 @@ def create_executor(
                 max_workers=validate_number_of_cores(
                     max_cores=max_cores,
                     max_workers=max_workers,
+                    cores_per_worker=cores_per_worker,
                     set_local_cores=False,
                 ),
                 executor_kwargs=resource_dict,
@@ -270,6 +272,7 @@ def create_executor(
                 max_workers=validate_number_of_cores(
                     max_cores=max_cores,
                     max_workers=max_workers,
+                    cores_per_worker=cores_per_worker,
                     set_local_cores=True,
                 ),
                 executor_kwargs=resource_dict,
