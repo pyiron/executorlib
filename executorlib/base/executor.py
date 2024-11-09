@@ -88,8 +88,14 @@ class ExecutorBase(FutureExecutor):
             Future: A Future representing the given call.
         """
         cores = resource_dict.get("cores", None)
-        if cores is not None and self._max_cores is not None and cores > self._max_cores:
-            raise ValueError("The specified number of cores is larger than the available number of cores.")
+        if (
+            cores is not None
+            and self._max_cores is not None
+            and cores > self._max_cores
+        ):
+            raise ValueError(
+                "The specified number of cores is larger than the available number of cores."
+            )
         check_resource_dict(function=fn)
         f = Future()
         self._future_queue.put(
