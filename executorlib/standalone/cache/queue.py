@@ -57,6 +57,8 @@ def execute_with_pysqa(
     for k in unsupported_keys:
         if k in resource_dict:
             del resource_dict[k]
+    if "job_name" not in resource_dict:
+        resource_dict["job_name"] = "pysqa"
     submit_kwargs.update(resource_dict)
     return qa.submit_job(**submit_kwargs)
 
