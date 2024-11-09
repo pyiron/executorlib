@@ -179,7 +179,8 @@ class InteractiveStepExecutor(ExecutorBase):
 
     def __init__(
         self,
-        max_cores: int = 1,
+        max_cores: Optional[int] = None,
+        max_workers: Optional[int] = None,
         executor_kwargs: dict = {},
         spawner: BaseSpawner = MpiExecSpawner,
     ):
@@ -187,6 +188,7 @@ class InteractiveStepExecutor(ExecutorBase):
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["max_cores"] = max_cores
+        executor_kwargs["max_workers"] = max_workers
         self._set_process(
             RaisingThread(
                 target=execute_separate_tasks,
@@ -256,7 +258,8 @@ def execute_parallel_tasks(
 def execute_separate_tasks(
     future_queue: queue.Queue,
     spawner: BaseSpawner = MpiExecSpawner,
-    max_cores: int = 1,
+    max_cores: Optional[int] = None,
+    max_workers: Optional[int] = None,
     hostname_localhost: Optional[bool] = None,
     **kwargs,
 ):
@@ -267,6 +270,9 @@ def execute_separate_tasks(
        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
        spawner (BaseSpawner): Interface to start process on selected compute resources
        max_cores (int): defines the number cores which can be used in parallel
+       max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
+                          cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
+                          recommended, as computers have a limited number of compute cores.
        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                      context of an HPC cluster this essential to be able to communicate to an
                                      Executor running on a different compute node within the same allocation. And
@@ -296,6 +302,7 @@ def execute_separate_tasks(
                 spawner=spawner,
                 executor_kwargs=kwargs,
                 max_cores=max_cores,
+                max_workers=max_workers,
                 hostname_localhost=hostname_localhost,
             )
             qtask_lst.append(qtask)
@@ -389,7 +396,7 @@ def _get_backend_path(
 
 
 def _wait_for_free_slots(
-    active_task_dict: dict, cores_requested: int, max_cores: int
+    active_task_dict: dict, cores_requested: int, max_cores: Optional[int] = None, max_workers: Optional[int] = None,
 ) -> dict:
     """
     Wait for available computing resources to become available.
@@ -398,12 +405,19 @@ def _wait_for_free_slots(
         active_task_dict (dict): Dictionary containing the future objects and the number of cores they require
         cores_requested (int): Number of cores required for executing the next task
         max_cores (int): Maximum number cores which can be used
+        max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
+                           cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
+                           recommended, as computers have a limited number of compute cores.
 
     Returns:
         dict: Dictionary containing the future objects and the number of cores they require
     """
-    while sum(active_task_dict.values()) + cores_requested > max_cores:
-        active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
+    if max_cores is not None:
+        while sum(active_task_dict.values()) + cores_requested > max_cores:
+            active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
+    elif max_workers is not None and max_cores is None:
+        while len(active_task_dict.values()) + 1 > max_workers:
+            active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
     return active_task_dict
 
 
@@ -490,7 +504,8 @@ def _submit_function_to_separate_process(
     qtask: queue.Queue,
     spawner: BaseSpawner,
     executor_kwargs: dict,
-    max_cores: int = 1,
+    max_cores: Optional[int] = None,
+    max_workers: Optional[int] = None,
     hostname_localhost: Optional[bool] = None,
 ):
     """
@@ -503,6 +518,9 @@ def _submit_function_to_separate_process(
         spawner (BaseSpawner): Interface to start process on selected compute resources
         executor_kwargs (dict): keyword parameters used to initialize the Executor
         max_cores (int): defines the number cores which can be used in parallel
+        max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
+                           cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
+                           recommended, as computers have a limited number of compute cores.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                      context of an HPC cluster this essential to be able to communicate to an
                                      Executor running on a different compute node within the same allocation. And
@@ -525,6 +543,7 @@ def _submit_function_to_separate_process(
         active_task_dict=active_task_dict,
         cores_requested=resource_dict["cores"],
         max_cores=max_cores,
+        max_workers=max_workers,
     )
     active_task_dict[task_dict["future"]] = resource_dict["cores"]
     task_kwargs = executor_kwargs.copy()
