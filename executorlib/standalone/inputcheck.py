@@ -170,7 +170,9 @@ def check_pysqa_config_directory(pysqa_config_directory: Optional[str]) -> None:
 
 
 def validate_number_of_cores(
-    max_cores: Optional[int] = None, max_workers: Optional[int] = None, set_local_cores: bool = False,
+    max_cores: Optional[int] = None,
+    max_workers: Optional[int] = None,
+    set_local_cores: bool = False,
 ) -> int:
     """
     Validate the number of cores and return the appropriate value.

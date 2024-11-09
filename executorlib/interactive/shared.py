@@ -396,7 +396,10 @@ def _get_backend_path(
 
 
 def _wait_for_free_slots(
-    active_task_dict: dict, cores_requested: int, max_cores: Optional[int] = None, max_workers: Optional[int] = None,
+    active_task_dict: dict,
+    cores_requested: int,
+    max_cores: Optional[int] = None,
+    max_workers: Optional[int] = None,
 ) -> dict:
     """
     Wait for available computing resources to become available.
@@ -414,10 +417,14 @@ def _wait_for_free_slots(
     """
     if max_cores is not None:
         while sum(active_task_dict.values()) + cores_requested > max_cores:
-            active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
+            active_task_dict = {
+                k: v for k, v in active_task_dict.items() if not k.done()
+            }
     elif max_workers is not None and max_cores is None:
         while len(active_task_dict.values()) + 1 > max_workers:
-            active_task_dict = {k: v for k, v in active_task_dict.items() if not k.done()}
+            active_task_dict = {
+                k: v for k, v in active_task_dict.items() if not k.done()
+            }
     return active_task_dict
 
 
