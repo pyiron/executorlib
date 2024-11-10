@@ -632,7 +632,16 @@ def _execute_task_with_cache(
         data_dict["output"] = future.result()
         dump(file_name=file_name, data_dict=data_dict)
     else:
-        _, result = get_output(file_name=file_name)
-        future = task_dict["future"]
-        future.set_result(result)
-        future_queue.task_done()
+        exe_flag, result = get_output(file_name=file_name)
+        if exe_flag:
+            future = task_dict["future"]
+            future.set_result(result)
+            future_queue.task_done()
+        else:
+            _execute_task(
+                interface=interface,
+                task_dict=task_dict,
+                future_queue=future_queue,
+            )
+            data_dict["output"] = future.result()
+            dump(file_name=file_name, data_dict=data_dict)
