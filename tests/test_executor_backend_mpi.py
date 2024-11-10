@@ -1,11 +1,17 @@
 import importlib.util
 import shutil
-import time
+import timefix
 import unittest
 
 from executorlib import Executor
 from executorlib.standalone.serialize import cloudpickle_register
 
+try:
+    import h5py
+
+    skip_h5py_test = False
+except ImportError:
+    skip_h5py_test = True
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
@@ -97,6 +103,9 @@ class TestExecutorBackendCache(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree("./cache")
 
+    @unittest.skipIf(
+        skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
+    )
     def test_executor_cache_bypass(self):
         with Executor(
             max_workers=2,
