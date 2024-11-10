@@ -97,7 +97,7 @@ class TestExecutorBackendCache(unittest.TestCase):
     )
     def test_meta_executor_parallel_cache(self):
         with Executor(
-            max_workers=2,
+            max_cores=2,
             resource_dict={"cores": 2},
             backend="local",
             block_allocation=True,

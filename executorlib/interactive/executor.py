@@ -197,7 +197,6 @@ def create_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
     """
-    max_cores = validate_number_of_cores(max_cores=max_cores, max_workers=max_workers)
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     if flux_executor is not None and backend != "flux":
         backend = "flux"
@@ -218,13 +217,19 @@ def create_executor(
         if block_allocation:
             resource_dict["init_function"] = init_function
             return InteractiveExecutor(
-                max_workers=int(max_cores / cores_per_worker),
+                max_workers=validate_number_of_cores(
+                    max_cores=max_cores,
+                    max_workers=max_workers,
+                    cores_per_worker=cores_per_worker,
+                    set_local_cores=False,
+                ),
                 executor_kwargs=resource_dict,
                 spawner=FluxPythonSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
+                max_workers=max_workers,
                 executor_kwargs=resource_dict,
                 spawner=FluxPythonSpawner,
             )
@@ -234,13 +239,19 @@ def create_executor(
         if block_allocation:
             resource_dict["init_function"] = init_function
             return InteractiveExecutor(
-                max_workers=int(max_cores / cores_per_worker),
+                max_workers=validate_number_of_cores(
+                    max_cores=max_cores,
+                    max_workers=max_workers,
+                    cores_per_worker=cores_per_worker,
+                    set_local_cores=False,
+                ),
                 executor_kwargs=resource_dict,
                 spawner=SrunSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
+                max_workers=max_workers,
                 executor_kwargs=resource_dict,
                 spawner=SrunSpawner,
             )
@@ -258,13 +269,19 @@ def create_executor(
         if block_allocation:
             resource_dict["init_function"] = init_function
             return InteractiveExecutor(
-                max_workers=int(max_cores / cores_per_worker),
+                max_workers=validate_number_of_cores(
+                    max_cores=max_cores,
+                    max_workers=max_workers,
+                    cores_per_worker=cores_per_worker,
+                    set_local_cores=True,
+                ),
                 executor_kwargs=resource_dict,
                 spawner=MpiExecSpawner,
             )
         else:
             return InteractiveStepExecutor(
                 max_cores=max_cores,
+                max_workers=max_workers,
                 executor_kwargs=resource_dict,
                 spawner=MpiExecSpawner,
             )
