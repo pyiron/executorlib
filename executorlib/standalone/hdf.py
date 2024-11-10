@@ -22,10 +22,13 @@ def dump(file_name: str, data_dict: dict) -> None:
     with h5py.File(file_name, "a") as fname:
         for data_key, data_value in data_dict.items():
             if data_key in group_dict.keys():
-                fname.create_dataset(
-                    name="/" + group_dict[data_key],
-                    data=np.void(cloudpickle.dumps(data_value)),
-                )
+                try:
+                    fname.create_dataset(
+                        name="/" + group_dict[data_key],
+                        data=np.void(cloudpickle.dumps(data_value)),
+                    )
+                except ValueError:
+                    pass
 
 
 def load(file_name: str) -> dict:
