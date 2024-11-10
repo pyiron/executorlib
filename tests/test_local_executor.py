@@ -512,6 +512,7 @@ class TestFuturePoolCache(unittest.TestCase):
             spawner=MpiExecSpawner,
             cache_directory="./cache",
         )
+        sleep(0.5)
         execute_parallel_tasks(
             future_queue=q2,
             cores=1,
