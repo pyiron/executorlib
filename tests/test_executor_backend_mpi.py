@@ -98,7 +98,12 @@ class TestExecutorBackendCache(unittest.TestCase):
         shutil.rmtree("./cache")
 
     def test_executor_cache_bypass(self):
-        with Executor(max_workers=2, backend="local", block_allocation=True, cache_directory="./cache") as exe:
+        with Executor(
+            max_workers=2,
+            backend="local",
+            block_allocation=True,
+            cache_directory="./cache",
+        ) as exe:
             cloudpickle_register(ind=1)
             time_1 = time.time()
             fs_1 = exe.submit(calc_sleep, 1)
