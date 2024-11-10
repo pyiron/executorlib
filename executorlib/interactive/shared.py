@@ -131,7 +131,7 @@ class InteractiveExecutor(ExecutorBroker):
         executor_kwargs: dict = {},
         spawner: BaseSpawner = MpiExecSpawner,
     ):
-        super().__init__()
+        super().__init__(max_cores=executor_kwargs.get("max_cores", None))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         self._set_process(
@@ -184,7 +184,7 @@ class InteractiveStepExecutor(ExecutorBase):
         executor_kwargs: dict = {},
         spawner: BaseSpawner = MpiExecSpawner,
     ):
-        super().__init__()
+        super().__init__(max_cores=executor_kwargs.get("max_cores", None))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["max_cores"] = max_cores

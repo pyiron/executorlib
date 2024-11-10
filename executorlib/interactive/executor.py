@@ -60,7 +60,7 @@ class ExecutorWithDependencies(ExecutorBase):
         plot_dependency_graph: bool = False,
         **kwargs: Any,
     ) -> None:
-        super().__init__()
+        super().__init__(max_cores=kwargs.get("max_cores", None))
         executor = create_executor(*args, **kwargs)
         self._set_process(
             RaisingThread(

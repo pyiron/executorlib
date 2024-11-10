@@ -52,6 +52,12 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
+    def test_oversubscribe(self):
+        with self.assertRaises(ValueError):
+            with Executor(max_cores=1, backend="local", block_allocation=True) as exe:
+                cloudpickle_register(ind=1)
+                fs_1 = exe.submit(calc, 1, resource_dict={"cores": 2})
+
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
