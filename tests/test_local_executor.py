@@ -504,3 +504,21 @@ class TestFuturePoolCache(unittest.TestCase):
         )
         self.assertEqual(f.result(), 1)
         q.join()
+
+    @unittest.skipIf(
+        skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
+    )
+    def test_execute_task_cache_failed_no_argument(self):
+        f = Future()
+        q = Queue()
+        q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
+        cloudpickle_register(ind=1)
+        with self.assertRaises(TypeError):
+            execute_parallel_tasks(
+                future_queue=q,
+                cores=1,
+                openmpi_oversubscribe=False,
+                spawner=MpiExecSpawner,
+                cache_directory="./cache",
+            )
+        q.join()
