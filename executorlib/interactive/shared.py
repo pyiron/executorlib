@@ -624,13 +624,20 @@ def _execute_task_with_cache(
     os.makedirs(cache_directory, exist_ok=True)
     file_name = os.path.join(cache_directory, task_key + ".h5out")
     if task_key + ".h5out" not in os.listdir(cache_directory):
-        _execute_task(
-            interface=interface,
-            task_dict=task_dict,
-            future_queue=future_queue,
-        )
-        data_dict["output"] = future.result()
-        dump(file_name=file_name, data_dict=data_dict)
+        f = task_dict.pop("future")
+        if f.set_running_or_notify_cancel():
+            try:
+                result = interface.send_and_receive_dict(input_dict=task_dict)
+                data_dict["output"] = result
+                dump(file_name=file_name, data_dict=data_dict)
+                f.set_result(result)
+            except Exception as thread_exception:
+                interface.shutdown(wait=True)
+                future_queue.task_done()
+                f.set_exception(exception=thread_exception)
+                raise thread_exception
+            else:
+                future_queue.task_done()
     else:
         _, result = get_output(file_name=file_name)
         future = task_dict["future"]
