@@ -2,6 +2,7 @@ from concurrent.futures import CancelledError, Future
 import importlib.util
 from queue import Queue
 from time import sleep
+import shutil
 import unittest
 
 import numpy as np
@@ -16,6 +17,12 @@ from executorlib.interactive.shared import (
 from executorlib.standalone.interactive.backend import call_funct
 from executorlib.standalone.serialize import cloudpickle_register
 
+try:
+    import h5py
+
+    skip_h5py_test = False
+except ImportError:
+    skip_h5py_test = True
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
@@ -472,4 +479,46 @@ class TestFuturePool(unittest.TestCase):
             spawner=MpiExecSpawner,
         )
         self.assertEqual(f.result(), [np.array(4), np.array(4)])
+        q.join()
+
+
+class TestFuturePoolCache(unittest.TestCase):
+    def tearDown(self):
+        shutil.rmtree("./cache")
+
+    @unittest.skipIf(
+        skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
+    )
+    def test_execute_task_cache(self):
+        f = Future()
+        q = Queue()
+        q.put({"fn": calc, "args": (), "kwargs": {"i": 1}, "future": f})
+        q.put({"shutdown": True, "wait": True})
+        cloudpickle_register(ind=1)
+        execute_parallel_tasks(
+            future_queue=q,
+            cores=1,
+            openmpi_oversubscribe=False,
+            spawner=MpiExecSpawner,
+            cache_directory="./cache",
+        )
+        self.assertEqual(f.result(), 1)
+        q.join()
+
+    @unittest.skipIf(
+        skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
+    )
+    def test_execute_task_cache_failed_no_argument(self):
+        f = Future()
+        q = Queue()
+        q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
+        cloudpickle_register(ind=1)
+        with self.assertRaises(TypeError):
+            execute_parallel_tasks(
+                future_queue=q,
+                cores=1,
+                openmpi_oversubscribe=False,
+                spawner=MpiExecSpawner,
+                cache_directory="./cache",
+            )
         q.join()
