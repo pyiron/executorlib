@@ -11,6 +11,6 @@ dependencies:
 - matplotlib =3.9.2
 - networkx =3.4.2
 - pygraphviz =1.14
-- pysqa =0.2.1
+- pysqa =0.2.2
 - ipython =8.29.0
 - setuptools =75.1.0
