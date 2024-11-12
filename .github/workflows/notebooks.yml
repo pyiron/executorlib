@@ -34,4 +34,4 @@ jobs:
         timeout-minutes: 5
         run: >
           flux start
-          papermill notebooks/examples.ipynb examples-out.ipynb -k "python3"
+          .ci_support/build_notebooks.sh
