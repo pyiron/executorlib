@@ -3,31 +3,18 @@
 [![Coverage Status](https://coveralls.io/repos/github/pyiron/executorlib/badge.svg?branch=main)](https://coveralls.io/github/pyiron/executorlib?branch=main)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/executorlib/HEAD?labpath=notebooks%2Fexamples.ipynb)
 
-## Challenges
-In high performance computing (HPC) the Python programming language is commonly used as high-level language to
-orchestrate the coupling of scientific applications. Still the efficient usage of highly parallel HPC clusters remains
-challenging, in primarily three aspects:
+Up-scale python functions for high performance computing (HPC) with executorlib. 
 
-* **Communication**: Distributing python function calls over hundreds of compute node and gathering the results on a
-  shared file system is technically possible, but highly inefficient. A socket-based communication approach is 
-  preferable.
-* **Resource Management**: Assigning Python functions to GPUs or executing Python functions on multiple CPUs using the 
-  message passing interface (MPI) requires major modifications to the python workflow.
-* **Integration**: Existing workflow libraries implement a secondary the job management on the Python level rather than
-  leveraging the existing infrastructure provided by the job scheduler of the HPC.
-
-### executorlib is ...
-In a given HPC allocation the `executorlib` library addresses these challenges by extending the Executor interface
-of the standard Python library to support the resource assignment in the HPC context. Computing resources can either be
-assigned on a per function call basis or as a block allocation on a per Executor basis. The `executorlib` library
-is built on top of the [flux-framework](https://flux-framework.org) to enable fine-grained resource assignment. In
-addition, [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) is supported as alternative
-queuing system and for workstation installations `executorlib` can be installed without a job scheduler.
-
-### executorlib is not ...
-The executorlib library is not designed to request an allocation from the job scheduler of an HPC. Instead within a given
-allocation from the job scheduler the `executorlib` library can be employed to distribute a series of python
-function calls over the available computing resources to achieve maximum computing resource utilization.
+## Key Features
+* **Up-scale your Python functions beyond a single computer.** - executorlib extends the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
+  from the Python standard library and combines it with job schedulers for high performance computing (HPC) like [SLURM](https://slurm.schedmd.com) 
+  and [flux](https://flux-framework.readthedocs.io). With this combination executorlib allows users to distribute their
+  Python functions over multiple compute nodes.
+* **Parallelize your Python program one function at a time** - executorlib allows users to assign dedicated resources 
+  like CPU cores, threads or GPUs to each python function so you can accelerate your python code one function at a time.
+* **Permanent caching of intermediate results to accelerate rapid prototyping** - To accelerate the development of 
+  machine learning pipelines and simulation workflows executorlib provides caching of intermediate results for iterative 
+  development in interactive environments like jupyter notebooks.
 
 ## Example
 The following examples illustrates how `executorlib` can be used to distribute a series of MPI parallel function calls 
