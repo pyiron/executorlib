@@ -26,7 +26,6 @@ except ImportError:
 class FileExecutor(ExecutorBase):
     def __init__(
         self,
-        cache_directory: str = "cache",
         resource_dict: Optional[dict] = None,
         execute_function: callable = execute_with_pysqa,
         terminate_function: Optional[callable] = None,
@@ -38,7 +37,6 @@ class FileExecutor(ExecutorBase):
         Initialize the FileExecutor.
 
         Args:
-            cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
@@ -52,6 +50,7 @@ class FileExecutor(ExecutorBase):
         default_resource_dict = {
             "cores": 1,
             "cwd": None,
+            "cache": "cache",
         }
         if resource_dict is None:
             resource_dict = {}
@@ -60,7 +59,7 @@ class FileExecutor(ExecutorBase):
         )
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
-        cache_directory_path = os.path.abspath(cache_directory)
+        cache_directory_path = os.path.abspath(resource_dict.pop("cache"))
         os.makedirs(cache_directory_path, exist_ok=True)
         self._set_process(
             RaisingThread(
@@ -83,7 +82,6 @@ def create_file_executor(
     max_workers: int = 1,
     backend: str = "pysqa_flux",
     max_cores: int = 1,
-    cache_directory: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
@@ -94,8 +92,6 @@ def create_file_executor(
     init_function: Optional[callable] = None,
     disable_dependencies: bool = False,
 ):
-    if cache_directory is None:
-        cache_directory = "executorlib_cache"
     if block_allocation:
         raise ValueError(
             "The option block_allocation is not available with the pysqa based backend."
@@ -110,7 +106,6 @@ def create_file_executor(
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     return FileExecutor(
-        cache_directory=cache_directory,
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,
         backend=backend.split("pysqa_")[-1],

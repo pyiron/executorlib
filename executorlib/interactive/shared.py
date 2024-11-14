@@ -203,7 +203,6 @@ def execute_parallel_tasks(
     spawner: BaseSpawner = MpiExecSpawner,
     hostname_localhost: Optional[bool] = None,
     init_function: Optional[Callable] = None,
-    cache_directory: Optional[str] = None,
     **kwargs,
 ) -> None:
     """
@@ -221,7 +220,6 @@ def execute_parallel_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (callable): optional function to preset arguments for functions which are submitted later
-       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
@@ -242,7 +240,8 @@ def execute_parallel_tasks(
             future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
-            if cache_directory is None:
+            resource_dict = task_dict.get("resource_dict", {})
+            if "cache" in resource_dict:
                 _execute_task(
                     interface=interface, task_dict=task_dict, future_queue=future_queue
                 )
@@ -251,7 +250,7 @@ def execute_parallel_tasks(
                     interface=interface,
                     task_dict=task_dict,
                     future_queue=future_queue,
-                    cache_directory=cache_directory,
+                    cache_directory=resource_dict["cache"],
                 )
 
 

@@ -150,7 +150,6 @@ def create_executor(
     max_workers: Optional[int] = None,
     backend: str = "local",
     max_cores: Optional[int] = None,
-    cache_directory: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
@@ -173,7 +172,6 @@ def create_executor(
                            recommended, as computers have a limited number of compute cores.
         backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
         max_cores (int): defines the number cores which can be used in parallel
-        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
@@ -202,7 +200,6 @@ def create_executor(
         backend = "flux"
     check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
     cores_per_worker = resource_dict["cores"]
-    resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
     if backend == "flux":
         check_oversubscribe(oversubscribe=resource_dict["openmpi_oversubscribe"])

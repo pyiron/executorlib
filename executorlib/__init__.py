@@ -29,7 +29,6 @@ class Executor:
                            cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
                            recommended, as computers have a limited number of compute cores.
         backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
-        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores_per_worker (int): number of MPI cores to be used for each function call
@@ -85,7 +84,6 @@ class Executor:
         self,
         max_workers: Optional[int] = None,
         backend: str = "local",
-        cache_directory: Optional[str] = None,
         max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         flux_executor=None,
@@ -106,7 +104,6 @@ class Executor:
         cls,
         max_workers: Optional[int] = None,
         backend: str = "local",
-        cache_directory: Optional[str] = None,
         max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         flux_executor=None,
@@ -133,7 +130,6 @@ class Executor:
                                number of cores which can be used in parallel - just like the max_cores parameter. Using
                                max_cores is recommended, as computers have a limited number of compute cores.
             backend (str): Switch between the different backends "flux", "local" or "slurm". The default is "local".
-            cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                                   - cores (int): number of MPI cores to be used for each function call
@@ -186,7 +182,6 @@ class Executor:
                 max_workers=max_workers,
                 backend=backend,
                 max_cores=max_cores,
-                cache_directory=cache_directory,
                 resource_dict=resource_dict,
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
@@ -202,7 +197,6 @@ class Executor:
             return ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
-                cache_directory=cache_directory,
                 max_cores=max_cores,
                 resource_dict=resource_dict,
                 flux_executor=flux_executor,
@@ -221,7 +215,6 @@ class Executor:
             return create_executor(
                 max_workers=max_workers,
                 backend=backend,
-                cache_directory=cache_directory,
                 max_cores=max_cores,
                 resource_dict=resource_dict,
                 flux_executor=flux_executor,
