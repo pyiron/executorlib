@@ -10,11 +10,12 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
   from the Python standard library and combines it with job schedulers for high performance computing (HPC) like [SLURM](https://slurm.schedmd.com) 
   and [flux](https://flux-framework.readthedocs.io). With this combination executorlib allows users to distribute their
   Python functions over multiple compute nodes.
-* **Parallelize your Python program one function at a time** - executorlib allows users to assign dedicated resources 
-  like CPU cores, threads or GPUs to each python function so you can accelerate your python code one function at a time.
+* **Parallelize your Python program one function at a time** - executorlib allows users to assign dedicated computing
+  resources like CPU cores, threads or GPUs to one Python function at a time. So you can accelerate your Python code 
+  function by function.
 * **Permanent caching of intermediate results to accelerate rapid prototyping** - To accelerate the development of 
-  machine learning pipelines and simulation workflows executorlib provides caching of intermediate results for iterative 
-  development in interactive environments like jupyter notebooks.
+  machine learning pipelines and simulation workflows executorlib provides optional caching of intermediate results for 
+  iterative development in interactive environments like jupyter notebooks.
 
 ## Example
 The following examples illustrates how `executorlib` can be used to distribute a series of MPI parallel function calls 
