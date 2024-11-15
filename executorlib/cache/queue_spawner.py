@@ -1,11 +1,11 @@
 import os
 import subprocess
-from typing import List, Optional, Union, Tuple
+from typing import List, Optional, Tuple, Union
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.hdf import dump, get_queue_id
 from executorlib.standalone.inputcheck import check_file_exists
-from executorlib.standalone.hdf import get_queue_id, dump
 
 
 def execute_with_pysqa(
