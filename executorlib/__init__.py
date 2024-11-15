@@ -197,9 +197,7 @@ class Executor:
                 init_function=init_function,
                 disable_dependencies=disable_dependencies,
             )
-        elif not disable_dependencies and (
-            plot_dependency_graph or "_allocation" in backend
-        ):
+        elif not disable_dependencies:
             _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
             return ExecutorWithDependencies(
                 max_workers=max_workers,
