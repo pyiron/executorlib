@@ -614,7 +614,6 @@ def _execute_task_with_cache(
     """
     from executorlib.standalone.hdf import dump, get_output
 
-    future = task_dict["future"]
     task_key, data_dict = serialize_funct_h5(
         fn=task_dict["fn"],
         fn_args=task_dict["args"],
