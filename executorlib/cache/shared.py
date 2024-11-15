@@ -127,6 +127,7 @@ def execute_tasks_h5(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
                         ),
+                        file_name=file_name,
                         task_dependent_lst=task_dependent_lst,
                         resource_dict=task_resource_dict,
                         config_directory=pysqa_config_directory,
