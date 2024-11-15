@@ -18,23 +18,100 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
   iterative development in interactive environments like jupyter notebooks.
 
 ## Example
-The following examples illustrates how `executorlib` can be used to distribute a series of MPI parallel function calls 
-within a queuing system allocation. `example.py`:
+The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
+with the ProcessPoolExecutor and the ThreadPoolExecutor for parallel execution of Python functions on a single computer.
+executorlib extends this functionality to distribute Python functions over multiple computers within a high performance
+computing (HPC) cluster. This can be either achieved by submitting each function as individual job to the HPC job 
+scheduler - [HPC Submission Mode]() - or by requesting a compute allocation of multiple nodes and then distribute the Python 
+functions within this allocation - [HPC Allocation Mode](). Finally, to accelerate the development process executorlib also
+provides a - [Local Mode]() - to use the executorlib functionality on a single workstation for testing. Starting with the 
+local mode:
 ```python
-import flux.job
+from executorlib import Executor
+
+with Executor(backend="local") as exe:
+    future_lst = [exe.submit(sum, [i, i]) for i in range(1, 5)]
+    print([f.result() for f in future_lst])
+```
+In the same way executorlib can also execute Python functions which use the Message Passing Interface (MPI) via the 
+mpi4py Python libary: 
+```python
 from executorlib import Executor
 
 def calc(i):
     from mpi4py import MPI
+
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
 
-with flux.job.FluxExecutor() as flux_exe:
-    with Executor(max_cores=2, executor=flux_exe, resource_dict={"cores": 2}) as exe:
-        fs = exe.submit(calc, 3)
-        print(fs.result())
+with Executor(backend="local") as exe:
+    fs = exe.submit(calc, 3, resource_dict={"cores": 2})
+    print(fs.result())
 ```
+The additional `resource_dict` parameter defines the computing resources allocated to the execution of the submitted 
+Python function. In addition to the compute cores `cores` the resource dictionary can also define the threads per core
+as `threads_per_core`, the GPUs per core as `gpus_per_core`, the working directory with `cwd`, the option to use the
+OpenMPI oversubscribe feature with `openmpi_oversubscribe` and finally for the Simple Linux Utility for Resource 
+Management (SLURM) queuing system the option to provide additional command line arguments with the `slurm_cmd_args` 
+parameter - [resource dictionary]().
+
+The same function can be submitted to the SLURM queuing by just changing the `backend` parameter to `slurm_submission`:
+```python
+from executorlib import Executor
+
+def calc(i):
+    from mpi4py import MPI
+
+    size = MPI.COMM_WORLD.Get_size()
+    rank = MPI.COMM_WORLD.Get_rank()
+    return i, size, rank
+
+with Executor(backend="slurm_submission") as exe:
+    fs = exe.submit(calc, 3, resource_dict={"cores": 2})
+    print(fs.result())
+```
+In this case the Python simple queuing system adapter (pysqa) is used to submit the `calc()` function to the SLURM job
+scheduler and request an allocation with two CPU cores for the execution of the function - [HPC Submission Mode](). In 
+the background the `sbatch` command is used to request the allocation. 
+
+Within a given SLURM allocation executorlib can also be used to assign a subset of the available computing resources to
+execute a given Python function. In terms of the SLURM commands this functionality internally uses the `srun` command. 
+```python
+from executorlib import Executor
+
+def calc(i):
+    from mpi4py import MPI
+
+    size = MPI.COMM_WORLD.Get_size()
+    rank = MPI.COMM_WORLD.Get_rank()
+    return i, size, rank
+
+with Executor(backend="slurm_allocation") as exe:
+    fs = exe.submit(calc, 3, resource_dict={"cores": 2})
+    print(fs.result())
+```
+
+For optimal performance, it is recommended to use `executorlib` in combination with [flux](https://flux-framework.readthedocs.io) 
+as job scheduler backend. flux is available for linux HPC via the conda package manager on the conda-forge community 
+channel. Install flux and executorlib using: 
+```
+conda -c conda-forge install executorlib flux-core 
+```
+After the installation you can start the flux job scheduler with: 
+```
+flux start
+```
+In your Python script or Jupyter notebook you can use executorlib with flux as job scheduler backend:
+```python
+from executorlib import Executor
+
+with Executor(backend="flux") as exe:
+    future_lst = [exe.submit(sum, [i, i]) for i in range(1, 5)]
+    print([f.result() for f in future_lst])
+```
+This setup is primarily designed to distribute Python functions inside a given allocation of a job scheduler. 
+
 This example can be executed using:
 ```
 python example.py
