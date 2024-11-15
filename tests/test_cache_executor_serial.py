@@ -163,7 +163,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None},
+                "resource_dict": {"cores": 1},
                 "terminate_function": terminate_subprocess,
             },
         )
