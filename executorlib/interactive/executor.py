@@ -286,4 +286,6 @@ def create_executor(
                 spawner=MpiExecSpawner,
             )
     else:
-        raise ValueError("The supported backends are slurm_allocation, slurm_submission, flux_allocation, flux_submission and local.")
+        raise ValueError(
+            "The supported backends are slurm_allocation, slurm_submission, flux_allocation, flux_submission and local."
+        )
