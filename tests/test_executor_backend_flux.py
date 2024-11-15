@@ -47,7 +47,7 @@ class TestFluxBackend(unittest.TestCase):
         with Executor(
             max_cores=2,
             flux_executor=self.executor,
-            backend="flux",
+            backend="flux_allocation",
             block_allocation=True,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -62,7 +62,7 @@ class TestFluxBackend(unittest.TestCase):
             max_cores=1,
             resource_dict={"threads_per_core": 2},
             flux_executor=self.executor,
-            backend="flux",
+            backend="flux_allocation",
             block_allocation=True,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -77,7 +77,7 @@ class TestFluxBackend(unittest.TestCase):
             max_cores=2,
             resource_dict={"cores": 2},
             flux_executor=self.executor,
-            backend="flux",
+            backend="flux_allocation",
             block_allocation=True,
             flux_executor_pmi_mode=pmi,
         ) as exe:
@@ -90,7 +90,7 @@ class TestFluxBackend(unittest.TestCase):
             max_cores=2,
             resource_dict={"cores": 2},
             flux_executor=self.executor,
-            backend="flux",
+            backend="flux_allocation",
             block_allocation=True,
             flux_executor_pmi_mode=pmi,
         ) as p:
@@ -106,7 +106,7 @@ class TestFluxBackend(unittest.TestCase):
             resource_dict={"cores": 1},
             init_function=set_global,
             flux_executor=self.executor,
-            backend="flux",
+            backend="flux_allocation",
             block_allocation=True,
         ) as p:
             f = p.submit(get_global)

@@ -179,7 +179,7 @@ class Executor:
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
-        if "pysqa_" in backend and not plot_dependency_graph:
+        if "_submission" in backend and not plot_dependency_graph:
             from executorlib.cache.executor import create_file_executor
 
             return create_file_executor(

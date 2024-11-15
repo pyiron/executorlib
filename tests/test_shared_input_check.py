@@ -66,7 +66,7 @@ class TestInputCheck(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_pmi(backend="test", pmi="test")
         with self.assertRaises(ValueError):
-            check_pmi(backend="flux", pmi="test")
+            check_pmi(backend="flux_allocation", pmi="test")
 
     def test_check_nested_flux_executor(self):
         with self.assertRaises(ValueError):
