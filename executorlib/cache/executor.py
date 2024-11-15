@@ -81,7 +81,7 @@ class FileExecutor(ExecutorBase):
 
 def create_file_executor(
     max_workers: int = 1,
-    backend: str = "pysqa_flux",
+    backend: str = "flux_submission",
     max_cores: int = 1,
     cache_directory: Optional[str] = None,
     resource_dict: Optional[dict] = None,
@@ -113,6 +113,6 @@ def create_file_executor(
         cache_directory=cache_directory,
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,
-        backend=backend.split("pysqa_")[-1],
+        backend=backend.split("_submission")[0],
         disable_dependencies=disable_dependencies,
     )

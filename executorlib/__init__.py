@@ -179,7 +179,7 @@ class Executor:
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
-        if "pysqa_" in backend and not plot_dependency_graph:
+        if "_submission" in backend and not plot_dependency_graph:
             from executorlib.cache.executor import create_file_executor
 
             return create_file_executor(
@@ -197,7 +197,7 @@ class Executor:
                 init_function=init_function,
                 disable_dependencies=disable_dependencies,
             )
-        elif not disable_dependencies:
+        elif not disable_dependencies and (plot_dependency_graph or "_allocation" in backend):
             _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
             return ExecutorWithDependencies(
                 max_workers=max_workers,

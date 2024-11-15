@@ -198,13 +198,13 @@ def create_executor(
         init_function (None): optional function to preset arguments for functions which are submitted later
     """
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    if flux_executor is not None and backend != "flux":
-        backend = "flux"
+    if flux_executor is not None and backend != "flux_allocation":
+        backend = "flux_allocation"
     check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
     cores_per_worker = resource_dict["cores"]
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
-    if backend == "flux":
+    if backend == "flux_allocation":
         check_oversubscribe(oversubscribe=resource_dict["openmpi_oversubscribe"])
         check_command_line_argument_lst(
             command_line_argument_lst=resource_dict["slurm_cmd_args"]
@@ -233,7 +233,7 @@ def create_executor(
                 executor_kwargs=resource_dict,
                 spawner=FluxPythonSpawner,
             )
-    elif backend == "slurm":
+    elif backend == "slurm_allocation":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
         if block_allocation:
@@ -255,7 +255,7 @@ def create_executor(
                 executor_kwargs=resource_dict,
                 spawner=SrunSpawner,
             )
-    else:  # backend="local"
+    elif backend == "local":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
         check_threads_per_core(threads_per_core=resource_dict["threads_per_core"])
@@ -285,3 +285,5 @@ def create_executor(
                 executor_kwargs=resource_dict,
                 spawner=MpiExecSpawner,
             )
+    else:
+        raise ValueError("The supported backends are slurm_allocation, slurm_submission, flux_allocation, flux_submission and local.")
