@@ -1,5 +1,6 @@
 import os
 import subprocess
+import tempfile
 from typing import List, Optional, Tuple, Union
 
 from pysqa import QueueAdapter
@@ -53,6 +54,7 @@ def execute_with_pysqa(
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],
             "working_directory": os.path.abspath(cwd),
+            "submission_script_path": tempfile.NamedTemporaryFile().name,
         }
         if "cwd" in resource_dict:
             del resource_dict["cwd"]
