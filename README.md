@@ -29,6 +29,7 @@ testing. Starting with the local mode:
 ```python
 from executorlib import Executor
 
+
 with Executor(backend="local") as exe:
     future_lst = [exe.submit(sum, [i, i]) for i in range(1, 5)]
     print([f.result() for f in future_lst])
@@ -38,12 +39,14 @@ mpi4py Python libary:
 ```python
 from executorlib import Executor
 
+
 def calc(i):
     from mpi4py import MPI
 
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
+
 
 with Executor(backend="local") as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
@@ -60,12 +63,14 @@ The same function can be submitted to the SLURM queuing by just changing the `ba
 ```python
 from executorlib import Executor
 
+
 def calc(i):
     from mpi4py import MPI
 
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
+
 
 with Executor(backend="slurm_submission") as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
@@ -80,12 +85,14 @@ execute a given Python function. In terms of the SLURM commands this functionali
 ```python
 from executorlib import Executor
 
+
 def calc(i):
     from mpi4py import MPI
 
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
+
 
 with Executor(backend="slurm_allocation") as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
