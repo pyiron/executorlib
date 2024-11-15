@@ -3,7 +3,7 @@ import os
 import shutil
 import unittest
 
-from executorlib.standalone.cache.spawner import execute_in_subprocess
+from executorlib.cache.subprocess_spawner import execute_in_subprocess
 
 
 try:

@@ -3,7 +3,7 @@ from typing import Optional
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.cache.shared import execute_tasks_h5
-from executorlib.standalone.cache.spawner import (
+from executorlib.cache.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
@@ -17,7 +17,7 @@ from executorlib.standalone.inputcheck import (
 from executorlib.standalone.thread import RaisingThread
 
 try:
-    from executorlib.standalone.cache.queue import execute_with_pysqa
+    from executorlib.cache.queue_spawner import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = execute_in_subprocess

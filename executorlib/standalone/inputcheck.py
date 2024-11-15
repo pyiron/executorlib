@@ -1,4 +1,5 @@
 import inspect
+import os.path
 import multiprocessing
 from concurrent.futures import Executor
 from typing import Callable, List, Optional
@@ -188,3 +189,10 @@ def validate_number_of_cores(
     elif max_cores is not None and max_workers is None:
         max_workers = int(max_cores / cores_per_worker)
     return max_workers
+
+
+def check_file_exists(file_name: str):
+    if file_name is None:
+        raise ValueError("file_name is not set.")
+    if not os.path.exists(file_name):
+        raise ValueError("file_name is not written to the file system.")

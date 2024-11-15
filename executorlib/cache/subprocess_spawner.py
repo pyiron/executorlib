@@ -1,11 +1,15 @@
+import os.path
 import subprocess
 import time
 from typing import Optional
+
+from executorlib.standalone.inputcheck import check_file_exists
 
 
 def execute_in_subprocess(
     command: list,
     task_dependent_lst: list = [],
+    file_name: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -17,6 +21,7 @@ def execute_in_subprocess(
     Args:
         command (list): The command to be executed.
         task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
+        file_name (str): Name of the HDF5 file which contains the Python function
         resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.
                               Example resource dictionary: {
                                   cwd: None,
@@ -29,6 +34,7 @@ def execute_in_subprocess(
         subprocess.Popen: The subprocess object.
 
     """
+    check_file_exists(file_name=file_name)
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
             task for task in task_dependent_lst if task.poll() is None
