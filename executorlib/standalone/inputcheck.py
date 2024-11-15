@@ -117,9 +117,9 @@ def check_pmi(backend: str, pmi: Optional[str]) -> None:
     """
     Check if pmi is valid for the selected backend and raise a ValueError if it is not.
     """
-    if backend != "flux" and pmi is not None:
+    if backend != "flux_allocation" and pmi is not None:
         raise ValueError("The pmi parameter is currently only implemented for flux.")
-    elif backend == "flux" and pmi not in ["pmix", "pmi1", "pmi2", None]:
+    elif backend == "flux_allocation" and pmi not in ["pmix", "pmi1", "pmi2", None]:
         raise ValueError(
             "The pmi parameter supports [pmix, pmi1, pmi2], but not: " + pmi
         )

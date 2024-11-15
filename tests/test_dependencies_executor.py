@@ -73,6 +73,10 @@ class TestExecutorWithDependencies(unittest.TestCase):
             self.assertEqual(len(nodes), 5)
             self.assertEqual(len(edges), 4)
 
+    def test_create_executor_error(self):
+        with self.assertRaises(ValueError):
+            create_executor(backend="toast", resource_dict={"cores": 1})
+
     def test_dependency_steps(self):
         cloudpickle_register(ind=1)
         fs1 = Future()
