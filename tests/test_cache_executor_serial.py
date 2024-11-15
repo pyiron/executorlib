@@ -176,7 +176,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_execute_in_subprocess_errors(self):
         with self.assertRaises(ValueError):
-            execute_in_subprocess(file_name=__file__, command=[], config_directory="test")
+            execute_in_subprocess(
+                file_name=__file__, command=[], config_directory="test"
+            )
         with self.assertRaises(ValueError):
             execute_in_subprocess(file_name=__file__, command=[], backend="flux")
 
