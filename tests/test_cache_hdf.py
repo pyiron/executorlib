@@ -60,7 +60,12 @@ class TestSharedFunctions(unittest.TestCase):
         b = 2
         dump(
             file_name=file_name,
-            data_dict={"fn": my_funct, "args": (), "kwargs": {"a": a, "b": b}, "queue_id": 123},
+            data_dict={
+                "fn": my_funct,
+                "args": (),
+                "kwargs": {"a": a, "b": b},
+                "queue_id": 123,
+            },
         )
         data_dict = load(file_name=file_name)
         self.assertTrue("fn" in data_dict.keys())
