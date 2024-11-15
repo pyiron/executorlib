@@ -11,7 +11,7 @@ from executorlib.cache.subprocess_spawner import (
 from executorlib.standalone.thread import RaisingThread
 
 try:
-    from executorlib.cache.executor import FileExecutor
+    from executorlib.cache.executor import FileExecutor, create_file_executor
     from executorlib.cache.shared import execute_tasks_h5
 
     skip_h5py_test = False
@@ -45,6 +45,12 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertFalse(fs2.done())
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
+
+    def test_create_file_executor_error(self):
+        with self.assertRaises(ValueError):
+            create_file_executor(block_allocation=True)
+        with self.assertRaises(ValueError):
+            create_file_executor(init_function=True)
 
     def test_executor_dependence_error(self):
         with self.assertRaises(ValueError):
