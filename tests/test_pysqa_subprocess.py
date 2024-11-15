@@ -1,7 +1,7 @@
 import unittest
 
 try:
-    from executorlib.standalone.cache.queue import _pysqa_execute_command
+    from executorlib.cache.queue_spawner import _pysqa_execute_command
 
     skip_pysqa_test = False
 except ImportError:

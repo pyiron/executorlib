@@ -4,14 +4,14 @@ from queue import Queue
 import shutil
 import unittest
 
-from executorlib.standalone.cache.spawner import (
+from executorlib.cache.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
 from executorlib.standalone.thread import RaisingThread
 
 try:
-    from executorlib.cache.executor import FileExecutor
+    from executorlib.cache.executor import FileExecutor, create_file_executor
     from executorlib.cache.shared import execute_tasks_h5
 
     skip_h5py_test = False
@@ -45,6 +45,12 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertFalse(fs2.done())
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
+
+    def test_create_file_executor_error(self):
+        with self.assertRaises(ValueError):
+            create_file_executor(block_allocation=True)
+        with self.assertRaises(ValueError):
+            create_file_executor(init_function=True)
 
     def test_executor_dependence_error(self):
         with self.assertRaises(ValueError):
@@ -163,7 +169,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "future_queue": q,
                 "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None},
+                "resource_dict": {"cores": 1},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -176,9 +182,11 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_execute_in_subprocess_errors(self):
         with self.assertRaises(ValueError):
-            execute_in_subprocess(command=[], config_directory="test")
+            execute_in_subprocess(
+                file_name=__file__, command=[], config_directory="test"
+            )
         with self.assertRaises(ValueError):
-            execute_in_subprocess(command=[], backend="flux")
+            execute_in_subprocess(file_name=__file__, command=[], backend="flux")
 
     def tearDown(self):
         if os.path.exists("cache"):

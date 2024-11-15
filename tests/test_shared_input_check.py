@@ -17,6 +17,7 @@ from executorlib.standalone.inputcheck import (
     check_max_workers_and_cores,
     check_hostname_localhost,
     check_pysqa_config_directory,
+    check_file_exists,
     validate_number_of_cores,
 )
 
@@ -96,6 +97,12 @@ class TestInputCheck(unittest.TestCase):
     def test_check_pysqa_config_directory(self):
         with self.assertRaises(ValueError):
             check_pysqa_config_directory(pysqa_config_directory="path/to/config")
+
+    def test_check_file_exists(self):
+        with self.assertRaises(ValueError):
+            check_file_exists(file_name=None)
+        with self.assertRaises(ValueError):
+            check_file_exists(file_name="/path/does/not/exist")
 
     def test_validate_number_of_cores(self):
         with self.assertRaises(ValueError):
