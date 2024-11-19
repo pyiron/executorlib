@@ -161,6 +161,52 @@ startup process of flux using:
 srun –mpi=pmi2 flux start python <script.py>
 ```
 
+### Flux with Jupyter 
+To options are available to use flux inside the jupyter notebook or jupyter lab environment. The first option is to
+start the flux session and then start the jupyter notebook inside the flux session. This just requires a single call on 
+the command line:
+```
+flux start jupyter notebook
+```
+The second option is to create a separate Jupyter kernel for flux. This option requires multiple steps of configuration, 
+still it has the advantage that it is also compatible with the multi-user jupyterhub environment. Start by identifying 
+the directory Jupyter searches for Jupyter kernels: 
+```
+jupyter --paths
+```
+This returns a list of directories commonly `~/.local/share/jupyter` is one of those. It is recommended to create the
+flux kernel in this directory. Start by creating the corresponding directory:
+```
+mkdir -p ~/.local/share/jupyter/kernels/flux
+```
+In the directory a JSON file is created which contains the configuration of the Jupyter Kernel. You can use an editor of
+your choice, here we use vi to create the `kernel.json` file:
+```
+vi ~/.local/share/jupyter/kernels/flux/kernel.json
+```
+Inside the file copy the following content. The first entry under the name `argv` provides the command to start the 
+jupyter kernel. Typically this would be just calling python with the parameters to launch an ipykernel. In front of this
+command the `flux start` command is added. 
+```
+{
+  "argv": [
+    "flux",
+    "start",
+    "/srv/conda/envs/notebook/bin/python",
+    "-m",
+    "ipykernel_launcher",
+    "-f",
+    "{connection_file}"
+  ],
+  "display_name": "Flux",
+  "language": "python",
+  "metadata": {
+    "debugger": true
+  }
+}
+```
+More details for the configuration of Jupyter kernels is available as part of the [Jupyter documentation](https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs).
+
 ## Visualisation
 The visualisation of the dependency graph with the `plot_dependency_graph` parameter requires [pygraphviz](https://pygraphviz.github.io/documentation/stable/). 
 This can installed via the [Python package manager](https://pypi.org/project/pygraphviz/):
