@@ -8,8 +8,8 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
 ## Key Features
 * **Up-scale your Python functions beyond a single computer.** - executorlib extends the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
   from the Python standard library and combines it with job schedulers for high performance computing (HPC) like [SLURM](https://slurm.schedmd.com) 
-  and [flux](https://flux-framework.readthedocs.io). With this combination executorlib allows users to distribute their
-  Python functions over multiple compute nodes.
+  and [flux](http://flux-framework.org). With this combination executorlib allows users to distribute their Python 
+  functions over multiple compute nodes.
 * **Parallelize your Python program one function at a time** - executorlib allows users to assign dedicated computing
   resources like CPU cores, threads or GPUs to one Python function at a time. So you can accelerate your Python code 
   function by function.
@@ -19,13 +19,15 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
 
 ## Examples
 The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
-with the `ProcessPoolExecutor` and the `ThreadPoolExecutor` for parallel execution of Python functions on a single 
-computer. executorlib extends this functionality to distribute Python functions over multiple computers within a high 
-performance computing (HPC) cluster. This can be either achieved by submitting each function as individual job to the 
-HPC job scheduler - [HPC Submission Mode]() - or by requesting a compute allocation of multiple nodes and then 
-distribute the Python functions within this allocation - [HPC Allocation Mode](). Finally, to accelerate the development
-process executorlib also provides a - [Local Mode]() - to use the executorlib functionality on a single workstation for
-testing. Starting with the local mode:
+with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor) and the 
+[ThreadPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor) for parallel 
+execution of Python functions on a single computer. executorlib extends this functionality to distribute Python 
+functions over multiple computers within a high performance computing (HPC) cluster. This can be either achieved by 
+submitting each function as individual job to the HPC job scheduler - [HPC Submission Mode]() - or by requesting a 
+compute allocation of multiple nodes and then distribute the Python functions within this allocation - [HPC Allocation Mode](). 
+Finally, to accelerate the development process executorlib also provides a - [Local Mode]() - to use the executorlib 
+functionality on a single workstation for testing. Starting with the [Local Mode]() set by setting the backend parameter
+to local - `backend="local"`:
 ```python
 from executorlib import Executor
 
@@ -34,8 +36,9 @@ with Executor(backend="local") as exe:
     future_lst = [exe.submit(sum, [i, i]) for i in range(1, 5)]
     print([f.result() for f in future_lst])
 ```
-In the same way executorlib can also execute Python functions which use the Message Passing Interface (MPI) via the 
-mpi4py Python libary: 
+In the same way executorlib can also execute Python functions which use additional computing resources, like multiple 
+CPU cores, CPU threads or GPUs. For example if the Python function internally uses tthe Message Passing Interface (MPI) 
+via the [mpi4py](https://mpi4py.readthedocs.io) Python libary: 
 ```python
 from executorlib import Executor
 
@@ -59,7 +62,13 @@ OpenMPI oversubscribe feature with `openmpi_oversubscribe` and finally for the S
 Management (SLURM) queuing system the option to provide additional command line arguments with the `slurm_cmd_args` 
 parameter - [resource dictionary]().
 
-The same function can be submitted to the SLURM queuing by just changing the `backend` parameter to `slurm_submission`:
+This flexibility to assign computing resources on a per-function-call basis simplifies the up-scaling of Python programs.
+Only the part of the Python functions which benefit from parallel execution are implemented as MPI parallel Python 
+funtions, while the rest of the program remains serial. 
+
+The same function can be submitted to the [SLURM](https://slurm.schedmd.com) queuing by just changing the `backend` 
+parameter to `slurm_submission`. The rest of the example remains the same, which highlights how executorlib accelerates
+the rapid prototyping and up-scaling of HPC Python programs. 
 ```python
 from executorlib import Executor
 
@@ -76,12 +85,15 @@ with Executor(backend="slurm_submission") as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
     print(fs.result())
 ```
-In this case the Python simple queuing system adapter (pysqa) is used to submit the `calc()` function to the SLURM job
-scheduler and request an allocation with two CPU cores for the execution of the function - [HPC Submission Mode](). 
-In the background the `sbatch` command is used to request the allocation. 
+In this case the [Python simple queuing system adapter (pysqa)](https://pysqa.readthedocs.io) is used to submit the 
+`calc()` function to the [SLURM](https://slurm.schedmd.com) job scheduler and request an allocation with two CPU cores 
+for the execution of the function - [HPC Submission Mode](). In the background the [sbatch](https://slurm.schedmd.com/sbatch.html) 
+command is used to request the allocation to execute the Python function. 
 
-Within a given SLURM allocation executorlib can also be used to assign a subset of the available computing resources to
-execute a given Python function. In terms of the SLURM commands this functionality internally uses the `srun` command. 
+Within a given [SLURM](https://slurm.schedmd.com) allocation executorlib can also be used to assign a subset of the 
+available computing resources to execute a given Python function. In terms of the [SLURM](https://slurm.schedmd.com) 
+commands, this functionality internally uses the [srun](https://slurm.schedmd.com/srun.html) command to receive a subset
+of the resources of a given queuing system allocation. 
 ```python
 from executorlib import Executor
 
@@ -98,9 +110,13 @@ with Executor(backend="slurm_allocation") as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
     print(fs.result())
 ```
-In addition, to support for SLURM executorlib also provides support the hierarchical [flux](https://flux-framework.readthedocs.io) 
-job scheduler. Flux is the recommended job scheduler for assigning resources in a given queuing system allocation, even
-when SLURM is used as primary job scheduler - [SLURM with flux]().
+In addition, to support for [SLURM](https://slurm.schedmd.com) executorlib also provides support for the hierarchical 
+[flux](http://flux-framework.org) job scheduler. The [flux](http://flux-framework.org) job scheduler is developed at 
+[Larwence Livermore National Laboratory](https://computing.llnl.gov/projects/flux-building-framework-resource-management)
+to address the needs for the up-coming generation of Exascale computers. Still even on traditional HPC clusters the 
+hierarchical approach of the [flux](http://flux-framework.org) is beneficial to distribute hundreds of tasks within a
+given allocation. Even when [SLURM](https://slurm.schedmd.com) is used as primary job scheduler of your HPC, it is 
+recommended to use [SLURM with flux]() as hierarchical job scheduler within the allocations. 
 
 ## Documentation
 * [Installation](https://executorlib.readthedocs.io/en/latest/installation.html)
