@@ -172,6 +172,14 @@ Or alternatively using the [conda package manager](https://anaconda.org/conda-fo
 conda install -c conda-forge executorlib pygraphviz matplotlib networkx ipython
 ```
 Again given the C++ bindings of [pygraphviz](https://pygraphviz.github.io/documentation/stable/) to the graphviz library
-it is recommended to install a binary distribution. The pygraphviz documentation covers the [installation of pysqa](https://pygraphviz.github.io/documentation/stable/install.html) 
+it is recommended to install a binary distribution. The pygraphviz documentation covers the [installation of pygraphviz](https://pygraphviz.github.io/documentation/stable/install.html) 
 in more detail. Furthermore, [matplotlib](https://matplotlib.org), [networkx](https://networkx.org) and [ipython](https://ipython.readthedocs.io) 
 are installed as additional requirements for the visualisation.
+
+## For Developers
+To install a specific development branch of executorlib you use the [Python package manager](https://pypi.org/project/executorlib/)
+and directly install from the Github repository executorlib is hosted on:
+```
+pip install git+https://github.com/pyiron/executorlib.git@main
+```
+In this example the `main` branch is selected. To select a different branch just replace `main` with your target branch.
