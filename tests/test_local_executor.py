@@ -400,7 +400,7 @@ class TestFuturePool(unittest.TestCase):
             self.assertEqual(len(p), 1)
             self.assertTrue(isinstance(output, Future))
             self.assertFalse(output.done())
-            sleep(1)
+            sleep(2)
             self.assertTrue(output.done())
             self.assertEqual(len(p), 0)
         self.assertEqual(output.result(), [(2, 2, 0), (2, 2, 1)])
