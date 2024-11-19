@@ -7,12 +7,12 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
 
 ## Key Features
 * **Up-scale your Python functions beyond a single computer.** - executorlib extends the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
-  from the Python standard library and combines it with job schedulers for high performance computing (HPC) like [SLURM](https://slurm.schedmd.com) 
-  and [flux](http://flux-framework.org). With this combination executorlib allows users to distribute their Python 
-  functions over multiple compute nodes.
+  from the Python standard library and combines it with job schedulers for high performance computing (HPC) including 
+  the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) and [flux](http://flux-framework.org). 
+  With this combination executorlib allows users to distribute their Python functions over multiple compute nodes.
 * **Parallelize your Python program one function at a time** - executorlib allows users to assign dedicated computing
-  resources like CPU cores, threads or GPUs to one Python function at a time. So you can accelerate your Python code 
-  function by function.
+  resources like CPU cores, threads or GPUs to one Python function call at a time. So you can accelerate your Python 
+  code function by function.
 * **Permanent caching of intermediate results to accelerate rapid prototyping** - To accelerate the development of 
   machine learning pipelines and simulation workflows executorlib provides optional caching of intermediate results for 
   iterative development in interactive environments like jupyter notebooks.
@@ -37,7 +37,7 @@ with Executor(backend="local") as exe:
     print([f.result() for f in future_lst])
 ```
 In the same way executorlib can also execute Python functions which use additional computing resources, like multiple 
-CPU cores, CPU threads or GPUs. For example if the Python function internally uses tthe Message Passing Interface (MPI) 
+CPU cores, CPU threads or GPUs. For example if the Python function internally uses the Message Passing Interface (MPI) 
 via the [mpi4py](https://mpi4py.readthedocs.io) Python libary: 
 ```python
 from executorlib import Executor
@@ -56,11 +56,11 @@ with Executor(backend="local") as exe:
     print(fs.result())
 ```
 The additional `resource_dict` parameter defines the computing resources allocated to the execution of the submitted 
-Python function. In addition to the compute cores `cores` the resource dictionary can also define the threads per core
+Python function. In addition to the compute cores `cores`, the resource dictionary can also define the threads per core
 as `threads_per_core`, the GPUs per core as `gpus_per_core`, the working directory with `cwd`, the option to use the
-OpenMPI oversubscribe feature with `openmpi_oversubscribe` and finally for the Simple Linux Utility for Resource 
-Management (SLURM) queuing system the option to provide additional command line arguments with the `slurm_cmd_args` 
-parameter - [resource dictionary]().
+OpenMPI oversubscribe feature with `openmpi_oversubscribe` and finally for the [Simple Linux Utility for Resource 
+Management (SLURM)](https://slurm.schedmd.com) queuing system the option to provide additional command line arguments 
+with the `slurm_cmd_args` parameter - [resource dictionary]().
 
 This flexibility to assign computing resources on a per-function-call basis simplifies the up-scaling of Python programs.
 Only the part of the Python functions which benefit from parallel execution are implemented as MPI parallel Python 
