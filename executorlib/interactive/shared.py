@@ -556,6 +556,8 @@ def _submit_function_to_separate_process(
     active_task_dict[task_dict["future"]] = slots_required
     task_kwargs = executor_kwargs.copy()
     task_kwargs.update(resource_dict)
+    if "threads_per_core" in task_kwargs:
+        del task_kwargs["threads_per_core"]
     task_kwargs.update(
         {
             "future_queue": qtask,
