@@ -172,12 +172,12 @@ The second option is to create a separate Jupyter kernel for flux. This option r
 still it has the advantage that it is also compatible with the multi-user jupyterhub environment. Start by identifying 
 the directory Jupyter searches for Jupyter kernels: 
 ```
-jupyter --paths
+jupyter kernelspec list
 ```
-This returns a list of directories commonly `~/.local/share/jupyter` is one of those. It is recommended to create the
-flux kernel in this directory. Start by creating the corresponding directory:
+This returns a list of jupyter kernels, commonly stored in `~/.local/share/jupyter`. It is recommended to create the
+flux kernel in this directory. Start by creating the corresponding directory by copying one of the existing kernels:
 ```
-mkdir -p ~/.local/share/jupyter/kernels/flux
+cp -r ~/.local/share/jupyter/kernels/python3 ~/.local/share/jupyter/kernels/flux
 ```
 In the directory a JSON file is created which contains the configuration of the Jupyter Kernel. You can use an editor of
 your choice, here we use vi to create the `kernel.json` file:
