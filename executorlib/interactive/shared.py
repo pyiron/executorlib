@@ -546,13 +546,14 @@ def _submit_function_to_separate_process(
         resource_dict["cores"] == 1 and executor_kwargs["cores"] >= 1
     ):
         resource_dict["cores"] = executor_kwargs["cores"]
+    slots_required = resource_dict["cores"] * resource_dict.get("threads_per_core", 1)
     active_task_dict = _wait_for_free_slots(
         active_task_dict=active_task_dict,
-        cores_requested=resource_dict["cores"],
+        cores_requested=slots_required,
         max_cores=max_cores,
         max_workers=max_workers,
     )
-    active_task_dict[task_dict["future"]] = resource_dict["cores"]
+    active_task_dict[task_dict["future"]] = slots_required
     task_kwargs = executor_kwargs.copy()
     task_kwargs.update(resource_dict)
     task_kwargs.update(

@@ -39,19 +39,6 @@ def check_gpus_per_worker(gpus_per_worker: int) -> None:
         )
 
 
-def check_threads_per_core(threads_per_core: int) -> None:
-    """
-    Check if threads_per_core is not 1 and raise a TypeError if it is.
-    """
-    if threads_per_core != 1:
-        raise TypeError(
-            "Thread based parallelism is not supported for the executorlib.mpi.PyMPIExecutor backend."
-            "Please use threads_per_core=1 instead of threads_per_core="
-            + str(threads_per_core)
-            + "."
-        )
-
-
 def check_executor(executor: Executor) -> None:
     """
     Check if executor is not None and raise a ValueError if it is.

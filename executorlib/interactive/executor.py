@@ -15,7 +15,6 @@ from executorlib.standalone.inputcheck import (
     check_nested_flux_executor,
     check_oversubscribe,
     check_pmi,
-    check_threads_per_core,
     validate_number_of_cores,
 )
 from executorlib.standalone.interactive.spawner import (
@@ -258,7 +257,6 @@ def create_executor(
     elif backend == "local":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
-        check_threads_per_core(threads_per_core=resource_dict["threads_per_core"])
         check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
         check_command_line_argument_lst(
             command_line_argument_lst=resource_dict["slurm_cmd_args"]
