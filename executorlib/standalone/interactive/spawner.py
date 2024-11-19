@@ -57,6 +57,7 @@ class SubprocessSpawner(BaseSpawner):
         cwd: Optional[str] = None,
         cores: int = 1,
         openmpi_oversubscribe: bool = False,
+        threads_per_core: int = 1,
     ):
         """
         Subprocess interface implementation.
@@ -64,6 +65,7 @@ class SubprocessSpawner(BaseSpawner):
         Args:
             cwd (str, optional): The current working directory. Defaults to None.
             cores (int, optional): The number of cores to use. Defaults to 1.
+            threads_per_core (int, optional): The number of threads per core. Defaults to 1.
             oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         """
         super().__init__(
@@ -72,6 +74,7 @@ class SubprocessSpawner(BaseSpawner):
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._process = None
+        self._threads_per_core = threads_per_core
 
     def bootup(
         self,
@@ -169,8 +172,8 @@ class SrunSpawner(SubprocessSpawner):
             cwd=cwd,
             cores=cores,
             openmpi_oversubscribe=openmpi_oversubscribe,
+            threads_per_core=threads_per_core,
         )
-        self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
         self._slurm_cmd_args = slurm_cmd_args
 

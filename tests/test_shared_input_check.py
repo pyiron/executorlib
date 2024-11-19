@@ -3,7 +3,6 @@ import unittest
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_gpus_per_worker,
-    check_threads_per_core,
     check_oversubscribe,
     check_executor,
     check_init_function,
@@ -30,10 +29,6 @@ class TestInputCheck(unittest.TestCase):
     def test_check_gpus_per_worker(self):
         with self.assertRaises(TypeError):
             check_gpus_per_worker(gpus_per_worker=1)
-
-    def test_check_threads_per_core(self):
-        with self.assertRaises(TypeError):
-            check_threads_per_core(threads_per_core=2)
 
     def test_check_oversubscribe(self):
         with self.assertRaises(ValueError):
