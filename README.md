@@ -23,11 +23,12 @@ with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futu
 [ThreadPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor) for parallel 
 execution of Python functions on a single computer. executorlib extends this functionality to distribute Python 
 functions over multiple computers within a high performance computing (HPC) cluster. This can be either achieved by 
-submitting each function as individual job to the HPC job scheduler - [HPC Submission Mode]() - or by requesting a 
-compute allocation of multiple nodes and then distribute the Python functions within this allocation - [HPC Allocation Mode](). 
-Finally, to accelerate the development process executorlib also provides a - [Local Mode]() - to use the executorlib 
-functionality on a single workstation for testing. Starting with the [Local Mode]() set by setting the backend parameter
-to local - `backend="local"`:
+submitting each function as individual job to the HPC job scheduler - [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html) - 
+or by requesting a compute allocation of multiple nodes and then distribute the Python functions within this - allocation -
+[HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html). Finally, to accelerate the 
+development process executorlib also provides a - [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html) - 
+to use the executorlib functionality on a single workstation for testing. Starting with the [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html) 
+set by setting the backend parameter to local - `backend="local"`:
 ```python
 from executorlib import Executor
 
@@ -60,8 +61,7 @@ Python function. In addition to the compute cores `cores`, the resource dictiona
 as `threads_per_core`, the GPUs per core as `gpus_per_core`, the working directory with `cwd`, the option to use the
 OpenMPI oversubscribe feature with `openmpi_oversubscribe` and finally for the [Simple Linux Utility for Resource 
 Management (SLURM)](https://slurm.schedmd.com) queuing system the option to provide additional command line arguments 
-with the `slurm_cmd_args` parameter - [resource dictionary]().
-
+with the `slurm_cmd_args` parameter - [resource dictionary](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#resource-dictionary
 This flexibility to assign computing resources on a per-function-call basis simplifies the up-scaling of Python programs.
 Only the part of the Python functions which benefit from parallel execution are implemented as MPI parallel Python 
 funtions, while the rest of the program remains serial. 
@@ -87,7 +87,7 @@ with Executor(backend="slurm_submission") as exe:
 ```
 In this case the [Python simple queuing system adapter (pysqa)](https://pysqa.readthedocs.io) is used to submit the 
 `calc()` function to the [SLURM](https://slurm.schedmd.com) job scheduler and request an allocation with two CPU cores 
-for the execution of the function - [HPC Submission Mode](). In the background the [sbatch](https://slurm.schedmd.com/sbatch.html) 
+for the execution of the function - [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html). In the background the [sbatch](https://slurm.schedmd.com/sbatch.html) 
 command is used to request the allocation to execute the Python function. 
 
 Within a given [SLURM](https://slurm.schedmd.com) allocation executorlib can also be used to assign a subset of the 
@@ -116,23 +116,39 @@ In addition, to support for [SLURM](https://slurm.schedmd.com) executorlib also 
 to address the needs for the up-coming generation of Exascale computers. Still even on traditional HPC clusters the 
 hierarchical approach of the [flux](http://flux-framework.org) is beneficial to distribute hundreds of tasks within a
 given allocation. Even when [SLURM](https://slurm.schedmd.com) is used as primary job scheduler of your HPC, it is 
-recommended to use [SLURM with flux]() as hierarchical job scheduler within the allocations. 
+recommended to use [SLURM with flux](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#slurm-with-flux) 
+as hierarchical job scheduler within the allocations. 
 
 ## Documentation
 * [Installation](https://executorlib.readthedocs.io/en/latest/installation.html)
-  * [Compatible Job Schedulers](https://executorlib.readthedocs.io/en/latest/installation.html#compatible-job-schedulers)
-  * [executorlib with Flux Framework](https://executorlib.readthedocs.io/en/latest/installation.html#executorlib-with-flux-framework)
-  * [Test Flux Framework](https://executorlib.readthedocs.io/en/latest/installation.html#test-flux-framework)
-  * [Without Flux Framework](https://executorlib.readthedocs.io/en/latest/installation.html#without-flux-framework)
-* [Examples](https://executorlib.readthedocs.io/en/latest/examples.html)
-  * [Compatibility](https://executorlib.readthedocs.io/en/latest/examples.html#compatibility)
-  * [Resource Assignment](https://executorlib.readthedocs.io/en/latest/examples.html#resource-assignment)
-  * [Data Handling](https://executorlib.readthedocs.io/en/latest/examples.html#data-handling)
-  * [Up-Scaling](https://executorlib.readthedocs.io/en/latest/examples.html#up-scaling)
-  * [Coupled Functions](https://executorlib.readthedocs.io/en/latest/examples.html#coupled-functions)
-  * [SLURM Job Scheduler](https://executorlib.readthedocs.io/en/latest/examples.html#slurm-job-scheduler) 
-  * [Workstation Support](https://executorlib.readthedocs.io/en/latest/examples.html#workstation-support)
-* [Development](https://executorlib.readthedocs.io/en/latest/development.html)
-  * [Contributions](https://executorlib.readthedocs.io/en/latest/development.html#contributions)
-  * [License](https://executorlib.readthedocs.io/en/latest/development.html#license)
-  * [Integration](https://executorlib.readthedocs.io/en/latest/development.html#integration)
+  * [Minimal](https://executorlib.readthedocs.io/en/latest/installation.html#minimal)
+  * [MPI Support](https://executorlib.readthedocs.io/en/latest/installation.html#mpi-support)
+  * [Caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching)
+  * [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-submission-mode)
+  * [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-allocation-mode)
+  * [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation)
+  * [For Developers](https://executorlib.readthedocs.io/en/latest/installation.html#for-developers)
+* [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html)
+  * [Basic Functionality](https://executorlib.readthedocs.io/en/latest/1-local.html#basic-functionality)
+  * [Parallel Functions](https://executorlib.readthedocs.io/en/latest/1-local.html#parallel-functions)
+  * [Performance Optimization](https://executorlib.readthedocs.io/en/latest/1-local.html#performance-optimization)
+* [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html)
+  * [SLURM](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html#slurm)
+  * [Flux](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html#flux)
+* [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html)
+  * [SLURM](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#slurm)
+  * [SLURM with Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#slurm-with-flux)
+  * [Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#flux)
+* [Trouble Shooting](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html)
+  * [Filesystem Usage](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#filesystem-usage)
+  * [Firewall Issues](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#firewall-issues)
+  * [Message Passing Interface](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#message-passing-interface)
+  * [Python Version](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#python-version)
+  * [Resource Dictionary](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#resource-dictionary)
+  * [SSH Connection](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#ssh-connection)
+* [Developer](https://executorlib.readthedocs.io/en/latest/4-developer.html)
+  * [Communication](https://executorlib.readthedocs.io/en/latest/4-developer.html#communication)
+  * [External Executables](https://executorlib.readthedocs.io/en/latest/4-developer.html#external-executables)
+  * [License](https://executorlib.readthedocs.io/en/latest/4-developer.html#license)
+  * [Modules](https://executorlib.readthedocs.io/en/latest/4-developer.html#modules)
+* [Interface](https://executorlib.readthedocs.io/en/latest/api.html)
