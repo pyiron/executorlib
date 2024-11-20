@@ -16,13 +16,13 @@ local mode on computers with strict firewall rules.
 
 ## Message Passing Interface
 To use the message passing interface (MPI) executorlib requires [mpi4py](https://mpi4py.readthedocs.io/) as optional 
-dependency. The installation of this and other optional dependencies is covered in the [installation section]().
+dependency. The installation of this and other optional dependencies is covered in the [installation section](https://executorlib.readthedocs.io/en/latest/installation.html#mpi-support).
 
 ## Missing Dependencies
 The default installation of executorlib only comes with a limited number of dependencies, especially the [zero message queue](https://zeromq.org)
-and [cloudpickle](https://github.com/cloudpipe/cloudpickle). Additional features like [caching](), [HPC submission mode]() 
-and [HPC allocation mode]() require additional dependencies. The dependencies are explained in more detail in the 
-[installation section]().
+and [cloudpickle](https://github.com/cloudpipe/cloudpickle). Additional features like [caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching), [HPC submission mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-submission-mode) 
+and [HPC allocation mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-allocation-mode) require additional dependencies. The dependencies are explained in more detail in the 
+[installation section](https://executorlib.readthedocs.io/en/latest/installation.html#).
 
 ## Python Version 
 Executorlib supports all current Python version ranging from 3.9 to 3.13. Still some of the dependencies and especially 
@@ -38,9 +38,9 @@ The resource dictionary parameter `resource_dict` can contain one or more of the
 * `openmpi_oversubscribe` (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
 * `slurm_cmd_args` (list): Additional command line arguments for the srun call (SLURM only)
 
-For the special case of the [HPC allocation mode]() the resource dictionary parameter `resource_dict` can also include 
-additional parameters define in the submission script of the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io)
-these include but are not limited to: 
+For the special case of the [HPC allocation mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html) 
+the resource dictionary parameter `resource_dict` can also include additional parameters define in the submission script
+of the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) these include but are not limited to: 
 * `run_time_max` (int): the maximum time the execution of the submitted Python function is allowed to take in seconds.
 * `memory_max` (int): the maximum amount of memory the Python function is allowed to use in Gigabytes. 
 * `partition` (str): the partition of the queuing system the Python function is submitted to. 
