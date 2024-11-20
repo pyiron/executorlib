@@ -39,7 +39,7 @@ def load(file_name: str) -> dict:
     Returns:
         dict: dictionary containing the python function to be executed {"fn": ..., "args": (), "kwargs": {}}
     """
-    with h5py.File(file_name, "r") as hdf:
+    with h5py.File(file_name, "r", swmr=True) as hdf:
         data_dict = {}
         if "function" in hdf:
             data_dict["fn"] = cloudpickle.loads(np.void(hdf["/function"]))
@@ -66,7 +66,7 @@ def get_output(file_name: str) -> Tuple[bool, object]:
     Returns:
         Tuple[bool, object]: boolean flag indicating if output is available and the output object itself
     """
-    with h5py.File(file_name, "r") as hdf:
+    with h5py.File(file_name, "r", swmr=True) as hdf:
         if "output" in hdf:
             return True, cloudpickle.loads(np.void(hdf["/output"]))
         else:
@@ -74,7 +74,7 @@ def get_output(file_name: str) -> Tuple[bool, object]:
 
 
 def get_queue_id(file_name: str) -> Optional[int]:
-    with h5py.File(file_name, "r") as hdf:
+    with h5py.File(file_name, "r", swmr=True) as hdf:
         if "queue_id" in hdf:
             return cloudpickle.loads(np.void(hdf["/queue_id"]))
         else:
