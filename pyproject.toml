@@ -36,15 +36,27 @@ Documentation = "https://executorlib.readthedocs.io"
 Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
-mpi = ["mpi4py==4.0.1"]
-hdf = ["h5py==3.12.1"]
+cache = ["h5py==3.12.1"]
 graph = [
     "pygraphviz==1.14",
     "matplotlib==3.9.2",
     "networkx==3.4.2",
     "ipython==8.29.0",
 ]
-queue = ["pysqa==0.2.2"]
+mpi = ["mpi4py==4.0.1"]
+submission = [
+    "pysqa==0.2.2",
+    "h5py==3.12.1",
+]
+all = [
+    "mpi4py==4.0.1",
+    "pysqa==0.2.2",
+    "h5py==3.12.1",
+    "pygraphviz==1.14",
+    "matplotlib==3.9.2",
+    "networkx==3.4.2",
+    "ipython==8.29.0",
+]
 
 [tool.setuptools.packages.find]
 include = ["executorlib*"]

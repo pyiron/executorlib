@@ -1,103 +1,57 @@
-# Trouble shooting
+# Trouble Shooting
+Some of the most frequent issues are covered below, for everything else do not be shy and [open an issue on Github](https://github.com/pyiron/executorlib/issues).
 
-## When `flux` fails:
+## Filesystem Usage
+The cache of executorlib is not removed after the Python process completed. So it is the responsibility of the user to 
+clean up the cache directory they created. This can be easily forgot, so it is important to check for remaining cache 
+directories from time to time and remove them. 
 
-### Step-by-Step Guide to Create a Custom Jupyter Kernel for Flux
+## Firewall Issues
+MacOS comes with a rather strict firewall, which does not allow to connect to an MacOS computer using the hostname even
+if it is the hostname of the current computer. MacOS only supports connections based on the hostname `localhost`. To use
+`localhost` rather than the hostname to connect to the Python processes executorlib uses for the execution of the Python
+function, executorlib provides the option to set `hostname_localhost=True`. For MacOS this option is enabled by default,
+still if other operating systems implement similar strict firewall rules, the option can also be set manually to enabled
+local mode on computers with strict firewall rules.
 
-#### Step 1: Create a New Kernel Specification
+## Message Passing Interface
+To use the message passing interface (MPI) executorlib requires [mpi4py](https://mpi4py.readthedocs.io/) as optional 
+dependency. The installation of this and other optional dependencies is covered in the [installation section]().
 
-1. Install [`flux-core`](https://anaconda.org/conda-forge/flux-core) in your Jupyter environment:
+## Missing Dependencies
+The default installation of executorlib only comes with a limited number of dependencies, especially the [zero message queue](https://zeromq.org)
+and [cloudpickle](https://github.com/cloudpipe/cloudpickle). Additional features like [caching](), [HPC submission mode]() 
+and [HPC allocation mode]() require additional dependencies. The dependencies are explained in more detail in the 
+[installation section]().
 
-   ```bash
-   conda install -c conda-forge flux-core
-   ```
+## Python Version 
+Executorlib supports all current Python version ranging from 3.9 to 3.13. Still some of the dependencies and especially 
+the [flux](http://flux-framework.org) job scheduler are currently limited to Python 3.12 and below. Consequently for high
+performance computing installations Python 3.12 is the recommended Python verion. 
 
-2. **Find the Jupyter Kernel Directory**:
+## Resource Dictionary
+The resource dictionary parameter `resource_dict` can contain one or more of the following options: 
+* `cores_per_worker` (int): number of MPI cores to be used for each function call
+* `threads_per_core` (int): number of OpenMP threads to be used for each function call
+* `gpus_per_worker` (int): number of GPUs per worker - defaults to 0
+* `cwd` (str/None): current working directory where the parallel python task is executed
+* `openmpi_oversubscribe` (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
+* `slurm_cmd_args` (list): Additional command line arguments for the srun call (SLURM only)
 
-   Open your terminal or command prompt and run:
+For the special case of the [HPC allocation mode]() the resource dictionary parameter `resource_dict` can also include 
+additional parameters define in the submission script of the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io)
+these include but are not limited to: 
+* `run_time_max` (int): the maximum time the execution of the submitted Python function is allowed to take in seconds.
+* `memory_max` (int): the maximum amount of memory the Python function is allowed to use in Gigabytes. 
+* `partition` (str): the partition of the queuing system the Python function is submitted to. 
+* `queue` (str): the name of the queue the Python function is submitted to. 
 
-   ```bash
-   jupyter --paths
-   ```
+All parameters in the resource dictionary `resource_dict` are optional. 
 
-   This command will display the paths where Jupyter looks for kernels. You'll usually find a directory named `kernels` under the `jupyter` data directory. You will create a new directory for the Flux kernel in the `kernels` directory.
-
-3. **Create the Kernel Directory**:
-
-   Navigate to the kernels directory (e.g., `~/.local/share/jupyter/kernels` on Linux or macOS) and create a new directory called `flux`.
-
-   ```bash
-   mkdir -p ~/.local/share/jupyter/kernels/flux
-   ```
-
-   If you're using Windows, the path will be different, such as `C:\Users\<YourUsername>\AppData\Roaming\jupyter\kernels`.
-
-4. **Create the `kernel.json` File**:
-
-   Inside the new `flux` directory, create a file named `kernel.json`:
-
-   ```bash
-   nano ~/.local/share/jupyter/kernels/flux/kernel.json
-   ```
-
-   Paste the following content into the file:
-
-   ```json
-   {
-     "argv": [
-       "flux",
-       "start",
-       "/srv/conda/envs/notebook/bin/python",
-       "-m",
-       "ipykernel_launcher",
-       "-f",
-       "{connection_file}"
-     ],
-     "display_name": "Flux",
-     "language": "python",
-     "metadata": {
-       "debugger": true
-     }
-   }
-   ```
-
-   - **`argv`**: This array specifies the command to start the Jupyter kernel. It uses `flux start` to launch Python in the Flux environment.
-   - **`display_name`**: The name displayed in Jupyter when selecting the kernel.
-   - **`language`**: The programming language (`python`).
-
-   **Note**:
-
-   - Make sure to replace `"/srv/conda/envs/notebook/bin/python"` with the correct path to your Python executable. You can find this by running `which python` or `where python` in your terminal.
-   - If you installed `flux` in a specific environment, you have to write the absolute path to `flux` in the `argv` array.
-
-#### Step 2: Restart Jupyter Notebook
-
-1. **Restart the Jupyter Notebook Server**:
-
-   Close the current Jupyter Notebook server and restart it:
-
-   ```bash
-   jupyter notebook
-   ```
-
-   ```bash
-   jupyter lab
-   ```
-
-    Or simply restart your server.
-
-2. **Select the Flux Kernel**:
-
-   When creating a new notebook or changing the kernel of an existing one, you should see an option for "Flux" in the list of available kernels. Select it to run your code with the Flux environment.
-
-#### Step 3: Run Your Code with `FluxExecutor`
-
-Now, your Jupyter environment is set up to use `flux-core`. You can run your code like this:
-
-```python
-import flux.job
-
-# Use FluxExecutor within the Flux kernel
-with flux.job.FluxExecutor() as flux_exe:
-    print("FluxExecutor is running within the Jupyter Notebook")
-```
+## SSH Connection
+While the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) provides the option to connect to
+high performance computing (HPC) clusters via SSH, this functionality is not supported for executorlib. The background 
+is the use of [cloudpickle](https://github.com/cloudpipe/cloudpickle) for serialization inside executorlib, this requires
+the same Python version and dependencies on both computer connected via SSH. As tracking those parameters is rather 
+complicated the SSH connection functionality of [pysqa](https://pysqa.readthedocs.io) is not officially supported in 
+executorlib. 

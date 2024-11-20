@@ -2,7 +2,9 @@ format: jb-book
 root: README
 chapters:
 - file: installation.md
-- file: examples.ipynb
-- file: development.md
+- file: 1-local.ipynb
+- file: 2-hpc-submission.ipynb
+- file: 3-hpc-allocation.ipynb
 - file: trouble_shooting.md
+- file: 4-developer.ipynb
 - file: api.rst

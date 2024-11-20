@@ -1,7 +1,10 @@
 from typing import Optional
 
 from executorlib._version import get_versions as _get_versions
-from executorlib.interactive.executor import ExecutorWithDependencies, create_executor
+from executorlib.interactive.executor import (
+    ExecutorWithDependencies as _ExecutorWithDependencies,
+)
+from executorlib.interactive.executor import create_executor as _create_executor
 from executorlib.standalone.inputcheck import (
     check_plot_dependency_graph as _check_plot_dependency_graph,
 )
@@ -199,7 +202,7 @@ class Executor:
             )
         elif not disable_dependencies:
             _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
-            return ExecutorWithDependencies(
+            return _ExecutorWithDependencies(
                 max_workers=max_workers,
                 backend=backend,
                 cache_directory=cache_directory,
@@ -218,7 +221,7 @@ class Executor:
             _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
             _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
             _check_refresh_rate(refresh_rate=refresh_rate)
-            return create_executor(
+            return _create_executor(
                 max_workers=max_workers,
                 backend=backend,
                 cache_directory=cache_directory,
