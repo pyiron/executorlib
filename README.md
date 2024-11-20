@@ -61,7 +61,7 @@ Python function. In addition to the compute cores `cores`, the resource dictiona
 as `threads_per_core`, the GPUs per core as `gpus_per_core`, the working directory with `cwd`, the option to use the
 OpenMPI oversubscribe feature with `openmpi_oversubscribe` and finally for the [Simple Linux Utility for Resource 
 Management (SLURM)](https://slurm.schedmd.com) queuing system the option to provide additional command line arguments 
-with the `slurm_cmd_args` parameter - [resource dictionary](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#resource-dictionary
+with the `slurm_cmd_args` parameter - [resource dictionary](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#resource-dictionary)
 This flexibility to assign computing resources on a per-function-call basis simplifies the up-scaling of Python programs.
 Only the part of the Python functions which benefit from parallel execution are implemented as MPI parallel Python 
 funtions, while the rest of the program remains serial. 
