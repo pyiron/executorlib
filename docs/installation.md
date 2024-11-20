@@ -33,12 +33,13 @@ used. The mpi4py documentation covers the [installation of mpi4py](https://mpi4p
 in more detail. 
 
 ## Caching 
-While the caching is an optional feature for [Local Mode] and for the distribution of Python functions in a given 
-allocation of an HPC job scheduler [HPC Allocation Mode], it is required for the submission of individual functions to
-an HPC job scheduler [HPC Submission Mode]. This is required as in [HPC Submission Mode] the Python function is stored
-on the file system until the requested computing resources become available. The caching is implemented based on the 
-hierarchical data format (HDF5). The corresponding [h5py](https://www.h5py.org) package can be installed using either 
-the [Python package manager](https://pypi.org/project/h5py/):
+While the caching is an optional feature for [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html) and 
+for the distribution of Python functions in a given allocation of an HPC job scheduler [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html), 
+it is required for the submission of individual functions to an HPC job scheduler [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html). 
+This is required as in [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html) the 
+Python function is stored on the file system until the requested computing resources become available. The caching is 
+implemented based on the hierarchical data format (HDF5). The corresponding [h5py](https://www.h5py.org) package can be 
+installed using either the [Python package manager](https://pypi.org/project/h5py/):
 ```
 pip install executorlib[cache]
 ```
@@ -67,17 +68,17 @@ documentation covers the [installation of pysqa](https://pysqa.readthedocs.io/en
 detail.
 
 ## HPC Allocation Mode
-For optimal performance in [HPC Allocation Mode] the [flux framework](https://flux-framework.org) is recommended as job
-scheduler. Even when the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) or any other 
-job scheduler is already installed on the HPC cluster. [flux framework](https://flux-framework.org) can be installed as
-a secondary job scheduler to leverage [flux framework](https://flux-framework.org) for the distribution of resources 
-within a given allocation of the primary scheduler. 
+For optimal performance in [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html) the
+[flux framework](https://flux-framework.org) is recommended as job scheduler. Even when the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) 
+or any other job scheduler is already installed on the HPC cluster. [flux framework](https://flux-framework.org) can be
+installed as a secondary job scheduler to leverage [flux framework](https://flux-framework.org) for the distribution of
+resources within a given allocation of the primary scheduler. 
 
-The [flux framework](https://flux-framework.org) uses `libhwloc` and `pmi` to understand the hardware it is running on and to booststrap MPI.
-`libhwloc` not only assigns CPU cores but also GPUs. This requires `libhwloc` to be compiled with support for GPUs from 
-your vendor. In the same way the version of `pmi` for your queuing system has to be compatible with the version 
-installed via conda. As `pmi` is typically distributed with the implementation of the Message Passing Interface (MPI), 
-it is required to install the compatible MPI library in your conda environment as well. 
+The [flux framework](https://flux-framework.org) uses `libhwloc` and `pmi` to understand the hardware it is running on 
+and to booststrap MPI. `libhwloc` not only assigns CPU cores but also GPUs. This requires `libhwloc` to be compiled with
+support for GPUs from your vendor. In the same way the version of `pmi` for your queuing system has to be compatible
+with the version installed via conda. As `pmi` is typically distributed with the implementation of the Message Passing
+Interface (MPI), it is required to install the compatible MPI library in your conda environment as well. 
 
 ### AMD GPUs with mpich / cray mpi
 For example the [Frontier HPC](https://www.olcf.ornl.gov/frontier/) cluster at Oak Ridge National Laboratory uses 
