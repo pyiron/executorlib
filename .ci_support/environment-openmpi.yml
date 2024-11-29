@@ -12,5 +12,5 @@ dependencies:
 - networkx =3.4.2
 - pygraphviz =1.14
 - pysqa =0.2.2
-- ipython =8.29.0
+- ipython =8.30.0
 - setuptools =75.1.0
