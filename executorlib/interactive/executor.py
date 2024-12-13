@@ -10,10 +10,10 @@ from executorlib.interactive.shared import (
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_executor,
+    check_flux_log_files,
     check_gpus_per_worker,
     check_init_function,
     check_nested_flux_executor,
-    check_flux_log_files,
     check_oversubscribe,
     check_pmi,
     validate_number_of_cores,
