@@ -186,6 +186,7 @@ def create_executor(
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
+        flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an Executor
                                       running on a different compute node within the same allocation. And in principle

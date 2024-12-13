@@ -7,6 +7,7 @@ from executorlib.standalone.inputcheck import (
     check_executor,
     check_init_function,
     check_nested_flux_executor,
+    check_flux_log_files,
     check_pmi,
     check_plot_dependency_graph,
     check_refresh_rate,
@@ -66,6 +67,10 @@ class TestInputCheck(unittest.TestCase):
     def test_check_nested_flux_executor(self):
         with self.assertRaises(ValueError):
             check_nested_flux_executor(nested_flux_executor=True)
+
+    def test_check_flux_log_files(self):
+        with self.assertRaises(ValueError):
+            check_flux_log_files(flux_log_files=True)
 
     def test_check_plot_dependency_graph(self):
         with self.assertRaises(ValueError):
