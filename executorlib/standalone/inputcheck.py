@@ -147,6 +147,16 @@ def check_flux_executor_pmi_mode(flux_executor_pmi_mode: Optional[str]) -> None:
         )
 
 
+def check_flux_log_files(flux_log_files: Optional[bool]) -> None:
+    """
+    Check if flux_log_files is True and raise a ValueError if it is.
+    """
+    if flux_log_files:
+        raise ValueError(
+            "The flux_log_files parameter is only supported for the flux framework backend."
+        )
+
+
 def check_pysqa_config_directory(pysqa_config_directory: Optional[str]) -> None:
     """
     Check if pysqa_config_directory is None and raise a ValueError if it is not.
