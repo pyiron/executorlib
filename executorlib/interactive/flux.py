@@ -91,6 +91,9 @@ class FluxPythonSpawner(BaseSpawner):
         if self._flux_log_files and self._cwd is not None:
             jobspec.stderr = os.path.join(self._cwd, "flux.err")
             jobspec.stdout = os.path.join(self._cwd, "flux.out")
+        elif self._flux_log_files:
+            jobspec.stderr = os.path.abspath("flux.err")
+            jobspec.stdout = os.path.abspath("flux.out")
         self._future = self._flux_executor.submit(jobspec)
 
     def shutdown(self, wait: bool = True):
