@@ -40,7 +40,10 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
-        self.assertTrue(get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out")) > 0.0)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+            > 0.0
+        )
         future_file_obj = FutureItem(
             file_name=os.path.join(cache_directory, task_key + ".h5out")
         )
@@ -64,7 +67,10 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
-        self.assertTrue(get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out")) > 0.0)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+            > 0.0
+        )
         future_file_obj = FutureItem(
             file_name=os.path.join(cache_directory, task_key + ".h5out")
         )
@@ -88,7 +94,10 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
-        self.assertTrue(get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out")) > 0.0)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+            > 0.0
+        )
         future_file_obj = FutureItem(
             file_name=os.path.join(cache_directory, task_key + ".h5out")
         )
