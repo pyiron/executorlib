@@ -4,7 +4,13 @@ import unittest
 
 
 try:
-    from executorlib.standalone.hdf import dump, load, get_output, get_runtime, get_queue_id
+    from executorlib.standalone.hdf import (
+        dump,
+        load,
+        get_output,
+        get_runtime,
+        get_queue_id,
+    )
 
     skip_h5py_test = False
 except ImportError:
