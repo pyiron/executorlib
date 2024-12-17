@@ -92,7 +92,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             self.assertTrue(future_1.done())
             self.assertTrue(future_2.done())
         self.assertTrue(os.path.exists(graph_file))
-        # os.remove(graph_file)
+        os.remove(graph_file)
 
     def test_create_executor_error(self):
         with self.assertRaises(ValueError):
