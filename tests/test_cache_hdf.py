@@ -4,7 +4,13 @@ import unittest
 
 
 try:
-    from executorlib.standalone.hdf import dump, load, get_output, get_queue_id
+    from executorlib.standalone.hdf import (
+        dump,
+        load,
+        get_output,
+        get_runtime,
+        get_queue_id,
+    )
 
     skip_h5py_test = False
 except ImportError:
@@ -34,6 +40,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(data_dict["args"], [a])
         self.assertEqual(data_dict["kwargs"], {"b": b})
         flag, output = get_output(file_name=file_name)
+        self.assertTrue(get_runtime(file_name=file_name) == 0.0)
         self.assertFalse(flag)
         self.assertIsNone(output)
 
@@ -49,6 +56,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(data_dict["args"], [a, b])
         self.assertEqual(data_dict["kwargs"], {})
         flag, output = get_output(file_name=file_name)
+        self.assertTrue(get_runtime(file_name=file_name) == 0.0)
         self.assertFalse(flag)
         self.assertIsNone(output)
 
@@ -73,6 +81,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(data_dict["kwargs"], {"a": a, "b": b})
         self.assertEqual(get_queue_id(file_name=file_name), 123)
         flag, output = get_output(file_name=file_name)
+        self.assertTrue(get_runtime(file_name=file_name) == 0.0)
         self.assertFalse(flag)
         self.assertIsNone(output)
 
@@ -87,6 +96,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertEqual(get_queue_id(file_name=file_name), 123)
         flag, output = get_output(file_name=file_name)
+        self.assertTrue(get_runtime(file_name=file_name) == 0.0)
         self.assertFalse(flag)
         self.assertIsNone(output)
 

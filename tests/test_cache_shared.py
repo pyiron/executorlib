@@ -7,7 +7,7 @@ import unittest
 try:
     from executorlib.cache.backend import backend_execute_task_in_file
     from executorlib.cache.shared import _check_task_output, FutureItem
-    from executorlib.standalone.hdf import dump
+    from executorlib.standalone.hdf import dump, get_runtime
     from executorlib.standalone.serialize import serialize_funct_h5
 
     skip_h5io_test = False
@@ -40,6 +40,10 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+            > 0.0
+        )
         future_file_obj = FutureItem(
             file_name=os.path.join(cache_directory, task_key + ".h5out")
         )
@@ -63,6 +67,10 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+            > 0.0
+        )
         future_file_obj = FutureItem(
             file_name=os.path.join(cache_directory, task_key + ".h5out")
         )
@@ -86,6 +94,10 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + ".h5out"))
+            > 0.0
+        )
         future_file_obj = FutureItem(
             file_name=os.path.join(cache_directory, task_key + ".h5out")
         )
