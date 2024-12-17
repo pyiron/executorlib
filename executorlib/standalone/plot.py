@@ -1,3 +1,4 @@
+import os.path
 from concurrent.futures import Future
 from typing import Optional, Tuple
 
@@ -115,8 +116,6 @@ def draw(node_lst: list, edge_lst: list, filename: Optional[str] = None):
         edge_lst (list): List of edges.
         filename (str): Name of the file to store the plotted graph in.
     """
-    from IPython.display import SVG, display  # noqa
-    import matplotlib.pyplot as plt  # noqa
     import networkx as nx  # noqa
 
     graph = nx.DiGraph()
@@ -124,6 +123,10 @@ def draw(node_lst: list, edge_lst: list, filename: Optional[str] = None):
         graph.add_node(node["id"], label=node["name"], shape=node["shape"])
     for edge in edge_lst:
         graph.add_edge(edge["start"], edge["end"], label=edge["label"])
-    svg = nx.nx_agraph.to_agraph(graph).draw(prog="dot", format="svg")
-    display(SVG(svg))
-    plt.show()
+    if filename is not None:
+        file_format = os.path.splitext(filename)[-1][1:]
+        with open(filename, "wb") as f:
+            f.write(nx.nx_agraph.to_agraph(graph).draw(prog="dot", format=file_format))
+    else:
+        from IPython.display import SVG, display  # noqa
+        display(SVG(nx.nx_agraph.to_agraph(graph).draw(prog="dot", format="svg")))

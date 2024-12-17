@@ -8,7 +8,6 @@ dependencies:
 - mpi4py =4.0.1
 - pyzmq =26.2.0
 - h5py =3.12.1
-- matplotlib =3.10.0
 - networkx =3.4.2
 - pygraphviz =1.14
 - pysqa =0.2.2
