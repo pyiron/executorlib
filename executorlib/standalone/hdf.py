@@ -1,8 +1,18 @@
-from typing import Optional, Tuple
+import os
+from typing import List, Optional, Tuple
 
 import cloudpickle
 import h5py
 import numpy as np
+
+group_dict = {
+    "fn": "function",
+    "args": "input_args",
+    "kwargs": "input_kwargs",
+    "output": "output",
+    "runtime": "runtime",
+    "queue_id": "queue_id",
+}
 
 
 def dump(file_name: str, data_dict: dict) -> None:
@@ -13,14 +23,6 @@ def dump(file_name: str, data_dict: dict) -> None:
         file_name (str): file name of the HDF5 file as absolute path
         data_dict (dict): dictionary containing the python function to be executed {"fn": ..., "args": (), "kwargs": {}}
     """
-    group_dict = {
-        "fn": "function",
-        "args": "input_args",
-        "kwargs": "input_kwargs",
-        "output": "output",
-        "runtime": "runtime",
-        "queue_id": "queue_id",
-    }
     with h5py.File(file_name, "a") as fname:
         for data_key, data_value in data_dict.items():
             if data_key in group_dict.keys():
@@ -97,3 +99,17 @@ def get_queue_id(file_name: str) -> Optional[int]:
             return cloudpickle.loads(np.void(hdf["/queue_id"]))
         else:
             return None
+
+
+def get_cache_data(cache_directory: str) -> List[dict]:
+    file_lst = []
+    for file_name in os.listdir(cache_directory):
+        with h5py.File(os.path.join(cache_directory, file_name), "r") as hdf:
+            file_content_dict = {
+                key: cloudpickle.loads(np.void(hdf["/" + key]))
+                for key in group_dict.values()
+                if key in hdf
+            }
+        file_content_dict["filename"] = file_name
+        file_lst.append(file_content_dict)
+    return file_lst
