@@ -81,10 +81,10 @@ class TestExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot_filename(self):
         graph_file = os.path.join(os.path.dirname(__file__), "test.png")
         with Executor(
-                max_cores=1,
-                backend="local",
-                plot_dependency_graph=False,
-                plot_dependency_graph_filename=graph_file
+            max_cores=1,
+            backend="local",
+            plot_dependency_graph=False,
+            plot_dependency_graph_filename=graph_file,
         ) as exe:
             cloudpickle_register(ind=1)
             future_1 = exe.submit(add_function, 1, parameter_2=2)
