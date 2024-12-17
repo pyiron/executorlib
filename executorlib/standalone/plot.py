@@ -129,4 +129,5 @@ def draw(node_lst: list, edge_lst: list, filename: Optional[str] = None):
             f.write(nx.nx_agraph.to_agraph(graph).draw(prog="dot", format=file_format))
     else:
         from IPython.display import SVG, display  # noqa
+
         display(SVG(nx.nx_agraph.to_agraph(graph).draw(prog="dot", format="svg")))
