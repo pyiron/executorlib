@@ -2,6 +2,7 @@ import importlib.util
 import os
 import queue
 import sys
+import time
 from concurrent.futures import Future
 from time import sleep
 from typing import Callable, List, Optional
@@ -627,8 +628,10 @@ def _execute_task_with_cache(
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():
             try:
+                time_start = time.time()
                 result = interface.send_and_receive_dict(input_dict=task_dict)
                 data_dict["output"] = result
+                data_dict["runtime"] = time.time() - time_start
                 dump(file_name=file_name, data_dict=data_dict)
                 f.set_result(result)
             except Exception as thread_exception:
