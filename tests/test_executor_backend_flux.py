@@ -101,8 +101,8 @@ class TestFluxBackend(unittest.TestCase):
         )
 
     def test_output_files(self):
-        file_stdout = os.path.join(os.path.dirname(__file__), "flux.out")
-        file_stderr = os.path.join(os.path.dirname(__file__), "flux.err")
+        file_stdout = os.path.abspath("flux.out")
+        file_stderr = os.path.abspath("flux.err")
         with Executor(
             max_cores=2,
             resource_dict={"cores": 2},
