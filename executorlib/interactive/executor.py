@@ -43,6 +43,7 @@ class ExecutorWithDependencies(ExecutorBase):
     Args:
         refresh_rate (float, optional): The refresh rate for updating the executor queue. Defaults to 0.01.
         plot_dependency_graph (bool, optional): Whether to generate and plot the dependency graph. Defaults to False.
+        plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         *args: Variable length argument list.
         **kwargs: Arbitrary keyword arguments.
 
@@ -50,6 +51,7 @@ class ExecutorWithDependencies(ExecutorBase):
         _future_hash_dict (Dict[str, Future]): A dictionary mapping task hash to future object.
         _task_hash_dict (Dict[str, Dict]): A dictionary mapping task hash to task dictionary.
         _generate_dependency_graph (bool): Whether to generate the dependency graph.
+        _generate_dependency_graph (str): Name of the file to store the plotted graph in.
 
     """
 
@@ -58,6 +60,7 @@ class ExecutorWithDependencies(ExecutorBase):
         *args: Any,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
+        plot_dependency_graph_filename: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(max_cores=kwargs.get("max_cores", None))
@@ -76,7 +79,11 @@ class ExecutorWithDependencies(ExecutorBase):
         )
         self._future_hash_dict = {}
         self._task_hash_dict = {}
-        self._generate_dependency_graph = plot_dependency_graph
+        self._plot_dependency_graph_filename = plot_dependency_graph_filename
+        if plot_dependency_graph_filename is None:
+            self._generate_dependency_graph = plot_dependency_graph
+        else:
+            self._generate_dependency_graph = True
 
     def submit(
         self,
@@ -143,7 +150,11 @@ class ExecutorWithDependencies(ExecutorBase):
                     v: k for k, v in self._future_hash_dict.items()
                 },
             )
-            return draw(node_lst=node_lst, edge_lst=edge_lst)
+            return draw(
+                node_lst=node_lst,
+                edge_lst=edge_lst,
+                filename=self._plot_dependency_graph_filename,
+            )
 
 
 def create_executor(

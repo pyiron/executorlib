@@ -1,5 +1,6 @@
+import os.path
 from concurrent.futures import Future
-from typing import Tuple
+from typing import Optional, Tuple
 
 import cloudpickle
 
@@ -106,16 +107,15 @@ def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes
     )
 
 
-def draw(node_lst: list, edge_lst: list):
+def draw(node_lst: list, edge_lst: list, filename: Optional[str] = None):
     """
     Draw the graph visualization of nodes and edges.
 
     Args:
         node_lst (list): List of nodes.
         edge_lst (list): List of edges.
+        filename (str): Name of the file to store the plotted graph in.
     """
-    from IPython.display import SVG, display  # noqa
-    import matplotlib.pyplot as plt  # noqa
     import networkx as nx  # noqa
 
     graph = nx.DiGraph()
@@ -123,6 +123,11 @@ def draw(node_lst: list, edge_lst: list):
         graph.add_node(node["id"], label=node["name"], shape=node["shape"])
     for edge in edge_lst:
         graph.add_edge(edge["start"], edge["end"], label=edge["label"])
-    svg = nx.nx_agraph.to_agraph(graph).draw(prog="dot", format="svg")
-    display(SVG(svg))
-    plt.show()
+    if filename is not None:
+        file_format = os.path.splitext(filename)[-1][1:]
+        with open(filename, "wb") as f:
+            f.write(nx.nx_agraph.to_agraph(graph).draw(prog="dot", format=file_format))
+    else:
+        from IPython.display import SVG, display  # noqa
+
+        display(SVG(nx.nx_agraph.to_agraph(graph).draw(prog="dot", format="svg")))

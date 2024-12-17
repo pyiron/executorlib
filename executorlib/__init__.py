@@ -63,6 +63,7 @@ class Executor:
         refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
+        plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
 
     Examples:
         ```
@@ -103,6 +104,7 @@ class Executor:
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
+        plot_dependency_graph_filename: Optional[str] = None,
     ):
         # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
         pass
@@ -125,6 +127,7 @@ class Executor:
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
+        plot_dependency_graph_filename: Optional[str] = None,
     ):
         """
         Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
@@ -171,6 +174,7 @@ class Executor:
             refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
+            plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
 
         """
         default_resource_dict = {
@@ -222,6 +226,7 @@ class Executor:
                 init_function=init_function,
                 refresh_rate=refresh_rate,
                 plot_dependency_graph=plot_dependency_graph,
+                plot_dependency_graph_filename=plot_dependency_graph_filename,
             )
         else:
             _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
