@@ -5,7 +5,6 @@ import unittest
 from executorlib import Executor
 
 try:
-
     from executorlib.standalone.hdf import get_cache_data
 
     skip_h5py_test = False
@@ -25,7 +24,9 @@ class TestCacheFunctions(unittest.TestCase):
 
         cache_lst = get_cache_data(cache_directory=cache_directory)
         self.assertEqual(sum([c["output"] for c in cache_lst]), sum(result_lst))
-        self.assertEqual(sum([sum(c["input_args"][0]) for c in cache_lst]), sum(result_lst))
+        self.assertEqual(
+            sum([sum(c["input_args"][0]) for c in cache_lst]), sum(result_lst)
+        )
 
     def tearDown(self):
         if os.path.exists("cache"):

@@ -1,10 +1,9 @@
 import os
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
 
 import cloudpickle
 import h5py
 import numpy as np
-
 
 group_dict = {
     "fn": "function",
@@ -108,7 +107,8 @@ def get_cache_data(cache_directory: str) -> List[dict]:
         with h5py.File(os.path.join(cache_directory, file_name), "r") as hdf:
             file_content_dict = {
                 key: cloudpickle.loads(np.void(hdf["/" + key]))
-                for key in group_dict.values() if key in hdf
+                for key in group_dict.values()
+                if key in hdf
             }
         file_content_dict["filename"] = file_name
         file_lst.append(file_content_dict)
