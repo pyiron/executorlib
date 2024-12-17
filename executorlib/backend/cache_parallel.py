@@ -48,7 +48,7 @@ def main() -> None:
         backend_write_file(
             file_name=file_name,
             output=result,
-            runtime=time.time()-time_start,
+            runtime=time.time() - time_start,
         )
     MPI.COMM_WORLD.Barrier()
 
