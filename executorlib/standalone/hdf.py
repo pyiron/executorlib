@@ -18,6 +18,7 @@ def dump(file_name: str, data_dict: dict) -> None:
         "args": "input_args",
         "kwargs": "input_kwargs",
         "output": "output",
+        "runtime": "runtime",
         "queue_id": "queue_id",
     }
     with h5py.File(file_name, "a") as fname:
@@ -71,6 +72,23 @@ def get_output(file_name: str) -> Tuple[bool, object]:
             return True, cloudpickle.loads(np.void(hdf["/output"]))
         else:
             return False, None
+
+
+def get_runtime(file_name: str) -> float:
+    """
+    Get run time from HDF5 file
+
+    Args:
+        file_name (str): file name of the HDF5 file as absolute path
+
+    Returns:
+        float: run time from the execution of the python function
+    """
+    with h5py.File(file_name, "r") as hdf:
+        if "runtime" in hdf:
+            return cloudpickle.loads(np.void(hdf["/runtime"]))
+        else:
+            return 0.0
 
 
 def get_queue_id(file_name: str) -> Optional[int]:

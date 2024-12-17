@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Any
 
 from executorlib.cache.shared import FutureItem
@@ -28,13 +29,14 @@ def backend_load_file(file_name: str) -> dict:
     return apply_dict
 
 
-def backend_write_file(file_name: str, output: Any) -> None:
+def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
     """
     Write the output to an HDF5 file.
 
     Args:
         file_name (str): The name of the HDF5 file.
         output (Any): The output to be written.
+        runtime (float): Time for executing function.
 
     Returns:
         None
@@ -42,7 +44,10 @@ def backend_write_file(file_name: str, output: Any) -> None:
     """
     file_name_out = os.path.splitext(file_name)[0]
     os.rename(file_name, file_name_out + ".h5ready")
-    dump(file_name=file_name_out + ".h5ready", data_dict={"output": output})
+    dump(
+        file_name=file_name_out + ".h5ready",
+        data_dict={"output": output, "runtime": runtime},
+    )
     os.rename(file_name_out + ".h5ready", file_name_out + ".h5out")
 
 
@@ -57,10 +62,12 @@ def backend_execute_task_in_file(file_name: str) -> None:
         None
     """
     apply_dict = backend_load_file(file_name=file_name)
+    time_start = time.time()
     result = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
     backend_write_file(
         file_name=file_name,
         output=result,
+        runtime=time.time() - time_start,
     )
 
 

@@ -1,5 +1,6 @@
 import pickle
 import sys
+import time
 
 import cloudpickle
 
@@ -32,6 +33,7 @@ def main() -> None:
     mpi_size_larger_one = MPI.COMM_WORLD.Get_size() > 1
     file_name = sys.argv[1]
 
+    time_start = time.time()
     if mpi_rank_zero:
         apply_dict = backend_load_file(file_name=file_name)
     else:
@@ -46,6 +48,7 @@ def main() -> None:
         backend_write_file(
             file_name=file_name,
             output=result,
+            runtime=time.time() - time_start,
         )
     MPI.COMM_WORLD.Barrier()
 
