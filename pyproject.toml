@@ -39,7 +39,10 @@ Repository = "https://github.com/pyiron/executorlib"
 cache = ["h5py==3.12.1"]
 graph = [
     "pygraphviz==1.14",
-    "matplotlib==3.10.0",
+    "networkx==3.4.2",
+]
+graphnotebook = [
+    "pygraphviz==1.14",
     "networkx==3.4.2",
     "ipython==8.30.0",
 ]
@@ -53,7 +56,6 @@ all = [
     "pysqa==0.2.2",
     "h5py==3.12.1",
     "pygraphviz==1.14",
-    "matplotlib==3.10.0",
     "networkx==3.4.2",
     "ipython==8.30.0",
 ]
