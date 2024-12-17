@@ -46,7 +46,7 @@ def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
     os.rename(file_name, file_name_out + ".h5ready")
     dump(
         file_name=file_name_out + ".h5ready",
-        data_dict={"output": output, "time": runtime},
+        data_dict={"output": output, "runtime": runtime},
     )
     os.rename(file_name_out + ".h5ready", file_name_out + ".h5out")
 
