@@ -1,5 +1,5 @@
 from concurrent.futures import Future
-from typing import Tuple
+from typing import Optional, Tuple
 
 import cloudpickle
 
@@ -106,13 +106,14 @@ def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes
     )
 
 
-def draw(node_lst: list, edge_lst: list):
+def draw(node_lst: list, edge_lst: list, filename: Optional[str] = None):
     """
     Draw the graph visualization of nodes and edges.
 
     Args:
         node_lst (list): List of nodes.
         edge_lst (list): List of edges.
+        filename (str): Name of the file to store the plotted graph in.
     """
     from IPython.display import SVG, display  # noqa
     import matplotlib.pyplot as plt  # noqa

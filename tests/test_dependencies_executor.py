@@ -1,4 +1,5 @@
 from concurrent.futures import Future
+import os
 import unittest
 from time import sleep
 from queue import Queue
@@ -72,6 +73,26 @@ class TestExecutorWithDependencies(unittest.TestCase):
             )
             self.assertEqual(len(nodes), 5)
             self.assertEqual(len(edges), 4)
+
+    @unittest.skipIf(
+        skip_graphviz_test,
+        "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
+    )
+    def test_executor_dependency_plot_filename(self):
+        graph_file = os.path.join(os.path.dirname(__file__), "test.png")
+        with Executor(
+                max_cores=1,
+                backend="local",
+                plot_dependency_graph=False,
+                plot_dependency_graph_filename=graph_file
+        ) as exe:
+            cloudpickle_register(ind=1)
+            future_1 = exe.submit(add_function, 1, parameter_2=2)
+            future_2 = exe.submit(add_function, 1, parameter_2=future_1)
+            self.assertTrue(future_1.done())
+            self.assertTrue(future_2.done())
+        self.assertTrue(os.path.exists(graph_file))
+        # os.remove(graph_file)
 
     def test_create_executor_error(self):
         with self.assertRaises(ValueError):
