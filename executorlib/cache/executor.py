@@ -10,6 +10,7 @@ from executorlib.cache.subprocess_spawner import (
 from executorlib.standalone.inputcheck import (
     check_executor,
     check_flux_executor_pmi_mode,
+    check_flux_log_files,
     check_hostname_localhost,
     check_max_workers_and_cores,
     check_nested_flux_executor,
@@ -88,6 +89,7 @@ def create_file_executor(
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
+    flux_log_files: bool = False,
     pysqa_config_directory: Optional[str] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
@@ -109,6 +111,7 @@ def create_file_executor(
     check_hostname_localhost(hostname_localhost=hostname_localhost)
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
+    check_flux_log_files(flux_log_files=flux_log_files)
     return FileExecutor(
         cache_directory=cache_directory,
         resource_dict=resource_dict,

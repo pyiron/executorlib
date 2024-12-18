@@ -10,6 +10,7 @@ from executorlib.interactive.shared import (
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_executor,
+    check_flux_log_files,
     check_gpus_per_worker,
     check_init_function,
     check_nested_flux_executor,
@@ -165,6 +166,7 @@ def create_executor(
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
+    flux_log_files: bool = False,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[callable] = None,
@@ -195,6 +197,7 @@ def create_executor(
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
+        flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an Executor
                                       running on a different compute node within the same allocation. And in principle
@@ -224,6 +227,7 @@ def create_executor(
         resource_dict["flux_executor"] = flux_executor
         resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
         resource_dict["flux_executor_nesting"] = flux_executor_nesting
+        resource_dict["flux_log_files"] = flux_log_files
         if block_allocation:
             resource_dict["init_function"] = init_function
             return InteractiveExecutor(
@@ -246,6 +250,7 @@ def create_executor(
     elif backend == "slurm_allocation":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
+        check_flux_log_files(flux_log_files=flux_log_files)
         if block_allocation:
             resource_dict["init_function"] = init_function
             return InteractiveExecutor(
@@ -268,6 +273,7 @@ def create_executor(
     elif backend == "local":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
+        check_flux_log_files(flux_log_files=flux_log_files)
         check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
         check_command_line_argument_lst(
             command_line_argument_lst=resource_dict["slurm_cmd_args"]

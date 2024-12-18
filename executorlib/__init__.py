@@ -45,6 +45,7 @@ class Executor:
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
+        flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -95,6 +96,7 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
+        flux_log_files: bool = False,
         pysqa_config_directory: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
@@ -117,6 +119,7 @@ class Executor:
         flux_executor=None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
+        flux_log_files: bool = False,
         pysqa_config_directory: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
@@ -153,6 +156,7 @@ class Executor:
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
+            flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -198,6 +202,7 @@ class Executor:
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
+                flux_log_files=flux_log_files,
                 pysqa_config_directory=pysqa_config_directory,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
@@ -215,6 +220,7 @@ class Executor:
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
+                flux_log_files=flux_log_files,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
@@ -235,6 +241,7 @@ class Executor:
                 flux_executor=flux_executor,
                 flux_executor_pmi_mode=flux_executor_pmi_mode,
                 flux_executor_nesting=flux_executor_nesting,
+                flux_log_files=flux_log_files,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
