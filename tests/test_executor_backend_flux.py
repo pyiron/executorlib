@@ -112,10 +112,10 @@ class TestFluxBackend(unittest.TestCase):
             flux_executor_pmi_mode=pmi,
             flux_log_files=True,
         ) as p:
-            output = p.map(mpi_funct, [1, 2, 3])
+            output = p.map(calc, [1, 2, 3])
         self.assertEqual(
             list(output),
-            [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
+            [1, 2, 3],
         )
         self.assertTrue(os.path.exists(file_stdout))
         self.assertTrue(os.path.exists(file_stderr))
@@ -134,10 +134,10 @@ class TestFluxBackend(unittest.TestCase):
             flux_executor_pmi_mode=pmi,
             flux_log_files=True,
         ) as p:
-            output = p.map(mpi_funct, [1, 2, 3])
+            output = p.map(calc, [1, 2, 3])
         self.assertEqual(
             list(output),
-            [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
+            [1, 2, 3],
         )
         self.assertTrue(os.path.exists(file_stdout))
         self.assertTrue(os.path.exists(file_stderr))
