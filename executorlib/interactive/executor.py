@@ -30,6 +30,7 @@ from executorlib.standalone.thread import RaisingThread
 
 try:  # The PyFluxExecutor requires flux-base to be installed.
     from executorlib.interactive.flux import FluxPythonSpawner
+    from executorlib.interactive.flux import validate_max_workers
 except ImportError:
     pass
 
@@ -226,6 +227,11 @@ def create_executor(
         resource_dict["flux_executor_nesting"] = flux_executor_nesting
         if block_allocation:
             resource_dict["init_function"] = init_function
+            validate_max_workers(
+                max_workers=max_workers,
+                cores=cores_per_worker,
+                threads_per_core=resource_dict["threads_per_core"],
+            )
             return InteractiveExecutor(
                 max_workers=validate_number_of_cores(
                     max_cores=max_cores,
