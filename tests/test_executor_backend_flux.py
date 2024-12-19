@@ -104,8 +104,8 @@ class TestFluxBackend(unittest.TestCase):
         file_stdout = os.path.join(os.path.dirname(__file__), "flux.out")
         file_stderr = os.path.join(os.path.dirname(__file__), "flux.err")
         with Executor(
-            max_cores=2,
-            resource_dict={"cores": 2, "cwd": os.path.dirname(__file__)},
+            max_cores=1,
+            resource_dict={"cores": 1, "cwd": os.path.dirname(__file__)},
             flux_executor=self.executor,
             backend="flux_allocation",
             block_allocation=True,
@@ -126,8 +126,8 @@ class TestFluxBackend(unittest.TestCase):
         file_stdout = os.path.abspath("flux.out")
         file_stderr = os.path.abspath("flux.err")
         with Executor(
-            max_cores=2,
-            resource_dict={"cores": 2},
+            max_cores=1,
+            resource_dict={"cores": 1},
             flux_executor=self.executor,
             backend="flux_allocation",
             block_allocation=True,
