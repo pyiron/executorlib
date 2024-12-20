@@ -1,8 +1,21 @@
+import os
 from typing import Optional
 
 from executorlib.standalone.interactive.spawner import SubprocessSpawner
 
 SLURM_COMMAND = "srun"
+
+
+def validate_max_workers(max_workers, cores, threads_per_core):
+    cores_total = os.environ["SLURM_NTASKS"] * os.environ["SLURM_CPUS_PER_TASK"]
+    cores_requested = max_workers * cores * threads_per_core
+    if cores_total < cores_requested:
+        raise ValueError(
+            "The number of requested cores is larger than the available cores "
+            + str(cores_total)
+            + " < "
+            + str(cores_requested)
+        )
 
 
 class SrunSpawner(SubprocessSpawner):
