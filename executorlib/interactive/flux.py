@@ -33,6 +33,7 @@ class FluxPythonSpawner(BaseSpawner):
         flux_executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
         flux_executor_pmi_mode (str, optional): The PMI option. Defaults to None.
         flux_executor_nesting (bool, optional): Whether to use nested FluxExecutor. Defaults to False.
+        flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
     """
 
     def __init__(
@@ -45,6 +46,7 @@ class FluxPythonSpawner(BaseSpawner):
         flux_executor: Optional[flux.job.FluxExecutor] = None,
         flux_executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
+        flux_log_files: bool = False,
     ):
         super().__init__(
             cwd=cwd,
@@ -56,6 +58,7 @@ class FluxPythonSpawner(BaseSpawner):
         self._flux_executor = flux_executor
         self._flux_executor_pmi_mode = flux_executor_pmi_mode
         self._flux_executor_nesting = flux_executor_nesting
+        self._flux_log_files = flux_log_files
         self._future = None
 
     def bootup(
@@ -99,6 +102,12 @@ class FluxPythonSpawner(BaseSpawner):
             jobspec.setattr_shell_option("pmi", self._flux_executor_pmi_mode)
         if self._cwd is not None:
             jobspec.cwd = self._cwd
+        if self._flux_log_files and self._cwd is not None:
+            jobspec.stderr = os.path.join(self._cwd, "flux.err")
+            jobspec.stdout = os.path.join(self._cwd, "flux.out")
+        elif self._flux_log_files:
+            jobspec.stderr = os.path.abspath("flux.err")
+            jobspec.stdout = os.path.abspath("flux.out")
         self._future = self._flux_executor.submit(jobspec)
 
     def shutdown(self, wait: bool = True):
