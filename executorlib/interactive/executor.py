@@ -7,6 +7,7 @@ from executorlib.interactive.shared import (
     InteractiveStepExecutor,
     execute_tasks_with_dependencies,
 )
+from executorlib.interactive.slurm import SrunSpawner
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_executor,
@@ -17,10 +18,7 @@ from executorlib.standalone.inputcheck import (
     check_pmi,
     validate_number_of_cores,
 )
-from executorlib.standalone.interactive.spawner import (
-    MpiExecSpawner,
-    SrunSpawner,
-)
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.standalone.plot import (
     draw,
     generate_nodes_and_edges,
