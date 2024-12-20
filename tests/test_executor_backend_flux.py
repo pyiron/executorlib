@@ -120,9 +120,9 @@ class TestFluxBackend(unittest.TestCase):
         )
         self.assertTrue(os.path.exists(file_stdout))
         self.assertTrue(os.path.exists(file_stderr))
-        os.remove(file_stdout)
-        os.remove(file_stderr)
-        os.rmdir(dirname)
+        # os.remove(file_stdout)
+        # os.remove(file_stderr)
+        # os.rmdir(dirname)
 
     def test_output_files_abs(self):
         file_stdout = os.path.abspath("flux.out")
