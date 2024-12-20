@@ -128,4 +128,3 @@ class TestWorkingDirectory(unittest.TestCase):
             list(output),
             [1, 2, 3],
         )
-        os.rmdir(dirname)
