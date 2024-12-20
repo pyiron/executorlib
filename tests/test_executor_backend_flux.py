@@ -100,26 +100,29 @@ class TestFluxBackend(unittest.TestCase):
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
 
-    # def test_output_files_cwd(self):
-    #     file_stdout = os.path.join(os.path.dirname(__file__), "flux.out")
-    #     file_stderr = os.path.join(os.path.dirname(__file__), "flux.err")
-    #     with Executor(
-    #         max_cores=1,
-    #         resource_dict={"cores": 1, "cwd": os.path.dirname(__file__)},
-    #         flux_executor=self.executor,
-    #         backend="flux_allocation",
-    #         block_allocation=True,
-    #         flux_log_files=True,
-    #     ) as p:
-    #         output = p.map(calc, [1, 2, 3])
-    #     self.assertEqual(
-    #         list(output),
-    #         [1, 2, 3],
-    #     )
-    #     self.assertTrue(os.path.exists(file_stdout))
-    #     self.assertTrue(os.path.exists(file_stderr))
-    #     os.remove(file_stdout)
-    #     os.remove(file_stderr)
+    def test_output_files_cwd(self):
+        dirname = os.path.abspath("logfiles")
+        os.mkdir(dirname)
+        file_stdout = os.path.join(dirname, "flux.out")
+        file_stderr = os.path.join(dirname, "flux.err")
+        with Executor(
+            max_cores=1,
+            resource_dict={"cores": 1, "cwd": dirname},
+            flux_executor=self.executor,
+            backend="flux_allocation",
+            block_allocation=True,
+            flux_log_files=True,
+        ) as p:
+            output = p.map(calc, [1, 2, 3])
+        self.assertEqual(
+            list(output),
+            [1, 2, 3],
+        )
+        self.assertTrue(os.path.exists(file_stdout))
+        self.assertTrue(os.path.exists(file_stderr))
+        os.remove(file_stdout)
+        os.remove(file_stderr)
+        os.rmdir(dirname)
 
     def test_output_files_abs(self):
         file_stdout = os.path.abspath("flux.out")
