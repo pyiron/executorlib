@@ -3,7 +3,8 @@ import sys
 import unittest
 
 from executorlib.standalone.interactive.backend import parse_arguments
-from executorlib.standalone.interactive.spawner import SrunSpawner, MpiExecSpawner
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
+from executorlib.interactive.slurm import SrunSpawner
 
 
 class TestParser(unittest.TestCase):

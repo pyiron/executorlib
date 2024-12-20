@@ -17,10 +17,8 @@ from executorlib.standalone.inputcheck import (
     check_pmi,
     validate_number_of_cores,
 )
-from executorlib.standalone.interactive.spawner import (
-    MpiExecSpawner,
-    SrunSpawner,
-)
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
+from executorlib.interactive.slurm import SrunSpawner
 from executorlib.standalone.plot import (
     draw,
     generate_nodes_and_edges,
