@@ -29,8 +29,7 @@ from executorlib.standalone.plot import (
 from executorlib.standalone.thread import RaisingThread
 
 try:  # The PyFluxExecutor requires flux-base to be installed.
-    from executorlib.interactive.flux import FluxPythonSpawner
-    from executorlib.interactive.flux import validate_max_workers
+    from executorlib.interactive.flux import FluxPythonSpawner, validate_max_workers
 except ImportError:
     pass
 

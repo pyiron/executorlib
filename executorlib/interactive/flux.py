@@ -12,7 +12,12 @@ def validate_max_workers(max_workers, cores, threads_per_core):
     cores_total = flux.resource.list.resource_list(handle).get().up.ncores
     cores_requested = max_workers * cores * threads_per_core
     if cores_total < cores_requested:
-        raise ValueError("The number of requested cores is larger than the available cores " + str(cores_total) + " < " + str(cores_requested))
+        raise ValueError(
+            "The number of requested cores is larger than the available cores "
+            + str(cores_total)
+            + " < "
+            + str(cores_requested)
+        )
 
 
 class FluxPythonSpawner(BaseSpawner):
