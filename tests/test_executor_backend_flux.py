@@ -109,7 +109,6 @@ class TestFluxBackend(unittest.TestCase):
             flux_executor=self.executor,
             backend="flux_allocation",
             block_allocation=True,
-            flux_executor_pmi_mode=pmi,
             flux_log_files=True,
         ) as p:
             output = p.map(calc, [1, 2, 3])
@@ -131,7 +130,6 @@ class TestFluxBackend(unittest.TestCase):
             flux_executor=self.executor,
             backend="flux_allocation",
             block_allocation=True,
-            flux_executor_pmi_mode=pmi,
             flux_log_files=True,
         ) as p:
             output = p.map(calc, [1, 2, 3])
