@@ -31,9 +31,9 @@ performance computing installations Python 3.12 is the recommended Python verion
 
 ## Resource Dictionary
 The resource dictionary parameter `resource_dict` can contain one or more of the following options: 
-* `cores_per_worker` (int): number of MPI cores to be used for each function call
+* `cores` (int): number of MPI cores to be used for each function call
 * `threads_per_core` (int): number of OpenMP threads to be used for each function call
-* `gpus_per_worker` (int): number of GPUs per worker - defaults to 0
+* `gpus_per_core` (int): number of GPUs per worker - defaults to 0
 * `cwd` (str/None): current working directory where the parallel python task is executed
 * `openmpi_oversubscribe` (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
 * `slurm_cmd_args` (list): Additional command line arguments for the srun call (SLURM only)
