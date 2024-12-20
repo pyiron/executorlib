@@ -157,3 +157,13 @@ class TestFluxBackend(unittest.TestCase):
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
             self.assertTrue(f.done())
+
+    def test_validate_max_workers(self):
+        with self.assertRaises(ValueError):
+            Executor(
+                max_workers=10,
+                resource_dict={"cores": 10, "threads_per_core": 10},
+                flux_executor=self.executor,
+                backend="flux_allocation",
+                block_allocation=True,
+            )

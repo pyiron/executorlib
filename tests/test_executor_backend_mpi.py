@@ -1,3 +1,4 @@
+import os
 import importlib.util
 import shutil
 import time
@@ -110,3 +111,20 @@ class TestExecutorBackendCache(unittest.TestCase):
             self.assertTrue(fs_2.done())
             time_4 = time.time()
             self.assertTrue(time_3 - time_4 < 1)
+
+
+class TestWorkingDirectory(unittest.TestCase):
+    def test_output_files_cwd(self):
+        dirname = os.path.abspath(os.path.dirname(__file__))
+        os.makedirs(dirname, exist_ok=True)
+        with Executor(
+            max_cores=1,
+            resource_dict={"cores": 1, "cwd": dirname},
+            backend="local",
+            block_allocation=True,
+        ) as p:
+            output = p.map(calc, [1, 2, 3])
+        self.assertEqual(
+            list(output),
+            [1, 2, 3],
+        )

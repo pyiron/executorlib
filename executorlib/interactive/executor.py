@@ -7,6 +7,7 @@ from executorlib.interactive.shared import (
     InteractiveStepExecutor,
     execute_tasks_with_dependencies,
 )
+from executorlib.interactive.slurm import SrunSpawner
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_executor,
@@ -18,10 +19,7 @@ from executorlib.standalone.inputcheck import (
     check_pmi,
     validate_number_of_cores,
 )
-from executorlib.standalone.interactive.spawner import (
-    MpiExecSpawner,
-    SrunSpawner,
-)
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.standalone.plot import (
     draw,
     generate_nodes_and_edges,
@@ -30,7 +28,7 @@ from executorlib.standalone.plot import (
 from executorlib.standalone.thread import RaisingThread
 
 try:  # The PyFluxExecutor requires flux-base to be installed.
-    from executorlib.interactive.flux import FluxPythonSpawner
+    from executorlib.interactive.flux import FluxPythonSpawner, validate_max_workers
 except ImportError:
     pass
 
@@ -230,13 +228,19 @@ def create_executor(
         resource_dict["flux_log_files"] = flux_log_files
         if block_allocation:
             resource_dict["init_function"] = init_function
+            max_workers = validate_number_of_cores(
+                max_cores=max_cores,
+                max_workers=max_workers,
+                cores_per_worker=cores_per_worker,
+                set_local_cores=False,
+            )
+            validate_max_workers(
+                max_workers=max_workers,
+                cores=cores_per_worker,
+                threads_per_core=resource_dict["threads_per_core"],
+            )
             return InteractiveExecutor(
-                max_workers=validate_number_of_cores(
-                    max_cores=max_cores,
-                    max_workers=max_workers,
-                    cores_per_worker=cores_per_worker,
-                    set_local_cores=False,
-                ),
+                max_workers=max_workers,
                 executor_kwargs=resource_dict,
                 spawner=FluxPythonSpawner,
             )

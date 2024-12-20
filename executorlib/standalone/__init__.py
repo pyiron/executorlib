@@ -6,7 +6,7 @@ from executorlib.standalone.interactive.communication import (
     interface_send,
     interface_shutdown,
 )
-from executorlib.standalone.interactive.spawner import MpiExecSpawner, SrunSpawner
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.standalone.thread import RaisingThread
 
 __all__ = [
@@ -18,5 +18,4 @@ __all__ = [
     interface_receive,
     RaisingThread,
     MpiExecSpawner,
-    SrunSpawner,
 ]
