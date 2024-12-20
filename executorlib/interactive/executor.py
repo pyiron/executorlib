@@ -8,7 +8,9 @@ from executorlib.interactive.shared import (
     execute_tasks_with_dependencies,
 )
 from executorlib.interactive.slurm import SrunSpawner
-from executorlib.interactive.slurm import validate_max_workers as validate_max_workers_slurm
+from executorlib.interactive.slurm import (
+    validate_max_workers as validate_max_workers_slurm,
+)
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_executor,
@@ -29,7 +31,9 @@ from executorlib.standalone.thread import RaisingThread
 
 try:  # The PyFluxExecutor requires flux-base to be installed.
     from executorlib.interactive.flux import FluxPythonSpawner
-    from executorlib.interactive.flux import validate_max_workers as validate_max_workers_flux
+    from executorlib.interactive.flux import (
+        validate_max_workers as validate_max_workers_flux,
+    )
 except ImportError:
     pass
 
