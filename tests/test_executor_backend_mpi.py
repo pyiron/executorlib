@@ -128,3 +128,16 @@ class TestWorkingDirectory(unittest.TestCase):
             list(output),
             [1, 2, 3],
         )
+
+
+class TestSLURMExecutor(unittest.TestCase):
+    def test_validate_max_workers(self):
+        os.environ["SLURM_NTASKS"] = "6"
+        os.environ["SLURM_CPUS_PER_TASK"] = "4"
+        with self.assertRaises(ValueError):
+            Executor(
+                max_workers=10,
+                resource_dict={"cores": 10, "threads_per_core": 10},
+                backend="slurm_allocation",
+                block_allocation=True,
+            )
