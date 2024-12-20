@@ -1,4 +1,5 @@
 from typing import Optional
+
 from executorlib.standalone.interactive.spawner import SubprocessSpawner
 
 SLURM_COMMAND = "srun"
