@@ -7,7 +7,7 @@ import flux.job
 from executorlib.standalone.interactive.spawner import BaseSpawner
 
 
-def validate_max_workers(max_workers, cores, threads_per_core):
+def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):
     handle = flux.Flux()
     cores_total = flux.resource.list.resource_list(handle).get().up.ncores
     cores_requested = max_workers * cores * threads_per_core
