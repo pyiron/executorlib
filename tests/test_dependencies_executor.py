@@ -234,14 +234,26 @@ class TestExecutorWithDependencies(unittest.TestCase):
 
 
 class TestExecutorErrors(unittest.TestCase):
-    def test_block_allocation_false(self):
+    def test_block_allocation_false_one_worker(self):
         with self.assertRaises(RuntimeError):
             with Executor(max_cores=1, backend="local", block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
                 _ = exe.submit(raise_error)
 
-    def test_block_allocation_true(self):
+    def test_block_allocation_true_one_worker(self):
         with self.assertRaises(RuntimeError):
             with Executor(max_cores=1, backend="local", block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
                 _ = exe.submit(raise_error)
+
+    def test_block_allocation_false_two_workers(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(max_cores=2, backend="local", block_allocation=False) as exe:
+                cloudpickle_register(ind=1)
+                _ = exe.submit(raise_error)
+
+    # def test_block_allocation_true_two_workers(self):
+    #     with self.assertRaises(RuntimeError):
+    #         with Executor(max_cores=2, backend="local", block_allocation=True) as exe:
+    #             cloudpickle_register(ind=1)
+    #             _ = exe.submit(raise_error)
