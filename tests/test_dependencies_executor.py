@@ -40,6 +40,10 @@ def merge(lst):
     return sum(lst)
 
 
+def raise_error():
+    raise RuntimeError
+
+
 class TestExecutorWithDependencies(unittest.TestCase):
     def test_executor(self):
         with Executor(max_cores=1, backend="local") as exe:
@@ -227,3 +231,29 @@ class TestExecutorWithDependencies(unittest.TestCase):
             )
             self.assertEqual(len(nodes), 18)
             self.assertEqual(len(edges), 21)
+
+
+class TestExecutorErrors(unittest.TestCase):
+    def test_block_allocation_false_one_worker(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(max_cores=1, backend="local", block_allocation=False) as exe:
+                cloudpickle_register(ind=1)
+                _ = exe.submit(raise_error)
+
+    def test_block_allocation_true_one_worker(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(max_cores=1, backend="local", block_allocation=True) as exe:
+                cloudpickle_register(ind=1)
+                _ = exe.submit(raise_error)
+
+    def test_block_allocation_false_two_workers(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(max_cores=2, backend="local", block_allocation=False) as exe:
+                cloudpickle_register(ind=1)
+                _ = exe.submit(raise_error)
+
+    def test_block_allocation_true_two_workers(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(max_cores=2, backend="local", block_allocation=True) as exe:
+                cloudpickle_register(ind=1)
+                _ = exe.submit(raise_error)
