@@ -135,9 +135,7 @@ class InteractiveExecutor(ExecutorBroker):
         super().__init__(max_cores=executor_kwargs.get("max_cores", None))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
-        executor_kwargs["queue_join_on_shutdown"] = (
-            False  # The same queue is shared over multiple threads
-        )
+        executor_kwargs["queue_join_on_shutdown"] = False
         self._set_process(
             process=[
                 RaisingThread(
