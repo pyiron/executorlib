@@ -99,10 +99,7 @@ def get_queue_id(file_name: Optional[str]) -> Optional[int]:
         with h5py.File(file_name, "r") as hdf:
             if "queue_id" in hdf:
                 return cloudpickle.loads(np.void(hdf["/queue_id"]))
-            else:
-                return None
-    else:
-        return None
+    return None
 
 
 def get_cache_data(cache_directory: str) -> List[dict]:

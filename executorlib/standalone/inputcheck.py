@@ -110,12 +110,9 @@ def check_pmi(backend: Optional[str], pmi: Optional[str]) -> None:
                 "The pmi parameter is currently only implemented for flux."
             )
         elif backend == "flux_allocation" and pmi not in ["pmix", "pmi1", "pmi2", None]:
-            if isinstance(pmi, str):
-                raise ValueError(
-                    "The pmi parameter supports [pmix, pmi1, pmi2], but not: " + pmi
-                )
-            else:
-                raise TypeError("The pmi parameter is not specified.")
+            raise ValueError(
+                "The pmi parameter supports [pmix, pmi1, pmi2], but not: " + str(pmi)
+            )
 
 
 def check_init_function(

@@ -152,10 +152,10 @@ class ExecutorBase(FutureExecutor):
         Returns:
             int: The length of the executor.
         """
+        queue_size = 0
         if self._future_queue is not None:
-            return self._future_queue.qsize()
-        else:
-            return 0
+            queue_size = self._future_queue.qsize()
+        return queue_size
 
     def __del__(self):
         """

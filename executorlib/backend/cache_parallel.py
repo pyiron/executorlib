@@ -35,10 +35,9 @@ def main() -> None:
     file_name = sys.argv[1]
 
     time_start = time.time()
+    apply_dict = {}
     if mpi_rank_zero:
         apply_dict = backend_load_file(file_name=file_name)
-    else:
-        apply_dict = {}
     apply_dict = MPI.COMM_WORLD.bcast(apply_dict, root=0)
     output = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
     if mpi_size_larger_one:
