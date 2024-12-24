@@ -175,26 +175,23 @@ def check_pysqa_config_directory(pysqa_config_directory: Optional[str]) -> None:
 def validate_number_of_cores(
     max_cores: Optional[int] = None,
     max_workers: Optional[int] = None,
-    cores_per_worker: int = 1,
+    cores_per_worker: Optional[int] = 1,
     set_local_cores: bool = False,
 ) -> int:
     """
     Validate the number of cores and return the appropriate value.
     """
-    if max_cores is None and max_workers is None:
-        if not set_local_cores:
+    if max_cores is not None and max_workers is None and cores_per_worker is not None:
+        return int(max_cores / cores_per_worker)
+    elif max_workers is not None:
+        return int(max_workers)
+    else:
+        if max_cores is None and max_workers is None and not set_local_cores:
             raise ValueError(
                 "Block allocation requires a fixed set of computational resources. Neither max_cores nor max_workers are defined."
             )
         else:
             return multiprocessing.cpu_count()
-    elif max_cores is not None and max_workers is None:
-        return int(max_cores / cores_per_worker)
-    else:
-        if max_workers is not None:
-            return int(max_workers)
-        else:
-            raise ValueError("Could not determine max_workers.")
 
 
 def check_file_exists(file_name: Optional[str]):
