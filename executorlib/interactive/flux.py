@@ -117,12 +117,13 @@ class FluxPythonSpawner(BaseSpawner):
         Args:
             wait (bool, optional): Whether to wait for the execution to complete. Defaults to True.
         """
-        if self.poll():
-            self._future.cancel()
-        # The flux future objects are not instantly updated,
-        # still showing running after cancel was called,
-        # so we wait until the execution is completed.
-        self._future.result()
+        if self._future is not None:
+            if self.poll():
+                self._future.cancel()
+            # The flux future objects are not instantly updated,
+            # still showing running after cancel was called,
+            # so we wait until the execution is completed.
+            self._future.result()
 
     def poll(self):
         """

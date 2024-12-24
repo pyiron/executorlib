@@ -16,7 +16,7 @@ def execute_with_pysqa(
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
     cache_directory: Optional[str] = None,
-) -> Tuple[int, int]:
+) -> Optional[int]:
     """
     Execute a command by submitting it to the queuing system
 

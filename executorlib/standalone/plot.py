@@ -18,8 +18,9 @@ def generate_nodes_and_edges(
     Returns:
         Tuple[list, list]: Tuple containing the list of nodes and the list of edges.
     """
-    node_lst, edge_lst = [], []
-    hash_id_dict = {}
+    node_lst: list = []
+    edge_lst: list = []
+    hash_id_dict: dict = {}
 
     def add_element(arg, link_to, label=""):
         """

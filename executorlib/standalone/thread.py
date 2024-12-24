@@ -21,6 +21,9 @@ class RaisingThread(Thread):
         )
         self._exception = None
 
+    def get_kwargs(self):
+        return self._kwargs
+
     def run(self) -> None:
         """
         Run the thread's target function and catch any exceptions raised.

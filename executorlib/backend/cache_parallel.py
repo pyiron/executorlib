@@ -1,6 +1,7 @@
 import pickle
 import sys
 import time
+from typing import Any
 
 import cloudpickle
 
@@ -24,7 +25,7 @@ def main() -> None:
     """
     from mpi4py import MPI
 
-    MPI.pickle.__init__(
+    MPI.pickle.__init__(  # type: ignore
         cloudpickle.dumps,
         cloudpickle.loads,
         pickle.HIGHEST_PROTOCOL,
@@ -37,7 +38,7 @@ def main() -> None:
     if mpi_rank_zero:
         apply_dict = backend_load_file(file_name=file_name)
     else:
-        apply_dict = None
+        apply_dict = {}
     apply_dict = MPI.COMM_WORLD.bcast(apply_dict, root=0)
     output = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
     if mpi_size_larger_one:

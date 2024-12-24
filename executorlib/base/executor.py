@@ -5,7 +5,7 @@ from concurrent.futures import (
 from concurrent.futures import (
     Future,
 )
-from typing import Optional
+from typing import Callable, Optional, List, Union
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
@@ -27,8 +27,8 @@ class ExecutorBase(FutureExecutor):
         """
         cloudpickle_register(ind=3)
         self._max_cores = max_cores
-        self._future_queue: queue.Queue = queue.Queue()
-        self._process: Optional[RaisingThread] = None
+        self._future_queue: Optional[queue.Queue] = queue.Queue()
+        self._process: Optional[Union[RaisingThread, List[RaisingThread]]] = None
 
     @property
     def info(self) -> Optional[dict]:
@@ -39,13 +39,13 @@ class ExecutorBase(FutureExecutor):
             Optional[dict]: Information about the executor.
         """
         if self._process is not None and isinstance(self._process, list):
-            meta_data_dict = self._process[0]._kwargs.copy()
+            meta_data_dict = self._process[0].get_kwargs().copy()
             if "future_queue" in meta_data_dict.keys():
                 del meta_data_dict["future_queue"]
             meta_data_dict["max_workers"] = len(self._process)
             return meta_data_dict
         elif self._process is not None:
-            meta_data_dict = self._process._kwargs.copy()
+            meta_data_dict = self._process.get_kwargs().copy()
             if "future_queue" in meta_data_dict.keys():
                 del meta_data_dict["future_queue"]
             return meta_data_dict
@@ -53,7 +53,7 @@ class ExecutorBase(FutureExecutor):
             return None
 
     @property
-    def future_queue(self) -> queue.Queue:
+    def future_queue(self) -> Optional[queue.Queue]:
         """
         Get the future queue.
 
@@ -62,7 +62,7 @@ class ExecutorBase(FutureExecutor):
         """
         return self._future_queue
 
-    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs) -> Future:
+    def submit(self, fn: Callable, *args, resource_dict: dict = {}, **kwargs) -> Future:  # type: ignore
         """
         Submits a callable to be executed with the given arguments.
 
@@ -97,16 +97,17 @@ class ExecutorBase(FutureExecutor):
                 "The specified number of cores is larger than the available number of cores."
             )
         check_resource_dict(function=fn)
-        f = Future()
-        self._future_queue.put(
-            {
-                "fn": fn,
-                "args": args,
-                "kwargs": kwargs,
-                "future": f,
-                "resource_dict": resource_dict,
-            }
-        )
+        f: Future = Future()
+        if self._future_queue is not None:
+            self._future_queue.put(
+                {
+                    "fn": fn,
+                    "args": args,
+                    "kwargs": kwargs,
+                    "future": f,
+                    "resource_dict": resource_dict,
+                }
+            )
         return f
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
@@ -124,11 +125,11 @@ class ExecutorBase(FutureExecutor):
                 futures. Futures that are completed or running will not be
                 cancelled.
         """
-        if cancel_futures:
+        if cancel_futures and self._future_queue is not None:
             cancel_items_in_queue(que=self._future_queue)
-        if self._process is not None:
+        if self._process is not None and self._future_queue is not None:
             self._future_queue.put({"shutdown": True, "wait": wait})
-            if wait:
+            if wait and isinstance(self._process, RaisingThread):
                 self._process.join()
                 self._future_queue.join()
         self._process = None
@@ -151,7 +152,10 @@ class ExecutorBase(FutureExecutor):
         Returns:
             int: The length of the executor.
         """
-        return self._future_queue.qsize()
+        if self._future_queue is not None:
+            return self._future_queue.qsize()
+        else:
+            return 0
 
     def __del__(self):
         """

@@ -6,7 +6,7 @@ MPI_COMMAND = "mpiexec"
 
 
 class BaseSpawner(ABC):
-    def __init__(self, cwd: str, cores: int = 1, openmpi_oversubscribe: bool = False):
+    def __init__(self, cwd: Optional[str] = None, cores: int = 1, openmpi_oversubscribe: bool = False):
         """
         Base class for interface implementations.
 
@@ -72,7 +72,7 @@ class SubprocessSpawner(BaseSpawner):
             cores=cores,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
-        self._process = None
+        self._process: Optional[subprocess.Popen] = None
         self._threads_per_core = threads_per_core
 
     def bootup(
@@ -110,10 +110,11 @@ class SubprocessSpawner(BaseSpawner):
         Args:
             wait (bool, optional): Whether to wait for the interface to shutdown. Defaults to True.
         """
-        self._process.communicate()
-        self._process.terminate()
-        if wait:
-            self._process.wait()
+        if self._process is not None:
+            self._process.communicate()
+            self._process.terminate()
+            if wait:
+                self._process.wait()
         self._process = None
 
     def poll(self) -> bool:
