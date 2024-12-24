@@ -81,15 +81,15 @@ class ExecutorWithDependencies(ExecutorBase):
                 },
             )
         )
-        self._future_hash_dict = {}
-        self._task_hash_dict = {}
+        self._future_hash_dict: dict = {}
+        self._task_hash_dict: dict = {}
         self._plot_dependency_graph_filename = plot_dependency_graph_filename
         if plot_dependency_graph_filename is None:
             self._generate_dependency_graph = plot_dependency_graph
         else:
             self._generate_dependency_graph = True
 
-    def submit(
+    def submit(  # type: ignore
         self,
         fn: Callable[..., Any],
         *args: Any,
@@ -100,7 +100,7 @@ class ExecutorWithDependencies(ExecutorBase):
         Submits a task to the executor.
 
         Args:
-            fn (callable): The function to be executed.
+            fn (Callable): The function to be executed.
             *args: Variable length argument list.
             resource_dict (dict, optional): A dictionary of resources required by the task. Defaults to {}.
             **kwargs: Arbitrary keyword arguments.
@@ -146,7 +146,7 @@ class ExecutorWithDependencies(ExecutorBase):
             exc_tb: The traceback object.
 
         """
-        super().__exit__(exc_type=exc_type, exc_val=exc_val, exc_tb=exc_tb)
+        super().__exit__(exc_type=exc_type, exc_val=exc_val, exc_tb=exc_tb)  # type: ignore
         if self._generate_dependency_graph:
             node_lst, edge_lst = generate_nodes_and_edges(
                 task_hash_dict=self._task_hash_dict,
@@ -166,14 +166,14 @@ def create_executor(
     backend: str = "local",
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: Optional[dict] = None,
+    resource_dict: dict = {},
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
     flux_log_files: bool = False,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
-    init_function: Optional[callable] = None,
+    init_function: Optional[Callable] = None,
 ):
     """
     Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
@@ -218,16 +218,20 @@ def create_executor(
     if flux_executor is not None and backend != "flux_allocation":
         backend = "flux_allocation"
     check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
-    cores_per_worker = resource_dict["cores"]
+    cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
     if backend == "flux_allocation":
-        check_oversubscribe(oversubscribe=resource_dict["openmpi_oversubscribe"])
-        check_command_line_argument_lst(
-            command_line_argument_lst=resource_dict["slurm_cmd_args"]
+        check_oversubscribe(
+            oversubscribe=resource_dict.get("openmpi_oversubscribe", False)
         )
-        del resource_dict["openmpi_oversubscribe"]
-        del resource_dict["slurm_cmd_args"]
+        check_command_line_argument_lst(
+            command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
+        )
+        if "openmpi_oversubscribe" in resource_dict.keys():
+            del resource_dict["openmpi_oversubscribe"]
+        if "slurm_cmd_args" in resource_dict.keys():
+            del resource_dict["slurm_cmd_args"]
         resource_dict["flux_executor"] = flux_executor
         resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
         resource_dict["flux_executor_nesting"] = flux_executor_nesting
@@ -243,7 +247,7 @@ def create_executor(
             validate_max_workers_flux(
                 max_workers=max_workers,
                 cores=cores_per_worker,
-                threads_per_core=resource_dict["threads_per_core"],
+                threads_per_core=resource_dict.get("threads_per_core", 1),
             )
             return InteractiveExecutor(
                 max_workers=max_workers,
@@ -272,7 +276,7 @@ def create_executor(
             validate_max_workers_slurm(
                 max_workers=max_workers,
                 cores=cores_per_worker,
-                threads_per_core=resource_dict["threads_per_core"],
+                threads_per_core=resource_dict.get("threads_per_core", 1),
             )
             return InteractiveExecutor(
                 max_workers=max_workers,
@@ -290,13 +294,16 @@ def create_executor(
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
         check_flux_log_files(flux_log_files=flux_log_files)
-        check_gpus_per_worker(gpus_per_worker=resource_dict["gpus_per_core"])
+        check_gpus_per_worker(gpus_per_worker=resource_dict.get("gpus_per_core", 0))
         check_command_line_argument_lst(
-            command_line_argument_lst=resource_dict["slurm_cmd_args"]
+            command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
         )
-        del resource_dict["threads_per_core"]
-        del resource_dict["gpus_per_core"]
-        del resource_dict["slurm_cmd_args"]
+        if "threads_per_core" in resource_dict.keys():
+            del resource_dict["threads_per_core"]
+        if "gpus_per_core" in resource_dict.keys():
+            del resource_dict["gpus_per_core"]
+        if "slurm_cmd_args" in resource_dict.keys():
+            del resource_dict["slurm_cmd_args"]
         if block_allocation:
             resource_dict["init_function"] = init_function
             return InteractiveExecutor(

@@ -9,6 +9,7 @@ for the general un-pickle-able case.
 from concurrent.futures._base import TimeoutError as cfbTimeoutError
 from functools import partialmethod
 from time import sleep
+from typing import Callable
 import unittest
 
 from executorlib import Executor
@@ -21,7 +22,7 @@ class Foo:
     its paces.
     """
 
-    def __init__(self, fnc: callable):
+    def __init__(self, fnc: Callable):
         self.fnc = fnc
         self.result = None
         self.running = False
@@ -44,7 +45,7 @@ def dynamic_foo():
     Overrides the `fnc` input of `Foo` with the decorated function.
     """
 
-    def as_dynamic_foo(fnc: callable):
+    def as_dynamic_foo(fnc: Callable):
         return type(
             "DynamicFoo",
             (Foo,),  # Define parentage

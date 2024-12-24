@@ -10,12 +10,12 @@ from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.standalone.thread import RaisingThread
 
 __all__ = [
-    SocketInterface,
-    interface_bootup,
-    interface_connect,
-    interface_send,
-    interface_shutdown,
-    interface_receive,
-    RaisingThread,
-    MpiExecSpawner,
+    "SocketInterface",
+    "interface_bootup",
+    "interface_connect",
+    "interface_send",
+    "interface_shutdown",
+    "interface_receive",
+    "RaisingThread",
+    "MpiExecSpawner",
 ]

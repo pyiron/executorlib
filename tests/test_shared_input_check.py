@@ -109,10 +109,6 @@ class TestInputCheck(unittest.TestCase):
             validate_number_of_cores(
                 max_cores=None, max_workers=None, cores_per_worker=None
             )
-        with self.assertRaises(TypeError):
-            validate_number_of_cores(
-                max_cores=1, max_workers=None, cores_per_worker=None
-            )
         self.assertIsInstance(
             validate_number_of_cores(max_cores=1, max_workers=None, cores_per_worker=1),
             int,

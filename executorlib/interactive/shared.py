@@ -5,7 +5,7 @@ import sys
 import time
 from concurrent.futures import Future
 from time import sleep
-from typing import Callable, List, Optional
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path
@@ -23,7 +23,7 @@ from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBroker(ExecutorBase):
-    def submit(self, fn: callable, *args, resource_dict: dict = {}, **kwargs) -> Future:
+    def submit(self, fn: Callable, *args, resource_dict: dict = {}, **kwargs) -> Future:  # type: ignore
         """
         Submits a callable to be executed with the given arguments.
 
@@ -31,7 +31,7 @@ class ExecutorBroker(ExecutorBase):
         a Future instance representing the execution of the callable.
 
         Args:
-            fn (callable): function to submit for execution
+            fn (Callable): function to submit for execution
             args: arguments for the submitted function
             kwargs: keyword arguments for the submitted function
             resource_dict (dict): resource dictionary, which defines the resources used for the execution of the
@@ -50,8 +50,11 @@ class ExecutorBroker(ExecutorBase):
         """
         check_resource_dict_is_empty(resource_dict=resource_dict)
         check_resource_dict(function=fn)
-        f = Future()
-        self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
+        f: Future = Future()
+        if self._future_queue is not None:
+            self._future_queue.put(
+                {"fn": fn, "args": args, "kwargs": kwargs, "future": f}
+            )
         return f
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
@@ -68,19 +71,20 @@ class ExecutorBroker(ExecutorBase):
                 futures. Futures that are completed or running will not be
                 cancelled.
         """
-        if cancel_futures:
-            cancel_items_in_queue(que=self._future_queue)
-        if self._process is not None:
-            for _ in range(len(self._process)):
-                self._future_queue.put({"shutdown": True, "wait": wait})
-            if wait:
-                for process in self._process:
-                    process.join()
-                self._future_queue.join()
+        if self._future_queue is not None:
+            if cancel_futures:
+                cancel_items_in_queue(que=self._future_queue)
+            if isinstance(self._process, list):
+                for _ in range(len(self._process)):
+                    self._future_queue.put({"shutdown": True, "wait": wait})
+                if wait:
+                    for process in self._process:
+                        process.join()
+                    self._future_queue.join()
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: List[RaisingThread]):
+    def _set_process(self, process: List[RaisingThread]):  # type: ignore
         """
         Set the process for the executor.
 
@@ -88,8 +92,8 @@ class ExecutorBroker(ExecutorBase):
             process (List[RaisingThread]): The process for the executor.
         """
         self._process = process
-        for process in self._process:
-            process.start()
+        for process_instance in self._process:
+            process_instance.start()
 
 
 class InteractiveExecutor(ExecutorBroker):
@@ -130,7 +134,7 @@ class InteractiveExecutor(ExecutorBroker):
         self,
         max_workers: int = 1,
         executor_kwargs: dict = {},
-        spawner: BaseSpawner = MpiExecSpawner,
+        spawner: type[BaseSpawner] = MpiExecSpawner,
     ):
         super().__init__(max_cores=executor_kwargs.get("max_cores", None))
         executor_kwargs["future_queue"] = self._future_queue
@@ -183,7 +187,7 @@ class InteractiveStepExecutor(ExecutorBase):
         max_cores: Optional[int] = None,
         max_workers: Optional[int] = None,
         executor_kwargs: dict = {},
-        spawner: BaseSpawner = MpiExecSpawner,
+        spawner: type[BaseSpawner] = MpiExecSpawner,
     ):
         super().__init__(max_cores=executor_kwargs.get("max_cores", None))
         executor_kwargs["future_queue"] = self._future_queue
@@ -201,7 +205,7 @@ class InteractiveStepExecutor(ExecutorBase):
 def execute_parallel_tasks(
     future_queue: queue.Queue,
     cores: int = 1,
-    spawner: BaseSpawner = MpiExecSpawner,
+    spawner: type[BaseSpawner] = MpiExecSpawner,
     hostname_localhost: Optional[bool] = None,
     init_function: Optional[Callable] = None,
     cache_directory: Optional[str] = None,
@@ -221,7 +225,7 @@ def execute_parallel_tasks(
                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
-       init_function (callable): optional function to preset arguments for functions which are submitted later
+       init_function (Callable): optional function to preset arguments for functions which are submitted later
        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
     """
     interface = interface_bootup(
@@ -258,7 +262,7 @@ def execute_parallel_tasks(
 
 def execute_separate_tasks(
     future_queue: queue.Queue,
-    spawner: BaseSpawner = MpiExecSpawner,
+    spawner: type[BaseSpawner] = MpiExecSpawner,
     max_cores: Optional[int] = None,
     max_workers: Optional[int] = None,
     hostname_localhost: Optional[bool] = None,
@@ -282,8 +286,9 @@ def execute_separate_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
     """
-    active_task_dict = {}
-    process_lst, qtask_lst = [], []
+    active_task_dict: dict = {}
+    process_lst: list = []
+    qtask_lst: list = []
     if "cores" not in kwargs.keys():
         kwargs["cores"] = 1
     while True:
@@ -295,7 +300,7 @@ def execute_separate_tasks(
             future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
-            qtask = queue.Queue()
+            qtask: queue.Queue = queue.Queue()
             process, active_task_dict = _submit_function_to_separate_process(
                 task_dict=task_dict,
                 qtask=qtask,
@@ -453,7 +458,7 @@ def _submit_waiting_task(wait_lst: List[dict], executor_queue: queue.Queue) -> l
     return wait_tmp_lst
 
 
-def _update_futures_in_input(args: tuple, kwargs: dict):
+def _update_futures_in_input(args: tuple, kwargs: dict) -> Tuple[tuple, dict]:
     """
     Evaluate future objects in the arguments and keyword arguments by calling future.result()
 
@@ -465,7 +470,7 @@ def _update_futures_in_input(args: tuple, kwargs: dict):
         tuple, dict: arguments and keyword arguments with each future object in them being evaluated
     """
 
-    def get_result(arg):
+    def get_result(arg: Union[List[Future], Future]) -> Any:
         if isinstance(arg, Future):
             return arg.result()
         elif isinstance(arg, list):
@@ -473,7 +478,7 @@ def _update_futures_in_input(args: tuple, kwargs: dict):
         else:
             return arg
 
-    args = [get_result(arg=arg) for arg in args]
+    args = tuple([get_result(arg=arg) for arg in args])
     kwargs = {key: get_result(arg=value) for key, value in kwargs.items()}
     return args, kwargs
 
@@ -484,7 +489,7 @@ def _get_future_objects_from_input(task_dict: dict):
 
     Args:
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
-                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
 
     Returns:
         list, boolean: list of future objects and boolean flag if all future objects are already done
@@ -510,7 +515,7 @@ def _submit_function_to_separate_process(
     task_dict: dict,
     active_task_dict: dict,
     qtask: queue.Queue,
-    spawner: BaseSpawner,
+    spawner: type[BaseSpawner],
     executor_kwargs: dict,
     max_cores: Optional[int] = None,
     max_workers: Optional[int] = None,
@@ -520,7 +525,7 @@ def _submit_function_to_separate_process(
     Submit function to be executed in separate Python process
     Args:
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
-                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         active_task_dict (dict): Dictionary containing the future objects and the number of cores they require
         qtask (queue.Queue): Queue to communicate with the thread linked to the process executing the python function
         spawner (BaseSpawner): Interface to start process on selected compute resources
@@ -582,7 +587,7 @@ def _execute_task(
     Args:
         interface (SocketInterface): socket interface for zmq communication
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
-                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         future_queue (Queue): Queue for receiving new tasks.
     """
     f = task_dict.pop("future")
@@ -610,7 +615,7 @@ def _execute_task_with_cache(
     Args:
         interface (SocketInterface): socket interface for zmq communication
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
-                          {"fn": callable, "args": (), "kwargs": {}, "resource_dict": {}}
+                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         future_queue (Queue): Queue for receiving new tasks.
         cache_directory (str): The directory to store cache files.
     """

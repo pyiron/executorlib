@@ -75,7 +75,7 @@ class SrunSpawner(SubprocessSpawner):
 
 def generate_slurm_command(
     cores: int,
-    cwd: str,
+    cwd: Optional[str],
     threads_per_core: int = 1,
     gpus_per_core: int = 0,
     openmpi_oversubscribe: bool = False,
