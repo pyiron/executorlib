@@ -6,7 +6,12 @@ MPI_COMMAND = "mpiexec"
 
 
 class BaseSpawner(ABC):
-    def __init__(self, cwd: Optional[str] = None, cores: int = 1, openmpi_oversubscribe: bool = False):
+    def __init__(
+        self,
+        cwd: Optional[str] = None,
+        cores: int = 1,
+        openmpi_oversubscribe: bool = False,
+    ):
         """
         Base class for interface implementations.
 

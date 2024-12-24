@@ -5,7 +5,7 @@ import sys
 import time
 from concurrent.futures import Future
 from time import sleep
-from typing import Any, Callable, List, Union, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path
@@ -52,7 +52,9 @@ class ExecutorBroker(ExecutorBase):
         check_resource_dict(function=fn)
         f: Future = Future()
         if self._future_queue is not None:
-            self._future_queue.put({"fn": fn, "args": args, "kwargs": kwargs, "future": f})
+            self._future_queue.put(
+                {"fn": fn, "args": args, "kwargs": kwargs, "future": f}
+            )
         return f
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):

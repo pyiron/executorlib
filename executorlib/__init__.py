@@ -16,7 +16,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 __version__ = _get_versions()["version"]
-__all__ : list = []
+__all__: list = []
 
 
 class Executor:

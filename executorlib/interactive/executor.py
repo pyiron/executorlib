@@ -222,7 +222,9 @@ def create_executor(
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
     if backend == "flux_allocation":
-        check_oversubscribe(oversubscribe=resource_dict.get("openmpi_oversubscribe", False))
+        check_oversubscribe(
+            oversubscribe=resource_dict.get("openmpi_oversubscribe", False)
+        )
         check_command_line_argument_lst(
             command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
         )

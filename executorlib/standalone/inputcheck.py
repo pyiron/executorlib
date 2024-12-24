@@ -106,7 +106,9 @@ def check_pmi(backend: Optional[str], pmi: Optional[str]) -> None:
     """
     if backend is not None:
         if backend != "flux_allocation" and pmi is not None:
-            raise ValueError("The pmi parameter is currently only implemented for flux.")
+            raise ValueError(
+                "The pmi parameter is currently only implemented for flux."
+            )
         elif backend == "flux_allocation" and pmi not in ["pmix", "pmi1", "pmi2", None]:
             if isinstance(pmi, str):
                 raise ValueError(
@@ -116,7 +118,9 @@ def check_pmi(backend: Optional[str], pmi: Optional[str]) -> None:
                 raise TypeError("The pmi parameter is not specified.")
 
 
-def check_init_function(block_allocation: bool, init_function: Optional[Callable]) -> None:
+def check_init_function(
+    block_allocation: bool, init_function: Optional[Callable]
+) -> None:
     """
     Check if block_allocation is False and init_function is not None, and raise a ValueError if it is.
     """
