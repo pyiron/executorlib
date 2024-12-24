@@ -1,8 +1,10 @@
 import pickle
 import sys
 from os.path import abspath
+from typing import Optional
 
 import cloudpickle
+import zmq
 
 from executorlib.standalone.interactive.backend import call_funct, parse_arguments
 from executorlib.standalone.interactive.communication import (
@@ -24,7 +26,7 @@ def main() -> None:
     """
     from mpi4py import MPI
 
-    MPI.pickle.__init__(
+    MPI.pickle.__init__(  # type: ignore
         cloudpickle.dumps,
         cloudpickle.loads,
         pickle.HIGHEST_PROTOCOL,
@@ -33,13 +35,12 @@ def main() -> None:
     mpi_size_larger_one = MPI.COMM_WORLD.Get_size() > 1
 
     argument_dict = parse_arguments(argument_lst=sys.argv)
+    context: Optional[zmq.Context] = None
+    socket: Optional[zmq.Socket] = None
     if mpi_rank_zero:
         context, socket = interface_connect(
             host=argument_dict["host"], port=argument_dict["zmqport"]
         )
-    else:
-        context = None
-        socket = None
 
     memory = None
 
@@ -50,10 +51,9 @@ def main() -> None:
 
     while True:
         # Read from socket
+        input_dict: dict = {}
         if mpi_rank_zero:
             input_dict = interface_receive(socket=socket)
-        else:
-            input_dict = None
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
 
         # Parse input

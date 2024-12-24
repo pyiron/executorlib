@@ -1,7 +1,7 @@
 import hashlib
 import inspect
 import re
-from typing import Any, Tuple
+from typing import Callable, Tuple
 
 import cloudpickle
 
@@ -29,13 +29,13 @@ def cloudpickle_register(ind: int = 2):
 
 
 def serialize_funct_h5(
-    fn: callable, fn_args: list = [], fn_kwargs: dict = {}, resource_dict: dict = {}
+    fn: Callable, fn_args: list = [], fn_kwargs: dict = {}, resource_dict: dict = {}
 ) -> Tuple[str, dict]:
     """
     Serialize a function and its arguments and keyword arguments into an HDF5 file.
 
     Args:
-        fn (callable): The function to be serialized.
+        fn (Callable): The function to be serialized.
         fn_args (list): The arguments of the function.
         fn_kwargs (dict): The keyword arguments of the function.
         resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.

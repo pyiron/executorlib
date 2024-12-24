@@ -175,7 +175,7 @@ def interface_connect(host: str, port: str) -> Tuple[zmq.Context, zmq.Socket]:
     return context, socket
 
 
-def interface_send(socket: zmq.Socket, result_dict: dict):
+def interface_send(socket: Optional[zmq.Socket], result_dict: dict):
     """
     Send results to a SocketInterface instance.
 
@@ -183,20 +183,24 @@ def interface_send(socket: zmq.Socket, result_dict: dict):
         socket (zmq.Socket): socket for the connection
         result_dict (dict): dictionary to be sent, supported keys are result, error and error_type.
     """
-    socket.send(cloudpickle.dumps(result_dict))
+    if socket is not None:
+        socket.send(cloudpickle.dumps(result_dict))
 
 
-def interface_receive(socket: zmq.Socket) -> dict:
+def interface_receive(socket: Optional[zmq.Socket]) -> dict:
     """
     Receive instructions from a SocketInterface instance.
 
     Args:
         socket (zmq.Socket): socket for the connection
     """
-    return cloudpickle.loads(socket.recv())
+    if socket is not None:
+        return cloudpickle.loads(socket.recv())
+    else:
+        return {}
 
 
-def interface_shutdown(socket: zmq.Socket, context: zmq.Context):
+def interface_shutdown(socket: Optional[zmq.Socket], context: Optional[zmq.Context]):
     """
     Close the connection to a SocketInterface instance.
 
@@ -204,5 +208,6 @@ def interface_shutdown(socket: zmq.Socket, context: zmq.Context):
         socket (zmq.Socket): socket for the connection
         context (zmq.sugar.context.Context): context for the connection
     """
-    socket.close()
-    context.term()
+    if socket is not None and context is not None:
+        socket.close()
+        context.term()

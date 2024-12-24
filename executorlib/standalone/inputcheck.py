@@ -100,19 +100,24 @@ def check_plot_dependency_graph(plot_dependency_graph: bool) -> None:
         )
 
 
-def check_pmi(backend: str, pmi: Optional[str]) -> None:
+def check_pmi(backend: Optional[str], pmi: Optional[str]) -> None:
     """
     Check if pmi is valid for the selected backend and raise a ValueError if it is not.
     """
-    if backend != "flux_allocation" and pmi is not None:
-        raise ValueError("The pmi parameter is currently only implemented for flux.")
-    elif backend == "flux_allocation" and pmi not in ["pmix", "pmi1", "pmi2", None]:
-        raise ValueError(
-            "The pmi parameter supports [pmix, pmi1, pmi2], but not: " + pmi
-        )
+    if backend is not None:
+        if backend != "flux_allocation" and pmi is not None:
+            raise ValueError(
+                "The pmi parameter is currently only implemented for flux."
+            )
+        elif backend == "flux_allocation" and pmi not in ["pmix", "pmi1", "pmi2", None]:
+            raise ValueError(
+                "The pmi parameter supports [pmix, pmi1, pmi2], but not: " + str(pmi)
+            )
 
 
-def check_init_function(block_allocation: bool, init_function: Callable) -> None:
+def check_init_function(
+    block_allocation: bool, init_function: Optional[Callable]
+) -> None:
     """
     Check if block_allocation is False and init_function is not None, and raise a ValueError if it is.
     """
@@ -170,25 +175,26 @@ def check_pysqa_config_directory(pysqa_config_directory: Optional[str]) -> None:
 def validate_number_of_cores(
     max_cores: Optional[int] = None,
     max_workers: Optional[int] = None,
-    cores_per_worker: Optional[int] = None,
+    cores_per_worker: Optional[int] = 1,
     set_local_cores: bool = False,
 ) -> int:
     """
     Validate the number of cores and return the appropriate value.
     """
-    if max_cores is None and max_workers is None:
-        if not set_local_cores:
+    if max_cores is not None and max_workers is None and cores_per_worker is not None:
+        return int(max_cores / cores_per_worker)
+    elif max_workers is not None:
+        return int(max_workers)
+    else:
+        if max_cores is None and max_workers is None and not set_local_cores:
             raise ValueError(
                 "Block allocation requires a fixed set of computational resources. Neither max_cores nor max_workers are defined."
             )
         else:
-            max_workers = multiprocessing.cpu_count()
-    elif max_cores is not None and max_workers is None:
-        max_workers = int(max_cores / cores_per_worker)
-    return max_workers
+            return multiprocessing.cpu_count()
 
 
-def check_file_exists(file_name: str):
+def check_file_exists(file_name: Optional[str]):
     if file_name is None:
         raise ValueError("file_name is not set.")
     if not os.path.exists(file_name):

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 
 from executorlib._version import get_versions as _get_versions
 from executorlib.interactive.executor import (
@@ -16,7 +16,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 __version__ = _get_versions()["version"]
-__all__ = []
+__all__: list = []
 
 
 class Executor:
@@ -100,7 +100,7 @@ class Executor:
         pysqa_config_directory: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
-        init_function: Optional[callable] = None,
+        init_function: Optional[Callable] = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
@@ -123,7 +123,7 @@ class Executor:
         pysqa_config_directory: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
-        init_function: Optional[callable] = None,
+        init_function: Optional[Callable] = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
@@ -177,7 +177,7 @@ class Executor:
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
 
         """
-        default_resource_dict = {
+        default_resource_dict: dict = {
             "cores": 1,
             "threads_per_core": 1,
             "gpus_per_core": 0,

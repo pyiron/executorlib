@@ -3,7 +3,7 @@ import os
 import queue
 import sys
 from concurrent.futures import Future
-from typing import Optional, Tuple
+from typing import Any, Callable, Optional, Tuple
 
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.hdf import dump, get_output
@@ -21,7 +21,7 @@ class FutureItem:
         """
         self._file_name = file_name
 
-    def result(self) -> str:
+    def result(self) -> Any:
         """
         Get the result of the future item.
 
@@ -49,9 +49,9 @@ class FutureItem:
 def execute_tasks_h5(
     future_queue: queue.Queue,
     cache_directory: str,
-    execute_function: callable,
+    execute_function: Callable,
     resource_dict: dict,
-    terminate_function: Optional[callable] = None,
+    terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
@@ -65,8 +65,8 @@ def execute_tasks_h5(
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
-        execute_function (callable): The function to execute the tasks.
-        terminate_function (callable): The function to terminate the tasks.
+        execute_function (Callable): The function to execute the tasks.
+        terminate_function (Callable): The function to terminate the tasks.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         backend (str, optional): name of the backend used to spawn tasks.
 
@@ -74,7 +74,9 @@ def execute_tasks_h5(
         None
 
     """
-    memory_dict, process_dict, file_name_dict = {}, {}, {}
+    memory_dict: dict = {}
+    process_dict: dict = {}
+    file_name_dict: dict = {}
     while True:
         task_dict = None
         try:

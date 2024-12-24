@@ -1,20 +1,20 @@
 import inspect
-from typing import Optional
+from typing import Any, Callable, Optional
 
 
 def call_funct(
-    input_dict: dict, funct: Optional[callable] = None, memory: Optional[dict] = None
-) -> callable:
+    input_dict: dict, funct: Optional[Callable] = None, memory: Optional[dict] = None
+) -> Any:
     """
     Call function from dictionary
 
     Args:
         input_dict (dict): dictionary containing the function 'fn', its arguments 'args' and keyword arguments 'kwargs'
-        funct (callable, optional): function to be evaluated if it is not included in the input dictionary
+        funct (Callable, optional): function to be evaluated if it is not included in the input dictionary
         memory (dict, optional): variables stored in memory which can be used as keyword arguments
 
     Returns:
-        callable: Result of the function
+        Any: Result of the function
     """
     if funct is None:
 

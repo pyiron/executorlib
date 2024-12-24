@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Callable, Optional
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.cache.shared import execute_tasks_h5
@@ -21,7 +21,7 @@ try:
     from executorlib.cache.queue_spawner import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
-    execute_with_pysqa = execute_in_subprocess
+    execute_with_pysqa = execute_in_subprocess  # type: ignore
 
 
 class FileExecutor(ExecutorBase):
@@ -29,8 +29,8 @@ class FileExecutor(ExecutorBase):
         self,
         cache_directory: str = "cache",
         resource_dict: Optional[dict] = None,
-        execute_function: callable = execute_with_pysqa,
-        terminate_function: Optional[callable] = None,
+        execute_function: Callable = execute_with_pysqa,
+        terminate_function: Optional[Callable] = None,
         pysqa_config_directory: Optional[str] = None,
         backend: Optional[str] = None,
         disable_dependencies: bool = False,
@@ -43,8 +43,8 @@ class FileExecutor(ExecutorBase):
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
-            execute_function (callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
-            terminate_function (callable, optional): The function to terminate the tasks.
+            execute_function (Callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
+            terminate_function (Callable, optional): The function to terminate the tasks.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str, optional): name of the backend used to spawn tasks.
             disable_dependencies (boolean): Disable resolving future objects during the submission.
@@ -81,9 +81,9 @@ class FileExecutor(ExecutorBase):
 
 
 def create_file_executor(
-    max_workers: int = 1,
+    max_workers: Optional[int] = None,
     backend: str = "flux_submission",
-    max_cores: int = 1,
+    max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     flux_executor=None,
@@ -93,7 +93,7 @@ def create_file_executor(
     pysqa_config_directory: Optional[str] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
-    init_function: Optional[callable] = None,
+    init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
 ):
     if cache_directory is None:
