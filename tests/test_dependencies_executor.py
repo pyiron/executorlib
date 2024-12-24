@@ -252,8 +252,8 @@ class TestExecutorErrors(unittest.TestCase):
                 cloudpickle_register(ind=1)
                 _ = exe.submit(raise_error)
 
-    # def test_block_allocation_true_two_workers(self):
-    #     with self.assertRaises(RuntimeError):
-    #         with Executor(max_cores=2, backend="local", block_allocation=True) as exe:
-    #             cloudpickle_register(ind=1)
-    #             _ = exe.submit(raise_error)
+    def test_block_allocation_true_two_workers(self):
+        with self.assertRaises(RuntimeError):
+            with Executor(max_cores=2, backend="local", block_allocation=True) as exe:
+                cloudpickle_register(ind=1)
+                _ = exe.submit(raise_error)

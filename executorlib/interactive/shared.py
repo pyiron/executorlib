@@ -135,6 +135,7 @@ class InteractiveExecutor(ExecutorBroker):
         super().__init__(max_cores=executor_kwargs.get("max_cores", None))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
+        executor_kwargs["queue_join_on_shutdown"] = False  # The same queue is shared over multiple threads
         self._set_process(
             process=[
                 RaisingThread(
@@ -205,6 +206,7 @@ def execute_parallel_tasks(
     hostname_localhost: Optional[bool] = None,
     init_function: Optional[Callable] = None,
     cache_directory: Optional[str] = None,
+    queue_join_on_shutdown: bool = True,
     **kwargs,
 ) -> None:
     """
@@ -223,6 +225,7 @@ def execute_parallel_tasks(
                                      option to true
        init_function (callable): optional function to preset arguments for functions which are submitted later
        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
+       queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
@@ -240,7 +243,8 @@ def execute_parallel_tasks(
         if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
-            future_queue.join()
+            if queue_join_on_shutdown:
+                future_queue.join()
             break
         elif "fn" in task_dict.keys() and "future" in task_dict.keys():
             if cache_directory is None:
