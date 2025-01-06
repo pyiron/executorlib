@@ -48,12 +48,12 @@ graphnotebook = [
 ]
 mpi = ["mpi4py==4.0.1"]
 submission = [
-    "pysqa==0.2.2",
+    "pysqa==0.2.3",
     "h5py==3.12.1",
 ]
 all = [
     "mpi4py==4.0.1",
-    "pysqa==0.2.2",
+    "pysqa==0.2.3",
     "h5py==3.12.1",
     "pygraphviz==1.14",
     "networkx==3.4.2",
