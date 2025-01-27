@@ -79,3 +79,5 @@ This manuscript provides a general overview of the Executorlib package, the full
 
 # Acknowledgements
 J.J. and D.P. acknowledge funding from the Exascale computing project and the hospitality from the “Data-Driven Materials Informatics” program from the Institute of Mathematical and Statistical Innovation (IMSI). J.J, M.G.T, P.Y., J.N. and D.P. acknowledge the hospitality of the Institute of Pure and Applied math (IPAM) as part of the “New Mathematics for the Exascale: Applications to Materials Science” long program
+
+# References
