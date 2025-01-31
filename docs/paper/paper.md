@@ -89,7 +89,7 @@ with Executor(backend="flux_allocation") as exe:
     for i in range(1, 4):
         fs = exe.submit(
             get_available_gpus, 
-            lst=future,
+            lst=fs,
             resource_dict={"cores": 1, "gpus_per_core": 1},
         )
     print(fs.result())
