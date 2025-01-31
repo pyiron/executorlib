@@ -81,7 +81,7 @@ def get_available_gpus(lst):
     local_device_protos = device_lib.list_local_devices()
     return [
         (x.name, x.physical_device_desc, socket.gethostname()) 
-        for x in local_device_protos if x.device_type == 'GPU'
+        for x in local_device_protos if x.device_type == "GPU"
     ] + lst
 
 with Executor(backend="flux_allocation") as exe:
@@ -90,19 +90,19 @@ with Executor(backend="flux_allocation") as exe:
         fs = exe.submit(
             get_available_gpus, 
             lst=future,
-            resource_dict={“cores”: 1, "gpus_per_core": 1},
+            resource_dict={"cores": 1, "gpus_per_core": 1},
         )
     print(fs.result())
 ```
-By adding the resource dictionary parameter in the submission function `resource_dict`, each Python function receives a dedicated CPU core and a corresponding GPU for the execution of the submitted function. In the submitted function the tensorflow machine learning framework is imported to list the metadata of the available GPU. Furthermore, the submission is repeated three times with the output being aggregated in a joined list. For the aggregation of the output of the individual submissions, the previous information is stored in a concurrent futures future object named `fs` and provided as an input to the next function which is submitted. Consequently, the execution is limited to a serial execution. Alternatively the results could be merged into one list after the submission of the individual functions, that would enable the parallel execution of the individual Python functions. 
+By adding the resource dictionary parameter `resource_dict` in the submission function, each Python function receives a dedicated CPU core and a corresponding GPU for the execution of the submitted function. In the submitted function the tensorflow machine learning framework is imported to list the metadata of the available GPU. Furthermore, the submission is repeated three times with the output being aggregated in a joined list. For the aggregation of the output of the individual submissions, the previous information is stored in a concurrent futures future object named `fs` and is provided as an input to the next function during submission. Consequently, the execution is limited to serial execution. Alternatively the results could be merged into one list after the submission of the individual functions, that would enable the parallel execution of the individual Python functions. 
 
 # Usage To-Date 
 While initially developed in the US DOE Exascale Computing Project’s Exascale Atomistic Capability for Accuracy, Length and Time (EXAALT) to accelerate the development of computational materials science simulation workflows for the Exascale, Executorlib has since been generalized to support a wide-range of backends and HPC clusters at different scales. Based on this generalization, it is also been implemented in the pyiron workflow framework [@pyiron] as primary task scheduling interface. 
 
 # Additional Details 
-This manuscript provides a general overview of the Executorlib package, the full documentation including a number of examples for the individual features of the package is available at [executorlib.readthedocs.io](https://executorlib.readthedocs.io) and the corresponding source code at [github.com/pyiron/executorlib](https://github.com/pyiron/executorlib) . Executorlib is developed as open-source library, with a focus on stability, which is achieved with an >95% test coverage, type hinting and a minimalistic functional software design approach. 
+This manuscript provides a general overview of the Executorlib package, the full documentation including a number of examples for the individual features is available at [executorlib.readthedocs.io](https://executorlib.readthedocs.io) and the corresponding source code at [github.com/pyiron/executorlib](https://github.com/pyiron/executorlib). Executorlib is developed as open-source library, with a focus on stability, which is achieved with an >95% test coverage, type hinting and a minimalistic functional software design approach. 
 
 # Acknowledgements
-J.J. and D.P. acknowledge funding from the Exascale computing project and the hospitality from the “Data-Driven Materials Informatics” program from the Institute of Mathematical and Statistical Innovation (IMSI). J.J, M.G.T, P.Y., J.N. and D.P. acknowledge the hospitality of the Institute of Pure and Applied math (IPAM) as part of the “New Mathematics for the Exascale: Applications to Materials Science” long program
+J.J. and D.P. acknowledge funding from the Exascale computing project and the hospitality from the “Data-Driven Materials Informatics” program from the Institute of Mathematical and Statistical Innovation (IMSI). J.J, M.G.T, P.Y., J.N. and D.P. acknowledge the hospitality of the Institute of Pure and Applied math (IPAM) as part of the “New Mathematics for the Exascale: Applications to Materials Science” long program.
 
 # References
