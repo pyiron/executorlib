@@ -2,7 +2,11 @@ import os
 import unittest
 from time import sleep
 
-from executorlib import SingleNodeExecutor, SlurmAllocationExecutor, SlurmSubmissionExecutor
+from executorlib import (
+    SingleNodeExecutor,
+    SlurmAllocationExecutor,
+    SlurmSubmissionExecutor,
+)
 from executorlib.standalone.plot import generate_nodes_and_edges
 from executorlib.standalone.serialize import cloudpickle_register
 
