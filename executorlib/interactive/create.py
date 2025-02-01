@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
 from executorlib.interactive.shared import (
     InteractiveExecutor,
@@ -43,7 +43,7 @@ def create_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-):
+) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
     """
     Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
     executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
@@ -97,68 +97,30 @@ def create_executor(
         check_command_line_argument_lst(
             command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
         )
-        if "openmpi_oversubscribe" in resource_dict.keys():
-            del resource_dict["openmpi_oversubscribe"]
-        if "slurm_cmd_args" in resource_dict.keys():
-            del resource_dict["slurm_cmd_args"]
-        resource_dict["flux_executor"] = flux_executor
-        resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
-        resource_dict["flux_executor_nesting"] = flux_executor_nesting
-        resource_dict["flux_log_files"] = flux_log_files
-        if block_allocation:
-            resource_dict["init_function"] = init_function
-            max_workers = validate_number_of_cores(
-                max_cores=max_cores,
-                max_workers=max_workers,
-                cores_per_worker=cores_per_worker,
-                set_local_cores=False,
-            )
-            validate_max_workers_flux(
-                max_workers=max_workers,
-                cores=cores_per_worker,
-                threads_per_core=resource_dict.get("threads_per_core", 1),
-            )
-            return InteractiveExecutor(
-                max_workers=max_workers,
-                executor_kwargs=resource_dict,
-                spawner=FluxPythonSpawner,
-            )
-        else:
-            return InteractiveStepExecutor(
-                max_cores=max_cores,
-                max_workers=max_workers,
-                executor_kwargs=resource_dict,
-                spawner=FluxPythonSpawner,
-            )
+        return create_flux_allocation_executor(
+            max_workers=max_workers,
+            max_cores=max_cores,
+            cores_per_worker=cores_per_worker,
+            resource_dict=resource_dict,
+            flux_executor=flux_executor,
+            flux_executor_pmi_mode=flux_executor_pmi_mode,
+            flux_executor_nesting=flux_executor_nesting,
+            flux_log_files=flux_log_files,
+            block_allocation=block_allocation,
+            init_function=init_function,
+        )
     elif backend == "slurm_allocation":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
         check_flux_log_files(flux_log_files=flux_log_files)
-        if block_allocation:
-            resource_dict["init_function"] = init_function
-            max_workers = validate_number_of_cores(
-                max_cores=max_cores,
-                max_workers=max_workers,
-                cores_per_worker=cores_per_worker,
-                set_local_cores=False,
-            )
-            validate_max_workers_slurm(
-                max_workers=max_workers,
-                cores=cores_per_worker,
-                threads_per_core=resource_dict.get("threads_per_core", 1),
-            )
-            return InteractiveExecutor(
-                max_workers=max_workers,
-                executor_kwargs=resource_dict,
-                spawner=SrunSpawner,
-            )
-        else:
-            return InteractiveStepExecutor(
-                max_cores=max_cores,
-                max_workers=max_workers,
-                executor_kwargs=resource_dict,
-                spawner=SrunSpawner,
-            )
+        return create_slurm_allocation_executor(
+            max_workers=max_workers,
+            max_cores=max_cores,
+            cores_per_worker=cores_per_worker,
+            resource_dict=resource_dict,
+            block_allocation=block_allocation,
+            init_function=init_function,
+        )
     elif backend == "local":
         check_executor(executor=flux_executor)
         check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
@@ -167,32 +129,132 @@ def create_executor(
         check_command_line_argument_lst(
             command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
         )
-        if "threads_per_core" in resource_dict.keys():
-            del resource_dict["threads_per_core"]
-        if "gpus_per_core" in resource_dict.keys():
-            del resource_dict["gpus_per_core"]
-        if "slurm_cmd_args" in resource_dict.keys():
-            del resource_dict["slurm_cmd_args"]
-        if block_allocation:
-            resource_dict["init_function"] = init_function
-            return InteractiveExecutor(
-                max_workers=validate_number_of_cores(
-                    max_cores=max_cores,
-                    max_workers=max_workers,
-                    cores_per_worker=cores_per_worker,
-                    set_local_cores=True,
-                ),
-                executor_kwargs=resource_dict,
-                spawner=MpiExecSpawner,
-            )
-        else:
-            return InteractiveStepExecutor(
-                max_cores=max_cores,
-                max_workers=max_workers,
-                executor_kwargs=resource_dict,
-                spawner=MpiExecSpawner,
-            )
+        return create_local_executor(
+            max_workers=max_workers,
+            max_cores=max_cores,
+            cores_per_worker=cores_per_worker,
+            resource_dict=resource_dict,
+            block_allocation=block_allocation,
+            init_function=init_function,
+        )
     else:
         raise ValueError(
             "The supported backends are slurm_allocation, slurm_submission, flux_allocation, flux_submission and local."
+        )
+
+
+def create_flux_allocation_executor(
+    max_workers: Optional[int] = None,
+    max_cores: Optional[int] = None,
+    cores_per_worker: Optional[int] = None,
+    resource_dict: dict = {},
+    flux_executor=None,
+    flux_executor_pmi_mode: Optional[str] = None,
+    flux_executor_nesting: bool = False,
+    flux_log_files: bool = False,
+    block_allocation: bool = False,
+    init_function: Optional[Callable] = None,
+) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+    if "openmpi_oversubscribe" in resource_dict.keys():
+        del resource_dict["openmpi_oversubscribe"]
+    if "slurm_cmd_args" in resource_dict.keys():
+        del resource_dict["slurm_cmd_args"]
+    resource_dict["flux_executor"] = flux_executor
+    resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
+    resource_dict["flux_executor_nesting"] = flux_executor_nesting
+    resource_dict["flux_log_files"] = flux_log_files
+    if block_allocation:
+        resource_dict["init_function"] = init_function
+        max_workers = validate_number_of_cores(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            cores_per_worker=cores_per_worker,
+            set_local_cores=False,
+        )
+        validate_max_workers_flux(
+            max_workers=max_workers,
+            cores=cores_per_worker,
+            threads_per_core=resource_dict.get("threads_per_core", 1),
+        )
+        return InteractiveExecutor(
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=FluxPythonSpawner,
+        )
+    else:
+        return InteractiveStepExecutor(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=FluxPythonSpawner,
+        )
+
+
+def create_slurm_allocation_executor(
+    max_workers: Optional[int] = None,
+    max_cores: Optional[int] = None,
+    cores_per_worker: Optional[int] = None,
+    resource_dict: dict = {},
+    block_allocation: bool = False,
+    init_function: Optional[Callable] = None,
+) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+    if block_allocation:
+        resource_dict["init_function"] = init_function
+        max_workers = validate_number_of_cores(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            cores_per_worker=cores_per_worker,
+            set_local_cores=False,
+        )
+        validate_max_workers_slurm(
+            max_workers=max_workers,
+            cores=cores_per_worker,
+            threads_per_core=resource_dict.get("threads_per_core", 1),
+        )
+        return InteractiveExecutor(
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=SrunSpawner,
+        )
+    else:
+        return InteractiveStepExecutor(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=SrunSpawner,
+        )
+
+
+def create_local_executor(
+    max_workers: Optional[int] = None,
+    max_cores: Optional[int] = None,
+    cores_per_worker: Optional[int] = None,
+    resource_dict: dict = {},
+    block_allocation: bool = False,
+    init_function: Optional[Callable] = None,
+) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+    if "threads_per_core" in resource_dict.keys():
+        del resource_dict["threads_per_core"]
+    if "gpus_per_core" in resource_dict.keys():
+        del resource_dict["gpus_per_core"]
+    if "slurm_cmd_args" in resource_dict.keys():
+        del resource_dict["slurm_cmd_args"]
+    if block_allocation:
+        resource_dict["init_function"] = init_function
+        return InteractiveExecutor(
+            max_workers=validate_number_of_cores(
+                max_cores=max_cores,
+                max_workers=max_workers,
+                cores_per_worker=cores_per_worker,
+                set_local_cores=True,
+            ),
+            executor_kwargs=resource_dict,
+            spawner=MpiExecSpawner,
+        )
+    else:
+        return InteractiveStepExecutor(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=MpiExecSpawner,
         )
