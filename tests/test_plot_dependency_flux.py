@@ -49,6 +49,7 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
         with FluxAllocationExecutor(
             max_cores=1,
             plot_dependency_graph=True,
+            block_allocation=False,
         ) as exe:
             cloudpickle_register(ind=1)
             future_1 = exe.submit(add_function, 1, parameter_2=2)
@@ -72,6 +73,7 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
         with FluxAllocationExecutor(
             max_cores=2,
             plot_dependency_graph=True,
+            block_allocation=True,
         ) as exe:
             cloudpickle_register(ind=1)
             future_lst = exe.submit(

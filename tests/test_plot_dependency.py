@@ -44,6 +44,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
         with SingleNodeExecutor(
             max_cores=1,
             plot_dependency_graph=True,
+            block_allocation=True,
         ) as exe:
             cloudpickle_register(ind=1)
             future_1 = exe.submit(add_function, 1, parameter_2=2)
@@ -65,6 +66,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
         graph_file = os.path.join(os.path.dirname(__file__), "test.png")
         with SingleNodeExecutor(
             max_cores=1,
+            block_allocation=False,
             plot_dependency_graph=False,
             plot_dependency_graph_filename=graph_file,
         ) as exe:
@@ -81,6 +83,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
         parameter = 1
         with SingleNodeExecutor(
             max_cores=2,
+            block_allocation=False,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -129,6 +132,7 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
         with SlurmAllocationExecutor(
             max_cores=1,
+            block_allocation=True,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -152,6 +156,7 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
         parameter = 1
         with SlurmAllocationExecutor(
             max_cores=2,
+            block_allocation=False,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
