@@ -2,7 +2,6 @@ from concurrent.futures import Future
 from typing import Any, Callable, Dict, Optional
 
 from executorlib.base.executor import ExecutorBase
-from executorlib.interactive.create import create_executor
 from executorlib.interactive.shared import execute_tasks_with_dependencies
 from executorlib.standalone.plot import (
     draw,
@@ -34,14 +33,13 @@ class ExecutorWithDependencies(ExecutorBase):
 
     def __init__(
         self,
-        *args: Any,
+        executor: ExecutorBase,
+        max_cores: Optional[int] = None,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
-        **kwargs: Any,
     ) -> None:
-        super().__init__(max_cores=kwargs.get("max_cores", None))
-        executor = create_executor(*args, **kwargs)
+        super().__init__(max_cores=max_cores)
         self._set_process(
             RaisingThread(
                 target=execute_tasks_with_dependencies,
