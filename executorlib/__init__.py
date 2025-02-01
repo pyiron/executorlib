@@ -10,4 +10,10 @@ from executorlib.interfaces.slurm import (
 )
 
 __version__ = _get_versions()["version"]
-__all__: list = ["FluxAllocationExecutor", "FluxSubmissionExecutor", "LocalExecutor", "SlurmAllocationExecutor", "SlurmSubmissionExecutor"]
+__all__: list = [
+    "FluxAllocationExecutor",
+    "FluxSubmissionExecutor",
+    "LocalExecutor",
+    "SlurmAllocationExecutor",
+    "SlurmSubmissionExecutor",
+]
