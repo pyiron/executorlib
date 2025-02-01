@@ -42,7 +42,7 @@ def merge(lst):
 
 @unittest.skipIf(
     skip_graphviz_flux_test,
-    "either graphviz or flux are not installed, so the plot_dependency_graph tests are skipped.",
+    "Either graphviz or flux are not installed, so the plot_dependency_graph tests are skipped.",
 )
 class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
@@ -112,8 +112,8 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
 
 
 @unittest.skipIf(
-    skip_graphviz_test,
-    "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
+    skip_graphviz_flux_test,
+    "Either graphviz or flux are not installed, so the plot_dependency_graph tests are skipped.",
 )
 class TestFluxSubmissionExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
