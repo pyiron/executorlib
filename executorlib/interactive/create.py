@@ -146,7 +146,7 @@ def create_executor(
 def create_flux_allocation_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
-    cores_per_worker: Optional[int] = 1,
+    cores_per_worker: int = 1,
     resource_dict: dict = {},
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
@@ -193,7 +193,7 @@ def create_flux_allocation_executor(
 def create_slurm_allocation_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
-    cores_per_worker: Optional[int] = 1,
+    cores_per_worker: int = 1,
     resource_dict: dict = {},
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
@@ -228,7 +228,7 @@ def create_slurm_allocation_executor(
 def create_local_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
-    cores_per_worker: Optional[int] = 1,
+    cores_per_worker: int = 1,
     resource_dict: dict = {},
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
