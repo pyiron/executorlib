@@ -102,12 +102,13 @@ def create_executor(
         return create_flux_allocation_executor(
             max_workers=max_workers,
             max_cores=max_cores,
-            cores_per_worker=cores_per_worker,
+            cache_directory=cache_directory,
             resource_dict=resource_dict,
             flux_executor=flux_executor,
             flux_executor_pmi_mode=flux_executor_pmi_mode,
             flux_executor_nesting=flux_executor_nesting,
             flux_log_files=flux_log_files,
+            hostname_localhost=hostname_localhost,
             block_allocation=block_allocation,
             init_function=init_function,
         )
