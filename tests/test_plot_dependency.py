@@ -214,7 +214,6 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
 class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
         with SlurmSubmissionExecutor(
-            max_cores=1,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -236,7 +235,6 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot_filename(self):
         graph_file = os.path.join(os.path.dirname(__file__), "test.png")
         with SlurmSubmissionExecutor(
-            max_cores=1,
             plot_dependency_graph=False,
             plot_dependency_graph_filename=graph_file,
         ) as exe:
@@ -252,7 +250,6 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
         length = 5
         parameter = 1
         with SlurmSubmissionExecutor(
-            max_cores=2,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
