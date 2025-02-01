@@ -56,6 +56,20 @@ class TestFluxBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
+    def test_flux_executor_serial_no_depencies(self):
+        with FluxAllocationExecutor(
+            max_cores=2,
+            flux_executor=self.executor,
+            block_allocation=True,
+            disable_dependencies=True,
+        ) as exe:
+            fs_1 = exe.submit(calc, 1)
+            fs_2 = exe.submit(calc, 2)
+            self.assertEqual(fs_1.result(), 1)
+            self.assertEqual(fs_2.result(), 2)
+            self.assertTrue(fs_1.done())
+            self.assertTrue(fs_2.done())
+
     def test_flux_executor_threads(self):
         with FluxAllocationExecutor(
             max_cores=1,
