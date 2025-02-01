@@ -90,7 +90,6 @@ def create_executor(
             block_allocation=block_allocation, init_function=init_function
         )
         check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
-        cores_per_worker = resource_dict.get("cores", 1)
         resource_dict["cache_directory"] = cache_directory
         resource_dict["hostname_localhost"] = hostname_localhost
         check_oversubscribe(
