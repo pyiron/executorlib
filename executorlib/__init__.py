@@ -1,10 +1,10 @@
 from typing import Callable, Optional
 
 from executorlib._version import get_versions as _get_versions
+from executorlib.interactive.create import create_executor as _create_executor
 from executorlib.interactive.executor import (
     ExecutorWithDependencies as _ExecutorWithDependencies,
 )
-from executorlib.interactive.create import create_executor as _create_executor
 from executorlib.standalone.inputcheck import (
     check_plot_dependency_graph as _check_plot_dependency_graph,
 )

@@ -30,7 +30,6 @@ except ImportError:
     pass
 
 
-
 def create_executor(
     max_workers: Optional[int] = None,
     backend: str = "local",
