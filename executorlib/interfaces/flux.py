@@ -11,7 +11,6 @@ from executorlib.standalone.inputcheck import (
     check_oversubscribe,
     check_plot_dependency_graph,
     check_pmi,
-    check_pysqa_config_directory,
     check_refresh_rate,
     validate_number_of_cores,
 )
@@ -396,8 +395,7 @@ class FluxSubmissionExecutor:
                 init_function=init_function,
                 disable_dependencies=disable_dependencies,
             )
-        elif not disable_dependencies:
-            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
+        else:
             return ExecutorWithDependencies(
                 executor=create_flux_executor(
                     max_workers=max_workers,
@@ -416,23 +414,6 @@ class FluxSubmissionExecutor:
                 refresh_rate=refresh_rate,
                 plot_dependency_graph=plot_dependency_graph,
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
-            )
-        else:
-            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
-            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            check_refresh_rate(refresh_rate=refresh_rate)
-            return create_flux_executor(
-                max_workers=max_workers,
-                cache_directory=cache_directory,
-                max_cores=max_cores,
-                resource_dict=resource_dict,
-                flux_executor=None,
-                flux_executor_pmi_mode=None,
-                flux_executor_nesting=False,
-                flux_log_files=False,
-                hostname_localhost=hostname_localhost,
-                block_allocation=block_allocation,
-                init_function=init_function,
             )
 
 

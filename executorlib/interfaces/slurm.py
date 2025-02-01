@@ -12,7 +12,6 @@ from executorlib.interactive.slurm import (
 from executorlib.standalone.inputcheck import (
     check_init_function,
     check_plot_dependency_graph,
-    check_pysqa_config_directory,
     check_refresh_rate,
     validate_number_of_cores,
 )
@@ -188,8 +187,7 @@ class SlurmSubmissionExecutor:
                 init_function=init_function,
                 disable_dependencies=disable_dependencies,
             )
-        elif not disable_dependencies:
-            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
+        else:
             return ExecutorWithDependencies(
                 executor=create_slurm_executor(
                     max_workers=max_workers,
@@ -204,19 +202,6 @@ class SlurmSubmissionExecutor:
                 refresh_rate=refresh_rate,
                 plot_dependency_graph=plot_dependency_graph,
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
-            )
-        else:
-            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
-            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            check_refresh_rate(refresh_rate=refresh_rate)
-            return create_slurm_executor(
-                max_workers=max_workers,
-                cache_directory=cache_directory,
-                max_cores=max_cores,
-                resource_dict=resource_dict,
-                hostname_localhost=hostname_localhost,
-                block_allocation=block_allocation,
-                init_function=init_function,
             )
 
 
