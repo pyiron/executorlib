@@ -5,7 +5,7 @@ from time import sleep
 from queue import Queue
 
 from executorlib import LocalExecutor
-from executorlib.interactive.create import create_executor
+from executorlib.interfaces.local import create_local_executor
 from executorlib.interactive.shared import execute_tasks_with_dependencies
 from executorlib.standalone.plot import generate_nodes_and_edges
 from executorlib.standalone.serialize import cloudpickle_register
@@ -96,10 +96,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
         self.assertTrue(os.path.exists(graph_file))
         os.remove(graph_file)
 
-    def test_create_executor_error(self):
-        with self.assertRaises(ValueError):
-            create_executor(backend="toast", resource_dict={"cores": 1})
-
     def test_dependency_steps(self):
         cloudpickle_register(ind=1)
         fs1 = Future()
@@ -123,7 +119,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 "resource_dict": {"cores": 1},
             }
         )
-        executor = create_executor(
+        executor = create_local_executor(
             max_workers=1,
             max_cores=2,
             resource_dict={
@@ -134,7 +130,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 "openmpi_oversubscribe": False,
                 "slurm_cmd_args": [],
             },
-            backend="local",
         )
         process = RaisingThread(
             target=execute_tasks_with_dependencies,

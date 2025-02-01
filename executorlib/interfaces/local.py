@@ -1,15 +1,19 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
-from executorlib.interactive.executor import (
-    ExecutorWithDependencies as _ExecutorWithDependencies,
-)
-from executorlib.interactive.create import create_executor as _create_executor
-from executorlib.standalone.inputcheck import (
-    check_plot_dependency_graph as _check_plot_dependency_graph,
+from executorlib.interactive.executor import ExecutorWithDependencies
+from executorlib.interactive.shared import (
+    InteractiveExecutor,
+    InteractiveStepExecutor,
 )
 from executorlib.standalone.inputcheck import (
-    check_refresh_rate as _check_refresh_rate,
+    check_plot_dependency_graph,
+    check_refresh_rate,
+    check_command_line_argument_lst,
+    check_gpus_per_worker,
+    check_init_function,
+    validate_number_of_cores,
 )
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
 class LocalExecutor:
@@ -160,17 +164,12 @@ class LocalExecutor:
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not disable_dependencies:
-            return _ExecutorWithDependencies(
-                executor=_create_executor(
+            return ExecutorWithDependencies(
+                executor=create_local_executor(
                     max_workers=max_workers,
-                    backend="local",
                     cache_directory=cache_directory,
                     max_cores=max_cores,
                     resource_dict=resource_dict,
-                    flux_executor=None,
-                    flux_executor_pmi_mode=None,
-                    flux_executor_nesting=False,
-                    flux_log_files=False,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
@@ -181,19 +180,59 @@ class LocalExecutor:
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
             )
         else:
-            _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            _check_refresh_rate(refresh_rate=refresh_rate)
-            return _create_executor(
+            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
+            check_refresh_rate(refresh_rate=refresh_rate)
+            return create_local_executor(
                 max_workers=max_workers,
-                backend="local",
                 cache_directory=cache_directory,
                 max_cores=max_cores,
                 resource_dict=resource_dict,
-                flux_executor=None,
-                flux_executor_pmi_mode=None,
-                flux_executor_nesting=False,
-                flux_log_files=False,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
             )
+
+
+def create_local_executor(
+    max_workers: Optional[int] = None,
+    max_cores: Optional[int] = None,
+    cache_directory: Optional[str] = None,
+    resource_dict: dict = {},
+    hostname_localhost: Optional[bool] = None,
+    block_allocation: bool = False,
+    init_function: Optional[Callable] = None,
+) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+    check_init_function(block_allocation=block_allocation, init_function=init_function)
+    cores_per_worker = resource_dict.get("cores", 1)
+    resource_dict["cache_directory"] = cache_directory
+    resource_dict["hostname_localhost"] = hostname_localhost
+
+    check_gpus_per_worker(gpus_per_worker=resource_dict.get("gpus_per_core", 0))
+    check_command_line_argument_lst(
+        command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
+    )
+    if "threads_per_core" in resource_dict.keys():
+        del resource_dict["threads_per_core"]
+    if "gpus_per_core" in resource_dict.keys():
+        del resource_dict["gpus_per_core"]
+    if "slurm_cmd_args" in resource_dict.keys():
+        del resource_dict["slurm_cmd_args"]
+    if block_allocation:
+        resource_dict["init_function"] = init_function
+        return InteractiveExecutor(
+            max_workers=validate_number_of_cores(
+                max_cores=max_cores,
+                max_workers=max_workers,
+                cores_per_worker=cores_per_worker,
+                set_local_cores=True,
+            ),
+            executor_kwargs=resource_dict,
+            spawner=MpiExecSpawner,
+        )
+    else:
+        return InteractiveStepExecutor(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=MpiExecSpawner,
+        )

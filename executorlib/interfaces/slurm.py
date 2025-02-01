@@ -1,17 +1,20 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
-from executorlib.interactive.executor import (
-    ExecutorWithDependencies as _ExecutorWithDependencies,
+from executorlib.interactive.shared import (
+    InteractiveExecutor,
+    InteractiveStepExecutor,
 )
-from executorlib.interactive.create import create_executor as _create_executor
-from executorlib.standalone.inputcheck import (
-    check_plot_dependency_graph as _check_plot_dependency_graph,
+from executorlib.interactive.executor import ExecutorWithDependencies
+from executorlib.interactive.slurm import SrunSpawner
+from executorlib.interactive.slurm import (
+    validate_max_workers as validate_max_workers_slurm,
 )
 from executorlib.standalone.inputcheck import (
-    check_pysqa_config_directory as _check_pysqa_config_directory,
-)
-from executorlib.standalone.inputcheck import (
-    check_refresh_rate as _check_refresh_rate,
+    check_init_function,
+    validate_number_of_cores,
+    check_plot_dependency_graph,
+    check_pysqa_config_directory,
+    check_refresh_rate,
 )
 
 
@@ -186,18 +189,13 @@ class SlurmSubmissionExecutor:
                 disable_dependencies=disable_dependencies,
             )
         elif not disable_dependencies:
-            _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
-            return _ExecutorWithDependencies(
-                executor=_create_executor(
+            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
+            return ExecutorWithDependencies(
+                executor=create_slurm_executor(
                     max_workers=max_workers,
-                    backend="slurm_submission",
                     cache_directory=cache_directory,
                     max_cores=max_cores,
                     resource_dict=resource_dict,
-                    flux_executor=None,
-                    flux_executor_pmi_mode=None,
-                    flux_executor_nesting=False,
-                    flux_log_files=False,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
@@ -208,19 +206,14 @@ class SlurmSubmissionExecutor:
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
             )
         else:
-            _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
-            _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            _check_refresh_rate(refresh_rate=refresh_rate)
-            return _create_executor(
+            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
+            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
+            check_refresh_rate(refresh_rate=refresh_rate)
+            return create_slurm_executor(
                 max_workers=max_workers,
-                backend="slurm_submission",
                 cache_directory=cache_directory,
                 max_cores=max_cores,
                 resource_dict=resource_dict,
-                flux_executor=None,
-                flux_executor_pmi_mode=None,
-                flux_executor_nesting=False,
-                flux_log_files=False,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
@@ -375,17 +368,12 @@ class SlurmAllocationExecutor:
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not disable_dependencies:
-            return _ExecutorWithDependencies(
-                executor=_create_executor(
+            return ExecutorWithDependencies(
+                executor=create_slurm_executor(
                     max_workers=max_workers,
-                    backend="slurm_allocation",
                     cache_directory=cache_directory,
                     max_cores=max_cores,
                     resource_dict=resource_dict,
-                    flux_executor=None,
-                    flux_executor_pmi_mode=None,
-                    flux_executor_nesting=False,
-                    flux_log_files=False,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
@@ -396,19 +384,54 @@ class SlurmAllocationExecutor:
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
             )
         else:
-            _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            _check_refresh_rate(refresh_rate=refresh_rate)
-            return _create_executor(
+            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
+            check_refresh_rate(refresh_rate=refresh_rate)
+            return create_slurm_executor(
                 max_workers=max_workers,
-                backend="slurm_allocation",
                 cache_directory=cache_directory,
                 max_cores=max_cores,
                 resource_dict=resource_dict,
-                flux_executor=None,
-                flux_executor_pmi_mode=None,
-                flux_executor_nesting=False,
-                flux_log_files=False,
                 hostname_localhost=hostname_localhost,
                 block_allocation=block_allocation,
                 init_function=init_function,
             )
+
+
+def create_slurm_executor(
+    max_workers: Optional[int] = None,
+    max_cores: Optional[int] = None,
+    cache_directory: Optional[str] = None,
+    resource_dict: dict = {},
+    hostname_localhost: Optional[bool] = None,
+    block_allocation: bool = False,
+    init_function: Optional[Callable] = None,
+) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+    check_init_function(block_allocation=block_allocation, init_function=init_function)
+    cores_per_worker = resource_dict.get("cores", 1)
+    resource_dict["cache_directory"] = cache_directory
+    resource_dict["hostname_localhost"] = hostname_localhost
+    if block_allocation:
+        resource_dict["init_function"] = init_function
+        max_workers = validate_number_of_cores(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            cores_per_worker=cores_per_worker,
+            set_local_cores=False,
+        )
+        validate_max_workers_slurm(
+            max_workers=max_workers,
+            cores=cores_per_worker,
+            threads_per_core=resource_dict.get("threads_per_core", 1),
+        )
+        return InteractiveExecutor(
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=SrunSpawner,
+        )
+    else:
+        return InteractiveStepExecutor(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=SrunSpawner,
+        )

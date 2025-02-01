@@ -1,18 +1,28 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 
-from executorlib.interactive.executor import (
-    ExecutorWithDependencies as _ExecutorWithDependencies,
+from executorlib.interactive.shared import (
+    InteractiveExecutor,
+    InteractiveStepExecutor,
 )
-from executorlib.interactive.create import create_executor as _create_executor
+from executorlib.interactive.executor import ExecutorWithDependencies
 from executorlib.standalone.inputcheck import (
-    check_plot_dependency_graph as _check_plot_dependency_graph,
+    check_plot_dependency_graph,
+    check_pysqa_config_directory,
+    check_refresh_rate,
+    check_command_line_argument_lst,
+    check_init_function,
+    check_oversubscribe,
+    check_pmi,
+    validate_number_of_cores,
 )
-from executorlib.standalone.inputcheck import (
-    check_pysqa_config_directory as _check_pysqa_config_directory,
-)
-from executorlib.standalone.inputcheck import (
-    check_refresh_rate as _check_refresh_rate,
-)
+
+try:  # The PyFluxExecutor requires flux-base to be installed.
+    from executorlib.interactive.flux import FluxPythonSpawner
+    from executorlib.interactive.flux import (
+        validate_max_workers as validate_max_workers_flux,
+    )
+except ImportError:
+    pass
 
 
 class FluxAllocationExecutor:
@@ -73,7 +83,7 @@ class FluxAllocationExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with Executor(cores=2, init_function=init_k) as p:
+        >>> with FluxAllocationExecutor(cores=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
@@ -179,10 +189,9 @@ class FluxAllocationExecutor:
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not disable_dependencies:
-            return _ExecutorWithDependencies(
-                executor=_create_executor(
+            return ExecutorWithDependencies(
+                executor=create_flux_executor(
                     max_workers=max_workers,
-                    backend="flux_allocation",
                     cache_directory=cache_directory,
                     max_cores=max_cores,
                     resource_dict=resource_dict,
@@ -200,11 +209,10 @@ class FluxAllocationExecutor:
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
             )
         else:
-            _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            _check_refresh_rate(refresh_rate=refresh_rate)
-            return _create_executor(
+            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
+            check_refresh_rate(refresh_rate=refresh_rate)
+            return create_flux_executor(
                 max_workers=max_workers,
-                backend="flux_allocation",
                 cache_directory=cache_directory,
                 max_cores=max_cores,
                 resource_dict=resource_dict,
@@ -389,11 +397,10 @@ class FluxSubmissionExecutor:
                 disable_dependencies=disable_dependencies,
             )
         elif not disable_dependencies:
-            _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
-            return _ExecutorWithDependencies(
-                executor=_create_executor(
+            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
+            return ExecutorWithDependencies(
+                executor=create_flux_executor(
                     max_workers=max_workers,
-                    backend="flux_submission",
                     cache_directory=cache_directory,
                     max_cores=max_cores,
                     resource_dict=resource_dict,
@@ -411,12 +418,11 @@ class FluxSubmissionExecutor:
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
             )
         else:
-            _check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
-            _check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            _check_refresh_rate(refresh_rate=refresh_rate)
-            return _create_executor(
+            check_pysqa_config_directory(pysqa_config_directory=pysqa_config_directory)
+            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
+            check_refresh_rate(refresh_rate=refresh_rate)
+            return create_flux_executor(
                 max_workers=max_workers,
-                backend="flux_submission",
                 cache_directory=cache_directory,
                 max_cores=max_cores,
                 resource_dict=resource_dict,
@@ -428,3 +434,60 @@ class FluxSubmissionExecutor:
                 block_allocation=block_allocation,
                 init_function=init_function,
             )
+
+
+def create_flux_executor(
+    max_workers: Optional[int] = None,
+    max_cores: Optional[int] = None,
+    cache_directory: Optional[str] = None,
+    resource_dict: dict = {},
+    flux_executor=None,
+    flux_executor_pmi_mode: Optional[str] = None,
+    flux_executor_nesting: bool = False,
+    flux_log_files: bool = False,
+    hostname_localhost: Optional[bool] = None,
+    block_allocation: bool = False,
+    init_function: Optional[Callable] = None,
+) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+    check_init_function(block_allocation=block_allocation, init_function=init_function)
+    check_pmi(backend="flux_allocation", pmi=flux_executor_pmi_mode)
+    cores_per_worker = resource_dict.get("cores", 1)
+    resource_dict["cache_directory"] = cache_directory
+    resource_dict["hostname_localhost"] = hostname_localhost
+    check_oversubscribe(oversubscribe=resource_dict.get("openmpi_oversubscribe", False))
+    check_command_line_argument_lst(
+        command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
+    )
+    if "openmpi_oversubscribe" in resource_dict.keys():
+        del resource_dict["openmpi_oversubscribe"]
+    if "slurm_cmd_args" in resource_dict.keys():
+        del resource_dict["slurm_cmd_args"]
+    resource_dict["flux_executor"] = flux_executor
+    resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
+    resource_dict["flux_executor_nesting"] = flux_executor_nesting
+    resource_dict["flux_log_files"] = flux_log_files
+    if block_allocation:
+        resource_dict["init_function"] = init_function
+        max_workers = validate_number_of_cores(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            cores_per_worker=cores_per_worker,
+            set_local_cores=False,
+        )
+        validate_max_workers_flux(
+            max_workers=max_workers,
+            cores=cores_per_worker,
+            threads_per_core=resource_dict.get("threads_per_core", 1),
+        )
+        return InteractiveExecutor(
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=FluxPythonSpawner,
+        )
+    else:
+        return InteractiveStepExecutor(
+            max_cores=max_cores,
+            max_workers=max_workers,
+            executor_kwargs=resource_dict,
+            spawner=FluxPythonSpawner,
+        )
