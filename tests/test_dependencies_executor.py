@@ -5,7 +5,7 @@ from time import sleep
 from queue import Queue
 
 from executorlib import Executor
-from executorlib.interactive.executor import create_executor
+from executorlib.interactive.create import create_executor
 from executorlib.interactive.shared import execute_tasks_with_dependencies
 from executorlib.standalone.plot import generate_nodes_and_edges
 from executorlib.standalone.serialize import cloudpickle_register
