@@ -12,10 +12,7 @@ try:
     import flux.job
     from executorlib.interactive.flux import FluxPythonSpawner
 
-    skip_flux_test = "FLUX_URI" not in os.environ
-    pmi = os.environ.get("PYMPIPOOL_PMIX", None)
-
-    skip_graphviz_flux_test = False
+    skip_graphviz_flux_test = "FLUX_URI" not in os.environ
 except ImportError:
     skip_graphviz_flux_test = True
 
