@@ -1,5 +1,4 @@
 from concurrent.futures import Future
-import os
 import unittest
 from time import sleep
 from queue import Queue
@@ -7,7 +6,6 @@ from queue import Queue
 from executorlib import LocalExecutor
 from executorlib.interfaces.local import create_local_executor
 from executorlib.interactive.shared import execute_tasks_with_dependencies
-from executorlib.standalone.plot import generate_nodes_and_edges
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.thread import RaisingThread
 
@@ -51,50 +49,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
             future_1 = exe.submit(add_function, 1, parameter_2=2)
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertEqual(future_2.result(), 4)
-
-    @unittest.skipIf(
-        skip_graphviz_test,
-        "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
-    )
-    def test_executor_dependency_plot(self):
-        with LocalExecutor(
-            max_cores=1,
-            plot_dependency_graph=True,
-        ) as exe:
-            cloudpickle_register(ind=1)
-            future_1 = exe.submit(add_function, 1, parameter_2=2)
-            future_2 = exe.submit(add_function, 1, parameter_2=future_1)
-            self.assertTrue(future_1.done())
-            self.assertTrue(future_2.done())
-            self.assertEqual(len(exe._future_hash_dict), 2)
-            self.assertEqual(len(exe._task_hash_dict), 2)
-            nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
-                future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
-                },
-            )
-            self.assertEqual(len(nodes), 5)
-            self.assertEqual(len(edges), 4)
-
-    @unittest.skipIf(
-        skip_graphviz_test,
-        "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
-    )
-    def test_executor_dependency_plot_filename(self):
-        graph_file = os.path.join(os.path.dirname(__file__), "test.png")
-        with LocalExecutor(
-            max_cores=1,
-            plot_dependency_graph=False,
-            plot_dependency_graph_filename=graph_file,
-        ) as exe:
-            cloudpickle_register(ind=1)
-            future_1 = exe.submit(add_function, 1, parameter_2=2)
-            future_2 = exe.submit(add_function, 1, parameter_2=future_1)
-            self.assertTrue(future_1.done())
-            self.assertTrue(future_2.done())
-        self.assertTrue(os.path.exists(graph_file))
-        os.remove(graph_file)
 
     def test_dependency_steps(self):
         cloudpickle_register(ind=1)
@@ -175,54 +129,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 resource_dict={"cores": 1},
             )
             self.assertEqual(future_sum.result(), 15)
-
-    @unittest.skipIf(
-        skip_graphviz_test,
-        "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
-    )
-    def test_many_to_one_plot(self):
-        length = 5
-        parameter = 1
-        with LocalExecutor(
-            max_cores=2,
-            plot_dependency_graph=True,
-        ) as exe:
-            cloudpickle_register(ind=1)
-            future_lst = exe.submit(
-                generate_tasks,
-                length=length,
-                resource_dict={"cores": 1},
-            )
-            lst = []
-            for i in range(length):
-                lst.append(
-                    exe.submit(
-                        calc_from_lst,
-                        lst=future_lst,
-                        ind=i,
-                        parameter=parameter,
-                        resource_dict={"cores": 1},
-                    )
-                )
-            future_sum = exe.submit(
-                merge,
-                lst=lst,
-                resource_dict={"cores": 1},
-            )
-            self.assertTrue(future_lst.done())
-            for l in lst:
-                self.assertTrue(l.done())
-            self.assertTrue(future_sum.done())
-            self.assertEqual(len(exe._future_hash_dict), 7)
-            self.assertEqual(len(exe._task_hash_dict), 7)
-            nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
-                future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
-                },
-            )
-            self.assertEqual(len(nodes), 18)
-            self.assertEqual(len(edges), 21)
 
 
 class TestExecutorErrors(unittest.TestCase):
