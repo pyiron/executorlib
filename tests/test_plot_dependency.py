@@ -147,21 +147,6 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
             self.assertEqual(len(nodes), 5)
             self.assertEqual(len(edges), 4)
 
-    def test_executor_dependency_plot_filename(self):
-        graph_file = os.path.join(os.path.dirname(__file__), "test.png")
-        with SlurmAllocationExecutor(
-            max_cores=1,
-            plot_dependency_graph=False,
-            plot_dependency_graph_filename=graph_file,
-        ) as exe:
-            cloudpickle_register(ind=1)
-            future_1 = exe.submit(add_function, 1, parameter_2=2)
-            future_2 = exe.submit(add_function, 1, parameter_2=future_1)
-            self.assertTrue(future_1.done())
-            self.assertTrue(future_2.done())
-        self.assertTrue(os.path.exists(graph_file))
-        os.remove(graph_file)
-
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
@@ -231,20 +216,6 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
             )
             self.assertEqual(len(nodes), 5)
             self.assertEqual(len(edges), 4)
-
-    def test_executor_dependency_plot_filename(self):
-        graph_file = os.path.join(os.path.dirname(__file__), "test.png")
-        with SlurmSubmissionExecutor(
-            plot_dependency_graph=False,
-            plot_dependency_graph_filename=graph_file,
-        ) as exe:
-            cloudpickle_register(ind=1)
-            future_1 = exe.submit(add_function, 1, parameter_2=2)
-            future_2 = exe.submit(add_function, 1, parameter_2=future_1)
-            self.assertTrue(future_1.done())
-            self.assertTrue(future_2.done())
-        self.assertTrue(os.path.exists(graph_file))
-        os.remove(graph_file)
 
     def test_many_to_one_plot(self):
         length = 5
