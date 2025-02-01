@@ -86,7 +86,9 @@ def create_executor(
     if flux_executor is not None and backend != "flux_allocation":
         backend = "flux_allocation"
     if backend == "flux_allocation":
-        check_init_function(block_allocation=block_allocation, init_function=init_function)
+        check_init_function(
+            block_allocation=block_allocation, init_function=init_function
+        )
         check_pmi(backend=backend, pmi=flux_executor_pmi_mode)
         cores_per_worker = resource_dict.get("cores", 1)
         resource_dict["cache_directory"] = cache_directory
@@ -161,9 +163,7 @@ def create_flux_allocation_executor(
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
-    check_oversubscribe(
-        oversubscribe=resource_dict.get("openmpi_oversubscribe", False)
-    )
+    check_oversubscribe(oversubscribe=resource_dict.get("openmpi_oversubscribe", False))
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
