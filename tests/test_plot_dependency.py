@@ -136,7 +136,7 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
         with SlurmAllocationExecutor(
             max_cores=1,
-            block_allocation=True,
+            block_allocation=False,
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
