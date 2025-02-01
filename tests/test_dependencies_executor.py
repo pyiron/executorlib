@@ -4,7 +4,7 @@ import unittest
 from time import sleep
 from queue import Queue
 
-from executorlib import Executor
+from executorlib import LocalExecutor
 from executorlib.interactive.executor import create_executor
 from executorlib.interactive.shared import execute_tasks_with_dependencies
 from executorlib.standalone.plot import generate_nodes_and_edges
@@ -46,7 +46,7 @@ def raise_error():
 
 class TestExecutorWithDependencies(unittest.TestCase):
     def test_executor(self):
-        with Executor(max_cores=1, backend="local") as exe:
+        with LocalExecutor(max_cores=1) as exe:
             cloudpickle_register(ind=1)
             future_1 = exe.submit(add_function, 1, parameter_2=2)
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
@@ -57,9 +57,8 @@ class TestExecutorWithDependencies(unittest.TestCase):
         "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
     )
     def test_executor_dependency_plot(self):
-        with Executor(
+        with LocalExecutor(
             max_cores=1,
-            backend="local",
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -84,9 +83,8 @@ class TestExecutorWithDependencies(unittest.TestCase):
     )
     def test_executor_dependency_plot_filename(self):
         graph_file = os.path.join(os.path.dirname(__file__), "test.png")
-        with Executor(
+        with LocalExecutor(
             max_cores=1,
-            backend="local",
             plot_dependency_graph=False,
             plot_dependency_graph_filename=graph_file,
         ) as exe:
@@ -158,7 +156,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one(self):
         length = 5
         parameter = 1
-        with Executor(max_cores=2, backend="local") as exe:
+        with LocalExecutor(max_cores=2) as exe:
             cloudpickle_register(ind=1)
             future_lst = exe.submit(
                 generate_tasks,
@@ -190,9 +188,8 @@ class TestExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
-        with Executor(
+        with LocalExecutor(
             max_cores=2,
-            backend="local",
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -236,24 +233,24 @@ class TestExecutorWithDependencies(unittest.TestCase):
 class TestExecutorErrors(unittest.TestCase):
     def test_block_allocation_false_one_worker(self):
         with self.assertRaises(RuntimeError):
-            with Executor(max_cores=1, backend="local", block_allocation=False) as exe:
+            with LocalExecutor(max_cores=1, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
                 _ = exe.submit(raise_error)
 
     def test_block_allocation_true_one_worker(self):
         with self.assertRaises(RuntimeError):
-            with Executor(max_cores=1, backend="local", block_allocation=True) as exe:
+            with LocalExecutor(max_cores=1, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
                 _ = exe.submit(raise_error)
 
     def test_block_allocation_false_two_workers(self):
         with self.assertRaises(RuntimeError):
-            with Executor(max_cores=2, backend="local", block_allocation=False) as exe:
+            with LocalExecutor(max_cores=2, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
                 _ = exe.submit(raise_error)
 
     def test_block_allocation_true_two_workers(self):
         with self.assertRaises(RuntimeError):
-            with Executor(max_cores=2, backend="local", block_allocation=True) as exe:
+            with LocalExecutor(max_cores=2, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
                 _ = exe.submit(raise_error)

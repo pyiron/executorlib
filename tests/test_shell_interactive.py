@@ -4,7 +4,7 @@ import subprocess
 import queue
 import unittest
 
-from executorlib import Executor
+from executorlib import LocalExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.interactive.shared import execute_parallel_tasks
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
@@ -104,7 +104,7 @@ class ShellInteractiveExecutorTest(unittest.TestCase):
 
     def test_shell_interactive_executor(self):
         cloudpickle_register(ind=1)
-        with Executor(
+        with LocalExecutor(
             max_workers=1,
             init_function=init_process,
             block_allocation=True,
