@@ -3,7 +3,7 @@ from typing import Callable, Optional
 from executorlib.interactive.executor import (
     ExecutorWithDependencies as _ExecutorWithDependencies,
 )
-from executorlib.interactive.executor import create_executor as _create_executor
+from executorlib.interactive.create import create_executor as _create_executor
 from executorlib.standalone.inputcheck import (
     check_plot_dependency_graph as _check_plot_dependency_graph,
 )
@@ -161,18 +161,21 @@ class LocalExecutor:
         )
         if not disable_dependencies:
             return _ExecutorWithDependencies(
-                max_workers=max_workers,
-                backend="local",
-                cache_directory=cache_directory,
+                executor=_create_executor(
+                    max_workers=max_workers,
+                    backend="local",
+                    cache_directory=cache_directory,
+                    max_cores=max_cores,
+                    resource_dict=resource_dict,
+                    flux_executor=None,
+                    flux_executor_pmi_mode=None,
+                    flux_executor_nesting=False,
+                    flux_log_files=False,
+                    hostname_localhost=hostname_localhost,
+                    block_allocation=block_allocation,
+                    init_function=init_function,
+                ),
                 max_cores=max_cores,
-                resource_dict=resource_dict,
-                flux_executor=None,
-                flux_executor_pmi_mode=None,
-                flux_executor_nesting=False,
-                flux_log_files=False,
-                hostname_localhost=hostname_localhost,
-                block_allocation=block_allocation,
-                init_function=init_function,
                 refresh_rate=refresh_rate,
                 plot_dependency_graph=plot_dependency_graph,
                 plot_dependency_graph_filename=plot_dependency_graph_filename,
