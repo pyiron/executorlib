@@ -61,14 +61,13 @@ class ExecutorWithDependencies(ExecutorBase):
 
     def __init__(
         self,
-        *args: Any,
+        executor: ExecutorBase,
+        max_cores: Optional[int] = None,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
-        **kwargs: Any,
     ) -> None:
-        super().__init__(max_cores=kwargs.get("max_cores", None))
-        executor = create_executor(*args, **kwargs)
+        super().__init__(max_cores=max_cores)
         self._set_process(
             RaisingThread(
                 target=execute_tasks_with_dependencies,
@@ -174,7 +173,7 @@ def create_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-):
+) -> ExecutorBase:
     """
     Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
     executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
