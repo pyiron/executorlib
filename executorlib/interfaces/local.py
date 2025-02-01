@@ -6,11 +6,11 @@ from executorlib.interactive.shared import (
     InteractiveStepExecutor,
 )
 from executorlib.standalone.inputcheck import (
-    check_plot_dependency_graph,
-    check_refresh_rate,
     check_command_line_argument_lst,
     check_gpus_per_worker,
     check_init_function,
+    check_plot_dependency_graph,
+    check_refresh_rate,
     validate_number_of_cores,
 )
 from executorlib.standalone.interactive.spawner import MpiExecSpawner

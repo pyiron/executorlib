@@ -1,18 +1,18 @@
 from typing import Callable, Optional, Union
 
+from executorlib.interactive.executor import ExecutorWithDependencies
 from executorlib.interactive.shared import (
     InteractiveExecutor,
     InteractiveStepExecutor,
 )
-from executorlib.interactive.executor import ExecutorWithDependencies
 from executorlib.standalone.inputcheck import (
-    check_plot_dependency_graph,
-    check_pysqa_config_directory,
-    check_refresh_rate,
     check_command_line_argument_lst,
     check_init_function,
     check_oversubscribe,
+    check_plot_dependency_graph,
     check_pmi,
+    check_pysqa_config_directory,
+    check_refresh_rate,
     validate_number_of_cores,
 )
 
