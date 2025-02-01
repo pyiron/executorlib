@@ -1,6 +1,6 @@
 import unittest
 
-from executorlib import LocalExecutor
+from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 
 
@@ -14,7 +14,7 @@ def resource_dict(resource_dict):
 
 class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial_with_dependencies(self):
-        with LocalExecutor(
+        with SingleNodeExecutor(
             max_cores=2,
             block_allocation=False,
             disable_dependencies=True,
@@ -28,7 +28,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_serial_without_dependencies(self):
-        with LocalExecutor(
+        with SingleNodeExecutor(
             max_cores=2,
             block_allocation=False,
             disable_dependencies=False,
@@ -42,7 +42,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_single(self):
-        with LocalExecutor(
+        with SingleNodeExecutor(
             max_cores=1,
             block_allocation=False,
         ) as exe:
@@ -56,7 +56,7 @@ class TestExecutorBackend(unittest.TestCase):
 
     def test_errors(self):
         with self.assertRaises(TypeError):
-            LocalExecutor(
+            SingleNodeExecutor(
                 max_cores=1,
                 resource_dict={
                     "cores": 1,
@@ -64,13 +64,13 @@ class TestExecutorBackend(unittest.TestCase):
                 },
             )
         with self.assertRaises(ValueError):
-            with LocalExecutor(
+            with SingleNodeExecutor(
                 max_cores=1,
                 block_allocation=False,
             ) as exe:
                 exe.submit(resource_dict, resource_dict={})
         with self.assertRaises(ValueError):
-            with LocalExecutor(
+            with SingleNodeExecutor(
                 max_cores=1,
                 block_allocation=True,
             ) as exe:

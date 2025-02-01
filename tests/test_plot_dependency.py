@@ -2,7 +2,7 @@ import os
 import unittest
 from time import sleep
 
-from executorlib import LocalExecutor, SlurmAllocationExecutor, SlurmSubmissionExecutor
+from executorlib import SingleNodeExecutor, SlurmAllocationExecutor, SlurmSubmissionExecutor
 from executorlib.standalone.plot import generate_nodes_and_edges
 from executorlib.standalone.serialize import cloudpickle_register
 
@@ -41,7 +41,7 @@ def merge(lst):
 )
 class TestLocalExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
-        with LocalExecutor(
+        with SingleNodeExecutor(
             max_cores=1,
             plot_dependency_graph=True,
         ) as exe:
@@ -63,7 +63,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
 
     def test_executor_dependency_plot_filename(self):
         graph_file = os.path.join(os.path.dirname(__file__), "test.png")
-        with LocalExecutor(
+        with SingleNodeExecutor(
             max_cores=1,
             plot_dependency_graph=False,
             plot_dependency_graph_filename=graph_file,
@@ -79,7 +79,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
-        with LocalExecutor(
+        with SingleNodeExecutor(
             max_cores=2,
             plot_dependency_graph=True,
         ) as exe:

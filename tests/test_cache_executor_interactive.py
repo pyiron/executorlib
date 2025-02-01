@@ -2,7 +2,7 @@ import os
 import shutil
 import unittest
 
-from executorlib import LocalExecutor
+from executorlib import SingleNodeExecutor
 
 try:
     from executorlib.standalone.hdf import get_cache_data
@@ -18,7 +18,7 @@ except ImportError:
 class TestCacheFunctions(unittest.TestCase):
     def test_cache_data(self):
         cache_directory = "./cache"
-        with LocalExecutor(cache_directory=cache_directory) as exe:
+        with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             future_lst = [exe.submit(sum, [i, i]) for i in range(1, 4)]
             result_lst = [f.result() for f in future_lst]
 

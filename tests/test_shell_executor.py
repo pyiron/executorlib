@@ -3,7 +3,7 @@ import subprocess
 import queue
 import unittest
 
-from executorlib import LocalExecutor
+from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.interactive.shared import execute_parallel_tasks
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
@@ -83,7 +83,7 @@ class SubprocessExecutorTest(unittest.TestCase):
             )
 
     def test_shell_static_executor_args(self):
-        with LocalExecutor(max_workers=1) as exe:
+        with SingleNodeExecutor(max_workers=1) as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(
                 submit_shell_command,
@@ -96,7 +96,7 @@ class SubprocessExecutorTest(unittest.TestCase):
             self.assertTrue(future.done())
 
     def test_shell_static_executor_binary(self):
-        with LocalExecutor(max_workers=1) as exe:
+        with SingleNodeExecutor(max_workers=1) as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(
                 submit_shell_command,
@@ -109,7 +109,7 @@ class SubprocessExecutorTest(unittest.TestCase):
             self.assertTrue(future.done())
 
     def test_shell_static_executor_shell(self):
-        with LocalExecutor(max_workers=1) as exe:
+        with SingleNodeExecutor(max_workers=1) as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(
                 submit_shell_command, "echo test", universal_newlines=True, shell=True
@@ -119,7 +119,7 @@ class SubprocessExecutorTest(unittest.TestCase):
             self.assertTrue(future.done())
 
     def test_shell_executor(self):
-        with LocalExecutor(max_workers=2) as exe:
+        with SingleNodeExecutor(max_workers=2) as exe:
             cloudpickle_register(ind=1)
             f_1 = exe.submit(
                 submit_shell_command, ["echo", "test_1"], universal_newlines=True

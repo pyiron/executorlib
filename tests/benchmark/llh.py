@@ -42,10 +42,10 @@ if __name__ == "__main__":
             executor=ThreadPoolExecutor, mean=0.1, sigma=1.1, runs=32, max_workers=4
         )
     elif run_mode == "block_allocation":
-        from executorlib import LocalExecutor
+        from executorlib import SingleNodeExecutor
 
         run_with_executor(
-            executor=LocalExecutor,
+            executor=SingleNodeExecutor,
             mean=0.1,
             sigma=1.1,
             runs=32,
@@ -53,10 +53,10 @@ if __name__ == "__main__":
             block_allocation=True,
         )
     elif run_mode == "executorlib":
-        from executorlib import LocalExecutor
+        from executorlib import SingleNodeExecutor
 
         run_with_executor(
-            executor=LocalExecutor,
+            executor=SingleNodeExecutor,
             mean=0.1,
             sigma=1.1,
             runs=32,
