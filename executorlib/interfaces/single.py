@@ -59,7 +59,7 @@ class SingleNodeExecutor:
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.local import SingleNodeExecutor
+        >>> from executorlib.interfaces.single import SingleNodeExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -70,7 +70,7 @@ class SingleNodeExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with SingleNodeExecutor(cores=2, init_function=init_k) as p:
+        >>> with SingleNodeExecutor(max_workers=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]

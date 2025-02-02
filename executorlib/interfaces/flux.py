@@ -82,7 +82,7 @@ class FluxJobExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with FluxJobExecutor(cores=2, init_function=init_k) as p:
+        >>> with FluxJobExecutor(max_workers=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
@@ -280,7 +280,7 @@ class FluxClusterExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with Executor(cores=2, init_function=init_k) as p:
+        >>> with FluxClusterExecutor(max_workers=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]

@@ -72,7 +72,7 @@ class SlurmClusterExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with SlurmClusterExecutor(cores=2, init_function=init_k) as p:
+        >>> with SlurmClusterExecutor(max_workers=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
@@ -259,7 +259,7 @@ class SlurmJobExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with SlurmJobExecutor(cores=2, init_function=init_k) as p:
+        >>> with SlurmJobExecutor(max_workers=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
