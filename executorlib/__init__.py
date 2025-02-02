@@ -1,19 +1,19 @@
 from executorlib._version import get_versions as _get_versions
 from executorlib.interfaces.flux import (
-    FluxAllocationExecutor,
-    FluxSubmissionExecutor,
+    FluxJobExecutor,
+    FluxClusterExecutor,
 )
 from executorlib.interfaces.single import SingleNodeExecutor
 from executorlib.interfaces.slurm import (
-    SlurmAllocationExecutor,
-    SlurmSubmissionExecutor,
+    SlurmJobExecutor,
+    SlurmClusterExecutor,
 )
 
 __version__ = _get_versions()["version"]
 __all__: list = [
-    "FluxAllocationExecutor",
-    "FluxSubmissionExecutor",
+    "FluxJobExecutor",
+    "FluxClusterExecutor",
     "SingleNodeExecutor",
-    "SlurmAllocationExecutor",
-    "SlurmSubmissionExecutor",
+    "SlurmJobExecutor",
+    "SlurmClusterExecutor",
 ]

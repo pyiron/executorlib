@@ -2,7 +2,7 @@ import os
 import unittest
 from time import sleep
 
-from executorlib import FluxAllocationExecutor, FluxSubmissionExecutor
+from executorlib import FluxJobExecutor, FluxClusterExecutor
 from executorlib.standalone.plot import generate_nodes_and_edges
 from executorlib.standalone.serialize import cloudpickle_register
 
@@ -43,7 +43,7 @@ def merge(lst):
 )
 class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=1,
             plot_dependency_graph=True,
             block_allocation=False,
@@ -67,7 +67,7 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=2,
             plot_dependency_graph=True,
             block_allocation=True,
@@ -116,7 +116,7 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
 )
 class TestFluxSubmissionExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
-        with FluxSubmissionExecutor(
+        with FluxClusterExecutor(
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -138,7 +138,7 @@ class TestFluxSubmissionExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
-        with FluxSubmissionExecutor(
+        with FluxClusterExecutor(
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)

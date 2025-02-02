@@ -4,7 +4,7 @@ import shutil
 import time
 import unittest
 
-from executorlib import SingleNodeExecutor, SlurmAllocationExecutor
+from executorlib import SingleNodeExecutor, SlurmJobExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 
 
@@ -131,7 +131,7 @@ class TestSLURMExecutor(unittest.TestCase):
         os.environ["SLURM_NTASKS"] = "6"
         os.environ["SLURM_CPUS_PER_TASK"] = "4"
         with self.assertRaises(ValueError):
-            SlurmAllocationExecutor(
+            SlurmJobExecutor(
                 max_workers=10,
                 resource_dict={"cores": 10, "threads_per_core": 10},
                 block_allocation=True,

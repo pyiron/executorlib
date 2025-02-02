@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from executorlib import FluxAllocationExecutor
+from executorlib import FluxJobExecutor
 
 
 try:
@@ -44,7 +44,7 @@ class TestFluxBackend(unittest.TestCase):
         self.executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=2,
             flux_executor=self.executor,
             block_allocation=True,
@@ -57,7 +57,7 @@ class TestFluxBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_serial_no_depencies(self):
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=2,
             flux_executor=self.executor,
             block_allocation=True,
@@ -71,7 +71,7 @@ class TestFluxBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_threads(self):
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=1,
             resource_dict={"threads_per_core": 2},
             flux_executor=self.executor,
@@ -85,7 +85,7 @@ class TestFluxBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_parallel(self):
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=2,
             resource_dict={"cores": 2},
             flux_executor=self.executor,
@@ -97,7 +97,7 @@ class TestFluxBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=2,
             resource_dict={"cores": 2},
             flux_executor=self.executor,
@@ -115,7 +115,7 @@ class TestFluxBackend(unittest.TestCase):
         os.makedirs(dirname, exist_ok=True)
         file_stdout = os.path.join(dirname, "flux.out")
         file_stderr = os.path.join(dirname, "flux.err")
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=1,
             resource_dict={"cores": 1, "cwd": dirname},
             flux_executor=self.executor,
@@ -135,7 +135,7 @@ class TestFluxBackend(unittest.TestCase):
     def test_output_files_abs(self):
         file_stdout = os.path.abspath("flux.out")
         file_stderr = os.path.abspath("flux.err")
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=1,
             resource_dict={"cores": 1},
             flux_executor=self.executor,
@@ -153,7 +153,7 @@ class TestFluxBackend(unittest.TestCase):
         os.remove(file_stderr)
 
     def test_internal_memory(self):
-        with FluxAllocationExecutor(
+        with FluxJobExecutor(
             max_cores=1,
             resource_dict={"cores": 1},
             init_function=set_global,
@@ -167,7 +167,7 @@ class TestFluxBackend(unittest.TestCase):
 
     def test_validate_max_workers(self):
         with self.assertRaises(ValueError):
-            FluxAllocationExecutor(
+            FluxJobExecutor(
                 max_workers=10,
                 resource_dict={"cores": 10, "threads_per_core": 10},
                 flux_executor=self.executor,

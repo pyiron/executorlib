@@ -24,7 +24,7 @@ except ImportError:
     pass
 
 
-class FluxAllocationExecutor:
+class FluxJobExecutor:
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -71,7 +71,7 @@ class FluxAllocationExecutor:
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.flux import FluxAllocationExecutor
+        >>> from executorlib.interfaces.flux import FluxJobExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -82,7 +82,7 @@ class FluxAllocationExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with FluxAllocationExecutor(cores=2, init_function=init_k) as p:
+        >>> with FluxJobExecutor(cores=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
@@ -225,7 +225,7 @@ class FluxAllocationExecutor:
             )
 
 
-class FluxSubmissionExecutor:
+class FluxClusterExecutor:
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -269,7 +269,7 @@ class FluxSubmissionExecutor:
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.flux import FluxSubmissionExecutor
+        >>> from executorlib.interfaces.flux import FluxClusterExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI

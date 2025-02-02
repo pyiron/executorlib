@@ -17,7 +17,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 
-class SlurmSubmissionExecutor:
+class SlurmClusterExecutor:
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -61,7 +61,7 @@ class SlurmSubmissionExecutor:
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.slurm import SlurmSubmissionExecutor
+        >>> from executorlib.interfaces.slurm import SlurmClusterExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -72,7 +72,7 @@ class SlurmSubmissionExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with SlurmSubmissionExecutor(cores=2, init_function=init_k) as p:
+        >>> with SlurmClusterExecutor(cores=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]
@@ -205,7 +205,7 @@ class SlurmSubmissionExecutor:
             )
 
 
-class SlurmAllocationExecutor:
+class SlurmJobExecutor:
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -248,7 +248,7 @@ class SlurmAllocationExecutor:
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.slurm import SlurmAllocationExecutor
+        >>> from executorlib.interfaces.slurm import SlurmJobExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -259,7 +259,7 @@ class SlurmAllocationExecutor:
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with SlurmAllocationExecutor(cores=2, init_function=init_k) as p:
+        >>> with SlurmJobExecutor(cores=2, init_function=init_k) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]

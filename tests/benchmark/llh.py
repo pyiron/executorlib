@@ -64,10 +64,10 @@ if __name__ == "__main__":
             block_allocation=False,
         )
     elif run_mode == "flux":
-        from executorlib import FluxAllocationExecutor
+        from executorlib import FluxJobExecutor
 
         run_with_executor(
-            executor=FluxAllocationExecutor,
+            executor=FluxJobExecutor,
             mean=0.1,
             sigma=1.1,
             runs=32,

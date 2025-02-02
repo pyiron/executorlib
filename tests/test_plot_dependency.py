@@ -4,8 +4,8 @@ from time import sleep
 
 from executorlib import (
     SingleNodeExecutor,
-    SlurmAllocationExecutor,
-    SlurmSubmissionExecutor,
+    SlurmJobExecutor,
+    SlurmClusterExecutor,
 )
 from executorlib.standalone.plot import generate_nodes_and_edges
 from executorlib.standalone.serialize import cloudpickle_register
@@ -134,7 +134,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
 )
 class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
-        with SlurmAllocationExecutor(
+        with SlurmJobExecutor(
             max_cores=1,
             block_allocation=False,
             plot_dependency_graph=True,
@@ -158,7 +158,7 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
-        with SlurmAllocationExecutor(
+        with SlurmJobExecutor(
             max_cores=2,
             block_allocation=False,
             plot_dependency_graph=True,
@@ -207,7 +207,7 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
 )
 class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
     def test_executor_dependency_plot(self):
-        with SlurmSubmissionExecutor(
+        with SlurmClusterExecutor(
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -229,7 +229,7 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
     def test_many_to_one_plot(self):
         length = 5
         parameter = 1
-        with SlurmSubmissionExecutor(
+        with SlurmClusterExecutor(
             plot_dependency_graph=True,
         ) as exe:
             cloudpickle_register(ind=1)
