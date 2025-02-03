@@ -64,7 +64,11 @@ class ExecutorBase(FutureExecutor):
         return self._future_queue
 
     def submit(
-        self, fn: Callable, *args, resource_dict: Optional[dict] = None, **kwargs  # type: ignore
+        self,
+        fn: Callable,
+        *args,
+        resource_dict: Optional[dict] = None,
+        **kwargs,  # type: ignore
     ) -> Future:
         """
         Submits a callable to be executed with the given arguments.
