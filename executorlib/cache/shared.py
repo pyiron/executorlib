@@ -1,9 +1,10 @@
+import contextlib
 import importlib.util
 import os
 import queue
 import sys
 from concurrent.futures import Future
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.hdf import dump, get_output
@@ -79,15 +80,9 @@ def execute_tasks_h5(
     file_name_dict: dict = {}
     while True:
         task_dict = None
-        try:
+        with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
-        except queue.Empty:
-            pass
-        if (
-            task_dict is not None
-            and "shutdown" in task_dict.keys()
-            and task_dict["shutdown"]
-        ):
+        if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
             if terminate_function is not None:
                 for task in process_dict.values():
                     terminate_function(task=task)
@@ -110,7 +105,7 @@ def execute_tasks_h5(
                 fn_kwargs=task_kwargs,
                 resource_dict=task_resource_dict,
             )
-            if task_key not in memory_dict.keys():
+            if task_key not in memory_dict:
                 if task_key + ".h5out" not in os.listdir(cache_directory):
                     file_name = os.path.join(cache_directory, task_key + ".h5in")
                     dump(file_name=file_name, data_dict=data_dict)
@@ -204,7 +199,7 @@ def _check_task_output(
 
 def _convert_args_and_kwargs(
     task_dict: dict, memory_dict: dict, file_name_dict: dict
-) -> Tuple[list, dict, list]:
+) -> tuple[list, dict, list]:
     """
     Convert the arguments and keyword arguments in a task dictionary to the appropriate types.
 

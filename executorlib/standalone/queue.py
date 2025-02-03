@@ -12,7 +12,7 @@ def cancel_items_in_queue(que: queue.Queue):
     while True:
         try:
             item = que.get_nowait()
-            if isinstance(item, dict) and "future" in item.keys():
+            if isinstance(item, dict) and "future" in item:
                 item["future"].cancel()
                 que.task_done()
         except queue.Empty:

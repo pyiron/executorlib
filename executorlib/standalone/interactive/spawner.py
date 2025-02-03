@@ -1,5 +1,5 @@
 import subprocess
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Optional
 
 MPI_COMMAND = "mpiexec"
@@ -24,6 +24,7 @@ class BaseSpawner(ABC):
         self._cores = cores
         self._openmpi_oversubscribe = openmpi_oversubscribe
 
+    @abstractmethod
     def bootup(
         self,
         command_lst: list[str],
@@ -36,6 +37,7 @@ class BaseSpawner(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def shutdown(self, wait: bool = True):
         """
         Method to shutdown the interface.
@@ -45,6 +47,7 @@ class BaseSpawner(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def poll(self):
         """
         Method to check if the interface is running.

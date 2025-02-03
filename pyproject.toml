@@ -44,7 +44,7 @@ graph = [
 graphnotebook = [
     "pygraphviz==1.14",
     "networkx==3.4.2",
-    "ipython==8.31.0",
+    "ipython==8.32.0",
 ]
 mpi = ["mpi4py==4.0.1"]
 submission = [
@@ -57,7 +57,42 @@ all = [
     "h5py==3.12.1",
     "pygraphviz==1.14",
     "networkx==3.4.2",
-    "ipython==8.31.0",
+    "ipython==8.32.0",
+]
+
+[tool.ruff]
+exclude = [".ci_support", "docs", "notebooks", "tests", "setup.py", "_version.py"]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # flake8-comprehensions
+    "C4",
+    # eradicate
+    "ERA",
+    # pylint
+    "PL",
+]
+ignore = [
+    # ignore line-length violations
+    "E501",
+    # Too many arguments in function definition
+    "PLR0913",
+    # Magic value used in comparison
+    "PLR2004",
+    # Too many branches
+    "PLR0912",
 ]
 
 [tool.setuptools.packages.find]
