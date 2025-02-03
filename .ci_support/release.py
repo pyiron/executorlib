@@ -52,10 +52,10 @@ def update_dependencies(setup_content, version_low_dict, version_high_dict):
 
 
 if __name__ == "__main__":
-    with open("pyproject.toml", "r") as f:
+    with open("pyproject.toml") as f:
         setup_content = f.readlines()
 
-    with open("environment.yml", "r") as f:
+    with open("environment.yml") as f:
         env_content = f.readlines()
 
     setup_content_new = update_dependencies(

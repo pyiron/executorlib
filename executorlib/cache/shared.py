@@ -110,7 +110,7 @@ def execute_tasks_h5(
                 fn_kwargs=task_kwargs,
                 resource_dict=task_resource_dict,
             )
-            if task_key not in memory_dict.keys():
+            if task_key not in memory_dict:
                 if task_key + ".h5out" not in os.listdir(cache_directory):
                     file_name = os.path.join(cache_directory, task_key + ".h5in")
                     dump(file_name=file_name, data_dict=data_dict)

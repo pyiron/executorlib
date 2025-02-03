@@ -185,13 +185,12 @@ def validate_number_of_cores(
         return int(max_cores / cores_per_worker)
     elif max_workers is not None:
         return int(max_workers)
+    elif max_cores is None and max_workers is None and not set_local_cores:
+        raise ValueError(
+            "Block allocation requires a fixed set of computational resources. Neither max_cores nor max_workers are defined."
+        )
     else:
-        if max_cores is None and max_workers is None and not set_local_cores:
-            raise ValueError(
-                "Block allocation requires a fixed set of computational resources. Neither max_cores nor max_workers are defined."
-            )
-        else:
-            return multiprocessing.cpu_count()
+        return multiprocessing.cpu_count()
 
 
 def check_file_exists(file_name: Optional[str]):
