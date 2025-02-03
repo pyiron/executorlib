@@ -23,7 +23,9 @@ from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBroker(ExecutorBase):
-    def submit(self, fn: Callable, *args, resource_dict: Optional[dict] = None, **kwargs) -> Future:  # type: ignore
+    def submit(
+        self, fn: Callable, *args, resource_dict: Optional[dict] = None, **kwargs
+    ) -> Future:  # type: ignore
         """
         Submits a callable to be executed with the given arguments.
 
@@ -349,18 +351,14 @@ def execute_tasks_with_dependencies(
         except queue.Empty:
             task_dict = None
         if (  # shutdown the executor
-            task_dict is not None
-            and "shutdown" in task_dict
-            and task_dict["shutdown"]
+            task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]
         ):
             executor.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
             future_queue.join()
             break
         elif (  # handle function submitted to the executor
-            task_dict is not None
-            and "fn" in task_dict
-            and "future" in task_dict
+            task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
             future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
             if len(future_lst) == 0 or ready_flag:

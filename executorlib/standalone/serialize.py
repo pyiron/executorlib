@@ -29,7 +29,10 @@ def cloudpickle_register(ind: int = 2):
 
 
 def serialize_funct_h5(
-    fn: Callable, fn_args: Optional[list] = None, fn_kwargs: Optional[dict] = None, resource_dict: Optional[dict] = None
+    fn: Callable,
+    fn_args: Optional[list] = None,
+    fn_kwargs: Optional[dict] = None,
+    resource_dict: Optional[dict] = None,
 ) -> tuple[str, dict]:
     """
     Serialize a function and its arguments and keyword arguments into an HDF5 file.
