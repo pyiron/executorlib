@@ -46,7 +46,7 @@ graphnotebook = [
     "networkx==3.4.2",
     "ipython==8.31.0",
 ]
-mpi = ["mpi4py==4.0.1"]
+mpi = ["mpi4py==4.0.2"]
 submission = [
     "pysqa==0.2.3",
     "h5py==3.12.1",
