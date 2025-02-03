@@ -136,7 +136,7 @@ class InteractiveExecutor(ExecutorBroker):
         executor_kwargs: dict = {},
         spawner: type[BaseSpawner] = MpiExecSpawner,
     ):
-        super().__init__(max_cores=executor_kwargs.get("max_cores", None))
+        super().__init__(max_cores=executor_kwargs.get("max_cores"))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
@@ -190,7 +190,7 @@ class InteractiveStepExecutor(ExecutorBase):
         executor_kwargs: dict = {},
         spawner: type[BaseSpawner] = MpiExecSpawner,
     ):
-        super().__init__(max_cores=executor_kwargs.get("max_cores", None))
+        super().__init__(max_cores=executor_kwargs.get("max_cores"))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["max_cores"] = max_cores
@@ -293,7 +293,7 @@ def execute_separate_tasks(
     active_task_dict: dict = {}
     process_lst: list = []
     qtask_lst: list = []
-    if "cores" not in kwargs.keys():
+    if "cores" not in kwargs:
         kwargs["cores"] = 1
     while True:
         task_dict = future_queue.get()

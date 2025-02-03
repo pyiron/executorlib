@@ -167,9 +167,9 @@ def create_flux_allocation_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
-    if "openmpi_oversubscribe" in resource_dict.keys():
+    if "openmpi_oversubscribe" in resource_dict:
         del resource_dict["openmpi_oversubscribe"]
-    if "slurm_cmd_args" in resource_dict.keys():
+    if "slurm_cmd_args" in resource_dict:
         del resource_dict["slurm_cmd_args"]
     resource_dict["flux_executor"] = flux_executor
     resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
@@ -260,11 +260,11 @@ def create_local_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
-    if "threads_per_core" in resource_dict.keys():
+    if "threads_per_core" in resource_dict:
         del resource_dict["threads_per_core"]
-    if "gpus_per_core" in resource_dict.keys():
+    if "gpus_per_core" in resource_dict:
         del resource_dict["gpus_per_core"]
-    if "slurm_cmd_args" in resource_dict.keys():
+    if "slurm_cmd_args" in resource_dict:
         del resource_dict["slurm_cmd_args"]
     if block_allocation:
         resource_dict["init_function"] = init_function

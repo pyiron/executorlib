@@ -1,7 +1,6 @@
 import pickle
 import sys
 import time
-from typing import Any
 
 import cloudpickle
 

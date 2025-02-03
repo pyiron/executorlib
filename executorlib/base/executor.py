@@ -87,7 +87,7 @@ class ExecutorBase(FutureExecutor):
         Returns:
             Future: A Future representing the given call.
         """
-        cores = resource_dict.get("cores", None)
+        cores = resource_dict.get("cores")
         if (
             cores is not None
             and self._max_cores is not None
