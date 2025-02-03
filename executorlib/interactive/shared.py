@@ -23,9 +23,9 @@ from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBroker(ExecutorBase):
-    def submit(
+    def submit(  # type: ignore
         self, fn: Callable, *args, resource_dict: Optional[dict] = None, **kwargs
-    ) -> Future:  # type: ignore
+    ) -> Future:
         """
         Submits a callable to be executed with the given arguments.
 
