@@ -3,7 +3,7 @@ import importlib
 import unittest
 import shutil
 
-from executorlib import Executor
+from executorlib import FluxClusterExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:
@@ -32,8 +32,7 @@ def mpi_funct(i):
 )
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
-        with Executor(
-            backend="flux_submission",
+        with FluxClusterExecutor(
             resource_dict={"cores": 2, "cwd": "cache"},
             block_allocation=False,
             cache_directory="cache",
