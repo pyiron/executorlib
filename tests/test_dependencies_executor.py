@@ -4,7 +4,7 @@ from time import sleep
 from queue import Queue
 
 from executorlib import SingleNodeExecutor
-from executorlib.interfaces.single import create_local_executor
+from executorlib.interfaces.single import create_single_node_executor
 from executorlib.interactive.shared import execute_tasks_with_dependencies
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.thread import RaisingThread
@@ -73,7 +73,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 "resource_dict": {"cores": 1},
             }
         )
-        executor = create_local_executor(
+        executor = create_single_node_executor(
             max_workers=1,
             max_cores=2,
             resource_dict={
