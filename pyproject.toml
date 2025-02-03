@@ -61,7 +61,7 @@ all = [
 ]
 
 [tool.ruff]
-exclude = ["docs", "notebooks", "tests", "setup.py", "_version.py"]
+exclude = [".ci_support", "docs", "notebooks", "tests", "setup.py", "_version.py"]
 
 [tool.ruff.lint]
 select = [

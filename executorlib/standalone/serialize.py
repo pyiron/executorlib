@@ -1,7 +1,7 @@
 import hashlib
 import inspect
 import re
-from typing import Callable
+from typing import Callable, Optional
 
 import cloudpickle
 
@@ -29,7 +29,7 @@ def cloudpickle_register(ind: int = 2):
 
 
 def serialize_funct_h5(
-    fn: Callable, fn_args: list = [], fn_kwargs: dict = {}, resource_dict: dict = {}
+    fn: Callable, fn_args: Optional[list] = None, fn_kwargs: Optional[dict] = None, resource_dict: Optional[dict] = None
 ) -> tuple[str, dict]:
     """
     Serialize a function and its arguments and keyword arguments into an HDF5 file.
@@ -53,6 +53,12 @@ def serialize_funct_h5(
         Tuple[str, dict]: A tuple containing the task key and the serialized data.
 
     """
+    if fn_args is None:
+        fn_args = []
+    if fn_kwargs is None:
+        fn_kwargs = {}
+    if resource_dict is None:
+        resource_dict = {}
     binary_all = cloudpickle.dumps(
         {"fn": fn, "args": fn_args, "kwargs": fn_kwargs, "resource_dict": resource_dict}
     )

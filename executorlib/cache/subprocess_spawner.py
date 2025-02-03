@@ -48,7 +48,7 @@ def execute_in_subprocess(
         raise ValueError("backend parameter is not supported for subprocess spawner.")
     if resource_dict is None:
         resource_dict = {}
-    cwd = resource_dict["cwd"] if "cwd" in resource_dict else cache_directory
+    cwd = resource_dict.get("cwd", cache_directory)
     return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
 
 
