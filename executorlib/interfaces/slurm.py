@@ -386,7 +386,7 @@ def create_slurm_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: dict = {},
+    resource_dict: Optional[dict] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
@@ -425,10 +425,12 @@ def create_slurm_executor(
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
     """
-    check_init_function(block_allocation=block_allocation, init_function=init_function)
+    if resource_dict is None:
+        resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
+    check_init_function(block_allocation=block_allocation, init_function=init_function)
     if block_allocation:
         resource_dict["init_function"] = init_function
         max_workers = validate_number_of_cores(

@@ -197,7 +197,7 @@ def create_single_node_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: dict = {},
+    resource_dict: Optional[dict] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
@@ -236,20 +236,22 @@ def create_single_node_executor(
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
     """
-    check_init_function(block_allocation=block_allocation, init_function=init_function)
+    if resource_dict is None:
+        resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
 
+    check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_gpus_per_worker(gpus_per_worker=resource_dict.get("gpus_per_core", 0))
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
-    if "threads_per_core" in resource_dict.keys():
+    if "threads_per_core" in resource_dict:
         del resource_dict["threads_per_core"]
-    if "gpus_per_core" in resource_dict.keys():
+    if "gpus_per_core" in resource_dict:
         del resource_dict["gpus_per_core"]
-    if "slurm_cmd_args" in resource_dict.keys():
+    if "slurm_cmd_args" in resource_dict:
         del resource_dict["slurm_cmd_args"]
     if block_allocation:
         resource_dict["init_function"] = init_function
