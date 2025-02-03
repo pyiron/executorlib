@@ -1,5 +1,5 @@
 import os
-from typing import Any, List, Optional, Tuple
+from typing import Any, Optional
 
 import cloudpickle
 import h5py
@@ -60,7 +60,7 @@ def load(file_name: str) -> dict:
         return data_dict
 
 
-def get_output(file_name: str) -> Tuple[bool, Any]:
+def get_output(file_name: str) -> tuple[bool, Any]:
     """
     Check if output is available in the HDF5 file
 
@@ -102,7 +102,7 @@ def get_queue_id(file_name: Optional[str]) -> Optional[int]:
     return None
 
 
-def get_cache_data(cache_directory: str) -> List[dict]:
+def get_cache_data(cache_directory: str) -> list[dict]:
     file_lst = []
     for file_name in os.listdir(cache_directory):
         with h5py.File(os.path.join(cache_directory, file_name), "r") as hdf:

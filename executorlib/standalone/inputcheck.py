@@ -2,7 +2,7 @@ import inspect
 import multiprocessing
 import os.path
 from concurrent.futures import Executor
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
 
 def check_oversubscribe(oversubscribe: bool) -> None:
@@ -16,7 +16,7 @@ def check_oversubscribe(oversubscribe: bool) -> None:
         )
 
 
-def check_command_line_argument_lst(command_line_argument_lst: List[str]) -> None:
+def check_command_line_argument_lst(command_line_argument_lst: list[str]) -> None:
     """
     Check if command_line_argument_lst is not empty and raise a ValueError if it is.
     """
@@ -63,7 +63,7 @@ def check_resource_dict(function: Callable) -> None:
     """
     Check if the function has a parameter named 'resource_dict' and raise a ValueError if it does.
     """
-    if "resource_dict" in inspect.signature(function).parameters.keys():
+    if "resource_dict" in inspect.signature(function).parameters:
         raise ValueError(
             "The parameter resource_dict is used internally in executorlib, "
             "so it cannot be used as a parameter in the submitted functions."

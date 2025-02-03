@@ -1,13 +1,13 @@
 import os.path
 from concurrent.futures import Future
-from typing import Optional, Tuple
+from typing import Optional
 
 import cloudpickle
 
 
 def generate_nodes_and_edges(
     task_hash_dict: dict, future_hash_inverse_dict: dict
-) -> Tuple[list, list]:
+) -> tuple[list, list]:
     """
     Generate nodes and edges for visualization.
 

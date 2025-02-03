@@ -7,7 +7,7 @@ from executorlib.standalone.inputcheck import check_file_exists
 
 def execute_in_subprocess(
     command: list,
-    task_dependent_lst: list = [],
+    task_dependent_lst: Optional[list] = None,
     file_name: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
@@ -33,6 +33,8 @@ def execute_in_subprocess(
         subprocess.Popen: The subprocess object.
 
     """
+    if task_dependent_lst is None:
+        task_dependent_lst = []
     check_file_exists(file_name=file_name)
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
@@ -46,10 +48,7 @@ def execute_in_subprocess(
         raise ValueError("backend parameter is not supported for subprocess spawner.")
     if resource_dict is None:
         resource_dict = {}
-    if "cwd" in resource_dict:
-        cwd = resource_dict["cwd"]
-    else:
-        cwd = cache_directory
+    cwd = resource_dict["cwd"] if "cwd" in resource_dict else cache_directory
     return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
 
 

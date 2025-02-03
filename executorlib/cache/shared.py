@@ -3,7 +3,7 @@ import os
 import queue
 import sys
 from concurrent.futures import Future
-from typing import Any, Callable, Optional, Tuple
+from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.hdf import dump, get_output
@@ -79,13 +79,11 @@ def execute_tasks_h5(
     file_name_dict: dict = {}
     while True:
         task_dict = None
-        try:
+        with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
-        except queue.Empty:
-            pass
         if (
             task_dict is not None
-            and "shutdown" in task_dict.keys()
+            and "shutdown" in task_dict
             and task_dict["shutdown"]
         ):
             if terminate_function is not None:
@@ -204,7 +202,7 @@ def _check_task_output(
 
 def _convert_args_and_kwargs(
     task_dict: dict, memory_dict: dict, file_name_dict: dict
-) -> Tuple[list, dict, list]:
+) -> tuple[list, dict, list]:
     """
     Convert the arguments and keyword arguments in a task dictionary to the appropriate types.
 
