@@ -81,11 +81,7 @@ def execute_tasks_h5(
         task_dict = None
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
-        if (
-            task_dict is not None
-            and "shutdown" in task_dict
-            and task_dict["shutdown"]
-        ):
+        if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
             if terminate_function is not None:
                 for task in process_dict.values():
                     terminate_function(task=task)

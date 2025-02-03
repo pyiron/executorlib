@@ -36,7 +36,7 @@ def execute_with_pysqa(
         int: queuing system ID
     """
     if task_dependent_lst is None:
-        task_dependent_lst =  []
+        task_dependent_lst = []
     check_file_exists(file_name=file_name)
     queue_id = get_queue_id(file_name=file_name)
     qa = QueueAdapter(
