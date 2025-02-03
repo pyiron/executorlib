@@ -94,5 +94,5 @@ def _update_dict_delta(
     return {
         k: v
         for k, v in dict_input.items()
-        if k in keys_possible_lst and k not in dict_output.keys()
+        if k in keys_possible_lst and k not in dict_output
     }

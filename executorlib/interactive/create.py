@@ -35,7 +35,7 @@ def create_executor(
     backend: str = "local",
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: dict = {},
+    resource_dict: Optional[dict] = None,
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
@@ -83,6 +83,8 @@ def create_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
     """
+    if resource_dict is None:
+        resource_dict = {}
     if flux_executor is not None and backend != "flux_allocation":
         backend = "flux_allocation"
     if backend == "flux_allocation":
@@ -149,7 +151,7 @@ def create_flux_allocation_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: dict = {},
+    resource_dict: Optional[dict] = None,
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
@@ -160,6 +162,8 @@ def create_flux_allocation_executor(
 ) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_pmi(backend="flux_allocation", pmi=flux_executor_pmi_mode)
+    if resource_dict is None:
+        resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
@@ -167,9 +171,9 @@ def create_flux_allocation_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
-    if "openmpi_oversubscribe" in resource_dict.keys():
+    if "openmpi_oversubscribe" in resource_dict:
         del resource_dict["openmpi_oversubscribe"]
-    if "slurm_cmd_args" in resource_dict.keys():
+    if "slurm_cmd_args" in resource_dict:
         del resource_dict["slurm_cmd_args"]
     resource_dict["flux_executor"] = flux_executor
     resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
@@ -206,12 +210,14 @@ def create_slurm_allocation_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: dict = {},
+    resource_dict: Optional[dict] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
 ) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    if resource_dict is None:
+        resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
@@ -246,12 +252,14 @@ def create_local_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: dict = {},
+    resource_dict: Optional[dict] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
 ) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    if resource_dict is None:
+        resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
@@ -260,11 +268,11 @@ def create_local_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
-    if "threads_per_core" in resource_dict.keys():
+    if "threads_per_core" in resource_dict:
         del resource_dict["threads_per_core"]
-    if "gpus_per_core" in resource_dict.keys():
+    if "gpus_per_core" in resource_dict:
         del resource_dict["gpus_per_core"]
-    if "slurm_cmd_args" in resource_dict.keys():
+    if "slurm_cmd_args" in resource_dict:
         del resource_dict["slurm_cmd_args"]
     if block_allocation:
         resource_dict["init_function"] = init_function

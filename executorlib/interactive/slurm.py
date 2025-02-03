@@ -28,7 +28,7 @@ class SrunSpawner(SubprocessSpawner):
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
         openmpi_oversubscribe: bool = False,
-        slurm_cmd_args: list[str] = [],
+        slurm_cmd_args: Optional[list[str]] = None,
     ):
         """
         Srun interface implementation.
@@ -79,7 +79,7 @@ def generate_slurm_command(
     threads_per_core: int = 1,
     gpus_per_core: int = 0,
     openmpi_oversubscribe: bool = False,
-    slurm_cmd_args: list[str] = [],
+    slurm_cmd_args: Optional[list[str]] = None,
 ) -> list[str]:
     """
     Generate the command list for the SLURM interface.
@@ -104,6 +104,6 @@ def generate_slurm_command(
         command_prepend_lst += ["--gpus-per-task=" + str(gpus_per_core)]
     if openmpi_oversubscribe:
         command_prepend_lst += ["--oversubscribe"]
-    if len(slurm_cmd_args) > 0:
+    if slurm_cmd_args is not None and len(slurm_cmd_args) > 0:
         command_prepend_lst += slurm_cmd_args
     return command_prepend_lst

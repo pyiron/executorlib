@@ -1,3 +1,4 @@
+import contextlib
 import queue
 from concurrent.futures import (
     Executor as FutureExecutor,
@@ -5,7 +6,7 @@ from concurrent.futures import (
 from concurrent.futures import (
     Future,
 )
-from typing import Callable, List, Optional, Union
+from typing import Callable, Optional, Union
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
@@ -28,7 +29,7 @@ class ExecutorBase(FutureExecutor):
         cloudpickle_register(ind=3)
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
-        self._process: Optional[Union[RaisingThread, List[RaisingThread]]] = None
+        self._process: Optional[Union[RaisingThread, list[RaisingThread]]] = None
 
     @property
     def info(self) -> Optional[dict]:
@@ -40,13 +41,13 @@ class ExecutorBase(FutureExecutor):
         """
         if self._process is not None and isinstance(self._process, list):
             meta_data_dict = self._process[0].get_kwargs().copy()
-            if "future_queue" in meta_data_dict.keys():
+            if "future_queue" in meta_data_dict:
                 del meta_data_dict["future_queue"]
             meta_data_dict["max_workers"] = len(self._process)
             return meta_data_dict
         elif self._process is not None:
             meta_data_dict = self._process.get_kwargs().copy()
-            if "future_queue" in meta_data_dict.keys():
+            if "future_queue" in meta_data_dict:
                 del meta_data_dict["future_queue"]
             return meta_data_dict
         else:
@@ -62,7 +63,13 @@ class ExecutorBase(FutureExecutor):
         """
         return self._future_queue
 
-    def submit(self, fn: Callable, *args, resource_dict: dict = {}, **kwargs) -> Future:  # type: ignore
+    def submit(  # type: ignore
+        self,
+        fn: Callable,
+        *args,
+        resource_dict: Optional[dict] = None,
+        **kwargs,
+    ) -> Future:
         """
         Submits a callable to be executed with the given arguments.
 
@@ -87,7 +94,9 @@ class ExecutorBase(FutureExecutor):
         Returns:
             Future: A Future representing the given call.
         """
-        cores = resource_dict.get("cores", None)
+        if resource_dict is None:
+            resource_dict = {}
+        cores = resource_dict.get("cores")
         if (
             cores is not None
             and self._max_cores is not None
@@ -161,7 +170,5 @@ class ExecutorBase(FutureExecutor):
         """
         Clean-up the resources associated with the Executor.
         """
-        try:
+        with contextlib.suppress(AttributeError, RuntimeError):
             self.shutdown(wait=False)
-        except (AttributeError, RuntimeError):
-            pass

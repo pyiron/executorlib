@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 from pysqa import QueueAdapter
 
@@ -10,7 +10,7 @@ from executorlib.standalone.inputcheck import check_file_exists
 
 def execute_with_pysqa(
     command: list,
-    task_dependent_lst: list[int] = [],
+    task_dependent_lst: Optional[list[int]] = None,
     file_name: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
@@ -35,6 +35,8 @@ def execute_with_pysqa(
     Returns:
         int: queuing system ID
     """
+    if task_dependent_lst is None:
+        task_dependent_lst = []
     check_file_exists(file_name=file_name)
     queue_id = get_queue_id(file_name=file_name)
     qa = QueueAdapter(
@@ -79,7 +81,7 @@ def _pysqa_execute_command(
     split_output: bool = True,
     shell: bool = False,
     error_filename: str = "pysqa.err",
-) -> Union[str, List[str]]:
+) -> Union[str, list[str]]:
     """
     A wrapper around the subprocess.check_output function. Modified from pysqa to raise an exception if the subprocess
     fails to submit the job to the queue.

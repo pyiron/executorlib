@@ -5,7 +5,7 @@ import sys
 import time
 from concurrent.futures import Future
 from time import sleep
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Union
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path
@@ -23,7 +23,9 @@ from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBroker(ExecutorBase):
-    def submit(self, fn: Callable, *args, resource_dict: dict = {}, **kwargs) -> Future:  # type: ignore
+    def submit(  # type: ignore
+        self, fn: Callable, *args, resource_dict: Optional[dict] = None, **kwargs
+    ) -> Future:
         """
         Submits a callable to be executed with the given arguments.
 
@@ -48,6 +50,8 @@ class ExecutorBroker(ExecutorBase):
         Returns:
             Future: A Future representing the given call.
         """
+        if resource_dict is None:
+            resource_dict = {}
         check_resource_dict_is_empty(resource_dict=resource_dict)
         check_resource_dict(function=fn)
         f: Future = Future()
@@ -84,7 +88,7 @@ class ExecutorBroker(ExecutorBase):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: List[RaisingThread]):  # type: ignore
+    def _set_process(self, process: list[RaisingThread]):  # type: ignore
         """
         Set the process for the executor.
 
@@ -112,7 +116,7 @@ class InteractiveExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.executor import InteractiveExecutor
+        >>> from executorlib.interactive.shared import InteractiveExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -133,10 +137,12 @@ class InteractiveExecutor(ExecutorBroker):
     def __init__(
         self,
         max_workers: int = 1,
-        executor_kwargs: dict = {},
+        executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
     ):
-        super().__init__(max_cores=executor_kwargs.get("max_cores", None))
+        if executor_kwargs is None:
+            executor_kwargs = {}
+        super().__init__(max_cores=executor_kwargs.get("max_cores"))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
@@ -167,7 +173,7 @@ class InteractiveStepExecutor(ExecutorBase):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.executor import InteractiveStepExecutor
+        >>> from executorlib.interactive.shared import InteractiveStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -175,7 +181,7 @@ class InteractiveStepExecutor(ExecutorBase):
         >>>     rank = MPI.COMM_WORLD.Get_rank()
         >>>     return np.array([i, j, k]), size, rank
         >>>
-        >>> with PyFluxStepExecutor(max_cores=2) as p:
+        >>> with InteractiveStepExecutor(max_cores=2) as p:
         >>>     fs = p.submit(calc, 2, j=4, k=3, resource_dict={"cores": 2})
         >>>     print(fs.result())
 
@@ -187,10 +193,12 @@ class InteractiveStepExecutor(ExecutorBase):
         self,
         max_cores: Optional[int] = None,
         max_workers: Optional[int] = None,
-        executor_kwargs: dict = {},
+        executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
     ):
-        super().__init__(max_cores=executor_kwargs.get("max_cores", None))
+        if executor_kwargs is None:
+            executor_kwargs = {}
+        super().__init__(max_cores=executor_kwargs.get("max_cores"))
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["max_cores"] = max_cores
@@ -244,13 +252,13 @@ def execute_parallel_tasks(
         )
     while True:
         task_dict = future_queue.get()
-        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+        if "shutdown" in task_dict and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
             if queue_join_on_shutdown:
                 future_queue.join()
             break
-        elif "fn" in task_dict.keys() and "future" in task_dict.keys():
+        elif "fn" in task_dict and "future" in task_dict:
             if cache_directory is None:
                 _execute_task(
                     interface=interface, task_dict=task_dict, future_queue=future_queue
@@ -293,17 +301,17 @@ def execute_separate_tasks(
     active_task_dict: dict = {}
     process_lst: list = []
     qtask_lst: list = []
-    if "cores" not in kwargs.keys():
+    if "cores" not in kwargs:
         kwargs["cores"] = 1
     while True:
         task_dict = future_queue.get()
-        if "shutdown" in task_dict.keys() and task_dict["shutdown"]:
+        if "shutdown" in task_dict and task_dict["shutdown"]:
             if task_dict["wait"]:
                 _ = [process.join() for process in process_lst]
             future_queue.task_done()
             future_queue.join()
             break
-        elif "fn" in task_dict.keys() and "future" in task_dict.keys():
+        elif "fn" in task_dict and "future" in task_dict:
             qtask: queue.Queue = queue.Queue()
             process, active_task_dict = _submit_function_to_separate_process(
                 task_dict=task_dict,
@@ -343,18 +351,14 @@ def execute_tasks_with_dependencies(
         except queue.Empty:
             task_dict = None
         if (  # shutdown the executor
-            task_dict is not None
-            and "shutdown" in task_dict.keys()
-            and task_dict["shutdown"]
+            task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]
         ):
             executor.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
             future_queue.join()
             break
         elif (  # handle function submitted to the executor
-            task_dict is not None
-            and "fn" in task_dict.keys()
-            and "future" in task_dict.keys()
+            task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
             future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
             if len(future_lst) == 0 or ready_flag:
@@ -438,7 +442,7 @@ def _wait_for_free_slots(
     return active_task_dict
 
 
-def _submit_waiting_task(wait_lst: List[dict], executor_queue: queue.Queue) -> list:
+def _submit_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> list:
     """
     Submit the waiting tasks, which future inputs have been completed, to the executor
 
@@ -451,7 +455,7 @@ def _submit_waiting_task(wait_lst: List[dict], executor_queue: queue.Queue) -> l
     """
     wait_tmp_lst = []
     for task_wait_dict in wait_lst:
-        if all([future.done() for future in task_wait_dict["future_lst"]]):
+        if all(future.done() for future in task_wait_dict["future_lst"]):
             del task_wait_dict["future_lst"]
             task_wait_dict["args"], task_wait_dict["kwargs"] = _update_futures_in_input(
                 args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
@@ -462,7 +466,7 @@ def _submit_waiting_task(wait_lst: List[dict], executor_queue: queue.Queue) -> l
     return wait_tmp_lst
 
 
-def _update_futures_in_input(args: tuple, kwargs: dict) -> Tuple[tuple, dict]:
+def _update_futures_in_input(args: tuple, kwargs: dict) -> tuple[tuple, dict]:
     """
     Evaluate future objects in the arguments and keyword arguments by calling future.result()
 
@@ -474,7 +478,7 @@ def _update_futures_in_input(args: tuple, kwargs: dict) -> Tuple[tuple, dict]:
         tuple, dict: arguments and keyword arguments with each future object in them being evaluated
     """
 
-    def get_result(arg: Union[List[Future], Future]) -> Any:
+    def get_result(arg: Union[list[Future], Future]) -> Any:
         if isinstance(arg, Future):
             return arg.result()
         elif isinstance(arg, list):
@@ -552,7 +556,7 @@ def _submit_function_to_separate_process(
     resource_dict = task_dict.pop("resource_dict").copy()
     qtask.put(task_dict)
     qtask.put({"shutdown": True, "wait": True})
-    if "cores" not in resource_dict.keys() or (
+    if "cores" not in resource_dict or (
         resource_dict["cores"] == 1 and executor_kwargs["cores"] >= 1
     ):
         resource_dict["cores"] = executor_kwargs["cores"]

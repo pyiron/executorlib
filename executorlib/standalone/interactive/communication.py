@@ -1,6 +1,6 @@
 import sys
 from socket import gethostname
-from typing import Optional, Tuple
+from typing import Optional
 
 import cloudpickle
 import zmq
@@ -44,7 +44,7 @@ class SocketInterface:
             dict: dictionary with response received from the connected client
         """
         output = cloudpickle.loads(self._socket.recv())
-        if "result" in output.keys():
+        if "result" in output:
             return output["result"]
         else:
             error_type = output["error_type"].split("'")[1]
@@ -161,7 +161,7 @@ def interface_bootup(
     return interface
 
 
-def interface_connect(host: str, port: str) -> Tuple[zmq.Context, zmq.Socket]:
+def interface_connect(host: str, port: str) -> tuple[zmq.Context, zmq.Socket]:
     """
     Connect to an existing SocketInterface instance by providing the hostname and the port as strings.
 

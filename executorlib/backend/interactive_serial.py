@@ -1,6 +1,6 @@
 import sys
 from os.path import abspath
-from typing import List, Optional
+from typing import Optional
 
 from executorlib.standalone.interactive.backend import call_funct, parse_arguments
 from executorlib.standalone.interactive.communication import (
@@ -11,7 +11,7 @@ from executorlib.standalone.interactive.communication import (
 )
 
 
-def main(argument_lst: Optional[List[str]] = None):
+def main(argument_lst: Optional[list[str]] = None):
     """
     The main function of the program.
 
@@ -40,15 +40,15 @@ def main(argument_lst: Optional[List[str]] = None):
         input_dict = interface_receive(socket=socket)
 
         # Parse input
-        if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
+        if "shutdown" in input_dict and input_dict["shutdown"]:
             interface_send(socket=socket, result_dict={"result": True})
             interface_shutdown(socket=socket, context=context)
             break
         elif (
-            "fn" in input_dict.keys()
-            and "init" not in input_dict.keys()
-            and "args" in input_dict.keys()
-            and "kwargs" in input_dict.keys()
+            "fn" in input_dict
+            and "init" not in input_dict
+            and "args" in input_dict
+            and "kwargs" in input_dict
         ):
             # Execute function
             try:
@@ -62,10 +62,10 @@ def main(argument_lst: Optional[List[str]] = None):
                 # Send output
                 interface_send(socket=socket, result_dict={"result": output})
         elif (
-            "init" in input_dict.keys()
+            "init" in input_dict
             and input_dict["init"]
-            and "args" in input_dict.keys()
-            and "kwargs" in input_dict.keys()
+            and "args" in input_dict
+            and "kwargs" in input_dict
         ):
             memory = call_funct(input_dict=input_dict, funct=None)
 

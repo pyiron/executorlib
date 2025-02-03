@@ -1,5 +1,5 @@
 from concurrent.futures import Future
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.interactive.shared import execute_tasks_with_dependencies
@@ -64,7 +64,7 @@ class ExecutorWithDependencies(ExecutorBase):
         self,
         fn: Callable[..., Any],
         *args: Any,
-        resource_dict: Dict[str, Any] = {},
+        resource_dict: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Future:
         """
@@ -80,6 +80,8 @@ class ExecutorWithDependencies(ExecutorBase):
             Future: A future object representing the result of the task.
 
         """
+        if resource_dict is None:
+            resource_dict = {}
         if not self._generate_dependency_graph:
             f = super().submit(fn, *args, resource_dict=resource_dict, **kwargs)
         else:
