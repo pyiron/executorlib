@@ -91,14 +91,8 @@ ignore = [
     "PLR0913",
     # Magic value used in comparison
     "PLR2004",
-    # Import alias does not rename original package
-    "PLC0414",
     # Too many branches
     "PLR0912",
-    # Too many statements
-    "PLR0915",
-    # Too many return statements
-    "PLR0911",
 ]
 
 [tool.setuptools.packages.find]

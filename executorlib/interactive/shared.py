@@ -116,7 +116,7 @@ class InteractiveExecutor(ExecutorBroker):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.executor import InteractiveExecutor
+        >>> from executorlib.interactive.shared import InteractiveExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -173,7 +173,7 @@ class InteractiveStepExecutor(ExecutorBase):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.executor import InteractiveStepExecutor
+        >>> from executorlib.interactive.shared import InteractiveStepExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -181,7 +181,7 @@ class InteractiveStepExecutor(ExecutorBase):
         >>>     rank = MPI.COMM_WORLD.Get_rank()
         >>>     return np.array([i, j, k]), size, rank
         >>>
-        >>> with PyFluxStepExecutor(max_cores=2) as p:
+        >>> with InteractiveStepExecutor(max_cores=2) as p:
         >>>     fs = p.submit(calc, 2, j=4, k=3, resource_dict={"cores": 2})
         >>>     print(fs.result())
 
