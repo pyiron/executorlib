@@ -10,7 +10,7 @@ try:
     import flux.job
 
     skip_flux_test = "FLUX_URI" not in os.environ
-    pmi = os.environ.get("PYMPIPOOL_PMIX", None)
+    pmi = os.environ.get("EXECUTORLIB_PMIX", None)
 except ImportError:
     skip_flux_test = True
 
