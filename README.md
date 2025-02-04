@@ -23,17 +23,17 @@ with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futu
 [ThreadPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor) for parallel 
 execution of Python functions on a single computer. executorlib extends this functionality to distribute Python 
 functions over multiple computers within a high performance computing (HPC) cluster. This can be either achieved by 
-submitting each function as individual job to the HPC job scheduler - [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html) - 
-or by requesting a compute allocation of multiple nodes and then distribute the Python functions within this - allocation -
-[HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html). Finally, to accelerate the 
-development process executorlib also provides a - [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html) - 
-to use the executorlib functionality on a single workstation for testing. Starting with the [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html) 
-set by setting the backend parameter to local - `backend="local"`:
+submitting each function as individual job to the HPC job scheduler with an [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html) - 
+or by requesting a job from the HPC cluster and then distribute the Python functions within this job with an
+[HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html). Finally, to accelerate the 
+development process executorlib also provides a [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html) - 
+to use the executorlib functionality on a laptop, workstation or single compute node for testing. Starting with the 
+[Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html):
 ```python
-from executorlib import Executor
+from executorlib import SingleNodeExecutor
 
 
-with Executor(backend="local") as exe:
+with SingleNodeExecutor() as exe:
     future_lst = [exe.submit(sum, [i, i]) for i in range(1, 5)]
     print([f.result() for f in future_lst])
 ```
@@ -41,7 +41,7 @@ In the same way executorlib can also execute Python functions which use addition
 CPU cores, CPU threads or GPUs. For example if the Python function internally uses the Message Passing Interface (MPI) 
 via the [mpi4py](https://mpi4py.readthedocs.io) Python libary: 
 ```python
-from executorlib import Executor
+from executorlib import SingleNodeExecutor
 
 
 def calc(i):
@@ -52,7 +52,7 @@ def calc(i):
     return i, size, rank
 
 
-with Executor(backend="local") as exe:
+with SingleNodeExecutor() as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
     print(fs.result())
 ```
@@ -66,11 +66,11 @@ This flexibility to assign computing resources on a per-function-call basis simp
 Only the part of the Python functions which benefit from parallel execution are implemented as MPI parallel Python 
 funtions, while the rest of the program remains serial. 
 
-The same function can be submitted to the [SLURM](https://slurm.schedmd.com) queuing by just changing the `backend` 
-parameter to `slurm_submission`. The rest of the example remains the same, which highlights how executorlib accelerates
-the rapid prototyping and up-scaling of HPC Python programs. 
+The same function can be submitted to the [SLURM](https://slurm.schedmd.com) job scheduler by replacing the 
+`SingleNodeExecutor` with the `SlurmClusterExecutor`.  The rest of the example remains the same, which highlights how 
+executorlib accelerates the rapid prototyping and up-scaling of HPC Python programs. 
 ```python
-from executorlib import Executor
+from executorlib import SlurmClusterExecutor
 
 
 def calc(i):
@@ -81,16 +81,16 @@ def calc(i):
     return i, size, rank
 
 
-with Executor(backend="slurm_submission") as exe:
+with SlurmClusterExecutor() as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
     print(fs.result())
 ```
 In this case the [Python simple queuing system adapter (pysqa)](https://pysqa.readthedocs.io) is used to submit the 
 `calc()` function to the [SLURM](https://slurm.schedmd.com) job scheduler and request an allocation with two CPU cores 
-for the execution of the function - [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html). In the background the [sbatch](https://slurm.schedmd.com/sbatch.html) 
+for the execution of the function - [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html). In the background the [sbatch](https://slurm.schedmd.com/sbatch.html) 
 command is used to request the allocation to execute the Python function. 
 
-Within a given [SLURM](https://slurm.schedmd.com) allocation executorlib can also be used to assign a subset of the 
+Within a given [SLURM](https://slurm.schedmd.com) job executorlib can also be used to assign a subset of the 
 available computing resources to execute a given Python function. In terms of the [SLURM](https://slurm.schedmd.com) 
 commands, this functionality internally uses the [srun](https://slurm.schedmd.com/srun.html) command to receive a subset
 of the resources of a given queuing system allocation. 
@@ -106,7 +106,7 @@ def calc(i):
     return i, size, rank
 
 
-with Executor(backend="slurm_allocation") as exe:
+with SlurmJobExecutor as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
     print(fs.result())
 ```
@@ -116,7 +116,7 @@ In addition, to support for [SLURM](https://slurm.schedmd.com) executorlib also 
 to address the needs for the up-coming generation of Exascale computers. Still even on traditional HPC clusters the 
 hierarchical approach of the [flux](http://flux-framework.org) is beneficial to distribute hundreds of tasks within a
 given allocation. Even when [SLURM](https://slurm.schedmd.com) is used as primary job scheduler of your HPC, it is 
-recommended to use [SLURM with flux](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#slurm-with-flux) 
+recommended to use [SLURM with flux](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm-with-flux) 
 as hierarchical job scheduler within the allocations. 
 
 ## Documentation
@@ -124,21 +124,21 @@ as hierarchical job scheduler within the allocations.
   * [Minimal](https://executorlib.readthedocs.io/en/latest/installation.html#minimal)
   * [MPI Support](https://executorlib.readthedocs.io/en/latest/installation.html#mpi-support)
   * [Caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching)
-  * [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-submission-mode)
-  * [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-allocation-mode)
+  * [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-cluster-executor)
+  * [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-job-executor)
   * [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation)
   * [For Developers](https://executorlib.readthedocs.io/en/latest/installation.html#for-developers)
-* [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html)
-  * [Basic Functionality](https://executorlib.readthedocs.io/en/latest/1-local.html#basic-functionality)
-  * [Parallel Functions](https://executorlib.readthedocs.io/en/latest/1-local.html#parallel-functions)
-  * [Performance Optimization](https://executorlib.readthedocs.io/en/latest/1-local.html#performance-optimization)
-* [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html)
-  * [SLURM](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html#slurm)
-  * [Flux](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html#flux)
-* [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html)
-  * [SLURM](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#slurm)
-  * [SLURM with Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#slurm-with-flux)
-  * [Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html#flux)
+* [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html)
+  * [Basic Functionality](https://executorlib.readthedocs.io/en/latest/1-single-node.html#basic-functionality)
+  * [Parallel Functions](https://executorlib.readthedocs.io/en/latest/1-single-node.html#parallel-functions)
+  * [Performance Optimization](https://executorlib.readthedocs.io/en/latest/1-single-node.html#performance-optimization)
+* [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html)
+  * [SLURM](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#slurm)
+  * [Flux](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#flux)
+* [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html)
+  * [SLURM](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm)
+  * [SLURM with Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm-with-flux)
+  * [Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#flux)
 * [Trouble Shooting](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html)
   * [Filesystem Usage](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#filesystem-usage)
   * [Firewall Issues](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#firewall-issues)

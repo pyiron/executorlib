@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "executorlib"
-description = "Scale serial and MPI-parallel python functions over hundreds of compute nodes all from within a jupyter notebook or serial python process."
+description = "Up-scale python functions for high performance computing (HPC) with executorlib."
 authors = [
     { name = "Jan Janssen", email = "janssen@lanl.gov" },
 ]
@@ -47,7 +47,7 @@ graphnotebook = [
     "ipython==8.32.0",
 ]
 mpi = ["mpi4py==4.0.1"]
-submission = [
+cluster = [
     "pysqa==0.2.3",
     "h5py==3.12.1",
 ]
