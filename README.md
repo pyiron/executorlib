@@ -106,7 +106,7 @@ def calc(i):
     return i, size, rank
 
 
-with SlurmJobExecutor as exe:
+with SlurmJobExecutor() as exe:
     fs = exe.submit(calc, 3, resource_dict={"cores": 2})
     print(fs.result())
 ```
