@@ -20,9 +20,10 @@ dependency. The installation of this and other optional dependencies is covered 
 
 ## Missing Dependencies
 The default installation of executorlib only comes with a limited number of dependencies, especially the [zero message queue](https://zeromq.org)
-and [cloudpickle](https://github.com/cloudpipe/cloudpickle). Additional features like [caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching), [HPC submission mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-cluster-executor) 
-and [HPC allocation mode](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-job-executor) require additional dependencies. The dependencies are explained in more detail in the 
-[installation section](https://executorlib.readthedocs.io/en/latest/installation.html#).
+and [cloudpickle](https://github.com/cloudpipe/cloudpickle). Additional features like [caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching), the [HPC Cluster Executors](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-cluster-executor) 
+and the [HPC Job Executors](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-job-executor) require 
+additional dependencies. The dependencies are explained in more detail in the 
+[installation section](https://executorlib.readthedocs.io/en/latest/installation.html).
 
 ## Python Version 
 Executorlib supports all current Python version ranging from 3.9 to 3.13. Still some of the dependencies and especially 

@@ -87,7 +87,7 @@ with SlurmClusterExecutor() as exe:
 ```
 In this case the [Python simple queuing system adapter (pysqa)](https://pysqa.readthedocs.io) is used to submit the 
 `calc()` function to the [SLURM](https://slurm.schedmd.com) job scheduler and request an allocation with two CPU cores 
-for the execution of the function - [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html). In the background the [sbatch](https://slurm.schedmd.com/sbatch.html) 
+for the execution of the function - [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html). In the background the [sbatch](https://slurm.schedmd.com/sbatch.html) 
 command is used to request the allocation to execute the Python function. 
 
 Within a given [SLURM](https://slurm.schedmd.com) job executorlib can also be used to assign a subset of the 

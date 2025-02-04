@@ -68,8 +68,8 @@ documentation covers the [installation of pysqa](https://pysqa.readthedocs.io/en
 detail.
 
 ## HPC Job Executor
-For optimal performance in [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) the
-[flux framework](https://flux-framework.org) is recommended as job scheduler. Even when the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) 
+For optimal performance the [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) leverages the
+[flux framework](https://flux-framework.org) as its recommended job scheduler. Even when the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) 
 or any other job scheduler is already installed on the HPC cluster. [flux framework](https://flux-framework.org) can be
 installed as a secondary job scheduler to leverage [flux framework](https://flux-framework.org) for the distribution of
 resources within a given allocation of the primary scheduler. 
