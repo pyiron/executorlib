@@ -57,17 +57,17 @@ def main() -> None:
         input_dict = MPI.COMM_WORLD.bcast(input_dict, root=0)
 
         # Parse input
-        if "shutdown" in input_dict.keys() and input_dict["shutdown"]:
+        if "shutdown" in input_dict and input_dict["shutdown"]:
             if mpi_rank_zero:
                 interface_send(socket=socket, result_dict={"result": True})
                 interface_shutdown(socket=socket, context=context)
             MPI.COMM_WORLD.Barrier()
             break
         elif (
-            "fn" in input_dict.keys()
-            and "init" not in input_dict.keys()
-            and "args" in input_dict.keys()
-            and "kwargs" in input_dict.keys()
+            "fn" in input_dict
+            and "init" not in input_dict
+            and "args" in input_dict
+            and "kwargs" in input_dict
         ):
             # Execute function
             try:
@@ -87,10 +87,10 @@ def main() -> None:
                 if mpi_rank_zero:
                     interface_send(socket=socket, result_dict={"result": output_reply})
         elif (
-            "init" in input_dict.keys()
+            "init" in input_dict
             and input_dict["init"]
-            and "args" in input_dict.keys()
-            and "kwargs" in input_dict.keys()
+            and "args" in input_dict
+            and "kwargs" in input_dict
         ):
             memory = call_funct(input_dict=input_dict, funct=None)
 

@@ -33,10 +33,10 @@ used. The mpi4py documentation covers the [installation of mpi4py](https://mpi4p
 in more detail. 
 
 ## Caching 
-While the caching is an optional feature for [Local Mode](https://executorlib.readthedocs.io/en/latest/1-local.html) and 
-for the distribution of Python functions in a given allocation of an HPC job scheduler [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html), 
-it is required for the submission of individual functions to an HPC job scheduler [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html). 
-This is required as in [HPC Submission Mode](https://executorlib.readthedocs.io/en/latest/2-hpc-submission.html) the 
+While the caching is an optional feature for [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html) and 
+for the distribution of Python functions in a given allocation of an HPC job scheduler [HPC Job Executors](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html), 
+it is required for the submission of individual functions to an HPC job scheduler [HPC Cluster Executors](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html). 
+This is required as in [HPC Cluster Executors](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html) the 
 Python function is stored on the file system until the requested computing resources become available. The caching is 
 implemented based on the hierarchical data format (HDF5). The corresponding [h5py](https://www.h5py.org) package can be 
 installed using either the [Python package manager](https://pypi.org/project/h5py/):
@@ -51,12 +51,12 @@ Again, given the C++ bindings of the [h5py](https://www.h5py.org) package to the
 recommended. The h5py documentation covers the [installation of h5py](https://docs.h5py.org/en/latest/build.html) in 
 more detail. 
 
-## HPC Submission Mode
-[HPC Submission Mode] requires the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) to 
+## HPC Cluster Executor
+[HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html) requires the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) to 
 interface with the job schedulers and [h5py](https://www.h5py.org) package to enable caching, as explained above. Both 
 can be installed via the [Python package manager](https://pypi.org/project/pysqa/):
 ```
-pip install executorlib[submission]
+pip install executorlib[cluster]
 ```
 Or alternatively using the [conda package manager](https://anaconda.org/conda-forge/pysqa):
 ```
@@ -67,9 +67,9 @@ dependencies, still at least for [SLURM](https://slurm.schedmd.com) no additiona
 documentation covers the [installation of pysqa](https://pysqa.readthedocs.io/en/latest/installation.html) in more 
 detail.
 
-## HPC Allocation Mode
-For optimal performance in [HPC Allocation Mode](https://executorlib.readthedocs.io/en/latest/3-hpc-allocation.html) the
-[flux framework](https://flux-framework.org) is recommended as job scheduler. Even when the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) 
+## HPC Job Executor
+For optimal performance the [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) leverages the
+[flux framework](https://flux-framework.org) as its recommended job scheduler. Even when the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) 
 or any other job scheduler is already installed on the HPC cluster. [flux framework](https://flux-framework.org) can be
 installed as a secondary job scheduler to leverage [flux framework](https://flux-framework.org) for the distribution of
 resources within a given allocation of the primary scheduler. 

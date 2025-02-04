@@ -4,7 +4,7 @@ import shutil
 import time
 import unittest
 
-from executorlib import Executor
+from executorlib import SingleNodeExecutor, SlurmJobExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 
 
@@ -34,7 +34,7 @@ def mpi_funct_sleep(i):
 
 class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial(self):
-        with Executor(max_cores=2, backend="local", block_allocation=True) as exe:
+        with SingleNodeExecutor(max_cores=2, block_allocation=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -44,7 +44,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_single(self):
-        with Executor(max_cores=1, backend="local", block_allocation=True) as exe:
+        with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -55,7 +55,7 @@ class TestExecutorBackend(unittest.TestCase):
 
     def test_oversubscribe(self):
         with self.assertRaises(ValueError):
-            with Executor(max_cores=1, backend="local", block_allocation=True) as exe:
+            with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
                 fs_1 = exe.submit(calc, 1, resource_dict={"cores": 2})
 
@@ -63,10 +63,9 @@ class TestExecutorBackend(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_meta_executor_parallel(self):
-        with Executor(
+        with SingleNodeExecutor(
             max_workers=2,
             resource_dict={"cores": 2},
-            backend="local",
             block_allocation=True,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -76,10 +75,9 @@ class TestExecutorBackend(unittest.TestCase):
 
     def test_errors(self):
         with self.assertRaises(TypeError):
-            Executor(
+            SingleNodeExecutor(
                 max_cores=1,
                 resource_dict={"cores": 1, "gpus_per_core": 1},
-                backend="local",
             )
 
 
@@ -91,10 +89,9 @@ class TestExecutorBackendCache(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_meta_executor_parallel_cache(self):
-        with Executor(
+        with SingleNodeExecutor(
             max_workers=2,
             resource_dict={"cores": 2},
-            backend="local",
             block_allocation=True,
             cache_directory="./cache",
         ) as exe:
@@ -117,10 +114,9 @@ class TestWorkingDirectory(unittest.TestCase):
     def test_output_files_cwd(self):
         dirname = os.path.abspath(os.path.dirname(__file__))
         os.makedirs(dirname, exist_ok=True)
-        with Executor(
+        with SingleNodeExecutor(
             max_cores=1,
             resource_dict={"cores": 1, "cwd": dirname},
-            backend="local",
             block_allocation=True,
         ) as p:
             output = p.map(calc, [1, 2, 3])
@@ -135,9 +131,8 @@ class TestSLURMExecutor(unittest.TestCase):
         os.environ["SLURM_NTASKS"] = "6"
         os.environ["SLURM_CPUS_PER_TASK"] = "4"
         with self.assertRaises(ValueError):
-            Executor(
+            SlurmJobExecutor(
                 max_workers=10,
                 resource_dict={"cores": 10, "threads_per_core": 10},
-                backend="slurm_allocation",
                 block_allocation=True,
             )

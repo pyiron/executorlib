@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "executorlib"
-description = "Scale serial and MPI-parallel python functions over hundreds of compute nodes all from within a jupyter notebook or serial python process."
+description = "Up-scale python functions for high performance computing (HPC) with executorlib."
 authors = [
     { name = "Jan Janssen", email = "janssen@lanl.gov" },
 ]
 readme = "README.md"
 license = { file = "LICENSE" }
-keywords = ["pyiron"]
+keywords = ["high performance computing", "hpc", "task scheduler", "slurm", "flux-framework", "executor"]
 requires-python = ">=3.9, <3.14"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "cloudpickle==3.1.1",
-    "pyzmq==26.2.0",
+    "pyzmq==26.2.1",
 ]
 dynamic = ["version"]
 
@@ -44,10 +44,10 @@ graph = [
 graphnotebook = [
     "pygraphviz==1.14",
     "networkx==3.4.2",
-    "ipython==8.31.0",
+    "ipython==8.32.0",
 ]
 mpi = ["mpi4py==4.0.1"]
-submission = [
+cluster = [
     "pysqa==0.2.3",
     "h5py==3.12.1",
 ]
@@ -57,7 +57,42 @@ all = [
     "h5py==3.12.1",
     "pygraphviz==1.14",
     "networkx==3.4.2",
-    "ipython==8.31.0",
+    "ipython==8.32.0",
+]
+
+[tool.ruff]
+exclude = [".ci_support", "docs", "notebooks", "tests", "setup.py", "_version.py"]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # flake8-comprehensions
+    "C4",
+    # eradicate
+    "ERA",
+    # pylint
+    "PL",
+]
+ignore = [
+    # ignore line-length violations
+    "E501",
+    # Too many arguments in function definition
+    "PLR0913",
+    # Magic value used in comparison
+    "PLR2004",
+    # Too many branches
+    "PLR0912",
 ]
 
 [tool.setuptools.packages.find]

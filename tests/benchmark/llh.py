@@ -42,39 +42,36 @@ if __name__ == "__main__":
             executor=ThreadPoolExecutor, mean=0.1, sigma=1.1, runs=32, max_workers=4
         )
     elif run_mode == "block_allocation":
-        from executorlib import Executor
+        from executorlib import SingleNodeExecutor
 
         run_with_executor(
-            executor=Executor,
+            executor=SingleNodeExecutor,
             mean=0.1,
             sigma=1.1,
             runs=32,
             max_cores=4,
-            backend="local",
             block_allocation=True,
         )
     elif run_mode == "executorlib":
-        from executorlib import Executor
+        from executorlib import SingleNodeExecutor
 
         run_with_executor(
-            executor=Executor,
+            executor=SingleNodeExecutor,
             mean=0.1,
             sigma=1.1,
             runs=32,
             max_cores=4,
-            backend="local",
             block_allocation=False,
         )
     elif run_mode == "flux":
-        from executorlib import Executor
+        from executorlib import FluxJobExecutor
 
         run_with_executor(
-            executor=Executor,
+            executor=FluxJobExecutor,
             mean=0.1,
             sigma=1.1,
             runs=32,
             max_cores=4,
-            backend="flux",
             block_allocation=True,
         )
     elif run_mode == "mpi4py":

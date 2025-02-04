@@ -1,6 +1,6 @@
 import unittest
 
-from executorlib import Executor
+from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 
 
@@ -14,9 +14,8 @@ def resource_dict(resource_dict):
 
 class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial_with_dependencies(self):
-        with Executor(
+        with SingleNodeExecutor(
             max_cores=2,
-            backend="local",
             block_allocation=False,
             disable_dependencies=True,
         ) as exe:
@@ -29,9 +28,8 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_serial_without_dependencies(self):
-        with Executor(
+        with SingleNodeExecutor(
             max_cores=2,
-            backend="local",
             block_allocation=False,
             disable_dependencies=False,
         ) as exe:
@@ -44,9 +42,8 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_meta_executor_single(self):
-        with Executor(
+        with SingleNodeExecutor(
             max_cores=1,
-            backend="local",
             block_allocation=False,
         ) as exe:
             cloudpickle_register(ind=1)
@@ -59,25 +56,22 @@ class TestExecutorBackend(unittest.TestCase):
 
     def test_errors(self):
         with self.assertRaises(TypeError):
-            Executor(
+            SingleNodeExecutor(
                 max_cores=1,
                 resource_dict={
                     "cores": 1,
                     "gpus_per_core": 1,
                 },
-                backend="local",
             )
         with self.assertRaises(ValueError):
-            with Executor(
+            with SingleNodeExecutor(
                 max_cores=1,
-                backend="local",
                 block_allocation=False,
             ) as exe:
                 exe.submit(resource_dict, resource_dict={})
         with self.assertRaises(ValueError):
-            with Executor(
+            with SingleNodeExecutor(
                 max_cores=1,
-                backend="local",
                 block_allocation=True,
             ) as exe:
                 exe.submit(resource_dict, resource_dict={})
