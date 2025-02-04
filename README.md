@@ -95,7 +95,7 @@ available computing resources to execute a given Python function. In terms of th
 commands, this functionality internally uses the [srun](https://slurm.schedmd.com/srun.html) command to receive a subset
 of the resources of a given queuing system allocation. 
 ```python
-from executorlib import Executor
+from executorlib import SlurmJobExecutor
 
 
 def calc(i):
