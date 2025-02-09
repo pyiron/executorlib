@@ -1,5 +1,5 @@
 # executorlib
-[![Unittests](https://github.com/pyiron/executorlib/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/executorlib/actions/workflows/unittest-openmpi.yml)
+[![Pipeline](https://github.com/pyiron/executorlib/actions/workflows/pipeline.yml/badge.svg)](https://github.com/pyiron/executorlib/actions/workflows/pipeline.yml)
 [![Coverage Status](https://coveralls.io/repos/github/pyiron/executorlib/badge.svg?branch=main)](https://coveralls.io/github/pyiron/executorlib?branch=main)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/executorlib/HEAD?labpath=notebooks%2Fexamples.ipynb)
 
