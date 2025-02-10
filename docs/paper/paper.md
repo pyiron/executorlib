@@ -74,12 +74,12 @@ To demonstrate the advanced functionality of Executorlib beyond the scope of the
 ```python
 from executorlib import FluxJobExecutor
 
-def get_available_GPUs(lst):
+def get_available_GPUs(ind, lst):
     import socket
     from tensorflow.python.client import device_lib
     local_device_protos = device_lib.list_local_devices()
     return [
-        (x.name, x.physical_device_desc, socket.gethostname()) 
+        (ind, x.name, x.physical_device_desc, socket.gethostname()) 
         for x in local_device_protos if x.device_type == "GPU"
     ] + lst
 
@@ -87,13 +87,16 @@ with FluxJobExecutor() as exe:
     fs = []
     for i in range(1, 4):
         fs = exe.submit(
-            get_available_GPUs, 
+            get_available_GPUs,
+            ind=i,
             lst=fs,
             resource_dict={"cores": 1, "gpus_per_core": 1},
         )
     print(fs.result())
 ```
-By adding the resource dictionary parameter `resource_dict` in the submission function, each Python function receives a dedicated CPU core and a corresponding GPU for the execution of the submitted function. In the submitted function the `tensorflow` machine learning framework is imported to list the metadata of the available GPU. Furthermore, the submission is repeated three times with the output being aggregated in a joined list. For the aggregation of the output of the individual submissions, the previous information is stored in a `concurrent.futures.Future` object named `fs` and is provided as an input to the next function during submission. Consequently, the execution is limited to serial execution. Alternatively, the results could be merged into one list after the submission of the individual functions, that would enable the parallel execution of the individual Python functions. 
+By adding the resource dictionary parameter `resource_dict` in the submission function, each Python function receives a dedicated CPU core and a corresponding GPU for the execution of the submitted function. In the submitted function the `tensorflow` machine learning framework is imported to list the metadata of the available GPU. Furthermore, the submission is repeated three times with the output being aggregated in a joined list. For the aggregation of the output of the individual submissions, the previous information is stored in a `concurrent.futures.Future` object named `fs` and is provided as an input to the next function during submission. Consequently, the execution is limited to serial execution. The dependencies ase visualized in \autoref{fig:dependencies}. . Alternatively, the results could be merged into one list after the submission of the individual functions, that would enable the parallel execution of the individual Python functions. 
+
+![Dependencies of the advanced example visualized by adding the `plot_dependency_graph=True` parameter during the initialization of the Executor.\label{fig:dependencies}](exegraph.svg)
 
 # Usage To-Date 
 While initially developed in the US DOE Exascale Computing Project’s Exascale Atomistic Capability for Accuracy, Length and Time (EXAALT) to accelerate the development of computational materials science simulation workflows for the Exascale, Executorlib has since been generalized to support a wide-range of backends and HPC clusters at different scales. Based on this generalization, it is also been implemented in the pyiron workflow framework [@pyiron] as primary task scheduling interface. 
