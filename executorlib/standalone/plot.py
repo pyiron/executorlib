@@ -42,15 +42,21 @@ def generate_nodes_and_edges(
         elif isinstance(arg, list) and any(isinstance(a, Future) for a in arg):
             lst_no_future = [a for a in arg if not isinstance(a, Future)]
             node_id = len(node_lst)
-            node_lst.append({"name": str(lst_no_future), "id": node_id, "shape": "circle"})
+            node_lst.append(
+                {"name": str(lst_no_future), "id": node_id, "shape": "circle"}
+            )
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for i, a in enumerate(arg):
                 if isinstance(a, Future):
                     add_element(arg=a, link_to=node_id, label=i)
         elif isinstance(arg, dict) and any(isinstance(a, Future) for a in arg.values()):
-            dict_no_future = {kt: vt for kt, vt in arg.items() if not isinstance(vt, Future)}
+            dict_no_future = {
+                kt: vt for kt, vt in arg.items() if not isinstance(vt, Future)
+            }
             node_id = len(node_lst)
-            node_lst.append({"name": str(dict_no_future), "id": node_id, "shape": "circle"})
+            node_lst.append(
+                {"name": str(dict_no_future), "id": node_id, "shape": "circle"}
+            )
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for kt, vt in arg.items():
                 if isinstance(vt, Future):
