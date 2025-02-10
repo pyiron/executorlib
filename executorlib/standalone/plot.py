@@ -39,9 +39,22 @@ def generate_nodes_and_edges(
                     "label": label,
                 }
             )
-        elif isinstance(arg, list) and all(isinstance(a, Future) for a in arg):
-            for a in arg:
-                add_element(arg=a, link_to=link_to, label=label)
+        elif isinstance(arg, list) and any(isinstance(a, Future) for a in arg):
+            lst_no_future = [a for a in arg if not isinstance(a, Future)]
+            node_id = len(node_lst)
+            node_lst.append({"name": str(lst_no_future), "id": node_id, "shape": "circle"})
+            edge_lst.append({"start": node_id, "end": link_to, "label": label})
+            for i, a in enumerate(arg):
+                if isinstance(a, Future):
+                    add_element(arg=a, link_to=node_id, label=i)
+        elif isinstance(arg, dict) and any(isinstance(a, Future) for a in arg.values()):
+            dict_no_future = {kt: vt for kt, vt in arg.items() if not isinstance(vt, Future)}
+            node_id = len(node_lst)
+            node_lst.append({"name": str(dict_no_future), "id": node_id, "shape": "circle"})
+            edge_lst.append({"start": node_id, "end": link_to, "label": label})
+            for kt, vt in arg.items():
+                if isinstance(vt, Future):
+                    add_element(arg=vt, link_to=node_id, label=kt)
         else:
             node_id = len(node_lst)
             node_lst.append({"name": str(arg), "id": node_id, "shape": "circle"})
@@ -92,6 +105,11 @@ def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes
                 convert_arg(arg=a, future_hash_inverse_dict=future_hash_inverse_dict)
                 for a in arg
             ]
+        elif isinstance(arg, dict):
+            return {
+                k: convert_arg(arg=v, future_hash_inverse_dict=future_hash_inverse_dict)
+                for k, v in arg.items()
+            }
         else:
             return arg
 
