@@ -40,7 +40,7 @@ def generate_nodes_and_edges(
                 }
             )
         elif isinstance(arg, list) and any(isinstance(a, Future) for a in arg):
-            lst_no_future = [a for a in arg if not isinstance(a, Future)]
+            lst_no_future = [a if not isinstance(a, Future) else "$" for a in arg]
             node_id = len(node_lst)
             node_lst.append(
                 {"name": str(lst_no_future), "id": node_id, "shape": "circle"}
@@ -48,10 +48,10 @@ def generate_nodes_and_edges(
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for i, a in enumerate(arg):
                 if isinstance(a, Future):
-                    add_element(arg=a, link_to=node_id, label=i)
+                    add_element(arg=a, link_to=node_id, label="ind: " + str(i))
         elif isinstance(arg, dict) and any(isinstance(a, Future) for a in arg.values()):
             dict_no_future = {
-                kt: vt for kt, vt in arg.items() if not isinstance(vt, Future)
+                kt: vt if not isinstance(vt, Future) else "$" for kt, vt in arg.items()
             }
             node_id = len(node_lst)
             node_lst.append(
@@ -60,7 +60,7 @@ def generate_nodes_and_edges(
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for kt, vt in arg.items():
                 if isinstance(vt, Future):
-                    add_element(arg=vt, link_to=node_id, label=kt)
+                    add_element(arg=vt, link_to=node_id, label="key: " + kt)
         else:
             node_id = len(node_lst)
             node_lst.append({"name": str(arg), "id": node_id, "shape": "circle"})
