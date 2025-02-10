@@ -238,15 +238,12 @@ jobs:
       uses: coverallsapp/github-action@v2
       with:
         parallel: true
-
-  coverage_done:
-    needs: [unittest_flux_openmpi]
-    runs-on: ubuntu-latest
-    steps:
+        flag-name: "run-0"
     - name: Coveralls Finish
       uses: coverallsapp/github-action@v2
       with:
         parallel-finished: true
+        carryforward: "run-0"
 
   unittest_mpich:
     needs: [black]
