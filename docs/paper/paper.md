@@ -7,7 +7,7 @@ tags:
 authors:
   - name: J. Janssen
     orcid: 0000-0001-9948-7119
-    affiliation: 1
+    affiliation: [1, 2]
   - name: M.G. Taylor
     orcid: 0000-0003-4327-2746
     affiliation: 2
@@ -105,6 +105,6 @@ While initially developed in the US DOE Exascale Computing Project’s Exascale 
 This manuscript provides a general overview of the Executorlib package, the full documentation including a number of examples for the individual features is available at [executorlib.readthedocs.io](https://executorlib.readthedocs.io) and the corresponding source code at [github.com/pyiron/executorlib](https://github.com/pyiron/executorlib). Executorlib is developed an as open-source library with a focus on stability, which is achieved with an >95% test coverage, type hinting and a modular software design approach. 
 
 # Acknowledgements
-J.J. and D.P. acknowledge funding from the Exascale Computing Project (17-SC-20-SC), a collaborative effort of the U.S. Department of Energy Office of Science and the National Nuclear Security Administration, and the hospitality from the “Data-Driven Materials Informatics” program from the Institute of Mathematical and Statistical Innovation (IMSI). J.J. and J.N. acknowledge funding from the Deutsche Forschungsgemeinschaft (DFG) through the CRC1394 “Structural and Chemical Atomic Complexity – From Defect Phase Diagrams to Material Properties”, project ID 409476157. J.J., M.G.T., P.Y., J.N. and D.P. acknowledge the hospitality of the Institute of Pure and Applied math (IPAM) as part of the “New Mathematics for the Exascale: Applications to Materials Science” long program. Los Alamos National Laboratory is operated by Triad National Security LLC, for the National Nuclear Security administration of the U.S. DOE under Contract No. 89233218CNA0000001.
+J.J. and D.P. acknowledge funding from the Exascale Computing Project (17-SC-20-SC), a collaborative effort of the U.S. Department of Energy Office of Science and the National Nuclear Security Administration, and the hospitality from the “Data-Driven Materials Informatics” program from the Institute of Mathematical and Statistical Innovation (IMSI). J.J. and J.N. acknowledge funding from the Deutsche Forschungsgemeinschaft (DFG) through the CRC1394 “Structural and Chemical Atomic Complexity – From Defect Phase Diagrams to Material Properties”, project ID 409476157. J.J. was also supported by the Laboratory Directed Research and Development program of Los Alamos National Laboratory under project number 20220815PRD4. J.J., M.G.T., P.Y., J.N. and D.P. acknowledge the hospitality of the Institute of Pure and Applied math (IPAM) as part of the “New Mathematics for the Exascale: Applications to Materials Science” long program. Los Alamos National Laboratory is operated by Triad National Security LLC, for the National Nuclear Security administration of the U.S. DOE under Contract No. 89233218CNA0000001.
 
 # References
