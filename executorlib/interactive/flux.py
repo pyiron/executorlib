@@ -29,6 +29,8 @@ class FluxPythonSpawner(BaseSpawner):
         cores (int, optional): The number of cores. Defaults to 1.
         threads_per_core (int, optional): The number of threads per base. Defaults to 1.
         gpus_per_core (int, optional): The number of GPUs per base. Defaults to 0.
+        num_nodes (int, optional): The number of compute nodes to use for executing the task. Defaults to None.
+        exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
         flux_executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
         flux_executor_pmi_mode (str, optional): The PMI option. Defaults to None.

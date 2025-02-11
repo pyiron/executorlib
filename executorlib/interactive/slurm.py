@@ -40,6 +40,8 @@ class SrunSpawner(SubprocessSpawner):
             cores (int, optional): The number of cores to use. Defaults to 1.
             threads_per_core (int, optional): The number of threads per core. Defaults to 1.
             gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
+            num_nodes (int, optional): The number of compute nodes to use for executing the task. Defaults to None.
+            exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
             slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
         """
@@ -97,6 +99,8 @@ def generate_slurm_command(
         cwd (str): The current working directory.
         threads_per_core (int, optional): The number of threads per core. Defaults to 1.
         gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
+        num_nodes (int, optional): The number of compute nodes to use for executing the task. Defaults to None.
+        exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
 
