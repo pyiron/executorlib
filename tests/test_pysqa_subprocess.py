@@ -1,4 +1,5 @@
 import unittest
+from executorlib.interactive.slurm import generate_slurm_command
 
 try:
     from executorlib.cache.queue_spawner import _pysqa_execute_command
@@ -43,3 +44,16 @@ class TestPysqaExecuteCommand(unittest.TestCase):
                 shell=False,
                 error_filename="pysqa.err",
             )
+
+    def test_generate_slurm_command(self):
+        command_lst = generate_slurm_command(
+            cores=1,
+            cwd="/tmp/test",
+            threads_per_core=2,
+            gpus_per_core=1,
+            openmpi_oversubscribe=True,
+            slurm_cmd_args=["--help"],
+        )
+        self.assertEqual(len(command_lst), 9)
+        reply_lst = ['srun', '-n', '1', '-D', '/tmp/test', '--cpus-per-task=2', '--gpus-per-task=1', '--oversubscribe', '--help']
+        self.assertEqual(command_lst, reply_lst)
