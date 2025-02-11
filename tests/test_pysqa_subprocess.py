@@ -51,9 +51,11 @@ class TestPysqaExecuteCommand(unittest.TestCase):
             cwd="/tmp/test",
             threads_per_core=2,
             gpus_per_core=1,
+            num_nodes=1,
+            exclusive=True,
             openmpi_oversubscribe=True,
             slurm_cmd_args=["--help"],
         )
-        self.assertEqual(len(command_lst), 9)
-        reply_lst = ['srun', '-n', '1', '-D', '/tmp/test', '--cpus-per-task=2', '--gpus-per-task=1', '--oversubscribe', '--help']
+        self.assertEqual(len(command_lst), 12)
+        reply_lst = ['srun', '-n', '1', '-D', '/tmp/test', '-N', '1', '--cpus-per-task=2', '--gpus-per-task=1', '--exact', '--oversubscribe', '--help']
         self.assertEqual(command_lst, reply_lst)
