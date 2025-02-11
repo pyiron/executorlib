@@ -1,0 +1,385 @@
+name: Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: psf/black@stable
+      with:
+        options: "--check --diff"
+        src: ./${{ github.event.repository.name }}
+
+  black_fix:  # in most cases pre-commit is faster
+    needs: [black]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
+        ref: ${{ github.event.pull_request.head.ref }} # Check out the head of the actual branch, not the PR
+        fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
+    - name: format black
+      uses: psf/black@stable
+      with:
+        options: ""
+        src: "./${{ github.event.repository.name }}"
+    - name: commit
+      run: |
+        git config --local user.email "pyiron@mpie.de"
+        git config --local user.name "pyiron-runner"
+        git commit -m "Format black" -a
+    - name: push
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
+        branch: ${{ github.event.pull_request.head.ref }}
+
+  mypy:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          architecture: x64
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install mypy
+        run: pip install mypy
+      - name: Test
+        run: mypy --ignore-missing-imports ${{ github.event.repository.name }}
+
+  minimal:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: "3.13"
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-mini.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        cd tests
+        python -m unittest discover .
+
+  pip_check:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.13'
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-openmpi.yml
+    - name: Setup
+      shell: bash -l {0}
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        pip check
+
+  benchmark:
+    needs: [black]
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        include:
+        - operating-system: ubuntu-latest
+          python-version: '3.13'
+          environment-file: .ci_support/environment-openmpi.yml
+
+        - operating-system: ubuntu-latest
+          python-version: '3.13'
+          environment-file: .ci_support/environment-mpich.yml
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: ${{ matrix.environment-file }}
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 10
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        python tests/benchmark/llh.py static >> timing.log
+        python tests/benchmark/llh.py process >> timing.log
+        python tests/benchmark/llh.py thread >> timing.log
+        mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py >> timing.log
+        python tests/benchmark/llh.py executorlib >> timing.log
+        python tests/benchmark/llh.py block_allocation >> timing.log
+        cat timing.log
+        python -m unittest tests/benchmark/test_results.py
+      env:
+        PRTE_MCA_rmaps_default_mapping_policy: ':oversubscribe'
+
+  notebooks:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Merge Notebook environment
+        run: |
+          cp binder/environment.yml environment.yml
+          tail --lines=+4 .ci_support/environment-notebooks.yml >> environment.yml
+          echo -e "channels:\n  - conda-forge\n" > .condarc
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.12"
+          miniforge-version: latest
+          condarc-file: .condarc
+          environment-file: environment.yml
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          pip install versioneer[toml]==0.29
+          pip install . --no-deps --no-build-isolation
+      - name: Notebooks
+        shell: bash -l {0}
+        timeout-minutes: 5
+        run: >
+          flux start
+          .ci_support/build_notebooks.sh
+
+  unittest_flux_mpich:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Extend environment
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        echo -e '- coverage\n- flux-core =0.59.0\n- versioneer =0.28'>> .ci_support/environment-mpich.yml
+        cat .ci_support/environment-mpich.yml
+        echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.12'
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-mpich.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install . --no-deps --no-build-isolation
+        python -m unittest discover tests
+    - name: Test Flux
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: >
+        flux start
+        python -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py tests/test_cache_executor_pysqa_flux.py tests/test_plot_dependency_flux.py;
+
+  unittest_flux_openmpi:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Extend environment
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        echo -e '- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0\n- versioneer =0.28' >> .ci_support/environment-openmpi.yml
+        cat .ci_support/environment-openmpi.yml
+        echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.12'
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-openmpi.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install . --no-deps --no-build-isolation
+        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest discover tests
+    - name: Test Flux with OpenMPI
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: >
+        flux start
+        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py tests/test_cache_executor_pysqa_flux.py tests/test_plot_dependency_flux.py;
+        coverage xml
+      env:
+        EXECUTORLIB_PMIX: "pmix"
+        TMPDIR: "/tmp"   # required by MacOs https://github.com/open-mpi/ompi/issues/7393
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  unittest_mpich:
+    needs: [black]
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        include:
+        - operating-system: macos-latest
+          python-version: '3.13'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.13'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.12'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.11'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.10'
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      shell: bash -l {0}
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-mpich.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        cd tests
+        python -m unittest discover .
+
+  unittest_openmpi:
+    needs: [black]
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        include:
+        - operating-system: macos-latest
+          python-version: '3.13'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.13'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.12'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.11'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.10'
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      shell: bash -l {0}
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-openmpi.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        cd tests
+        python -m unittest discover .
+
+  unittest_win:
+    needs: [black]
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      shell: bash -l {0}
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: "3.13"
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-win.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        cd tests
+        python -m unittest discover .
+
+  unittest_old:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.9'
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-old.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install versioneer[toml]==0.29
+        pip install . --no-deps --no-build-isolation
+        cd tests
+        python -m unittest discover .
+      env:
+        OMPI_MCA_plm: 'isolated'
+        OMPI_MCA_rmaps_base_oversubscribe: 'yes'
+        OMPI_MCA_btl_vader_single_copy_mechanism: 'none'
+
+  autobot:
+    needs: [unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    if: (github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'pre-commit-ci[bot]')
+    steps:
+      - name: Enable auto-merge for bot PRs
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}

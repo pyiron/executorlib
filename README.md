@@ -1,6 +1,6 @@
 # executorlib
-[![Unittests](https://github.com/pyiron/executorlib/actions/workflows/unittest-openmpi.yml/badge.svg)](https://github.com/pyiron/executorlib/actions/workflows/unittest-openmpi.yml)
-[![Coverage Status](https://coveralls.io/repos/github/pyiron/executorlib/badge.svg?branch=main)](https://coveralls.io/github/pyiron/executorlib?branch=main)
+[![Pipeline](https://github.com/pyiron/executorlib/actions/workflows/pipeline.yml/badge.svg)](https://github.com/pyiron/executorlib/actions/workflows/pipeline.yml)
+[![codecov](https://codecov.io/gh/pyiron/executorlib/graph/badge.svg?token=KFIO3R08H3)](https://codecov.io/gh/pyiron/executorlib)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/executorlib/HEAD?labpath=notebooks%2Fexamples.ipynb)
 
 Up-scale python functions for high performance computing (HPC) with executorlib. 
@@ -95,7 +95,7 @@ available computing resources to execute a given Python function. In terms of th
 commands, this functionality internally uses the [srun](https://slurm.schedmd.com/srun.html) command to receive a subset
 of the resources of a given queuing system allocation. 
 ```python
-from executorlib import Executor
+from executorlib import SlurmJobExecutor
 
 
 def calc(i):
