@@ -39,6 +39,10 @@ def merge(lst):
     return sum(lst)
 
 
+def return_input_dict(input_dict):
+    return input_dict
+
+
 @unittest.skipIf(
     skip_graphviz_test,
     "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
@@ -124,8 +128,25 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 18)
-            self.assertEqual(len(edges), 21)
+            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(edges), 22)
+
+    def test_future_input_dict(self):
+        with SingleNodeExecutor(plot_dependency_graph=True) as exe:
+            exe.submit(
+                return_input_dict,
+                input_dict={"a": exe.submit(sum, [2, 2])},
+            )
+            self.assertEqual(len(exe._future_hash_dict), 2)
+            self.assertEqual(len(exe._task_hash_dict), 2)
+            nodes, edges = generate_nodes_and_edges(
+                task_hash_dict=exe._task_hash_dict,
+                future_hash_inverse_dict={
+                    v: k for k, v in exe._future_hash_dict.items()
+                },
+            )
+            self.assertEqual(len(nodes), 4)
+            self.assertEqual(len(edges), 3)
 
 
 @unittest.skipIf(
@@ -197,8 +218,8 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 18)
-            self.assertEqual(len(edges), 21)
+            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(edges), 22)
 
 
 @unittest.skipIf(
@@ -266,5 +287,5 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 18)
-            self.assertEqual(len(edges), 21)
+            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(edges), 22)

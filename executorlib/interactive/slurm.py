@@ -109,7 +109,7 @@ def generate_slurm_command(
     if num_nodes is not None:
         command_prepend_lst += ["-N", str(num_nodes)]
     if threads_per_core > 1:
-        command_prepend_lst += ["--cpus-per-task" + str(threads_per_core)]
+        command_prepend_lst += ["--cpus-per-task=" + str(threads_per_core)]
     if gpus_per_core > 0:
         command_prepend_lst += ["--gpus-per-task=" + str(gpus_per_core)]
     if exclusive:

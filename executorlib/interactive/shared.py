@@ -483,6 +483,8 @@ def _update_futures_in_input(args: tuple, kwargs: dict) -> tuple[tuple, dict]:
             return arg.result()
         elif isinstance(arg, list):
             return [get_result(arg=el) for el in arg]
+        elif isinstance(arg, dict):
+            return {k: get_result(arg=v) for k, v in arg.items()}
         else:
             return arg
 
@@ -510,6 +512,8 @@ def _get_future_objects_from_input(task_dict: dict):
                 future_lst.append(el)
             elif isinstance(el, list):
                 find_future_in_list(lst=el)
+            elif isinstance(el, dict):
+                find_future_in_list(lst=el.values())
 
     find_future_in_list(lst=task_dict["args"])
     find_future_in_list(lst=task_dict["kwargs"].values())

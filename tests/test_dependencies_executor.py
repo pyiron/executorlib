@@ -38,6 +38,10 @@ def merge(lst):
     return sum(lst)
 
 
+def return_input_dict(input_dict):
+    return input_dict
+
+
 def raise_error():
     raise RuntimeError
 
@@ -129,6 +133,14 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 resource_dict={"cores": 1},
             )
             self.assertEqual(future_sum.result(), 15)
+
+    def test_future_input_dict(self):
+        with SingleNodeExecutor() as exe:
+            fs = exe.submit(
+                return_input_dict,
+                input_dict={"a": exe.submit(sum, [2, 2])},
+            )
+            self.assertEqual(fs.result()["a"], 4)
 
 
 class TestExecutorErrors(unittest.TestCase):
