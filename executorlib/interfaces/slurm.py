@@ -227,6 +227,10 @@ class SlurmJobExecutor:
                               - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
                                                               SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
+                                                           Defaults to None.
+                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
+                                                  compute notes. Defaults to False.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -320,6 +324,10 @@ class SlurmJobExecutor:
                                                                   and SLURM only) - default False
                                   - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                            only)
+                                  - num_nodes (int, optional): The number of compute nodes to use for executing the task.
+                                                           Defaults to None.
+                                  - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
+                                                      compute notes. Defaults to False.
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -409,6 +417,10 @@ def create_slurm_executor(
                                                               and SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                        only)
+                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
+                                                           Defaults to None.
+                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
+                                                  compute notes. Defaults to False.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                   context of an HPC cluster this essential to be able to communicate to an
                                   Executor running on a different compute node within the same allocation. And

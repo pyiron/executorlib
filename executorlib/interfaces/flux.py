@@ -43,9 +43,10 @@ class FluxJobExecutor:
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
                               - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
+                                                           Defaults to None.
+                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
+                                                  compute notes. Defaults to False.
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -147,10 +148,10 @@ class FluxJobExecutor:
                                   - threads_per_core (int): number of OpenMP threads to be used for each function call
                                   - gpus_per_core (int): number of GPUs per worker - defaults to 0
                                   - cwd (str/None): current working directory where the parallel python task is executed
-                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                                  and SLURM only) - default False
-                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                           only)
+                                  - num_nodes (int, optional): The number of compute nodes to use for executing the task.
+                                                               Defaults to None.
+                                  - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
+                                                      compute notes. Defaults to False.
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -444,10 +445,10 @@ def create_flux_executor(
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
                               - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                              and SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                       only)
+                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
+                                                           Defaults to None.
+                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
+                                                  compute notes. Defaults to False.
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
