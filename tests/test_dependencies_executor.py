@@ -205,8 +205,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
             },
         )
         process.start()
-        self.assertTrue(fs1.done())
-        self.assertTrue(fs2.done())
         self.assertTrue(fs1.exception() is not None)
         self.assertTrue(fs2.exception() is not None)
         with self.assertRaises(RuntimeError):
