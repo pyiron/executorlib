@@ -1,9 +1,9 @@
-import concurrent.futures
 import importlib.util
 import os
 import queue
 import sys
 import time
+from asyncio.exceptions import CancelledError
 from concurrent.futures import Future
 from time import sleep
 from typing import Any, Callable, Optional, Union
@@ -673,7 +673,7 @@ def _execute_task_with_cache(
 
 
 def _get_exception_lst(future_lst: list) -> list:
-    def get_exception(future_obj: concurrent.futures.Future) -> bool:
+    def get_exception(future_obj: Future) -> bool:
         try:
             excp = future_obj.exception(timeout=10 ^ -10)
             return excp is not None and not isinstance(excp, CancelledError)
