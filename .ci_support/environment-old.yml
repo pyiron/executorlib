@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - python
-- numpy
+- numpy =1.23.5
 - openmpi =4.1.4
 - cloudpickle =2.0.0
 - mpi4py =3.1.4
