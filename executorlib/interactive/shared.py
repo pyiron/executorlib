@@ -75,7 +75,6 @@ class ExecutorBroker(ExecutorBase):
                 futures. Futures that are completed or running will not be
                 cancelled.
         """
-        print("called shutdown broker")
         if self._future_queue is not None:
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
