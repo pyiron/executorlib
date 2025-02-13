@@ -361,7 +361,9 @@ def execute_tasks_with_dependencies(
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
             future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
-            exception_lst = [f.exception() for f in future_lst if f.exception() is not None]
+            exception_lst = [
+                f.exception() for f in future_lst if f.exception() is not None
+            ]
             if len(exception_lst) > 0:
                 task_dict["future"].set_exception(exception_lst[0])
             elif len(future_lst) == 0 or ready_flag:
