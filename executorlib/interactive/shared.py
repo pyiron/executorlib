@@ -308,7 +308,7 @@ def execute_separate_tasks(
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
             if task_dict["wait"]:
-                _ = [process.join() for process in process_lst if process.is_alive()]
+                _ = [process.join() for process in process_lst]
             future_queue.task_done()
             future_queue.join()
             break
