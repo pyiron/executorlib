@@ -1,3 +1,4 @@
+import concurrent.futures
 import importlib.util
 import os
 import queue
@@ -361,9 +362,7 @@ def execute_tasks_with_dependencies(
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
             future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
-            exception_lst = [
-                f.exception() for f in future_lst if f.exception() is not None
-            ]
+            exception_lst = _get_exception_lst(future_lst=future_lst)
             if len(exception_lst) > 0:
                 task_dict["future"].set_exception(exception_lst[0])
             elif len(future_lst) == 0 or ready_flag:
@@ -460,7 +459,10 @@ def _submit_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> l
     """
     wait_tmp_lst = []
     for task_wait_dict in wait_lst:
-        if all(future.done() for future in task_wait_dict["future_lst"]):
+        exception_lst = _get_exception_lst(future_lst=task_wait_dict["future_lst"])
+        if len(exception_lst) > 0:
+            task_wait_dict["future"].set_exception(exception_lst[0])
+        elif all(future.done() for future in task_wait_dict["future_lst"]):
             del task_wait_dict["future_lst"]
             task_wait_dict["args"], task_wait_dict["kwargs"] = _update_futures_in_input(
                 args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
@@ -668,3 +670,15 @@ def _execute_task_with_cache(
         future = task_dict["future"]
         future.set_result(result)
         future_queue.task_done()
+
+
+def _get_exception_lst(future_lst: list) -> list:
+    def get_exception(future_obj: concurrent.futures.Future) -> bool:
+        try:
+            return future_obj.exception(timeout=10 ^ -10) is not None
+        except TimeoutError:
+            return False
+
+    return [
+        f.exception() for f in future_lst if get_exception(future_obj=f)
+    ]
