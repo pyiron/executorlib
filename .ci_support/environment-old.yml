@@ -2,12 +2,12 @@ channels:
 - conda-forge
 dependencies:
 - python
-- numpy
+- numpy =1.23.5
 - openmpi =4.1.4
-- cloudpickle =2.0.0
+- cloudpickle =2.2.1
 - mpi4py =3.1.4
 - pyzmq =25.0.0
-- h5py =3.6.0
+- h5py =3.7.0
 - networkx =2.8.8
 - ipython =7.33.0
 - pygraphviz =1.10
