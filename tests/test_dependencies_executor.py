@@ -106,6 +106,59 @@ class TestExecutorWithDependencies(unittest.TestCase):
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
 
+    def test_dependency_steps_error(self):
+        cloudpickle_register(ind=1)
+        fs1 = Future()
+        fs2 = Future()
+        q = Queue()
+        q.put(
+            {
+                "fn": raise_error,
+                "args": (),
+                "kwargs": {"parameter": 0},
+                "future": fs1,
+                "resource_dict": {"cores": 1},
+            }
+        )
+        q.put(
+            {
+                "fn": add_function,
+                "args": (),
+                "kwargs": {"parameter_1": 1, "parameter_2": fs1},
+                "future": fs2,
+                "resource_dict": {"cores": 1},
+            }
+        )
+        executor = create_single_node_executor(
+            max_workers=1,
+            max_cores=2,
+            resource_dict={
+                "cores": 1,
+                "threads_per_core": 1,
+                "gpus_per_core": 0,
+                "cwd": None,
+                "openmpi_oversubscribe": False,
+                "slurm_cmd_args": [],
+            },
+        )
+        process = RaisingThread(
+            target=execute_tasks_with_dependencies,
+            kwargs={
+                "future_queue": q,
+                "executor_queue": executor._future_queue,
+                "executor": executor,
+                "refresh_rate": 0.01,
+            },
+        )
+        process.start()
+        self.assertFalse(fs1.done())
+        self.assertFalse(fs2.done())
+        self.assertTrue(fs1.exception() is not None)
+        self.assertTrue(fs2.exception() is not None)
+        with self.assertRaises(RuntimeError):
+            fs2.result()
+        q.put({"shutdown": True, "wait": True})
+
     def test_many_to_one(self):
         length = 5
         parameter = 1
