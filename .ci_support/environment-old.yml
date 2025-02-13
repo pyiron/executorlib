@@ -7,7 +7,7 @@ dependencies:
 - cloudpickle =2.0.0
 - mpi4py =3.1.4
 - pyzmq =25.0.0
-- h5py =3.7.0
+- h5py =3.8.0
 - networkx =2.8.8
 - ipython =8.4.0
 - pygraphviz =1.10
