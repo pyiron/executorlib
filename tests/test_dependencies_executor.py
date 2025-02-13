@@ -42,7 +42,7 @@ def return_input_dict(input_dict):
     return input_dict
 
 
-def raise_error():
+def raise_error(parameter):
     raise RuntimeError
 
 
@@ -148,22 +148,70 @@ class TestExecutorErrors(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error)
+                _ = exe.submit(raise_error, parameter=0)
 
     def test_block_allocation_true_one_worker(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error)
+                _ = exe.submit(raise_error, parameter=0)
 
     def test_block_allocation_false_two_workers(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error)
+                _ = exe.submit(raise_error, parameter=0)
 
     def test_block_allocation_true_two_workers(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error)
+                _ = exe.submit(raise_error, parameter=0)
+
+    def test_block_allocation_false_one_worker_loop(self):
+        with self.assertRaises(RuntimeError):
+            with SingleNodeExecutor(max_cores=1, block_allocation=False) as exe:
+                cloudpickle_register(ind=1)
+                lst = []
+                for i in range(1, 4):
+                    lst = exe.submit(
+                        raise_error,
+                        parameter=lst,
+                    )
+                lst.result()
+
+    def test_block_allocation_true_one_worker_loop(self):
+        with self.assertRaises(RuntimeError):
+            with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
+                cloudpickle_register(ind=1)
+                lst = []
+                for i in range(1, 4):
+                    lst = exe.submit(
+                        raise_error,
+                        parameter=lst,
+                    )
+                lst.result()
+
+    def test_block_allocation_false_two_workers_loop(self):
+        with self.assertRaises(RuntimeError):
+            with SingleNodeExecutor(max_cores=2, block_allocation=False) as exe:
+                cloudpickle_register(ind=1)
+                lst = []
+                for i in range(1, 4):
+                    lst = exe.submit(
+                        raise_error,
+                        parameter=lst,
+                    )
+                lst.result()
+
+    def test_block_allocation_true_two_workers_loop(self):
+        with self.assertRaises(RuntimeError):
+            with SingleNodeExecutor(max_cores=2, block_allocation=True) as exe:
+                cloudpickle_register(ind=1)
+                lst = []
+                for i in range(1, 4):
+                    lst = exe.submit(
+                        raise_error,
+                        parameter=lst,
+                    )
+                lst.result()
