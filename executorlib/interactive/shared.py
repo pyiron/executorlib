@@ -75,6 +75,7 @@ class ExecutorBroker(ExecutorBase):
                 futures. Futures that are completed or running will not be
                 cancelled.
         """
+        print("called shutdown broker")
         if self._future_queue is not None:
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
@@ -307,7 +308,7 @@ def execute_separate_tasks(
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
             if task_dict["wait"]:
-                _ = [process.join() for process in process_lst]
+                _ = [process.join() for process in process_lst if process.is_alive()]
             future_queue.task_done()
             future_queue.join()
             break
@@ -361,7 +362,10 @@ def execute_tasks_with_dependencies(
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
             future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
-            if len(future_lst) == 0 or ready_flag:
+            exception_lst = [f.exception() for f in future_lst if f.exception() is not None]
+            if len(exception_lst) > 0:
+                task_dict["future"].set_exception(exception_lst[0])
+            elif len(future_lst) == 0 or ready_flag:
                 # No future objects are used in the input or all future objects are already done
                 task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
                     args=task_dict["args"], kwargs=task_dict["kwargs"]
