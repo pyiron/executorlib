@@ -162,7 +162,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
     def test_dependency_steps_error_before(self):
         cloudpickle_register(ind=1)
         fs1 = Future()
-        fs1.set_exception(RuntimeError)
+        fs1.set_exception(RuntimeError())
         fs2 = Future()
         q = Queue()
         q.put(
