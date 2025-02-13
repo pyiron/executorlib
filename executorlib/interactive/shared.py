@@ -675,7 +675,8 @@ def _execute_task_with_cache(
 def _get_exception_lst(future_lst: list) -> list:
     def get_exception(future_obj: concurrent.futures.Future) -> bool:
         try:
-            return future_obj.exception(timeout=10 ^ -10) is not None
+            excp = future_obj.exception(timeout=10 ^ -10)
+            return excp is not None and not isinstance(excp, CancelledError)
         except TimeoutError:
             return False
 
