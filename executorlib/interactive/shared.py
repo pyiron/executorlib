@@ -680,4 +680,7 @@ def _get_exception_lst(future_lst: list) -> list:
         except TimeoutError:
             return False
 
-    return [f.exception() for f in future_lst if get_exception(future_obj=f)]
+    if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+        return [f.exception() for f in future_lst if get_exception(future_obj=f)]
+    else:
+        return []
