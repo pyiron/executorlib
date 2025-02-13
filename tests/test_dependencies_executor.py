@@ -108,8 +108,8 @@ class TestExecutorWithDependencies(unittest.TestCase):
         q.put({"shutdown": True, "wait": True})
 
     @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 10),
-        reason="requires Python 3.10 or higher",
+        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
+        reason="requires Python 3.11 or higher",
     )
     def test_dependency_steps_error(self):
         cloudpickle_register(ind=1)
@@ -165,8 +165,8 @@ class TestExecutorWithDependencies(unittest.TestCase):
         q.put({"shutdown": True, "wait": True})
 
     @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 10),
-        reason="requires Python 3.10 or higher",
+        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
+        reason="requires Python 3.11 or higher",
     )
     def test_dependency_steps_error_before(self):
         cloudpickle_register(ind=1)
@@ -283,8 +283,8 @@ class TestExecutorErrors(unittest.TestCase):
                 _ = exe.submit(raise_error, parameter=0)
 
     @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 10),
-        reason="requires Python 3.10 or higher",
+        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
+        reason="requires Python 3.11 or higher",
     )
     def test_block_allocation_false_one_worker_loop(self):
         with self.assertRaises(RuntimeError):
@@ -299,8 +299,8 @@ class TestExecutorErrors(unittest.TestCase):
                 lst.result()
 
     @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 10),
-        reason="requires Python 3.10 or higher",
+        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
+        reason="requires Python 3.11 or higher",
     )
     def test_block_allocation_true_one_worker_loop(self):
         with self.assertRaises(RuntimeError):
@@ -315,8 +315,8 @@ class TestExecutorErrors(unittest.TestCase):
                 lst.result()
 
     @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 10),
-        reason="requires Python 3.10 or higher",
+        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
+        reason="requires Python 3.11 or higher",
     )
     def test_block_allocation_false_two_workers_loop(self):
         with self.assertRaises(RuntimeError):
@@ -331,8 +331,8 @@ class TestExecutorErrors(unittest.TestCase):
                 lst.result()
 
     @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 10),
-        reason="requires Python 3.10 or higher",
+        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
+        reason="requires Python 3.11 or higher",
     )
     def test_block_allocation_true_two_workers_loop(self):
         with self.assertRaises(RuntimeError):
