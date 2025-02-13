@@ -308,7 +308,7 @@ def execute_separate_tasks(
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
             if task_dict["wait"]:
-                _ = [process.join() for process in process_lst if process.is_alive()]
+                _ = [process.join() for process in process_lst]
             future_queue.task_done()
             future_queue.join()
             break
@@ -675,7 +675,7 @@ def _execute_task_with_cache(
 def _get_exception_lst(future_lst: list) -> list:
     def get_exception(future_obj: Future) -> bool:
         try:
-            excp = future_obj.exception(timeout=10**-5)
+            excp = future_obj.exception(timeout=10**-10)
             return excp is not None and not isinstance(excp, CancelledError)
         except TimeoutError:
             return False
