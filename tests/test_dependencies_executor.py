@@ -262,25 +262,29 @@ class TestExecutorErrors(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     def test_block_allocation_true_one_worker(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     def test_block_allocation_false_two_workers(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     def test_block_allocation_true_two_workers(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     @unittest.skipIf(
         condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),

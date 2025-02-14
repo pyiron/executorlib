@@ -610,14 +610,13 @@ def _execute_task(
         future_queue (Queue): Queue for receiving new tasks.
     """
     f = task_dict.pop("future")
-    if f.set_running_or_notify_cancel():
+    if not f.done() and f.set_running_or_notify_cancel():
         try:
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             interface.shutdown(wait=True)
             future_queue.task_done()
             f.set_exception(exception=thread_exception)
-            raise thread_exception
         else:
             future_queue.task_done()
 
