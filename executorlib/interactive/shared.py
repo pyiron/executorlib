@@ -4,7 +4,7 @@ import queue
 import sys
 import time
 from asyncio.exceptions import CancelledError
-from concurrent.futures import Future
+from concurrent.futures import Future, TimeoutError
 from time import sleep
 from typing import Any, Callable, Optional, Union
 
@@ -672,15 +672,13 @@ def _execute_task_with_cache(
         future_queue.task_done()
 
 
-def _get_exception_lst(future_lst: list) -> list:
-    def get_exception(future_obj: Future) -> bool:
-        try:
-            excp = future_obj.exception(timeout=10**-10)
-            return excp is not None and not isinstance(excp, CancelledError)
-        except TimeoutError:
-            return False
+def _get_exception_lst(future_lst: list[Future]) -> list:
+    return [f.exception() for f in future_lst if _get_exception(future_obj=f)]
 
-    if sys.version_info[0] >= 3 and sys.version_info[1] >= 11:
-        return [f.exception() for f in future_lst if get_exception(future_obj=f)]
-    else:
-        return []
+
+def _get_exception(future_obj: Future) -> bool:
+    try:
+        excp = future_obj.exception(timeout=10**-10)
+        return excp is not None and not isinstance(excp, CancelledError)
+    except TimeoutError:
+        return False
