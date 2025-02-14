@@ -7,7 +7,7 @@ tags:
 authors:
   - name: J. Janssen
     orcid: 0000-0001-9948-7119
-    affiliation: [1, 2]
+    affiliation: "1, 2"
   - name: M.G. Taylor
     orcid: 0000-0003-4327-2746
     affiliation: 2
