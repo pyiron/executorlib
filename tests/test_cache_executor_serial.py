@@ -57,7 +57,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
             with FileExecutor(
                 execute_function=execute_in_subprocess, disable_dependencies=True
             ) as exe:
-                exe.submit(my_funct, 1, b=exe.submit(my_funct, 1, b=2))
+                fs = exe.submit(my_funct, 1, b=exe.submit(my_funct, 1, b=2))
+                fs.result()
 
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
