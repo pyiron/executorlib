@@ -89,7 +89,7 @@ class ExecutorBroker(ExecutorBase):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: list[RaisingThread]):  # type: ignore
+    def _set_process(self, process: list[Thread]):  # type: ignore
         """
         Set the process for the executor.
 
