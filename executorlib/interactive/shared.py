@@ -4,7 +4,7 @@ import queue
 import sys
 import time
 from asyncio.exceptions import CancelledError
-from concurrent.futures import Future
+from concurrent.futures import Future, TimeoutError
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional, Union
