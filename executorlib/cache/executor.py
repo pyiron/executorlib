@@ -1,6 +1,6 @@
 import os
-from typing import Callable, Optional
 from threading import Thread
+from typing import Callable, Optional
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.cache.shared import execute_tasks_h5

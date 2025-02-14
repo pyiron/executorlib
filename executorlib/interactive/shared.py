@@ -5,9 +5,9 @@ import sys
 import time
 from asyncio.exceptions import CancelledError
 from concurrent.futures import Future
+from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional, Union
-from threading import Thread
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path

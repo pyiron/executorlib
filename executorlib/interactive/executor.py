@@ -1,6 +1,6 @@
 from concurrent.futures import Future
-from typing import Any, Callable, Optional
 from threading import Thread
+from typing import Any, Callable, Optional
 
 from executorlib.base.executor import ExecutorBase
 from executorlib.interactive.shared import execute_tasks_with_dependencies
