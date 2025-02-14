@@ -60,44 +60,6 @@ Currently, Executorlib supports five different job schedulers implement as diffe
 ## Resource Assignment
 To assign dedicated computing resources to individual Python functions, the Executorlib Executor classes extend the submission function `submit()` to support not only the Python function and its inputs, but also a Python dictionary specifying the requested computing resources `resource_dict`. The resource dictionary can define the number of compute cores, number of threads, number of GPUs, as well as job scheduler specific parameters like the working directory, maximum run time or the maximum memory. With this hierarchical approach, Executorlib allows the user to finely control the execution of each individual Python function, using parallel communication libraries like the Message Passing Interface (MPI) for Python [@mpi4py] or GPU-optimized libraries to aggressively optimize complex compute intensive tasks of heterogenous HPC that are best solved by tightly-coupled parallelization approaches, while offering a simple and easy to maintain approach to the orchestration of many such weakly-coupled tasks. This ability to seamlessly combine different programming models again accelerates the rapid prototyping of heterogenous HPC workflows without sacrificing performance of critical code components.
 
-## Dependencies
-While two inter-dependent Python functions with similar computational resource requirements can always be combined and executed as a single Python function, this is no longer the case for Python functions with dramatically different resource requirements. In this case Executorlib again extends the submission function `submit()` to support `concurrent.futures.Future` objects from the Python standard library as inputs. When such an argument is passed as input of a subsequent function, the Executor waits until the Python process linked to the `concurrent.futures.Future` object completes its execution, before submitting the dependent Python function for execution. In the case of the `SlurmClusterExecutor` and the `FluxClusterExecutor` which use file-based communication, the dependencies of the Python functions are communicated to the job scheduler, so the communication is decoupled from the initial Python process, which submitted the Python functions, as the execution can be delayed until the user receives access to the requested computing resources from the job scheduler. Finally, by enabling the plotting parameter `plot_dependency_graph=True` during the initialization of the Executorlib Executor classes, the resulting dependency graph can be visualized to validate the dependency relationships between the different `concurrent.futures.Future` objects. 
-
-## Performance Optimization
-While Executorlib is not a priori designed for Python functions with runtimes of less than about a minute, given the overhead of requesting dedicated computing resources and starting a new Python process, the execution of these functions can be significantly accelerated by reusing dedicated computing resources for the submission of multiple Python functions in the `SingleNodeExecutor`, `SlurmJobExecutor` or `FluxJobExecutor`. This is enabled by setting the block allocation parameter `block_allocation` during the initialization of the corresponding Executor class to `True`. Rather than starting a separate Python process for each submitted Python function, the block allocation mode starts a dedicated number of workers (with a fixed resource allocation over their lifetime) and then allows the user to submit Python functions to these pre-defined workers. To further improve computational efficiency when working with multiple analysis functions being applied on the same large dataset, data can be pre-loaded during the initialization of the Python function using the initialization function `init_function`. This initializes a Python dictionary in the Python process which is accessible by all subsequently submitted Python functions. 
-
-## Caching
-The development of a HPC workflow is commonly an iterative process, which means the initial steps are repeated multiple times until the workflow is fully developed. To accelerate this process, Executorlib provides the option to cache the output of previously evaluated Python functions so these outputs can be reloaded without the need for repeating the evaluation of the same potentially expensive Python functions. Caching in Executorlib uses the same file storage interface as for the file-based communication with the `SlurmClusterExecutor` or the `FluxClusterExecutor`. The caching is enabled by defining the cache directory parameter `cache_directory` as additional input during the initialization of the Executorlib Executor class. Finally, the cache also contains the execution time as additional information, enabling performance analysis of the workflow during the development cycle. 
-
-## Advanced Example
-To demonstrate the advanced functionality of Executorlib beyond the scope of the Executor interface of the Python standard library a second advanced example is provided. This advanced example requires the flux framework to be installed and started with at least one computing node in a given queuing system allocation and with at least one computing node having one GPU. At the moment the flux framework is only available for the GNU/Linux operating system, which is the operating system used by the majority of the HPC clusters, so the following example can only be executed on GNU/Linux. 
-```python
-from executorlib import FluxJobExecutor
-
-def get_available_GPUs(ind, lst):
-    import socket
-    from tensorflow.python.client import device_lib
-    local_device_protos = device_lib.list_local_devices()
-    return [
-        (ind, x.name, x.physical_device_desc, socket.gethostname()) 
-        for x in local_device_protos if x.device_type == "GPU"
-    ] + lst
-
-with FluxJobExecutor() as exe:
-    fs = []
-    for i in range(1, 4):
-        fs = exe.submit(
-            get_available_GPUs,
-            ind=i,
-            lst=fs,
-            resource_dict={"cores": 1, "gpus_per_core": 1},
-        )
-    print(fs.result())
-```
-By adding the resource dictionary parameter `resource_dict` in the submission function, each Python function receives a dedicated CPU core and a corresponding GPU for the execution of the submitted function. In the submitted function the `tensorflow` machine learning framework is imported to list the metadata of the available GPU. Furthermore, the submission is repeated three times with the output being aggregated in a joined list. For the aggregation of the output of the individual submissions, the previous information is stored in a `concurrent.futures.Future` object named `fs` and is provided as an input to the next function during submission. Consequently, the execution is limited to serial execution. The dependencies ase visualized in \autoref{fig:dependencies}. Alternatively, the results could be merged into one list after the submission of the individual functions, that would enable the parallel execution of the individual Python functions. 
-
-![Dependencies of the advanced example visualized by adding the `plot_dependency_graph=True` parameter during the initialization of the Executor.\label{fig:dependencies}](exegraph.png){width="50%"}
-
 # Usage To-Date 
 While initially developed in the US DOE Exascale Computing Project’s Exascale Atomistic Capability for Accuracy, Length and Time (EXAALT) to accelerate the development of computational materials science simulation workflows for the Exascale, Executorlib has since been generalized to support a wide-range of backends and HPC clusters at different scales. Based on this generalization, it is also been implemented in the pyiron workflow framework [@pyiron] as primary task scheduling interface. 
 
