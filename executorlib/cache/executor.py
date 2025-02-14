@@ -1,4 +1,5 @@
 import os
+from threading import Thread
 from typing import Callable, Optional
 
 from executorlib.base.executor import ExecutorBase
@@ -15,7 +16,6 @@ from executorlib.standalone.inputcheck import (
     check_max_workers_and_cores,
     check_nested_flux_executor,
 )
-from executorlib.standalone.thread import RaisingThread
 
 try:
     from executorlib.cache.queue_spawner import execute_with_pysqa
@@ -64,7 +64,7 @@ class FileExecutor(ExecutorBase):
         cache_directory_path = os.path.abspath(cache_directory)
         os.makedirs(cache_directory_path, exist_ok=True)
         self._set_process(
-            RaisingThread(
+            Thread(
                 target=execute_tasks_h5,
                 kwargs={
                     "future_queue": self._future_queue,

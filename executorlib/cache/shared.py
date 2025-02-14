@@ -115,8 +115,10 @@ def execute_tasks_h5(
                         ]
                     else:
                         if len(future_wait_key_lst) > 0:
-                            raise ValueError(
-                                "Future objects are not supported as input if disable_dependencies=True."
+                            task_dict["future"].set_exception(
+                                ValueError(
+                                    "Future objects are not supported as input if disable_dependencies=True."
+                                )
                             )
                         task_dependent_lst = []
                     process_dict[task_key] = execute_function(

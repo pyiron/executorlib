@@ -3,12 +3,12 @@ import unittest
 import sys
 from time import sleep
 from queue import Queue
+from threading import Thread
 
 from executorlib import SingleNodeExecutor
 from executorlib.interfaces.single import create_single_node_executor
 from executorlib.interactive.shared import execute_tasks_with_dependencies
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.standalone.thread import RaisingThread
 
 
 try:
@@ -90,7 +90,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 "slurm_cmd_args": [],
             },
         )
-        process = RaisingThread(
+        process = Thread(
             target=execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
@@ -142,7 +142,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 "slurm_cmd_args": [],
             },
         )
-        process = RaisingThread(
+        process = Thread(
             target=execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
@@ -196,7 +196,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 "slurm_cmd_args": [],
             },
         )
-        process = RaisingThread(
+        process = Thread(
             target=execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
@@ -210,7 +210,10 @@ class TestExecutorWithDependencies(unittest.TestCase):
         self.assertTrue(fs2.exception() is not None)
         with self.assertRaises(RuntimeError):
             fs2.result()
+        executor.shutdown(wait=True)
         q.put({"shutdown": True, "wait": True})
+        q.join()
+        process.join()
 
     def test_many_to_one(self):
         length = 5
@@ -254,25 +257,29 @@ class TestExecutorErrors(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     def test_block_allocation_true_one_worker(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     def test_block_allocation_false_two_workers(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=False) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     def test_block_allocation_true_two_workers(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=True) as exe:
                 cloudpickle_register(ind=1)
-                _ = exe.submit(raise_error, parameter=0)
+                fs = exe.submit(raise_error, parameter=0)
+                fs.result()
 
     def test_block_allocation_false_one_worker_loop(self):
         with self.assertRaises(RuntimeError):

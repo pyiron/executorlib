@@ -53,6 +53,9 @@ class SubprocessExecutorTest(unittest.TestCase):
                 "future": f,
             }
         )
+        test_queue.put(
+            {"shutdown": True, "wait": True}
+        )
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -61,6 +64,7 @@ class SubprocessExecutorTest(unittest.TestCase):
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
             )
+            f.result()
 
     def test_broken_executable(self):
         test_queue = queue.Queue()
@@ -73,6 +77,12 @@ class SubprocessExecutorTest(unittest.TestCase):
                 "future": f,
             }
         )
+        test_queue.put(
+            {
+                "shutdown": True,
+                "wait": True,
+            }
+        )
         cloudpickle_register(ind=1)
         with self.assertRaises(FileNotFoundError):
             execute_parallel_tasks(
@@ -81,6 +91,7 @@ class SubprocessExecutorTest(unittest.TestCase):
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
             )
+            f.result()
 
     def test_shell_static_executor_args(self):
         with SingleNodeExecutor(max_workers=1) as exe:

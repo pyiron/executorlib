@@ -7,7 +7,6 @@ from executorlib.standalone.interactive.communication import (
     interface_shutdown,
 )
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
-from executorlib.standalone.thread import RaisingThread
 
 __all__ = [
     "SocketInterface",
@@ -16,6 +15,5 @@ __all__ = [
     "interface_send",
     "interface_shutdown",
     "interface_receive",
-    "RaisingThread",
     "MpiExecSpawner",
 ]

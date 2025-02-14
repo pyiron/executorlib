@@ -318,7 +318,8 @@ class TestFuturePool(unittest.TestCase):
                 executor_kwargs={"cores": 1},
                 spawner=MpiExecSpawner,
             ) as p:
-                p.submit(raise_error)
+                fs = p.submit(raise_error)
+                fs.result()
 
     def test_executor_exception_future(self):
         with self.assertRaises(RuntimeError):
@@ -424,6 +425,7 @@ class TestFuturePool(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -432,12 +434,14 @@ class TestFuturePool(unittest.TestCase):
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
             )
+            f.result()
         q.join()
 
     def test_execute_task_failed_wrong_argument(self):
         f = Future()
         q = Queue()
         q.put({"fn": calc_array, "args": (), "kwargs": {"j": 4}, "future": f})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
             execute_parallel_tasks(
@@ -446,6 +450,7 @@ class TestFuturePool(unittest.TestCase):
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
             )
+            f.result()
         q.join()
 
     def test_execute_task(self):

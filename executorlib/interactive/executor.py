@@ -1,4 +1,5 @@
 from concurrent.futures import Future
+from threading import Thread
 from typing import Any, Callable, Optional
 
 from executorlib.base.executor import ExecutorBase
@@ -8,7 +9,6 @@ from executorlib.standalone.plot import (
     generate_nodes_and_edges,
     generate_task_hash,
 )
-from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorWithDependencies(ExecutorBase):
@@ -41,7 +41,7 @@ class ExecutorWithDependencies(ExecutorBase):
     ) -> None:
         super().__init__(max_cores=max_cores)
         self._set_process(
-            RaisingThread(
+            Thread(
                 target=execute_tasks_with_dependencies,
                 kwargs={
                     # Executor Arguments
