@@ -107,10 +107,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
 
-    @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
-        reason="requires Python 3.11 or higher",
-    )
     def test_dependency_steps_error(self):
         cloudpickle_register(ind=1)
         fs1 = Future()
@@ -164,10 +160,6 @@ class TestExecutorWithDependencies(unittest.TestCase):
             fs2.result()
         q.put({"shutdown": True, "wait": True})
 
-    @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
-        reason="requires Python 3.11 or higher",
-    )
     def test_dependency_steps_error_before(self):
         cloudpickle_register(ind=1)
         fs1 = Future()
@@ -289,10 +281,6 @@ class TestExecutorErrors(unittest.TestCase):
                 fs = exe.submit(raise_error, parameter=0)
                 fs.result()
 
-    @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
-        reason="requires Python 3.11 or higher",
-    )
     def test_block_allocation_false_one_worker_loop(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=False) as exe:
@@ -305,10 +293,6 @@ class TestExecutorErrors(unittest.TestCase):
                     )
                 lst.result()
 
-    @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
-        reason="requires Python 3.11 or higher",
-    )
     def test_block_allocation_true_one_worker_loop(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
@@ -321,10 +305,6 @@ class TestExecutorErrors(unittest.TestCase):
                     )
                 lst.result()
 
-    @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
-        reason="requires Python 3.11 or higher",
-    )
     def test_block_allocation_false_two_workers_loop(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=False) as exe:
@@ -337,10 +317,6 @@ class TestExecutorErrors(unittest.TestCase):
                     )
                 lst.result()
 
-    @unittest.skipIf(
-        condition=not (sys.version_info[0] >= 3 and sys.version_info[1] >= 11),
-        reason="requires Python 3.11 or higher",
-    )
     def test_block_allocation_true_two_workers_loop(self):
         with self.assertRaises(RuntimeError):
             with SingleNodeExecutor(max_cores=2, block_allocation=True) as exe:

@@ -673,10 +673,7 @@ def _execute_task_with_cache(
 
 
 def _get_exception_lst(future_lst: list[Future]) -> list:
-    if sys.version_info[0] >= 3 and sys.version_info[1] >= 11:
-        return [f.exception() for f in future_lst if _get_exception(future_obj=f)]
-    else:
-        return []
+    return [f.exception() for f in future_lst if _get_exception(future_obj=f)]
 
 
 def _get_exception(future_obj: Future) -> bool:
