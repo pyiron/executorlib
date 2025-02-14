@@ -7,6 +7,7 @@ from asyncio.exceptions import CancelledError
 from concurrent.futures import Future
 from time import sleep
 from typing import Any, Callable, Optional, Union
+from threading import Thread
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path
@@ -20,7 +21,6 @@ from executorlib.standalone.interactive.communication import (
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.serialize import serialize_funct_h5
-from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBroker(ExecutorBase):
@@ -149,7 +149,7 @@ class InteractiveExecutor(ExecutorBroker):
         executor_kwargs["queue_join_on_shutdown"] = False
         self._set_process(
             process=[
-                RaisingThread(
+                Thread(
                     target=execute_parallel_tasks,
                     kwargs=executor_kwargs,
                 )
@@ -205,7 +205,7 @@ class InteractiveStepExecutor(ExecutorBase):
         executor_kwargs["max_cores"] = max_cores
         executor_kwargs["max_workers"] = max_workers
         self._set_process(
-            RaisingThread(
+            Thread(
                 target=execute_separate_tasks,
                 kwargs=executor_kwargs,
             )
@@ -589,7 +589,7 @@ def _submit_function_to_separate_process(
             "init_function": None,
         }
     )
-    process = RaisingThread(
+    process = Thread(
         target=execute_parallel_tasks,
         kwargs=task_kwargs,
     )

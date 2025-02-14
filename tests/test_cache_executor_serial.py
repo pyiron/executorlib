@@ -3,12 +3,12 @@ import os
 from queue import Queue
 import shutil
 import unittest
+from threading import Thread
 
 from executorlib.cache.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
-from executorlib.standalone.thread import RaisingThread
 
 try:
     from executorlib.cache.executor import FileExecutor, create_file_executor
@@ -81,7 +81,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         )
         cache_dir = os.path.abspath("cache")
         os.makedirs(cache_dir, exist_ok=True)
-        process = RaisingThread(
+        process = Thread(
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
@@ -122,7 +122,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         )
         cache_dir = os.path.abspath("cache")
         os.makedirs(cache_dir, exist_ok=True)
-        process = RaisingThread(
+        process = Thread(
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
@@ -163,7 +163,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         )
         cache_dir = os.path.abspath("cache")
         os.makedirs(cache_dir, exist_ok=True)
-        process = RaisingThread(
+        process = Thread(
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
