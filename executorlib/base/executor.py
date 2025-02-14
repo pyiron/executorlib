@@ -40,13 +40,13 @@ class ExecutorBase(FutureExecutor):
             Optional[dict]: Information about the executor.
         """
         if self._process is not None and isinstance(self._process, list):
-            meta_data_dict = self._process[0]._kwargs.copy()
+            meta_data_dict = self._process[0]._kwargs.copy()  # type: ignore
             if "future_queue" in meta_data_dict:
                 del meta_data_dict["future_queue"]
             meta_data_dict["max_workers"] = len(self._process)
             return meta_data_dict
         elif self._process is not None:
-            meta_data_dict = self._process._kwargs.copy()
+            meta_data_dict = self._process._kwargs.copy()  # type: ignore
             if "future_queue" in meta_data_dict:
                 del meta_data_dict["future_queue"]
             return meta_data_dict
