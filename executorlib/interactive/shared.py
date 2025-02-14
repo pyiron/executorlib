@@ -363,17 +363,18 @@ def execute_tasks_with_dependencies(
         ):
             future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
             exception_lst = _get_exception_lst(future_lst=future_lst)
-            if len(exception_lst) > 0:
-                task_dict["future"].set_exception(exception_lst[0])
-            elif len(future_lst) == 0 or ready_flag:
-                # No future objects are used in the input or all future objects are already done
-                task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
-                    args=task_dict["args"], kwargs=task_dict["kwargs"]
-                )
-                executor_queue.put(task_dict)
-            else:  # Otherwise add the function to the wait list
-                task_dict["future_lst"] = future_lst
-                wait_lst.append(task_dict)
+            if not _get_exception(future_obj=task_dict["future"]):
+                if len(exception_lst) > 0:
+                    task_dict["future"].set_exception(exception_lst[0])
+                elif len(future_lst) == 0 or ready_flag:
+                    # No future objects are used in the input or all future objects are already done
+                    task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
+                        args=task_dict["args"], kwargs=task_dict["kwargs"]
+                    )
+                    executor_queue.put(task_dict)
+                else:  # Otherwise add the function to the wait list
+                    task_dict["future_lst"] = future_lst
+                    wait_lst.append(task_dict)
             future_queue.task_done()
         elif len(wait_lst) > 0:
             number_waiting = len(wait_lst)
@@ -671,15 +672,16 @@ def _execute_task_with_cache(
         future_queue.task_done()
 
 
-def _get_exception_lst(future_lst: list) -> list:
-    def get_exception(future_obj: Future) -> bool:
-        try:
-            excp = future_obj.exception(timeout=10**-10)
-            return excp is not None and not isinstance(excp, CancelledError)
-        except TimeoutError:
-            return False
-
+def _get_exception_lst(future_lst: list[Future]) -> list:
     if sys.version_info[0] >= 3 and sys.version_info[1] >= 11:
-        return [f.exception() for f in future_lst if get_exception(future_obj=f)]
+        return [f.exception() for f in future_lst if _get_exception(future_obj=f)]
     else:
         return []
+
+
+def _get_exception(future_obj: Future) -> bool:
+    try:
+        excp = future_obj.exception(timeout=10**-10)
+        return excp is not None and not isinstance(excp, CancelledError)
+    except TimeoutError:
+        return False

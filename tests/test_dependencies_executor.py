@@ -218,7 +218,10 @@ class TestExecutorWithDependencies(unittest.TestCase):
         self.assertTrue(fs2.exception() is not None)
         with self.assertRaises(RuntimeError):
             fs2.result()
+        executor.shutdown(wait=True)
         q.put({"shutdown": True, "wait": True})
+        q.join()
+        process.join()
 
     def test_many_to_one(self):
         length = 5
