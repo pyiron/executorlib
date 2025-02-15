@@ -30,8 +30,10 @@ class TestResizing(unittest.TestCase):
             future_lst = [exe.submit(sleep_funct, 0.1) for _ in range(4)]
             self.assertEqual([f.done() for f in future_lst], [False, False, False, False])
             self.assertEqual(len(exe), 4)
+            self.assertEqual(exe.max_workers, 1)
             future_lst[0].result()
             exe.max_workers = 2
+            self.assertEqual(exe.max_workers, 2)
             self.assertEqual(len(exe), 2)
             self.assertEqual(len(exe._process), 2)
             self.assertEqual([f.done() for f in future_lst], [True, False, False, False])
