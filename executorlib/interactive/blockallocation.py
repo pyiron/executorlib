@@ -78,12 +78,13 @@ class BlockAllocationExecutor(ExecutorBase):
         if self._max_workers > max_workers:
             for _ in range(self._max_workers - max_workers):
                 self._future_queue.queue.insert(0, {"shutdown": True, "wait": True})
-            while len(self._process) > max_workers:
-                self._process = [
-                    process
-                    for process in self._process
-                    if process.is_alive()
-                ]
+            if isinstance(self._process, list):
+                while len(self._process) > max_workers:
+                    self._process = [
+                        process
+                        for process in self._process
+                        if process.is_alive()
+                    ]
         elif self._max_workers < max_workers:
             new_process_lst = [
                 Thread(
@@ -94,7 +95,8 @@ class BlockAllocationExecutor(ExecutorBase):
             ]
             for process_instance in new_process_lst:
                 process_instance.start()
-            self._process += new_process_lst
+            if isinstance(self._process, list):
+                self._process += new_process_lst
         self._max_workers = max_workers
 
     def submit(  # type: ignore

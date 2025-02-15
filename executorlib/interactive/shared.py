@@ -1,3 +1,4 @@
+import contextlib
 import importlib.util
 import os
 import queue
@@ -174,7 +175,5 @@ def _execute_task_with_cache(
 
 
 def _task_done(future_queue: queue.Queue):
-    try:
+    with contextlib.suppress(ValueError):
         future_queue.task_done()
-    except ValueError:
-        pass
