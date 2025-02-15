@@ -76,7 +76,7 @@ class FileExecutor(ExecutorBase):
         self._set_process(
             Thread(
                 target=execute_tasks_h5,
-                kwargs=self._kwargs,
+                kwargs=self._process_kwargs,
             )
         )
 

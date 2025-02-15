@@ -27,7 +27,7 @@ class ExecutorBase(FutureExecutor):
         Initialize the ExecutorBase class.
         """
         cloudpickle_register(ind=3)
-        self._process_kwargs = {}
+        self._process_kwargs: dict = {}
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
         self._process: Optional[Union[Thread, list[Thread]]] = None
