@@ -1,10 +1,8 @@
 from typing import Callable, Optional, Union
 
-from executorlib.interactive.executor import ExecutorWithDependencies
-from executorlib.interactive.shared import (
-    InteractiveExecutor,
-    InteractiveStepExecutor,
-)
+from executorlib.interactive.dependency import DependencyExecutor
+from executorlib.interactive.blockallocation import BlockAllocationExecutor
+from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_gpus_per_worker,
@@ -164,7 +162,7 @@ class SingleNodeExecutor:
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not disable_dependencies:
-            return ExecutorWithDependencies(
+            return DependencyExecutor(
                 executor=create_single_node_executor(
                     max_workers=max_workers,
                     cache_directory=cache_directory,
@@ -201,7 +199,7 @@ def create_single_node_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+) -> Union[OneTaskPerProcessExecutor, BlockAllocationExecutor]:
     """
     Create a single node executor
 
@@ -255,7 +253,7 @@ def create_single_node_executor(
         del resource_dict["slurm_cmd_args"]
     if block_allocation:
         resource_dict["init_function"] = init_function
-        return InteractiveExecutor(
+        return BlockAllocationExecutor(
             max_workers=validate_number_of_cores(
                 max_cores=max_cores,
                 max_workers=max_workers,
@@ -266,7 +264,7 @@ def create_single_node_executor(
             spawner=MpiExecSpawner,
         )
     else:
-        return InteractiveStepExecutor(
+        return OneTaskPerProcessExecutor(
             max_cores=max_cores,
             max_workers=max_workers,
             executor_kwargs=resource_dict,

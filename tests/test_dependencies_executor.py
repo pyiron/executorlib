@@ -1,13 +1,12 @@
 from concurrent.futures import Future
 import unittest
-import sys
 from time import sleep
 from queue import Queue
 from threading import Thread
 
 from executorlib import SingleNodeExecutor
 from executorlib.interfaces.single import create_single_node_executor
-from executorlib.interactive.shared import execute_tasks_with_dependencies
+from executorlib.interactive.dependency import _execute_tasks_with_dependencies
 from executorlib.standalone.serialize import cloudpickle_register
 
 
@@ -91,7 +90,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             },
         )
         process = Thread(
-            target=execute_tasks_with_dependencies,
+            target=_execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
                 "executor_queue": executor._future_queue,
@@ -143,7 +142,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             },
         )
         process = Thread(
-            target=execute_tasks_with_dependencies,
+            target=_execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
                 "executor_queue": executor._future_queue,
@@ -197,7 +196,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             },
         )
         process = Thread(
-            target=execute_tasks_with_dependencies,
+            target=_execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
                 "executor_queue": executor._future_queue,
