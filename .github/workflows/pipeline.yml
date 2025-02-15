@@ -387,7 +387,7 @@ jobs:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   uml:
-    needs: [unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
+    # needs: [unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
