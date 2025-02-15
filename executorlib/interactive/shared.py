@@ -57,7 +57,7 @@ def execute_tasks(
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
             interface.shutdown(wait=task_dict["wait"])
-            future_queue.task_done()
+            _task_done(future_queue=future_queue)
             if queue_join_on_shutdown:
                 future_queue.join()
             break
@@ -117,10 +117,10 @@ def _execute_task_without_cache(
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             interface.shutdown(wait=True)
-            future_queue.task_done()
+            _task_done(future_queue=future_queue)
             f.set_exception(exception=thread_exception)
         else:
-            future_queue.task_done()
+            _task_done(future_queue=future_queue)
 
 
 def _execute_task_with_cache(
@@ -161,13 +161,20 @@ def _execute_task_with_cache(
                 f.set_result(result)
             except Exception as thread_exception:
                 interface.shutdown(wait=True)
-                future_queue.task_done()
+                _task_done(future_queue=future_queue)
                 f.set_exception(exception=thread_exception)
                 raise thread_exception
             else:
-                future_queue.task_done()
+                _task_done(future_queue=future_queue)
     else:
         _, result = get_output(file_name=file_name)
         future = task_dict["future"]
         future.set_result(result)
+        _task_done(future_queue=future_queue)
+
+
+def _task_done(future_queue: queue.Queue):
+    try:
         future_queue.task_done()
+    except ValueError:
+        pass
