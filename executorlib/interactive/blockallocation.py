@@ -1,7 +1,7 @@
+import queue
 from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
-import queue
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.interactive.shared import execute_tasks
@@ -76,7 +76,9 @@ class BlockAllocationExecutor(ExecutorBase):
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
-        if isinstance(self._future_queue, queue.Queue) and isinstance(self._process, list):
+        if isinstance(self._future_queue, queue.Queue) and isinstance(
+            self._process, list
+        ):
             if self._max_workers > max_workers:
                 for _ in range(self._max_workers - max_workers):
                     self._future_queue.queue.insert(0, {"shutdown": True, "wait": True})
