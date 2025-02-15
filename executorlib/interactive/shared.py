@@ -3,17 +3,22 @@ import os
 import queue
 import sys
 import time
-from asyncio.exceptions import CancelledError
-from concurrent.futures import Future, TimeoutError
+from concurrent.futures import Future
 from threading import Thread
 from time import sleep
-from typing import Any, Callable, Optional, Union
+from typing import Callable, Optional
 
 from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
+)
+from executorlib.standalone.interactive.arguments import (
+    check_exception_was_raised,
+    get_exception_lst,
+    get_future_objects_from_input,
+    update_futures_in_input,
 )
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
@@ -361,14 +366,16 @@ def execute_tasks_with_dependencies(
         elif (  # handle function submitted to the executor
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
-            future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
-            exception_lst = _get_exception_lst(future_lst=future_lst)
-            if not _get_exception(future_obj=task_dict["future"]):
+            future_lst, ready_flag = get_future_objects_from_input(
+                args=task_dict["args"], kwargs=task_dict["kwargs"]
+            )
+            exception_lst = get_exception_lst(future_lst=future_lst)
+            if not check_exception_was_raised(future_obj=task_dict["future"]):
                 if len(exception_lst) > 0:
                     task_dict["future"].set_exception(exception_lst[0])
                 elif len(future_lst) == 0 or ready_flag:
                     # No future objects are used in the input or all future objects are already done
-                    task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
+                    task_dict["args"], task_dict["kwargs"] = update_futures_in_input(
                         args=task_dict["args"], kwargs=task_dict["kwargs"]
                     )
                     executor_queue.put(task_dict)
@@ -460,75 +467,18 @@ def _submit_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> l
     """
     wait_tmp_lst = []
     for task_wait_dict in wait_lst:
-        exception_lst = _get_exception_lst(future_lst=task_wait_dict["future_lst"])
+        exception_lst = get_exception_lst(future_lst=task_wait_dict["future_lst"])
         if len(exception_lst) > 0:
             task_wait_dict["future"].set_exception(exception_lst[0])
         elif all(future.done() for future in task_wait_dict["future_lst"]):
             del task_wait_dict["future_lst"]
-            task_wait_dict["args"], task_wait_dict["kwargs"] = _update_futures_in_input(
+            task_wait_dict["args"], task_wait_dict["kwargs"] = update_futures_in_input(
                 args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
             )
             executor_queue.put(task_wait_dict)
         else:
             wait_tmp_lst.append(task_wait_dict)
     return wait_tmp_lst
-
-
-def _update_futures_in_input(args: tuple, kwargs: dict) -> tuple[tuple, dict]:
-    """
-    Evaluate future objects in the arguments and keyword arguments by calling future.result()
-
-    Args:
-        args (tuple): function arguments
-        kwargs (dict): function keyword arguments
-
-    Returns:
-        tuple, dict: arguments and keyword arguments with each future object in them being evaluated
-    """
-
-    def get_result(arg: Union[list[Future], Future]) -> Any:
-        if isinstance(arg, Future):
-            return arg.result()
-        elif isinstance(arg, list):
-            return [get_result(arg=el) for el in arg]
-        elif isinstance(arg, dict):
-            return {k: get_result(arg=v) for k, v in arg.items()}
-        else:
-            return arg
-
-    args = tuple([get_result(arg=arg) for arg in args])
-    kwargs = {key: get_result(arg=value) for key, value in kwargs.items()}
-    return args, kwargs
-
-
-def _get_future_objects_from_input(task_dict: dict):
-    """
-    Check the input parameters if they contain future objects and which of these future objects are executed
-
-    Args:
-        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
-                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
-
-    Returns:
-        list, boolean: list of future objects and boolean flag if all future objects are already done
-    """
-    future_lst = []
-
-    def find_future_in_list(lst):
-        for el in lst:
-            if isinstance(el, Future):
-                future_lst.append(el)
-            elif isinstance(el, list):
-                find_future_in_list(lst=el)
-            elif isinstance(el, dict):
-                find_future_in_list(lst=el.values())
-
-    find_future_in_list(lst=task_dict["args"])
-    find_future_in_list(lst=task_dict["kwargs"].values())
-    boolean_flag = len([future for future in future_lst if future.done()]) == len(
-        future_lst
-    )
-    return future_lst, boolean_flag
 
 
 def _submit_function_to_separate_process(
@@ -670,15 +620,3 @@ def _execute_task_with_cache(
         future = task_dict["future"]
         future.set_result(result)
         future_queue.task_done()
-
-
-def _get_exception_lst(future_lst: list[Future]) -> list:
-    return [f.exception() for f in future_lst if _get_exception(future_obj=f)]
-
-
-def _get_exception(future_obj: Future) -> bool:
-    try:
-        excp = future_obj.exception(timeout=10**-10)
-        return excp is not None and not isinstance(excp, CancelledError)
-    except TimeoutError:
-        return False
