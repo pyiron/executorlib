@@ -1,3 +1,8 @@
+"""
+Submodules in the executorlib.standalone module do not depend on other modules of the executorlib package. This strict
+separation simplifies the development, testing and debugging.
+"""
+
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
