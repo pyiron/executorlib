@@ -34,10 +34,7 @@ class ExecutorBase(FutureExecutor):
 
     @property
     def max_workers(self) -> Optional[int]:
-        if isinstance(self._process, list):
-            return len(self._process)
-        else:
-            return self._process_kwargs.get("max_workers")
+        return self._process_kwargs.get("max_workers")
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
