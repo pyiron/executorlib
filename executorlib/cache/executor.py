@@ -63,19 +63,20 @@ class FileExecutor(ExecutorBase):
             terminate_function = terminate_subprocess
         cache_directory_path = os.path.abspath(cache_directory)
         os.makedirs(cache_directory_path, exist_ok=True)
+        self._process_kwargs = {
+            "future_queue": self._future_queue,
+            "execute_function": execute_function,
+            "cache_directory": cache_directory_path,
+            "resource_dict": resource_dict,
+            "terminate_function": terminate_function,
+            "pysqa_config_directory": pysqa_config_directory,
+            "backend": backend,
+            "disable_dependencies": disable_dependencies,
+        }
         self._set_process(
             Thread(
                 target=execute_tasks_h5,
-                kwargs={
-                    "future_queue": self._future_queue,
-                    "execute_function": execute_function,
-                    "cache_directory": cache_directory_path,
-                    "resource_dict": resource_dict,
-                    "terminate_function": terminate_function,
-                    "pysqa_config_directory": pysqa_config_directory,
-                    "backend": backend,
-                    "disable_dependencies": disable_dependencies,
-                },
+                kwargs=self._kwargs,
             )
         )
 

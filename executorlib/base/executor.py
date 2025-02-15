@@ -27,6 +27,7 @@ class ExecutorBase(FutureExecutor):
         Initialize the ExecutorBase class.
         """
         cloudpickle_register(ind=3)
+        self._process_kwargs = {}
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
         self._process: Optional[Union[Thread, list[Thread]]] = None
@@ -39,16 +40,13 @@ class ExecutorBase(FutureExecutor):
         Returns:
             Optional[dict]: Information about the executor.
         """
+        meta_data_dict = self._process_kwargs.copy()
+        if "future_queue" in meta_data_dict:
+            del meta_data_dict["future_queue"]
         if self._process is not None and isinstance(self._process, list):
-            meta_data_dict = self._process[0]._kwargs.copy()  # type: ignore
-            if "future_queue" in meta_data_dict:
-                del meta_data_dict["future_queue"]
             meta_data_dict["max_workers"] = len(self._process)
             return meta_data_dict
         elif self._process is not None:
-            meta_data_dict = self._process._kwargs.copy()  # type: ignore
-            if "future_queue" in meta_data_dict:
-                del meta_data_dict["future_queue"]
             return meta_data_dict
         else:
             return None
