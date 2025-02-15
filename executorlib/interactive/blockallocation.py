@@ -81,9 +81,7 @@ class BlockAllocationExecutor(ExecutorBase):
             if isinstance(self._process, list):
                 while len(self._process) > max_workers:
                     self._process = [
-                        process
-                        for process in self._process
-                        if process.is_alive()
+                        process for process in self._process if process.is_alive()
                     ]
         elif self._max_workers < max_workers:
             new_process_lst = [
