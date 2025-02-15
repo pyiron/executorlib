@@ -405,9 +405,8 @@ jobs:
       timeout-minutes: 10
       run: |
         pyreverse -o png -p ./${{ github.event.repository.name }} ./${{ github.event.repository.name }}
-        ls *.png
-        ls ./${{ github.event.repository.name }}/*.png
+        zip -m uml.zip *.png
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{ github.event.repository.name }}.png
-        path: ${{ github.event.repository.name }}.png
+        name: uml.zip
+        path: uml.zip
