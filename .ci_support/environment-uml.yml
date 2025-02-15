@@ -1,0 +1,6 @@
+channels:
+- conda-forge
+dependencies:
+- python
+- pylint
+- graphviz

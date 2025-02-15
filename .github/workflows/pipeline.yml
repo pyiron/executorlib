@@ -385,3 +385,28 @@ jobs:
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  uml:
+    needs: [unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      shell: bash -l {0}
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: "3.13"
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-uml.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 10
+      run: |
+        pyreverse -o png -p ./${{ github.event.repository.name }} ./${{ github.event.repository.name }}
+        zip -m uml.zip *.png
+    - uses: actions/upload-artifact@v4
+      with:
+        name: uml.zip
+        path: uml.zip
