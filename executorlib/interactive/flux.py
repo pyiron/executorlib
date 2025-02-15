@@ -29,6 +29,8 @@ class FluxPythonSpawner(BaseSpawner):
         cores (int, optional): The number of cores. Defaults to 1.
         threads_per_core (int, optional): The number of threads per base. Defaults to 1.
         gpus_per_core (int, optional): The number of GPUs per base. Defaults to 0.
+        num_nodes (int, optional): The number of compute nodes to use for executing the task. Defaults to None.
+        exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
         flux_executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
         flux_executor_pmi_mode (str, optional): The PMI option. Defaults to None.
@@ -42,6 +44,8 @@ class FluxPythonSpawner(BaseSpawner):
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
+        num_nodes: Optional[int] = None,
+        exclusive: bool = False,
         openmpi_oversubscribe: bool = False,
         flux_executor: Optional[flux.job.FluxExecutor] = None,
         flux_executor_pmi_mode: Optional[str] = None,
@@ -55,6 +59,8 @@ class FluxPythonSpawner(BaseSpawner):
         )
         self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
+        self._num_nodes = num_nodes
+        self._exclusive = exclusive
         self._flux_executor = flux_executor
         self._flux_executor_pmi_mode = flux_executor_pmi_mode
         self._flux_executor_nesting = flux_executor_nesting
@@ -85,8 +91,8 @@ class FluxPythonSpawner(BaseSpawner):
                 num_tasks=self._cores,
                 cores_per_task=self._threads_per_core,
                 gpus_per_task=self._gpus_per_core,
-                num_nodes=None,
-                exclusive=False,
+                num_nodes=self._num_nodes,
+                exclusive=self._exclusive,
             )
         else:
             jobspec = flux.job.JobspecV1.from_nest_command(
@@ -94,8 +100,8 @@ class FluxPythonSpawner(BaseSpawner):
                 num_slots=self._cores,
                 cores_per_slot=self._threads_per_core,
                 gpus_per_slot=self._gpus_per_core,
-                num_nodes=None,
-                exclusive=False,
+                num_nodes=self._num_nodes,
+                exclusive=self._exclusive,
             )
         jobspec.environment = dict(os.environ)
         if self._flux_executor_pmi_mode is not None:

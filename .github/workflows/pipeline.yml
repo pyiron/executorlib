@@ -95,7 +95,9 @@ jobs:
     - name: Setup
       shell: bash -l {0}
       run: |
-        pip install versioneer[toml]==0.29
+        pip install versioneer[toml]==0.29 tomlkit
+        python .ci_support/check.py
+        cat pyproject.toml
         pip install . --no-deps --no-build-isolation
         pip check
 

@@ -6,12 +6,12 @@ from concurrent.futures import (
 from concurrent.futures import (
     Future,
 )
+from threading import Thread
 from typing import Callable, Optional, Union
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBase(FutureExecutor):
@@ -29,7 +29,7 @@ class ExecutorBase(FutureExecutor):
         cloudpickle_register(ind=3)
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
-        self._process: Optional[Union[RaisingThread, list[RaisingThread]]] = None
+        self._process: Optional[Union[Thread, list[Thread]]] = None
 
     @property
     def info(self) -> Optional[dict]:
@@ -40,13 +40,13 @@ class ExecutorBase(FutureExecutor):
             Optional[dict]: Information about the executor.
         """
         if self._process is not None and isinstance(self._process, list):
-            meta_data_dict = self._process[0].get_kwargs().copy()
+            meta_data_dict = self._process[0]._kwargs.copy()  # type: ignore
             if "future_queue" in meta_data_dict:
                 del meta_data_dict["future_queue"]
             meta_data_dict["max_workers"] = len(self._process)
             return meta_data_dict
         elif self._process is not None:
-            meta_data_dict = self._process.get_kwargs().copy()
+            meta_data_dict = self._process._kwargs.copy()  # type: ignore
             if "future_queue" in meta_data_dict:
                 del meta_data_dict["future_queue"]
             return meta_data_dict
@@ -138,13 +138,13 @@ class ExecutorBase(FutureExecutor):
             cancel_items_in_queue(que=self._future_queue)
         if self._process is not None and self._future_queue is not None:
             self._future_queue.put({"shutdown": True, "wait": wait})
-            if wait and isinstance(self._process, RaisingThread):
+            if wait and isinstance(self._process, Thread):
                 self._process.join()
                 self._future_queue.join()
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: RaisingThread):
+    def _set_process(self, process: Thread):
         """
         Set the process for the executor.
 

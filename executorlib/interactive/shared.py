@@ -3,7 +3,9 @@ import os
 import queue
 import sys
 import time
-from concurrent.futures import Future
+from asyncio.exceptions import CancelledError
+from concurrent.futures import Future, TimeoutError
+from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional, Union
 
@@ -19,7 +21,6 @@ from executorlib.standalone.interactive.communication import (
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.serialize import serialize_funct_h5
-from executorlib.standalone.thread import RaisingThread
 
 
 class ExecutorBroker(ExecutorBase):
@@ -88,7 +89,7 @@ class ExecutorBroker(ExecutorBase):
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: list[RaisingThread]):  # type: ignore
+    def _set_process(self, process: list[Thread]):  # type: ignore
         """
         Set the process for the executor.
 
@@ -148,7 +149,7 @@ class InteractiveExecutor(ExecutorBroker):
         executor_kwargs["queue_join_on_shutdown"] = False
         self._set_process(
             process=[
-                RaisingThread(
+                Thread(
                     target=execute_parallel_tasks,
                     kwargs=executor_kwargs,
                 )
@@ -204,7 +205,7 @@ class InteractiveStepExecutor(ExecutorBase):
         executor_kwargs["max_cores"] = max_cores
         executor_kwargs["max_workers"] = max_workers
         self._set_process(
-            RaisingThread(
+            Thread(
                 target=execute_separate_tasks,
                 kwargs=executor_kwargs,
             )
@@ -361,15 +362,19 @@ def execute_tasks_with_dependencies(
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
             future_lst, ready_flag = _get_future_objects_from_input(task_dict=task_dict)
-            if len(future_lst) == 0 or ready_flag:
-                # No future objects are used in the input or all future objects are already done
-                task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
-                    args=task_dict["args"], kwargs=task_dict["kwargs"]
-                )
-                executor_queue.put(task_dict)
-            else:  # Otherwise add the function to the wait list
-                task_dict["future_lst"] = future_lst
-                wait_lst.append(task_dict)
+            exception_lst = _get_exception_lst(future_lst=future_lst)
+            if not _get_exception(future_obj=task_dict["future"]):
+                if len(exception_lst) > 0:
+                    task_dict["future"].set_exception(exception_lst[0])
+                elif len(future_lst) == 0 or ready_flag:
+                    # No future objects are used in the input or all future objects are already done
+                    task_dict["args"], task_dict["kwargs"] = _update_futures_in_input(
+                        args=task_dict["args"], kwargs=task_dict["kwargs"]
+                    )
+                    executor_queue.put(task_dict)
+                else:  # Otherwise add the function to the wait list
+                    task_dict["future_lst"] = future_lst
+                    wait_lst.append(task_dict)
             future_queue.task_done()
         elif len(wait_lst) > 0:
             number_waiting = len(wait_lst)
@@ -455,7 +460,10 @@ def _submit_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> l
     """
     wait_tmp_lst = []
     for task_wait_dict in wait_lst:
-        if all(future.done() for future in task_wait_dict["future_lst"]):
+        exception_lst = _get_exception_lst(future_lst=task_wait_dict["future_lst"])
+        if len(exception_lst) > 0:
+            task_wait_dict["future"].set_exception(exception_lst[0])
+        elif all(future.done() for future in task_wait_dict["future_lst"]):
             del task_wait_dict["future_lst"]
             task_wait_dict["args"], task_wait_dict["kwargs"] = _update_futures_in_input(
                 args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
@@ -483,6 +491,8 @@ def _update_futures_in_input(args: tuple, kwargs: dict) -> tuple[tuple, dict]:
             return arg.result()
         elif isinstance(arg, list):
             return [get_result(arg=el) for el in arg]
+        elif isinstance(arg, dict):
+            return {k: get_result(arg=v) for k, v in arg.items()}
         else:
             return arg
 
@@ -510,6 +520,8 @@ def _get_future_objects_from_input(task_dict: dict):
                 future_lst.append(el)
             elif isinstance(el, list):
                 find_future_in_list(lst=el)
+            elif isinstance(el, dict):
+                find_future_in_list(lst=el.values())
 
     find_future_in_list(lst=task_dict["args"])
     find_future_in_list(lst=task_dict["kwargs"].values())
@@ -578,7 +590,7 @@ def _submit_function_to_separate_process(
             "init_function": None,
         }
     )
-    process = RaisingThread(
+    process = Thread(
         target=execute_parallel_tasks,
         kwargs=task_kwargs,
     )
@@ -599,14 +611,13 @@ def _execute_task(
         future_queue (Queue): Queue for receiving new tasks.
     """
     f = task_dict.pop("future")
-    if f.set_running_or_notify_cancel():
+    if not f.done() and f.set_running_or_notify_cancel():
         try:
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             interface.shutdown(wait=True)
             future_queue.task_done()
             f.set_exception(exception=thread_exception)
-            raise thread_exception
         else:
             future_queue.task_done()
 
@@ -659,3 +670,15 @@ def _execute_task_with_cache(
         future = task_dict["future"]
         future.set_result(result)
         future_queue.task_done()
+
+
+def _get_exception_lst(future_lst: list[Future]) -> list:
+    return [f.exception() for f in future_lst if _get_exception(future_obj=f)]
+
+
+def _get_exception(future_obj: Future) -> bool:
+    try:
+        excp = future_obj.exception(timeout=10**-10)
+        return excp is not None and not isinstance(excp, CancelledError)
+    except TimeoutError:
+        return False

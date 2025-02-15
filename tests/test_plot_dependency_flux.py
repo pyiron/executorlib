@@ -106,8 +106,8 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 18)
-            self.assertEqual(len(edges), 21)
+            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(edges), 22)
 
 
 @unittest.skipIf(
@@ -175,5 +175,5 @@ class TestFluxSubmissionExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 18)
-            self.assertEqual(len(edges), 21)
+            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(edges), 22)
