@@ -1,7 +1,7 @@
 from typing import Callable, Optional, Union
 
-from executorlib.interactive.dependency import DependencyExecutor
 from executorlib.interactive.blockallocation import BlockAllocationExecutor
+from executorlib.interactive.dependency import DependencyExecutor
 from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,

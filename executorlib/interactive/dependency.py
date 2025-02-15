@@ -1,20 +1,20 @@
+import queue
 from concurrent.futures import Future
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
-import queue
 
 from executorlib.base.executor import ExecutorBase
-from executorlib.standalone.plot import (
-    draw,
-    generate_nodes_and_edges,
-    generate_task_hash,
-)
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
     get_exception_lst,
     get_future_objects_from_input,
     update_futures_in_input,
+)
+from executorlib.standalone.plot import (
+    draw,
+    generate_nodes_and_edges,
+    generate_task_hash,
 )
 
 

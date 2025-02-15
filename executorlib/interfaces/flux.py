@@ -1,7 +1,7 @@
 from typing import Callable, Optional, Union
 
-from executorlib.interactive.dependency import DependencyExecutor
 from executorlib.interactive.blockallocation import BlockAllocationExecutor
+from executorlib.interactive.dependency import DependencyExecutor
 from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
@@ -14,8 +14,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 try:  # The PyFluxExecutor requires flux-base to be installed.
-    from executorlib.interactive.flux import FluxPythonSpawner
-    from executorlib.interactive.flux import validate_max_workers
+    from executorlib.interactive.flux import FluxPythonSpawner, validate_max_workers
 except ImportError:
     pass
 
