@@ -77,6 +77,14 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
+    def test_max_workers(self):
+        with BlockAllocationExecutor(
+            max_workers=2,
+            executor_kwargs={},
+            spawner=MpiExecSpawner,
+        ) as exe:
+            self.assertEqual(exe.max_workers, 2)
+
     def test_pympiexecutor_one_worker(self):
         with BlockAllocationExecutor(
             max_workers=1,
@@ -106,6 +114,14 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             self.assertEqual(fs_2.result(), 2)
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
+
+    def test_max_workers(self):
+        with OneTaskPerProcessExecutor(
+            max_workers=2,
+            executor_kwargs={},
+            spawner=MpiExecSpawner,
+        ) as exe:
+            self.assertEqual(exe.max_workers, 2)
 
     def test_pympiexecutor_one_worker(self):
         with OneTaskPerProcessExecutor(

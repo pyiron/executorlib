@@ -76,11 +76,38 @@ class DependencyExecutor(ExecutorBase):
         if isinstance(self._future_queue, queue.Queue):
             f: Future = Future()
             self._future_queue.queue.insert(
-                0, {"internal": True, "task": "info", "future": f}
+                0, {"internal": True, "task": "get_info", "future": f}
             )
             return f.result()
         else:
             return None
+
+    @property
+    def max_workers(self) -> Optional[int]:
+        if isinstance(self._future_queue, queue.Queue):
+            f: Future = Future()
+            self._future_queue.queue.insert(
+                0, {"internal": True, "task": "get_max_workers", "future": f}
+            )
+            return f.result()
+        else:
+            return None
+
+    @max_workers.setter
+    def max_workers(self, max_workers: int):
+        if isinstance(self._future_queue, queue.Queue):
+            f: Future = Future()
+            self._future_queue.queue.insert(
+                0,
+                {
+                    "internal": True,
+                    "task": "set_max_workers",
+                    "max_workers": max_workers,
+                    "future": f,
+                },
+            )
+            if not f.result():
+                raise NotImplementedError("The max_workers setter is not implemented.")
 
     def submit(  # type: ignore
         self,
@@ -188,8 +215,17 @@ def _execute_tasks_with_dependencies(
         if (  # shutdown the executor
             task_dict is not None and "internal" in task_dict and task_dict["internal"]
         ):
-            if task_dict["task"] == "info":
+            if task_dict["task"] == "get_info":
                 task_dict["future"].set_result(executor.info)
+            elif task_dict["task"] == "get_max_workers":
+                task_dict["future"].set_result(executor.max_workers)
+            elif task_dict["task"] == "set_max_workers":
+                try:
+                    executor.max_workers = task_dict["max_workers"]
+                except NotImplementedError:
+                    task_dict["future"].set_result(False)
+                else:
+                    task_dict["future"].set_result(True)
         elif (  # handle function submitted to the executor
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):

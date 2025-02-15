@@ -1,3 +1,4 @@
+import queue
 from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
@@ -27,7 +28,7 @@ class BlockAllocationExecutor(ExecutorBase):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.shared import BlockAllocationExecutor
+        >>> from executorlib.interactive.blockallocation import BlockAllocationExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -58,15 +59,45 @@ class BlockAllocationExecutor(ExecutorBase):
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
         self._process_kwargs = executor_kwargs
+        self._max_workers = max_workers
         self._set_process(
             process=[
                 Thread(
                     target=execute_tasks,
                     kwargs=executor_kwargs,
                 )
-                for _ in range(max_workers)
+                for _ in range(self._max_workers)
             ],
         )
+
+    @property
+    def max_workers(self) -> int:
+        return self._max_workers
+
+    @max_workers.setter
+    def max_workers(self, max_workers: int):
+        if isinstance(self._future_queue, queue.Queue) and isinstance(
+            self._process, list
+        ):
+            if self._max_workers > max_workers:
+                for _ in range(self._max_workers - max_workers):
+                    self._future_queue.queue.insert(0, {"shutdown": True, "wait": True})
+                while len(self._process) > max_workers:
+                    self._process = [
+                        process for process in self._process if process.is_alive()
+                    ]
+            elif self._max_workers < max_workers:
+                new_process_lst = [
+                    Thread(
+                        target=execute_tasks,
+                        kwargs=self._process_kwargs,
+                    )
+                    for _ in range(max_workers - self._max_workers)
+                ]
+                for process_instance in new_process_lst:
+                    process_instance.start()
+                self._process += new_process_lst
+            self._max_workers = max_workers
 
     def submit(  # type: ignore
         self, fn: Callable, *args, resource_dict: Optional[dict] = None, **kwargs
