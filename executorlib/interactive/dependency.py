@@ -79,6 +79,8 @@ class DependencyExecutor(ExecutorBase):
                 0, {"internal": True, "task": "info", "future": f}
             )
             return f.result()
+        else:
+            return None
 
     def submit(  # type: ignore
         self,
