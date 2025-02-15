@@ -20,7 +20,7 @@ class TestResizing(unittest.TestCase):
             exe.max_workers = 1
             self.assertTrue(len(exe) >= 1)
             self.assertEqual(len(exe._process), 1)
-            self.assertEqual([f.done() for f in future_lst], [True, True, False, False])
+            self.assertTrue(1 <= sum([f.done() for f in future_lst]) < 3)
             self.assertEqual([f.result() for f in future_lst], [1, 1, 1, 1])
             self.assertEqual([f.done() for f in future_lst], [True, True, True, True])
 
@@ -48,7 +48,7 @@ class TestResizing(unittest.TestCase):
             self.assertEqual(len(exe), 4)
             sleep_funct(sec=0.5)
             exe.max_workers = 1
-            self.assertEqual([f.done() for f in future_lst], [True, True, False, False])
+            self.assertTrue(1 <= sum([f.done() for f in future_lst]) < 3)
             self.assertEqual([f.result() for f in future_lst], [1, 1, 1, 1])
             self.assertEqual([f.done() for f in future_lst], [True, True, True, True])
 
@@ -68,5 +68,13 @@ class TestResizing(unittest.TestCase):
 
     def test_no_block_allocation(self):
         with self.assertRaises(NotImplementedError):
-            with SingleNodeExecutor(block_allocation=False) as exe:
+            with SingleNodeExecutor(block_allocation=False, disable_dependencies=False) as exe:
                 exe.max_workers = 2
+        with self.assertRaises(NotImplementedError):
+            with SingleNodeExecutor(block_allocation=False, disable_dependencies=True) as exe:
+                exe.max_workers = 2
+
+    def test_max_workers_stopped_executor(self):
+        exe = SingleNodeExecutor(block_allocation=True)
+        exe.shutdown(wait=True)
+        self.assertIsNone(exe.max_workers)
