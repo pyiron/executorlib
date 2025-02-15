@@ -1,3 +1,4 @@
+import contextlib
 from typing import Callable, Optional, Union
 
 from executorlib.interactive.blockallocation import BlockAllocationExecutor
@@ -13,10 +14,8 @@ from executorlib.standalone.inputcheck import (
     validate_number_of_cores,
 )
 
-try:  # The PyFluxExecutor requires flux-base to be installed.
+with contextlib.suppress(ImportError):
     from executorlib.interactive.flux import FluxPythonSpawner, validate_max_workers
-except ImportError:
-    pass
 
 
 class FluxJobExecutor:
