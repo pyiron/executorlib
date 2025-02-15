@@ -8,6 +8,7 @@ from executorlib import SingleNodeExecutor
 from executorlib.interfaces.single import create_single_node_executor
 from executorlib.interactive.dependency import _execute_tasks_with_dependencies
 from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
 try:
@@ -327,3 +328,37 @@ class TestExecutorErrors(unittest.TestCase):
                         parameter=lst,
                     )
                 lst.result()
+
+
+class TestInfo(unittest.TestCase):
+    def test_info_disable_dependencies_true(self):
+        with SingleNodeExecutor(disable_dependencies=True) as exe:
+            self.assertEqual(
+                exe.info,
+                {
+                    'cores': 1,
+                    'cwd': None,
+                    'openmpi_oversubscribe': False,
+                    'cache_directory': None,
+                    'hostname_localhost': None,
+                    'spawner': MpiExecSpawner,
+                    'max_cores': None,
+                    'max_workers': None,
+                }
+            )
+
+    def test_info_disable_dependencies_false(self):
+        with SingleNodeExecutor(disable_dependencies=False) as exe:
+            self.assertEqual(
+                exe.info,
+                {
+                    'cores': 1,
+                    'cwd': None,
+                    'openmpi_oversubscribe': False,
+                    'cache_directory': None,
+                    'hostname_localhost': None,
+                    'spawner': MpiExecSpawner,
+                    'max_cores': None,
+                    'max_workers': None,
+                }
+            )
