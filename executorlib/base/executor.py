@@ -33,6 +33,17 @@ class ExecutorBase(FutureExecutor):
         self._process: Optional[Union[Thread, list[Thread]]] = None
 
     @property
+    def max_workers(self) -> Optional[int]:
+        if isinstance(self._process, list):
+            return len(self._process)
+        else:
+            return self._process_kwargs.get("max_workers")
+
+    @max_workers.setter
+    def max_workers(self, max_workers: int):
+        raise NotImplementedError("The max_workers setter is not implemented.")
+
+    @property
     def info(self) -> Optional[dict]:
         """
         Get the information about the executor.
