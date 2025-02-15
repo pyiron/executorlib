@@ -98,7 +98,13 @@ class DependencyExecutor(ExecutorBase):
         if isinstance(self._future_queue, queue.Queue):
             f: Future = Future()
             self._future_queue.queue.insert(
-                0, {"internal": True, "task": "set_max_workers", "max_workers": max_workers, "future": f}
+                0,
+                {
+                    "internal": True,
+                    "task": "set_max_workers",
+                    "max_workers": max_workers,
+                    "future": f,
+                },
             )
             if not f.result():
                 raise NotImplementedError("The max_workers setter is not implemented.")
