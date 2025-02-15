@@ -404,7 +404,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 10
       run: |
-        pyreverse -o png -p ./${{ github.event.repository.name }} .
+        pyreverse -o png -p ./${{ github.event.repository.name }} ./${{ github.event.repository.name }}
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ github.event.repository.name }}.png
