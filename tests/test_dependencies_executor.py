@@ -359,5 +359,5 @@ class TestInfo(unittest.TestCase):
     def test_info_error_handling(self):
         """Test info property error handling when executor is not running."""
         exe = SingleNodeExecutor()
-        with self.assertRaises(Exception):
-            _ = exe.info
+        exe.shutdown(wait=True)
+        self.assertIsNone(exe.info)
