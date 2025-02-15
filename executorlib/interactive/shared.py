@@ -152,6 +152,7 @@ class InteractiveExecutor(ExecutorBroker):
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
+        self._process_kwargs = executor_kwargs
         self._set_process(
             process=[
                 Thread(
@@ -205,10 +206,15 @@ class InteractiveStepExecutor(ExecutorBase):
         if executor_kwargs is None:
             executor_kwargs = {}
         super().__init__(max_cores=executor_kwargs.get("max_cores"))
-        executor_kwargs["future_queue"] = self._future_queue
-        executor_kwargs["spawner"] = spawner
-        executor_kwargs["max_cores"] = max_cores
-        executor_kwargs["max_workers"] = max_workers
+        executor_kwargs.update(
+            {
+                "future_queue": self._future_queue,
+                "spawner": spawner,
+                "max_cores": max_cores,
+                "max_workers": max_workers,
+            }
+        )
+        self._process_kwargs = executor_kwargs
         self._set_process(
             Thread(
                 target=execute_separate_tasks,

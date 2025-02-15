@@ -40,16 +40,16 @@ class ExecutorWithDependencies(ExecutorBase):
         plot_dependency_graph_filename: Optional[str] = None,
     ) -> None:
         super().__init__(max_cores=max_cores)
+        self._process_kwargs = {
+            "future_queue": self._future_queue,
+            "executor_queue": executor._future_queue,
+            "executor": executor,
+            "refresh_rate": refresh_rate,
+        }
         self._set_process(
             Thread(
                 target=execute_tasks_with_dependencies,
-                kwargs={
-                    # Executor Arguments
-                    "future_queue": self._future_queue,
-                    "executor_queue": executor._future_queue,
-                    "executor": executor,
-                    "refresh_rate": refresh_rate,
-                },
+                kwargs=self._process_kwargs,
             )
         )
         self._future_hash_dict: dict = {}
