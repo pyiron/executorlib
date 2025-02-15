@@ -1,9 +1,16 @@
+import queue
 from concurrent.futures import Future
 from threading import Thread
+from time import sleep
 from typing import Any, Callable, Optional
 
 from executorlib.base.executor import ExecutorBase
-from executorlib.interactive.shared import execute_tasks_with_dependencies
+from executorlib.standalone.interactive.arguments import (
+    check_exception_was_raised,
+    get_exception_lst,
+    get_future_objects_from_input,
+    update_futures_in_input,
+)
 from executorlib.standalone.plot import (
     draw,
     generate_nodes_and_edges,
@@ -11,7 +18,7 @@ from executorlib.standalone.plot import (
 )
 
 
-class ExecutorWithDependencies(ExecutorBase):
+class DependencyExecutor(ExecutorBase):
     """
     ExecutorWithDependencies is a class that extends ExecutorBase and provides functionality for executing tasks with
     dependencies.
@@ -20,8 +27,6 @@ class ExecutorWithDependencies(ExecutorBase):
         refresh_rate (float, optional): The refresh rate for updating the executor queue. Defaults to 0.01.
         plot_dependency_graph (bool, optional): Whether to generate and plot the dependency graph. Defaults to False.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
-        *args: Variable length argument list.
-        **kwargs: Arbitrary keyword arguments.
 
     Attributes:
         _future_hash_dict (Dict[str, Future]): A dictionary mapping task hash to future object.
@@ -48,7 +53,7 @@ class ExecutorWithDependencies(ExecutorBase):
         }
         self._set_process(
             Thread(
-                target=execute_tasks_with_dependencies,
+                target=_execute_tasks_with_dependencies,
                 kwargs=self._process_kwargs,
             )
         )
@@ -132,3 +137,93 @@ class ExecutorWithDependencies(ExecutorBase):
                 edge_lst=edge_lst,
                 filename=self._plot_dependency_graph_filename,
             )
+
+
+def _execute_tasks_with_dependencies(
+    future_queue: queue.Queue,
+    executor_queue: queue.Queue,
+    executor: ExecutorBase,
+    refresh_rate: float = 0.01,
+):
+    """
+    Resolve the dependencies of multiple tasks, by analysing which task requires concurrent.future.Futures objects from
+    other tasks.
+
+    Args:
+        future_queue (Queue): Queue for receiving new tasks.
+        executor_queue (Queue): Queue for the internal executor.
+        executor (ExecutorBase): Executor to execute the tasks with after the dependencies are resolved.
+        refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
+    """
+    wait_lst = []
+    while True:
+        try:
+            task_dict = future_queue.get_nowait()
+        except queue.Empty:
+            task_dict = None
+        if (  # shutdown the executor
+            task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]
+        ):
+            executor.shutdown(wait=task_dict["wait"])
+            future_queue.task_done()
+            future_queue.join()
+            break
+        elif (  # handle function submitted to the executor
+            task_dict is not None and "fn" in task_dict and "future" in task_dict
+        ):
+            future_lst, ready_flag = get_future_objects_from_input(
+                args=task_dict["args"], kwargs=task_dict["kwargs"]
+            )
+            exception_lst = get_exception_lst(future_lst=future_lst)
+            if not check_exception_was_raised(future_obj=task_dict["future"]):
+                if len(exception_lst) > 0:
+                    task_dict["future"].set_exception(exception_lst[0])
+                elif len(future_lst) == 0 or ready_flag:
+                    # No future objects are used in the input or all future objects are already done
+                    task_dict["args"], task_dict["kwargs"] = update_futures_in_input(
+                        args=task_dict["args"], kwargs=task_dict["kwargs"]
+                    )
+                    executor_queue.put(task_dict)
+                else:  # Otherwise add the function to the wait list
+                    task_dict["future_lst"] = future_lst
+                    wait_lst.append(task_dict)
+            future_queue.task_done()
+        elif len(wait_lst) > 0:
+            number_waiting = len(wait_lst)
+            # Check functions in the wait list and execute them if all future objects are now ready
+            wait_lst = _update_waiting_task(
+                wait_lst=wait_lst, executor_queue=executor_queue
+            )
+            # if no job is ready, sleep for a moment
+            if len(wait_lst) == number_waiting:
+                sleep(refresh_rate)
+        else:
+            # If there is nothing else to do, sleep for a moment
+            sleep(refresh_rate)
+
+
+def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> list:
+    """
+    Submit the waiting tasks, which future inputs have been completed, to the executor
+
+    Args:
+        wait_lst (list): List of waiting tasks
+        executor_queue (Queue): Queue of the internal executor
+
+    Returns:
+        list: list tasks which future inputs have not been completed
+    """
+    wait_tmp_lst = []
+    for task_wait_dict in wait_lst:
+        exception_lst = get_exception_lst(future_lst=task_wait_dict["future_lst"])
+        if len(exception_lst) > 0:
+            task_wait_dict["future"].set_exception(exception_lst[0])
+        elif all(future.done() for future in task_wait_dict["future_lst"]):
+            del task_wait_dict["future_lst"]
+            task_wait_dict["args"], task_wait_dict["kwargs"] = update_futures_in_input(
+                args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
+            )
+            executor_queue.put(task_wait_dict)
+        else:
+            wait_tmp_lst.append(task_wait_dict)
+    return wait_tmp_lst

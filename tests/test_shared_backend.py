@@ -4,7 +4,7 @@ import unittest
 
 from executorlib.standalone.interactive.backend import parse_arguments
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
-from executorlib.interactive.slurm import SrunSpawner
+from executorlib.interactive.slurmspawner import SrunSpawner
 
 
 class TestParser(unittest.TestCase):
