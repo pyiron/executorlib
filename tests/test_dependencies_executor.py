@@ -331,34 +331,33 @@ class TestExecutorErrors(unittest.TestCase):
 
 
 class TestInfo(unittest.TestCase):
+    """Test cases for the info property of SingleNodeExecutor."""
+
+    def setUp(self):
+        """Set up the expected info dictionary."""
+        self.expected_info = {
+            'cores': 1,
+            'cwd': None,
+            'openmpi_oversubscribe': False,
+            'cache_directory': None,
+            'hostname_localhost': None,
+            'spawner': MpiExecSpawner,
+            'max_cores': None,
+            'max_workers': None,
+        }
+
     def test_info_disable_dependencies_true(self):
+        """Test info property with dependencies disabled."""
         with SingleNodeExecutor(disable_dependencies=True) as exe:
-            self.assertEqual(
-                exe.info,
-                {
-                    'cores': 1,
-                    'cwd': None,
-                    'openmpi_oversubscribe': False,
-                    'cache_directory': None,
-                    'hostname_localhost': None,
-                    'spawner': MpiExecSpawner,
-                    'max_cores': None,
-                    'max_workers': None,
-                }
-            )
+            self.assertEqual(exe.info, self.expected_info)
 
     def test_info_disable_dependencies_false(self):
+        """Test info property with dependencies enabled."""
         with SingleNodeExecutor(disable_dependencies=False) as exe:
-            self.assertEqual(
-                exe.info,
-                {
-                    'cores': 1,
-                    'cwd': None,
-                    'openmpi_oversubscribe': False,
-                    'cache_directory': None,
-                    'hostname_localhost': None,
-                    'spawner': MpiExecSpawner,
-                    'max_cores': None,
-                    'max_workers': None,
-                }
-            )
+            self.assertEqual(exe.info, self.expected_info)
+
+    def test_info_error_handling(self):
+        """Test info property error handling when executor is not running."""
+        exe = SingleNodeExecutor()
+        with self.assertRaises(Exception):
+            _ = exe.info
