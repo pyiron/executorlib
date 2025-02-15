@@ -44,7 +44,9 @@ def get_exception_lst(future_lst: list[Future]) -> list:
         list: list of exceptions raised by the future objects in the list of future objects. Returns empty list if no
               exception was raised.
     """
-    return [f.exception() for f in future_lst if check_exception_was_raised(future_obj=f)]
+    return [
+        f.exception() for f in future_lst if check_exception_was_raised(future_obj=f)
+    ]
 
 
 def check_exception_was_raised(future_obj: Future) -> bool:
