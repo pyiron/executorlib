@@ -15,7 +15,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 with contextlib.suppress(ImportError):
-    from executorlib.interactive.flux import FluxPythonSpawner, validate_max_workers
+    from executorlib.interactive.fluxspawner import FluxPythonSpawner, validate_max_workers
 
 
 class FluxJobExecutor:

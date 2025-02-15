@@ -1,8 +1,8 @@
 import os
 from typing import Optional
 
-import flux
-import flux.job
+import fluxspawner
+import fluxspawner.job
 
 from executorlib.standalone.interactive.spawner import BaseSpawner
 

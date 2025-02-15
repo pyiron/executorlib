@@ -3,7 +3,7 @@ from typing import Callable, Optional, Union
 from executorlib.interactive.blockallocation import BlockAllocationExecutor
 from executorlib.interactive.dependency import DependencyExecutor
 from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
-from executorlib.interactive.slurm import SrunSpawner, validate_max_workers
+from executorlib.interactive.slurmspawner import SrunSpawner, validate_max_workers
 from executorlib.standalone.inputcheck import (
     check_init_function,
     check_plot_dependency_graph,
