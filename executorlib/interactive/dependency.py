@@ -73,8 +73,9 @@ class DependencyExecutor(ExecutorBase):
         Returns:
             Optional[dict]: Information about the executor.
         """
-        f = Future()
-        self._future_queue.queue.insert(0, {"internal": True, "task": "info", "future": f})
+        f: Future = Future()
+        if isinstance(self._future_queue, queue.Queue):
+            self._future_queue.queue.insert(0, {"internal": True, "task": "info", "future": f})
         return f.result()
 
     def submit(  # type: ignore
