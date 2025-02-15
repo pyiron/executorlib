@@ -75,7 +75,9 @@ class DependencyExecutor(ExecutorBase):
         """
         f: Future = Future()
         if isinstance(self._future_queue, queue.Queue):
-            self._future_queue.queue.insert(0, {"internal": True, "task": "info", "future": f})
+            self._future_queue.queue.insert(
+                0, {"internal": True, "task": "info", "future": f}
+            )
         return f.result()
 
     def submit(  # type: ignore
