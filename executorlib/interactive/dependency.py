@@ -65,6 +65,23 @@ class DependencyExecutor(ExecutorBase):
         else:
             self._generate_dependency_graph = True
 
+    @property
+    def info(self) -> Optional[dict]:
+        """
+        Get the information about the executor.
+
+        Returns:
+            Optional[dict]: Information about the executor.
+        """
+        if isinstance(self._future_queue, queue.Queue):
+            f: Future = Future()
+            self._future_queue.queue.insert(
+                0, {"internal": True, "task": "info", "future": f}
+            )
+            return f.result()
+        else:
+            return None
+
     def submit(  # type: ignore
         self,
         fn: Callable[..., Any],
@@ -168,6 +185,11 @@ def _execute_tasks_with_dependencies(
             future_queue.task_done()
             future_queue.join()
             break
+        if (  # shutdown the executor
+            task_dict is not None and "internal" in task_dict and task_dict["internal"]
+        ):
+            if task_dict["task"] == "info":
+                task_dict["future"].set_result(executor.info)
         elif (  # handle function submitted to the executor
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
