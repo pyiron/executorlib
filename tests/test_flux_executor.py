@@ -50,7 +50,7 @@ class TestFlux(unittest.TestCase):
     def test_flux_executor_serial(self):
         with BlockAllocationExecutor(
             max_workers=2,
-            executor_kwargs={"flux_executor": self.flux_executor},
+            executor_kwargs={"flux_executor": self.flux_executor, "priority": 20},
             spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
