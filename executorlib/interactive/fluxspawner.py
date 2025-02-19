@@ -120,7 +120,9 @@ class FluxPythonSpawner(BaseSpawner):
             jobspec.stderr = os.path.abspath("flux.err")
             jobspec.stdout = os.path.abspath("flux.out")
         if self._priority is not None:
-            self._future = self._flux_executor.submit(jobspec=jobspec, urgency=self._priority)
+            self._future = self._flux_executor.submit(
+                jobspec=jobspec, urgency=self._priority
+            )
         else:
             self._future = self._flux_executor.submit(jobspec=jobspec)
 
