@@ -1,0 +1,51 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "https://orcid.org/0000-0001-9948-7119",
+      "@type": "Person",
+      "email": "j.janssen@mpi-susmat.de",
+      "name": "Jan Janssen",
+      "affiliation": "Max Planck Institute for Sustainable Materials, Düsseldorf, Germany"
+    },
+    {
+      "@id": "https://orcid.org/0000-0003-4327-2746",
+      "@type": "Person",
+      "email": "mgt16@lanl.gov",
+      "name": "Michael Gilbert Taylor",
+      "affiliation": "Los Alamos National Laboratory, Los Alamos, NM, United States of America"
+    },
+    {
+      "@id": "https://orcid.org/0000-0003-4726-2860",
+      "@type": "Person",
+      "email": "pyang@lanl.gov",
+      "name": "Ping Yang",
+      "affiliation": "Los Alamos National Laboratory, Los Alamos, NM, United States of America"
+    },
+    {
+      "@id": "https://orcid.org/0000-0002-7903-2472",
+      "@type": "Person",
+      "email": "j.neugebauer@mpi-susmat.de",
+      "name": "Joerg Neugebauer",
+      "affiliation": "Max Planck Institute for Sustainable Materials, Düsseldorf, Germany"
+    },
+    {
+      "@id": "https://orcid.org/0000-0003-3028-5249",
+      "@type": "Person",
+      "email": "danny_perez@lanl.gov",
+      "name": "Danny Perez",
+      "affiliation": "Los Alamos National Laboratory, Los Alamos, NM, United States of America"
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/pyiron/executorlib",
+  "datePublished": "2025-02-14",
+  "dateModified": "2025-02-14",
+  "dateCreated": "2025-02-14",
+  "description": "Up-scale python functions for high performance computing (HPC) with executorlib.",
+  "keywords": "Python, High Performance Computing, Task Scheduling",
+  "license": "BSD",
+  "title": "executorlib",
+  "version": "0.3.0"
+}
