@@ -44,7 +44,7 @@ graph = [
 graphnotebook = [
     "pygraphviz==1.14",
     "networkx==3.4.2",
-    "ipython==8.32.0",
+    "ipython==8.33.0",
 ]
 mpi = ["mpi4py==4.0.1"]
 cluster = [
@@ -57,7 +57,7 @@ all = [
     "h5py==3.13.0",
     "pygraphviz==1.14",
     "networkx==3.4.2",
-    "ipython==8.32.0",
+    "ipython==8.33.0",
 ]
 
 [tool.ruff]
