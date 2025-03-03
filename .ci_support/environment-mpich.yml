@@ -10,6 +10,6 @@ dependencies:
 - h5py =3.13.0
 - networkx =3.4.2
 - pygraphviz =1.14
-- ipython =8.33.0
+- ipython =9.0.1
 - pysqa =0.2.3
 - setuptools =75.1.0
