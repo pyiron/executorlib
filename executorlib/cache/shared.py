@@ -106,10 +106,9 @@ def execute_tasks_h5(
                 resource_dict=task_resource_dict,
             )
             if task_key not in memory_dict:
-                if task_key not in os.listdir(
-                    cache_directory
-                ) and "cache.h5out" not in os.listdir(
-                    os.path.join(cache_directory, task_key)
+                if not (
+                    task_key in os.listdir(cache_directory) and
+                    "cache.h5out" in os.listdir(os.path.join(cache_directory, task_key))
                 ):
                     os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
                     file_name = os.path.join(cache_directory, task_key, "cache.h5in")
@@ -195,7 +194,7 @@ def _check_task_output(
         Future: The updated future object.
 
     """
-    file_name = os.path.join(cache_directory, task_key + ".h5out")
+    file_name = os.path.join(cache_directory, task_key, "cache.h5out")
     if not os.path.exists(file_name):
         return future_obj
     exec_flag, result = get_output(file_name=file_name)
