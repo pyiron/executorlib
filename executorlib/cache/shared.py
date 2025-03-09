@@ -106,9 +106,13 @@ def execute_tasks_h5(
                 resource_dict=task_resource_dict,
             )
             if task_key not in memory_dict:
-                if task_key not in os.listdir(cache_directory) and "cache.h5out" not in os.listdir(os.path.join(cache_directory, task_key)):
+                if task_key not in os.listdir(
+                    cache_directory
+                ) and "cache.h5out" not in os.listdir(
+                    os.path.join(cache_directory, task_key)
+                ):
                     os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-                    file_name = os.path.join(cache_directory, task_key,  "cache.h5in")
+                    file_name = os.path.join(cache_directory, task_key, "cache.h5in")
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
