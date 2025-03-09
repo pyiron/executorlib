@@ -107,8 +107,9 @@ def execute_tasks_h5(
             )
             if task_key not in memory_dict:
                 if not (
-                    task_key in os.listdir(cache_directory) and
-                    "cache.h5out" in os.listdir(os.path.join(cache_directory, task_key))
+                    task_key in os.listdir(cache_directory)
+                    and "cache.h5out"
+                    in os.listdir(os.path.join(cache_directory, task_key))
                 ):
                     os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
                     file_name = os.path.join(cache_directory, task_key, "cache.h5in")
