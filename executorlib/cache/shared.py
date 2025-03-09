@@ -106,8 +106,9 @@ def execute_tasks_h5(
                 resource_dict=task_resource_dict,
             )
             if task_key not in memory_dict:
-                if task_key + ".h5out" not in os.listdir(cache_directory):
-                    file_name = os.path.join(cache_directory, task_key + ".h5in")
+                if task_key not in os.listdir(cache_directory) and "cache.h5out" not in os.listdir(os.path.join(cache_directory, task_key)):
+                    os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
+                    file_name = os.path.join(cache_directory, task_key,  "cache.h5in")
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
@@ -131,10 +132,10 @@ def execute_tasks_h5(
                         resource_dict=task_resource_dict,
                         config_directory=pysqa_config_directory,
                         backend=backend,
-                        cache_directory=cache_directory,
+                        cache_directory=os.path.join(cache_directory, task_key),
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key + ".h5out"
+                    cache_directory, task_key, "cache.h5out"
                 )
                 memory_dict[task_key] = task_dict["future"]
             future_queue.task_done()
