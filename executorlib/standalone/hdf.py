@@ -104,13 +104,16 @@ def get_queue_id(file_name: Optional[str]) -> Optional[int]:
 
 def get_cache_data(cache_directory: str) -> list[dict]:
     file_lst = []
-    for file_name in os.listdir(cache_directory):
-        with h5py.File(os.path.join(cache_directory, file_name), "r") as hdf:
-            file_content_dict = {
-                key: cloudpickle.loads(np.void(hdf["/" + key]))
-                for key in group_dict.values()
-                if key in hdf
-            }
-        file_content_dict["filename"] = file_name
-        file_lst.append(file_content_dict)
+    for task_key in os.listdir(cache_directory):
+        file_name = os.path.join(cache_directory, task_key, "cache.h5out")
+        os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
+        if os.path.exists(file_name):
+            with h5py.File(file_name, "r") as hdf:
+                file_content_dict = {
+                    key: cloudpickle.loads(np.void(hdf["/" + key]))
+                    for key in group_dict.values()
+                    if key in hdf
+                }
+            file_content_dict["filename"] = file_name
+            file_lst.append(file_content_dict)
     return file_lst
