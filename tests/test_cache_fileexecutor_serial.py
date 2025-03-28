@@ -27,6 +27,10 @@ def list_files_in_working_directory():
     return os.listdir(os.getcwd())
 
 
+def get_error(a):
+    raise ValueError(a)
+
+
 @unittest.skipIf(
     skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
 )
@@ -67,6 +71,15 @@ class TestCacheExecutorSerial(unittest.TestCase):
         ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
+
+    def test_executor_error(self):
+        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        with FileExecutor(
+            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
+        ) as exe:
+            fs1 = exe.submit(get_error, a=1)
+            with self.assertRaises(ValueError):
+                fs1.result()
 
     def test_executor_function(self):
         fs1 = Future()

@@ -44,10 +44,16 @@ def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
     """
     file_name_out = os.path.splitext(file_name)[0]
     os.rename(file_name, file_name_out + ".h5ready")
-    dump(
-        file_name=file_name_out + ".h5ready",
-        data_dict={"output": output, "runtime": runtime},
-    )
+    if "result" in output:
+        dump(
+            file_name=file_name_out + ".h5ready",
+            data_dict={"output": output["result"], "runtime": runtime},
+        )
+    else:
+        dump(
+            file_name=file_name_out + ".h5ready",
+            data_dict={"error": output["error"], "runtime": runtime},
+        )
     os.rename(file_name_out + ".h5ready", file_name_out + ".h5out")
 
 
@@ -63,7 +69,15 @@ def backend_execute_task_in_file(file_name: str) -> None:
     """
     apply_dict = backend_load_file(file_name=file_name)
     time_start = time.time()
-    result = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
+    try:
+        result = {
+            "result": apply_dict["fn"].__call__(
+                *apply_dict["args"], **apply_dict["kwargs"]
+            )
+        }
+    except Exception as error:
+        result = {"error": error}
+
     backend_write_file(
         file_name=file_name,
         output=result,
