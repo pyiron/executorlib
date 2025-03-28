@@ -75,7 +75,7 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
         if "output" in hdf:
             return True, True, cloudpickle.loads(np.void(hdf["/output"]))
         elif "error" in hdf:
-            return True, False, cloudpickle.loads(np.void(hdf["/output"]))
+            return True, False, cloudpickle.loads(np.void(hdf["/error"]))
         else:
             return False, False, None
 
