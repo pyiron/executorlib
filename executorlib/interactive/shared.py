@@ -171,7 +171,7 @@ def _execute_task_with_cache(
             else:
                 _task_done(future_queue=future_queue)
     else:
-        _, no_error_flag, result = get_output(file_name=file_name)
+        _, _, result = get_output(file_name=file_name)
         future = task_dict["future"]
         future.set_result(result)
         _task_done(future_queue=future_queue)
