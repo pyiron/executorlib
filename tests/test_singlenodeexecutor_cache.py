@@ -12,6 +12,10 @@ except ImportError:
     skip_h5py_test = True
 
 
+def get_error(a):
+    raise ValueError(a)
+
+
 @unittest.skipIf(
     skip_h5py_test, "h5py is not installed, so the h5io tests are skipped."
 )
@@ -28,6 +32,15 @@ class TestCacheFunctions(unittest.TestCase):
             sum([sum(c["input_args"][0]) for c in cache_lst]), sum(result_lst)
         )
 
+    def test_cache_error(self):
+        cache_directory = "./cache_error"
+        with SingleNodeExecutor(cache_directory=cache_directory) as exe:
+            f = exe.submit(get_error, a=1)
+            with self.assertRaises(ValueError):
+                print(f.result())
+
     def tearDown(self):
         if os.path.exists("cache"):
             shutil.rmtree("cache")
+        if os.path.exists("cache_error"):
+            shutil.rmtree("cache_error")

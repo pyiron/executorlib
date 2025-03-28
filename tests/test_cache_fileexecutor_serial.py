@@ -73,7 +73,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertEqual(fs1.result(), os.listdir(cwd))
 
     def test_executor_error(self):
-        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        cwd = os.path.join(os.path.dirname(__file__), "error")
         with FileExecutor(
             resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
