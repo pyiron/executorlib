@@ -173,6 +173,43 @@ jobs:
           flux start papermill notebooks/3-hpc-job.ipynb notebooks/3-hpc-job-out.ipynb -k python3
           papermill notebooks/4-developer.ipynb notebooks/4-developer-out.ipynb -k python3
 
+  notebooks_integration:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Merge Notebook environment
+        run: |
+          cp binder/environment.yml environment.yml
+          tail --lines=+4 .ci_support/environment-integration.yml >> environment.yml
+          echo -e "channels:\n  - conda-forge\n" > .condarc
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.12"
+          miniforge-version: latest
+          condarc-file: .condarc
+          environment-file: environment.yml
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          pip install versioneer[toml]==0.29
+          pip install . --no-deps --no-build-isolation
+      - name: Notebooks
+        shell: bash -l {0}
+        timeout-minutes: 5
+        run: |
+          flux start papermill notebooks/5-1-flux-cluster-gpaw-bulk-modulus.ipynb notebooks/5-1-flux-cluster-gpaw-bulk-modulus-out.ipynb -k python3
+          flux start papermill notebooks/5-2-flux-job-gpaw-bulk-modulus.ipynb notebooks/5-2-flux-job-gpaw-bulk-modulus-out.ipynb -k python3
+          flux start papermill notebooks/5-1-flux-cluster-qe-bulk-modulus.ipynb notebooks/5-1-flux-cluster-qe-bulk-modulus-out.ipynb -k python3
+          flux start papermill notebooks/5-2-flux-job-qe-bulk-modulus.ipynb notebooks/5-2-flux-job-qe-bulk-modulus-out.ipynb -k python3
+        env:
+          ASE_ESPRESSO_COMMAND: "pw.x -in PREFIX.pwi > PREFIX.pwo"
+          ESPRESSO_PSEUDO: tests/integration
+          OMPI_MCA_plm: isolated
+          OMPI_MCA_btl_vader_single_copy_mechanism: none
+          OMPI_MCA_rmaps_base_oversubscribe: yes
+
   unittest_flux_mpich:
     needs: [black]
     runs-on: ubuntu-latest

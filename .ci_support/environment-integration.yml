@@ -1,0 +1,8 @@
+channels:
+- conda-forge
+dependencies:
+- jupyter
+- papermill
+- atomistics =0.2.4
+- qe =7.2
+- gpaw =24.6.0
