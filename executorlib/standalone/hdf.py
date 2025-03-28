@@ -10,6 +10,7 @@ group_dict = {
     "args": "input_args",
     "kwargs": "input_kwargs",
     "output": "output",
+    "error": "error",
     "runtime": "runtime",
     "queue_id": "queue_id",
 }
@@ -60,7 +61,7 @@ def load(file_name: str) -> dict:
         return data_dict
 
 
-def get_output(file_name: str) -> tuple[bool, Any]:
+def get_output(file_name: str) -> tuple[bool, bool, Any]:
     """
     Check if output is available in the HDF5 file
 
@@ -68,13 +69,15 @@ def get_output(file_name: str) -> tuple[bool, Any]:
         file_name (str): file name of the HDF5 file as absolute path
 
     Returns:
-        Tuple[bool, object]: boolean flag indicating if output is available and the output object itself
+        Tuple[bool, bool, object]: boolean flag indicating if output is available and the output object itself
     """
     with h5py.File(file_name, "r") as hdf:
         if "output" in hdf:
-            return True, cloudpickle.loads(np.void(hdf["/output"]))
+            return True, True, cloudpickle.loads(np.void(hdf["/output"]))
+        elif "error" in hdf:
+            return True, False, cloudpickle.loads(np.void(hdf["/output"]))
         else:
-            return False, None
+            return False, False, None
 
 
 def get_runtime(file_name: str) -> float:

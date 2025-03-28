@@ -30,9 +30,11 @@ class FutureItem:
             str: The result of the future item.
 
         """
-        exec_flag, result = get_output(file_name=self._file_name)
-        if exec_flag:
+        exec_flag, no_error_flag, result = get_output(file_name=self._file_name)
+        if exec_flag and no_error_flag:
             return result
+        elif exec_flag:
+            raise result
         else:
             return self.result()
 
@@ -198,9 +200,11 @@ def _check_task_output(
     file_name = os.path.join(cache_directory, task_key, "cache.h5out")
     if not os.path.exists(file_name):
         return future_obj
-    exec_flag, result = get_output(file_name=file_name)
-    if exec_flag:
+    exec_flag, no_error_flag, result = get_output(file_name=file_name)
+    if exec_flag and no_error_flag:
         future_obj.set_result(result)
+    elif exec_flag:
+        future_obj.set_exception(result)
     return future_obj
 
 

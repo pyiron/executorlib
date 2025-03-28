@@ -39,8 +39,9 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue("fn" in data_dict.keys())
         self.assertEqual(data_dict["args"], [a])
         self.assertEqual(data_dict["kwargs"], {"b": b})
-        flag, output = get_output(file_name=file_name)
+        flag, no_error, output = get_output(file_name=file_name)
         self.assertTrue(get_runtime(file_name=file_name) == 0.0)
+        self.assertFalse(no_error)
         self.assertFalse(flag)
         self.assertIsNone(output)
 
@@ -55,9 +56,10 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue("fn" in data_dict.keys())
         self.assertEqual(data_dict["args"], [a, b])
         self.assertEqual(data_dict["kwargs"], {})
-        flag, output = get_output(file_name=file_name)
+        flag, no_error, output = get_output(file_name=file_name)
         self.assertTrue(get_runtime(file_name=file_name) == 0.0)
         self.assertFalse(flag)
+        self.assertFalse(no_error)
         self.assertIsNone(output)
 
     def test_hdf_kwargs(self):
@@ -80,9 +82,10 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(data_dict["args"], ())
         self.assertEqual(data_dict["kwargs"], {"a": a, "b": b})
         self.assertEqual(get_queue_id(file_name=file_name), 123)
-        flag, output = get_output(file_name=file_name)
+        flag, no_error, output = get_output(file_name=file_name)
         self.assertTrue(get_runtime(file_name=file_name) == 0.0)
         self.assertFalse(flag)
+        self.assertFalse(no_error)
         self.assertIsNone(output)
 
     def test_hdf_queue_id(self):
@@ -95,9 +98,10 @@ class TestSharedFunctions(unittest.TestCase):
             data_dict={"queue_id": queue_id},
         )
         self.assertEqual(get_queue_id(file_name=file_name), 123)
-        flag, output = get_output(file_name=file_name)
+        flag, no_error, output = get_output(file_name=file_name)
         self.assertTrue(get_runtime(file_name=file_name) == 0.0)
         self.assertFalse(flag)
+        self.assertFalse(no_error)
         self.assertIsNone(output)
 
     def tearDown(self):
