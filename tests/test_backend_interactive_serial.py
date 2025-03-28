@@ -52,7 +52,7 @@ class TestSerial(unittest.TestCase):
         t.start()
         submit_error(socket=socket)
         self.assertEqual(
-            cloudpickle.loads(socket.recv())["error_type"], "<class 'TypeError'>"
+            str(type(cloudpickle.loads(socket.recv())["error"])), "<class 'TypeError'>"
         )
         self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
         socket.close()
@@ -78,7 +78,7 @@ class TestSerial(unittest.TestCase):
         t.start()
         main(argument_lst=["--zmqport", str(port)])
         self.assertEqual(
-            cloudpickle.loads(socket.recv())["error_type"], "<class 'TypeError'>"
+            str(type(cloudpickle.loads(socket.recv())["error"])), "<class 'TypeError'>"
         )
         self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
         socket.close()
