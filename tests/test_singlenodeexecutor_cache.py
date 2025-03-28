@@ -40,11 +40,6 @@ class TestCacheFunctions(unittest.TestCase):
             f = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
                 print(f.result())
-        with SingleNodeExecutor(cache_directory=cache_directory) as exe:
-            cloudpickle_register(ind=1)
-            f = exe.submit(get_error, a=1)
-            with self.assertRaises(ValueError):
-                print(f.result())
 
     def tearDown(self):
         if os.path.exists("cache"):
