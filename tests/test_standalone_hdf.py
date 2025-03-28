@@ -104,6 +104,21 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertFalse(no_error)
         self.assertIsNone(output)
 
+    def test_hdf_error(self):
+        cache_directory = os.path.abspath("cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_error.h5")
+        error = ValueError()
+        dump(
+            file_name=file_name,
+            data_dict={"error": error},
+        )
+        flag, no_error, output = get_output(file_name=file_name)
+        self.assertTrue(get_runtime(file_name=file_name) == 0.0)
+        self.assertTrue(flag)
+        self.assertFalse(no_error)
+        self.assertTrue(isinstance(output, error.__class__))
+
     def tearDown(self):
         if os.path.exists("cache"):
             shutil.rmtree("cache")
