@@ -3,6 +3,7 @@ import shutil
 import unittest
 
 from executorlib import SingleNodeExecutor
+from executorlib.standalone.serialize import cloudpickle_register
 
 try:
     from executorlib.standalone.hdf import get_cache_data
@@ -35,6 +36,7 @@ class TestCacheFunctions(unittest.TestCase):
     def test_cache_error(self):
         cache_directory = "./cache_error"
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
+            cloudpickle_register(ind=1)
             f = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
                 print(f.result())
