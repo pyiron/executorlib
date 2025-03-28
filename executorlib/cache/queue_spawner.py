@@ -58,8 +58,10 @@ def execute_with_pysqa(
         }
         if "cwd" in resource_dict:
             del resource_dict["cwd"]
+        if "threads_per_core" in resource_dict:
+            resource_dict["cores"] *= resource_dict["threads_per_core"]
+            del resource_dict["threads_per_core"]
         unsupported_keys = [
-            "threads_per_core",
             "gpus_per_core",
             "openmpi_oversubscribe",
             "slurm_cmd_args",
