@@ -6,5 +6,9 @@ chapters:
 - file: 2-hpc-cluster.ipynb
 - file: 3-hpc-job.ipynb
 - file: trouble_shooting.md
+- file: application.md
+  sections:
+    - file: 5-1-gpaw.ipynb
+    - file: quantum-espresso.ipynb
 - file: 4-developer.ipynb
 - file: api.rst

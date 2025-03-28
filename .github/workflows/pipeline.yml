@@ -197,10 +197,8 @@ jobs:
         shell: bash -l {0}
         timeout-minutes: 20
         run: |
-          flux start papermill notebooks/5-1-flux-cluster-gpaw-bulk-modulus.ipynb notebooks/5-1-flux-cluster-gpaw-bulk-modulus-out.ipynb -k python3
-          flux start papermill notebooks/5-2-flux-job-gpaw-bulk-modulus.ipynb notebooks/5-2-flux-job-gpaw-bulk-modulus-out.ipynb -k python3
-          flux start papermill notebooks/5-3-flux-cluster-qe-bulk-modulus.ipynb notebooks/5-3-flux-cluster-qe-bulk-modulus-out.ipynb -k python3
-          flux start papermill notebooks/5-4-flux-job-qe-bulk-modulus.ipynb notebooks/5-4-flux-job-qe-bulk-modulus-out.ipynb -k python3
+          flux start papermill notebooks/5-1-gpaw.ipynb notebooks/5-1-gpaw-out.ipynb -k python3
+          flux start papermill notebooks/5-2-quantum-espresso.ipynb notebooks/5-2-quantum-espresso-out.ipynb -k python3
 
   unittest_flux_mpich:
     needs: [black]
