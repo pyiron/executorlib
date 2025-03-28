@@ -202,7 +202,6 @@ jobs:
           flux start papermill notebooks/5-3-flux-cluster-qe-bulk-modulus.ipynb notebooks/5-3-flux-cluster-qe-bulk-modulus-out.ipynb -k python3
           flux start papermill notebooks/5-4-flux-job-qe-bulk-modulus.ipynb notebooks/5-4-flux-job-qe-bulk-modulus-out.ipynb -k python3
         env:
-          ASE_ESPRESSO_COMMAND: "pw.x -in PREFIX.pwi > PREFIX.pwo"
           ESPRESSO_PSEUDO: tests/integration
           OMPI_MCA_plm: isolated
           OMPI_MCA_btl_vader_single_copy_mechanism: none
