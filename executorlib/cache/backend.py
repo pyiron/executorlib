@@ -70,7 +70,11 @@ def backend_execute_task_in_file(file_name: str) -> None:
     apply_dict = backend_load_file(file_name=file_name)
     time_start = time.time()
     try:
-        result = {"result": apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])}
+        result = {
+            "result": apply_dict["fn"].__call__(
+                *apply_dict["args"], **apply_dict["kwargs"]
+            )
+        }
     except Exception as error:
         result = {"error": error}
 

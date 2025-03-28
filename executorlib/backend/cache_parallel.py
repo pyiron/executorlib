@@ -40,7 +40,9 @@ def main() -> None:
     apply_dict = MPI.COMM_WORLD.bcast(apply_dict, root=0)
     output = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
     try:
-        result = MPI.COMM_WORLD.gather(output, root=0) if mpi_size_larger_one else output
+        result = (
+            MPI.COMM_WORLD.gather(output, root=0) if mpi_size_larger_one else output
+        )
     except Exception as error:
         if mpi_rank_zero:
             backend_write_file(
