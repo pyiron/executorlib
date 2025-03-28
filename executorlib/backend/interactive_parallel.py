@@ -80,7 +80,7 @@ def main() -> None:
                 if mpi_rank_zero:
                     interface_send(
                         socket=socket,
-                        result_dict={"error": error, "error_type": str(type(error))},
+                        result_dict={"error": error},
                     )
             else:
                 # Send output

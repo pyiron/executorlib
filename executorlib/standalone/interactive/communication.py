@@ -47,8 +47,7 @@ class SocketInterface:
         if "result" in output:
             return output["result"]
         else:
-            error_type = output["error_type"].split("'")[1]
-            raise eval(error_type)(output["error"])
+            raise output["error"]
 
     def send_and_receive_dict(self, input_dict: dict) -> dict:
         """
@@ -181,7 +180,7 @@ def interface_send(socket: Optional[zmq.Socket], result_dict: dict):
 
     Args:
         socket (zmq.Socket): socket for the connection
-        result_dict (dict): dictionary to be sent, supported keys are result, error and error_type.
+        result_dict (dict): dictionary to be sent, supported keys are result and error.
     """
     if socket is not None:
         socket.send(cloudpickle.dumps(result_dict))
