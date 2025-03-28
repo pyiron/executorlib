@@ -9,6 +9,6 @@ chapters:
 - file: application.md
   sections:
     - file: 5-1-gpaw.ipynb
-    - file: quantum-espresso.ipynb
+    - file: 5-2-quantum-espresso.ipynb
 - file: 4-developer.ipynb
 - file: api.rst
