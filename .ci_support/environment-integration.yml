@@ -6,11 +6,11 @@ dependencies:
 - numpy
 - openmpi
 - cloudpickle =3.1.1
-- mpi4py =4.0.1
+- mpi4py
 - pyzmq =26.3.0
 - flux-core =0.59.0
 - versioneer =0.28
-- h5py =3.12.1
+- h5py
 - matplotlib =3.10.0
 - networkx =3.4.2
 - pygraphviz =1.14
