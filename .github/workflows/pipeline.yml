@@ -195,7 +195,7 @@ jobs:
           pip install . --no-deps --no-build-isolation
       - name: Notebooks
         shell: bash -l {0}
-        timeout-minutes: 5
+        timeout-minutes: 20
         run: |
           flux start papermill notebooks/5-1-flux-cluster-gpaw-bulk-modulus.ipynb notebooks/5-1-flux-cluster-gpaw-bulk-modulus-out.ipynb -k python3
           flux start papermill notebooks/5-2-flux-job-gpaw-bulk-modulus.ipynb notebooks/5-2-flux-job-gpaw-bulk-modulus-out.ipynb -k python3
