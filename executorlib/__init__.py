@@ -9,14 +9,14 @@ from executorlib.interfaces.slurm import (
     SlurmJobExecutor,
 )
 
-hdf_lst: list = []
+_hdf_lst: list = []
 
 try:
     from executorlib.standalone.hdf import get_cache_data
 except ImportError:
     pass
 else:
-    hdf_lst += [get_cache_data]
+    _hdf_lst += [get_cache_data]
 
 __version__ = _get_versions()["version"]
 __all__: list = [
@@ -25,4 +25,4 @@ __all__: list = [
     "SingleNodeExecutor",
     "SlurmJobExecutor",
     "SlurmClusterExecutor",
-] + hdf_lst
+] + _hdf_lst
