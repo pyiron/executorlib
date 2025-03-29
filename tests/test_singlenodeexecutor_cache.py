@@ -6,7 +6,7 @@ from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:
-    from executorlib.standalone.hdf import get_cache_data
+    from executorlib import get_cache_data
 
     skip_h5py_test = False
 except ImportError:
