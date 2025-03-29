@@ -9,7 +9,7 @@ from executorlib.interfaces.slurm import (
     SlurmJobExecutor,
 )
 
-__all__: list = [
+__all__: list[str] = [
     "FluxJobExecutor",
     "FluxClusterExecutor",
     "SingleNodeExecutor",
