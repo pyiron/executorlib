@@ -5,14 +5,14 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.shared import InteractiveExecutor
+from executorlib.interactive.shared import execute_tasks
+from executorlib.interactive.blockallocation import BlockAllocationExecutor
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.interactive.shared import execute_parallel_tasks
 
 
 try:
     import flux.job
-    from executorlib.interactive.flux import FluxPythonSpawner
+    from executorlib.interactive.fluxspawner import FluxPythonSpawner
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -48,9 +48,9 @@ class TestFlux(unittest.TestCase):
         self.flux_executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with InteractiveExecutor(
+        with BlockAllocationExecutor(
             max_workers=2,
-            executor_kwargs={"flux_executor": self.flux_executor},
+            executor_kwargs={"flux_executor": self.flux_executor, "priority": 20},
             spawner=FluxPythonSpawner,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -61,7 +61,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_threads(self):
-        with InteractiveExecutor(
+        with BlockAllocationExecutor(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,
@@ -77,7 +77,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_parallel(self):
-        with InteractiveExecutor(
+        with BlockAllocationExecutor(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,
@@ -91,7 +91,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with InteractiveExecutor(
+        with BlockAllocationExecutor(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,
@@ -112,7 +112,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_parallel_tasks(
+        execute_tasks(
             future_queue=q,
             cores=1,
             flux_executor=self.flux_executor,
@@ -127,7 +127,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_parallel_tasks(
+        execute_tasks(
             future_queue=q,
             cores=1,
             threads_per_core=1,
@@ -138,7 +138,7 @@ class TestFlux(unittest.TestCase):
         q.join()
 
     def test_internal_memory(self):
-        with InteractiveExecutor(
+        with BlockAllocationExecutor(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,

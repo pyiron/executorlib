@@ -6,10 +6,10 @@ dependencies:
 - mpich
 - cloudpickle =3.1.1
 - mpi4py =4.0.1
-- pyzmq =26.2.1
-- h5py =3.12.1
+- pyzmq =26.3.0
+- h5py =3.13.0
 - networkx =3.4.2
 - pygraphviz =1.14
-- ipython =8.32.0
-- pysqa =0.2.3
+- ipython =9.0.2
+- pysqa =0.2.4
 - setuptools =75.1.0

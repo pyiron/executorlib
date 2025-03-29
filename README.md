@@ -1,7 +1,9 @@
 # executorlib
 [![Pipeline](https://github.com/pyiron/executorlib/actions/workflows/pipeline.yml/badge.svg)](https://github.com/pyiron/executorlib/actions/workflows/pipeline.yml)
 [![codecov](https://codecov.io/gh/pyiron/executorlib/graph/badge.svg?token=KFIO3R08H3)](https://codecov.io/gh/pyiron/executorlib)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/executorlib/HEAD?labpath=notebooks%2Fexamples.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pyiron/executorlib/HEAD)
+[![status](https://joss.theoj.org/papers/7a4bced702e5ea10e4630bc4d5dbaad2/status.svg)](https://joss.theoj.org/papers/7a4bced702e5ea10e4630bc4d5dbaad2)
+![GitHub Repo stars](https://img.shields.io/github/stars/pyiron/executorlib)
 
 Up-scale python functions for high performance computing (HPC) with executorlib. 
 
@@ -139,6 +141,9 @@ as hierarchical job scheduler within the allocations.
   * [SLURM](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm)
   * [SLURM with Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm-with-flux)
   * [Flux](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#flux)
+* [Application](https://executorlib.readthedocs.io/en/latest/application.html)
+  * [GPAW](https://executorlib.readthedocs.io/en/latest/5-1-gpaw.html)
+  * [Quantum Espresso](https://executorlib.readthedocs.io/en/latest/5-2-quantum-espresso.html)
 * [Trouble Shooting](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html)
   * [Filesystem Usage](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#filesystem-usage)
   * [Firewall Issues](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#firewall-issues)
@@ -146,9 +151,11 @@ as hierarchical job scheduler within the allocations.
   * [Python Version](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#python-version)
   * [Resource Dictionary](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#resource-dictionary)
   * [SSH Connection](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#ssh-connection)
-* [Developer](https://executorlib.readthedocs.io/en/latest/4-developer.html)
-  * [Communication](https://executorlib.readthedocs.io/en/latest/4-developer.html#communication)
-  * [External Executables](https://executorlib.readthedocs.io/en/latest/4-developer.html#external-executables)
+* [Support & Contribution](https://executorlib.readthedocs.io/en/latest/4-developer.html)
+  * [Issues](https://executorlib.readthedocs.io/en/latest/4-developer.html#issues)
+  * [Pull Requests](https://executorlib.readthedocs.io/en/latest/4-developer.html#pull-requests)
   * [License](https://executorlib.readthedocs.io/en/latest/4-developer.html#license)
   * [Modules](https://executorlib.readthedocs.io/en/latest/4-developer.html#modules)
+  * [Communication](https://executorlib.readthedocs.io/en/latest/4-developer.html#communication)
+  * [External Executables](https://executorlib.readthedocs.io/en/latest/4-developer.html#external-executables)
 * [Interface](https://executorlib.readthedocs.io/en/latest/api.html)

@@ -9,11 +9,19 @@ from executorlib.interfaces.slurm import (
     SlurmJobExecutor,
 )
 
-__version__ = _get_versions()["version"]
-__all__: list = [
+__all__: list[str] = [
     "FluxJobExecutor",
     "FluxClusterExecutor",
     "SingleNodeExecutor",
     "SlurmJobExecutor",
     "SlurmClusterExecutor",
 ]
+
+try:
+    from executorlib.standalone.hdf import get_cache_data
+except ImportError:
+    pass
+else:
+    __all__ += ["get_cache_data"]
+
+__version__ = _get_versions()["version"]

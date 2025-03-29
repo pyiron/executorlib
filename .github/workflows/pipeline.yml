@@ -167,9 +167,38 @@ jobs:
       - name: Notebooks
         shell: bash -l {0}
         timeout-minutes: 5
-        run: >
-          flux start
-          .ci_support/build_notebooks.sh
+        run: |
+          papermill notebooks/1-single-node.ipynb notebooks/1-single-node-out.ipynb -k python3
+          flux start papermill notebooks/2-hpc-cluster.ipynb notebooks/2-hpc-cluster-out.ipynb -k python3
+          flux start papermill notebooks/3-hpc-job.ipynb notebooks/3-hpc-job-out.ipynb -k python3
+          papermill notebooks/4-developer.ipynb notebooks/4-developer-out.ipynb -k python3
+
+  notebooks_integration:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Merge Notebook environment
+        run: |
+          echo -e "channels:\n  - conda-forge\n" > .condarc
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.12"
+          miniforge-version: latest
+          condarc-file: .condarc
+          environment-file: .ci_support/environment-integration.yml
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          pip install versioneer[toml]==0.29
+          pip install . --no-deps --no-build-isolation
+      - name: Notebooks
+        shell: bash -l {0}
+        timeout-minutes: 20
+        run: |
+          flux start papermill notebooks/5-1-gpaw.ipynb notebooks/5-1-gpaw-out.ipynb -k python3
+          flux start papermill notebooks/5-2-quantum-espresso.ipynb notebooks/5-2-quantum-espresso-out.ipynb -k python3
 
   unittest_flux_mpich:
     needs: [black]
@@ -200,7 +229,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        python -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py tests/test_cache_executor_pysqa_flux.py tests/test_plot_dependency_flux.py;
+        python -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
 
   unittest_flux_openmpi:
     needs: [black]
@@ -231,7 +260,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_flux_executor.py tests/test_executor_backend_flux.py tests/test_cache_executor_pysqa_flux.py tests/test_plot_dependency_flux.py;
+        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
         coverage xml
       env:
         EXECUTORLIB_PMIX: "pmix"
@@ -258,9 +287,6 @@ jobs:
 
         - operating-system: ubuntu-latest
           python-version: '3.11'
-
-        - operating-system: ubuntu-latest
-          python-version: '3.10'
 
     steps:
     - uses: actions/checkout@v4
@@ -299,9 +325,6 @@ jobs:
 
         - operating-system: ubuntu-latest
           python-version: '3.11'
-
-        - operating-system: ubuntu-latest
-          python-version: '3.10'
 
     steps:
     - uses: actions/checkout@v4
@@ -385,3 +408,28 @@ jobs:
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  uml:
+    needs: [unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Conda config
+      shell: bash -l {0}
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: "3.13"
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-uml.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 10
+      run: |
+        pyreverse -o png -p ./${{ github.event.repository.name }} ./${{ github.event.repository.name }}
+        zip -m uml.zip *.png
+    - uses: actions/upload-artifact@v4
+      with:
+        name: uml.zip
+        path: uml.zip

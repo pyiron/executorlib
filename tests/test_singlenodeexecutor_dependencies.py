@@ -1,14 +1,14 @@
 from concurrent.futures import Future
 import unittest
-import sys
 from time import sleep
 from queue import Queue
 from threading import Thread
 
 from executorlib import SingleNodeExecutor
 from executorlib.interfaces.single import create_single_node_executor
-from executorlib.interactive.shared import execute_tasks_with_dependencies
+from executorlib.interactive.dependency import _execute_tasks_with_dependencies
 from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
 try:
@@ -91,7 +91,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             },
         )
         process = Thread(
-            target=execute_tasks_with_dependencies,
+            target=_execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
                 "executor_queue": executor._future_queue,
@@ -143,7 +143,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             },
         )
         process = Thread(
-            target=execute_tasks_with_dependencies,
+            target=_execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
                 "executor_queue": executor._future_queue,
@@ -197,7 +197,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
             },
         )
         process = Thread(
-            target=execute_tasks_with_dependencies,
+            target=_execute_tasks_with_dependencies,
             kwargs={
                 "future_queue": q,
                 "executor_queue": executor._future_queue,
@@ -328,3 +328,36 @@ class TestExecutorErrors(unittest.TestCase):
                         parameter=lst,
                     )
                 lst.result()
+
+
+class TestInfo(unittest.TestCase):
+    """Test cases for the info property of SingleNodeExecutor."""
+
+    def setUp(self):
+        """Set up the expected info dictionary."""
+        self.expected_info = {
+            'cores': 1,
+            'cwd': None,
+            'openmpi_oversubscribe': False,
+            'cache_directory': None,
+            'hostname_localhost': None,
+            'spawner': MpiExecSpawner,
+            'max_cores': None,
+            'max_workers': None,
+        }
+
+    def test_info_disable_dependencies_true(self):
+        """Test info property with dependencies disabled."""
+        with SingleNodeExecutor(disable_dependencies=True) as exe:
+            self.assertEqual(exe.info, self.expected_info)
+
+    def test_info_disable_dependencies_false(self):
+        """Test info property with dependencies enabled."""
+        with SingleNodeExecutor(disable_dependencies=False) as exe:
+            self.assertEqual(exe.info, self.expected_info)
+
+    def test_info_error_handling(self):
+        """Test info property error handling when executor is not running."""
+        exe = SingleNodeExecutor()
+        exe.shutdown(wait=True)
+        self.assertIsNone(exe.info)

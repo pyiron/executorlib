@@ -1,14 +1,9 @@
 from typing import Callable, Optional, Union
 
-from executorlib.interactive.executor import ExecutorWithDependencies
-from executorlib.interactive.shared import (
-    InteractiveExecutor,
-    InteractiveStepExecutor,
-)
-from executorlib.interactive.slurm import SrunSpawner
-from executorlib.interactive.slurm import (
-    validate_max_workers as validate_max_workers_slurm,
-)
+from executorlib.interactive.blockallocation import BlockAllocationExecutor
+from executorlib.interactive.dependency import DependencyExecutor
+from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
+from executorlib.interactive.slurmspawner import SrunSpawner, validate_max_workers
 from executorlib.standalone.inputcheck import (
     check_init_function,
     check_plot_dependency_graph,
@@ -188,7 +183,7 @@ class SlurmClusterExecutor:
                 disable_dependencies=disable_dependencies,
             )
         else:
-            return ExecutorWithDependencies(
+            return DependencyExecutor(
                 executor=create_slurm_executor(
                     max_workers=max_workers,
                     cache_directory=cache_directory,
@@ -361,7 +356,7 @@ class SlurmJobExecutor:
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not disable_dependencies:
-            return ExecutorWithDependencies(
+            return DependencyExecutor(
                 executor=create_slurm_executor(
                     max_workers=max_workers,
                     cache_directory=cache_directory,
@@ -398,7 +393,7 @@ def create_slurm_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+) -> Union[OneTaskPerProcessExecutor, BlockAllocationExecutor]:
     """
     Create a SLURM executor
 
@@ -451,18 +446,18 @@ def create_slurm_executor(
             cores_per_worker=cores_per_worker,
             set_local_cores=False,
         )
-        validate_max_workers_slurm(
+        validate_max_workers(
             max_workers=max_workers,
             cores=cores_per_worker,
             threads_per_core=resource_dict.get("threads_per_core", 1),
         )
-        return InteractiveExecutor(
+        return BlockAllocationExecutor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=SrunSpawner,
         )
     else:
-        return InteractiveStepExecutor(
+        return OneTaskPerProcessExecutor(
             max_cores=max_cores,
             max_workers=max_workers,
             executor_kwargs=resource_dict,

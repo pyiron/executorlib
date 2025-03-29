@@ -56,7 +56,7 @@ def main(argument_lst: Optional[list[str]] = None):
             except Exception as error:
                 interface_send(
                     socket=socket,
-                    result_dict={"error": error, "error_type": str(type(error))},
+                    result_dict={"error": error},
                 )
             else:
                 # Send output

@@ -39,13 +39,24 @@ def main() -> None:
         apply_dict = backend_load_file(file_name=file_name)
     apply_dict = MPI.COMM_WORLD.bcast(apply_dict, root=0)
     output = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
-    result = MPI.COMM_WORLD.gather(output, root=0) if mpi_size_larger_one else output
-    if mpi_rank_zero:
-        backend_write_file(
-            file_name=file_name,
-            output=result,
-            runtime=time.time() - time_start,
+    try:
+        result = (
+            MPI.COMM_WORLD.gather(output, root=0) if mpi_size_larger_one else output
         )
+    except Exception as error:
+        if mpi_rank_zero:
+            backend_write_file(
+                file_name=file_name,
+                output={"error": error},
+                runtime=time.time() - time_start,
+            )
+    else:
+        if mpi_rank_zero:
+            backend_write_file(
+                file_name=file_name,
+                output={"result": result},
+                runtime=time.time() - time_start,
+            )
     MPI.COMM_WORLD.Barrier()
 
 

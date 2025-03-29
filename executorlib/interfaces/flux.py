@@ -1,10 +1,9 @@
+import contextlib
 from typing import Callable, Optional, Union
 
-from executorlib.interactive.executor import ExecutorWithDependencies
-from executorlib.interactive.shared import (
-    InteractiveExecutor,
-    InteractiveStepExecutor,
-)
+from executorlib.interactive.blockallocation import BlockAllocationExecutor
+from executorlib.interactive.dependency import DependencyExecutor
+from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_init_function,
@@ -15,13 +14,11 @@ from executorlib.standalone.inputcheck import (
     validate_number_of_cores,
 )
 
-try:  # The PyFluxExecutor requires flux-base to be installed.
-    from executorlib.interactive.flux import FluxPythonSpawner
-    from executorlib.interactive.flux import (
-        validate_max_workers as validate_max_workers_flux,
+with contextlib.suppress(ImportError):
+    from executorlib.interactive.fluxspawner import (
+        FluxPythonSpawner,
+        validate_max_workers,
     )
-except ImportError:
-    pass
 
 
 class FluxJobExecutor:
@@ -189,7 +186,7 @@ class FluxJobExecutor:
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not disable_dependencies:
-            return ExecutorWithDependencies(
+            return DependencyExecutor(
                 executor=create_flux_executor(
                     max_workers=max_workers,
                     cache_directory=cache_directory,
@@ -397,7 +394,7 @@ class FluxClusterExecutor:
                 disable_dependencies=disable_dependencies,
             )
         else:
-            return ExecutorWithDependencies(
+            return DependencyExecutor(
                 executor=create_flux_executor(
                     max_workers=max_workers,
                     cache_directory=cache_directory,
@@ -430,7 +427,7 @@ def create_flux_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-) -> Union[InteractiveStepExecutor, InteractiveExecutor]:
+) -> Union[OneTaskPerProcessExecutor, BlockAllocationExecutor]:
     """
     Create a flux executor
 
@@ -496,18 +493,18 @@ def create_flux_executor(
             cores_per_worker=cores_per_worker,
             set_local_cores=False,
         )
-        validate_max_workers_flux(
+        validate_max_workers(
             max_workers=max_workers,
             cores=cores_per_worker,
             threads_per_core=resource_dict.get("threads_per_core", 1),
         )
-        return InteractiveExecutor(
+        return BlockAllocationExecutor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=FluxPythonSpawner,
         )
     else:
-        return InteractiveStepExecutor(
+        return OneTaskPerProcessExecutor(
             max_cores=max_cores,
             max_workers=max_workers,
             executor_kwargs=resource_dict,
