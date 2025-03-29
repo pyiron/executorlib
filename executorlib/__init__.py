@@ -22,6 +22,6 @@ try:
 except ImportError:
     pass
 else:
-    __all__ += [get_cache_data]  # noqa: PLE0605
+    __all__ += ["get_cache_data"]
 
 __version__ = _get_versions()["version"]
