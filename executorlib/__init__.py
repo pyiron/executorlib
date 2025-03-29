@@ -25,4 +25,5 @@ __all__: list = [
     "SingleNodeExecutor",
     "SlurmJobExecutor",
     "SlurmClusterExecutor",
-] + _hdf_lst
+]
+__all__ += _hdf_lst
