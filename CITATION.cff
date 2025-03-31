@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors: 
+- family-names: "Janssen"
+  given-names: "Jan"
+  orcid: "https://orcid.org/0000-0001-9948-7119"
+- family-names: "Taylor"
+  given-names: "Michael Gilbert"
+  orcid: "https://orcid.org/0000-0003-4327-2746"
+- family-names: "Yang"
+  given-names: "Ping"
+  orcid: "https://orcid.org/0000-0003-4726-2860"
+- family-names: "Neugebauer"
+  given-names: "Joerg"
+  orcid: "https://orcid.org/0000-0002-7903-2472"
+- family-names: "Perez"
+  given-names: "Danny"
+  orcid: "https://orcid.org/0000-0003-3028-5249"
+title: "Executorlib – Up-scaling Python workflows for hierarchical heterogenous high-performance computing"
+version: 0.4
+doi: 10.21105/joss.07782
+date-released: 2025-04-05
+license: "BSD-3-Clause"
+url: "http://github.com/pyiron/executorlib"
