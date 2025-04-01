@@ -1,24 +1,52 @@
-cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
-authors: 
-- family-names: "Janssen"
-  given-names: "Jan"
+cff-version: "1.2.0"
+authors:
+- family-names: Janssen
+  given-names: Jan
   orcid: "https://orcid.org/0000-0001-9948-7119"
-- family-names: "Taylor"
-  given-names: "Michael Gilbert"
+- family-names: Taylor
+  given-names: Michael Gilbert
   orcid: "https://orcid.org/0000-0003-4327-2746"
-- family-names: "Yang"
-  given-names: "Ping"
+- family-names: Yang
+  given-names: Ping
   orcid: "https://orcid.org/0000-0003-4726-2860"
-- family-names: "Neugebauer"
-  given-names: "Joerg"
+- family-names: Neugebauer
+  given-names: Joerg
   orcid: "https://orcid.org/0000-0002-7903-2472"
-- family-names: "Perez"
-  given-names: "Danny"
+- family-names: Perez
+  given-names: Danny
   orcid: "https://orcid.org/0000-0003-3028-5249"
-title: "Executorlib – Up-scaling Python workflows for hierarchical heterogenous high-performance computing"
-version: 0.4
-doi: 10.21105/joss.07782
-date-released: 2025-04-05
-license: "BSD-3-Clause"
-url: "http://github.com/pyiron/executorlib"
+doi: 10.5281/zenodo.15121422
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Janssen
+    given-names: Jan
+    orcid: "https://orcid.org/0000-0001-9948-7119"
+  - family-names: Taylor
+    given-names: Michael Gilbert
+    orcid: "https://orcid.org/0000-0003-4327-2746"
+  - family-names: Yang
+    given-names: Ping
+    orcid: "https://orcid.org/0000-0003-4726-2860"
+  - family-names: Neugebauer
+    given-names: Joerg
+    orcid: "https://orcid.org/0000-0002-7903-2472"
+  - family-names: Perez
+    given-names: Danny
+    orcid: "https://orcid.org/0000-0003-3028-5249"
+  date-published: 2025-04-01
+  doi: 10.21105/joss.07782
+  issn: 2475-9066
+  issue: 108
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 7782
+  title: Executorlib -- Up-scaling Python workflows for hierarchical
+    heterogenous high-performance computing
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.07782"
+  volume: 10
+title: Executorlib -- Up-scaling Python workflows for hierarchical
+  heterogenous high-performance computing
