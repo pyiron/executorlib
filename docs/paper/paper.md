@@ -5,19 +5,19 @@ tags:
   - High Performance Computing
   - Task Scheduling
 authors:
-  - name: J. Janssen
+  - name: Jan Janssen
     orcid: 0000-0001-9948-7119
     affiliation: "1, 2"
-  - name: M.G. Taylor
+  - name: Michael Gilbert Taylor
     orcid: 0000-0003-4327-2746
     affiliation: 2
-  - name: P. Yang
+  - name: Ping Yang
     orcid: 0000-0003-4726-2860
     affiliation: 2
-  - name: J. Neugebauer
+  - name: Joerg Neugebauer
     orcid: 0000-0002-7903-2472
     affiliation: 1
-  - name: D. Perez
+  - name: Danny Perez
     orcid: 0000-0003-3028-5249
     affiliation: 2
 
