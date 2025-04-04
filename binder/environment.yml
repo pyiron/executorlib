@@ -6,7 +6,7 @@ dependencies:
 - openmpi
 - cloudpickle =3.1.1
 - mpi4py =4.0.1
-- pyzmq =26.3.0
+- pyzmq =26.4.0
 - flux-core =0.59.0
 - flux-pmix =0.5.0
 - versioneer =0.28
