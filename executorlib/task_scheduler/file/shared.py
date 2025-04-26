@@ -110,11 +110,11 @@ def execute_tasks_h5(
             if task_key not in memory_dict:
                 if not (
                     task_key in os.listdir(cache_directory)
-                    and "file.h5out"
+                    and "cache.h5out"
                     in os.listdir(os.path.join(cache_directory, task_key))
                 ):
                     os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-                    file_name = os.path.join(cache_directory, task_key, "file.h5in")
+                    file_name = os.path.join(cache_directory, task_key, "cache.h5in")
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
@@ -141,7 +141,7 @@ def execute_tasks_h5(
                         cache_directory=os.path.join(cache_directory, task_key),
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key, "file.h5out"
+                    cache_directory, task_key, "cache.h5out"
                 )
                 memory_dict[task_key] = task_dict["future"]
             future_queue.task_done()
@@ -197,7 +197,7 @@ def _check_task_output(
         Future: The updated future object.
 
     """
-    file_name = os.path.join(cache_directory, task_key, "file.h5out")
+    file_name = os.path.join(cache_directory, task_key, "cache.h5out")
     if not os.path.exists(file_name):
         return future_obj
     exec_flag, no_error_flag, result = get_output(file_name=file_name)
