@@ -2,7 +2,7 @@ import queue
 from threading import Thread
 from typing import Optional
 
-from executorlib.base.executor import TaskSchedulerBase
+from executorlib.base.task_scheduler import TaskSchedulerBase
 from executorlib.interactive.shared import execute_tasks
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 

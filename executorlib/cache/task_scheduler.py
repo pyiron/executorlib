@@ -2,7 +2,7 @@ import os
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.base.executor import TaskSchedulerBase
+from executorlib.base.task_scheduler import TaskSchedulerBase
 from executorlib.cache.shared import execute_tasks_h5
 from executorlib.cache.subprocess_spawner import (
     execute_in_subprocess,
