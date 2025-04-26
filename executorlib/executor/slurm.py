@@ -1,15 +1,20 @@
 from typing import Callable, Optional, Union
 
 from executorlib.executor.base import ExecutorBase
-from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
-from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
-from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
-from executorlib.task_scheduler.interactive.slurmspawner import SrunSpawner, validate_max_workers
 from executorlib.standalone.inputcheck import (
     check_init_function,
     check_plot_dependency_graph,
     check_refresh_rate,
     validate_number_of_cores,
+)
+from executorlib.task_scheduler.interactive.blockallocation import (
+    BlockAllocationTaskScheduler,
+)
+from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
+from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
+from executorlib.task_scheduler.interactive.slurmspawner import (
+    SrunSpawner,
+    validate_max_workers,
 )
 
 

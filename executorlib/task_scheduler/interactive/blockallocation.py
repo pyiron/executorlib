@@ -3,14 +3,14 @@ from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_tasks
 from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.interactive.shared import execute_tasks
 
 
 class BlockAllocationTaskScheduler(TaskSchedulerBase):
