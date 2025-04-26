@@ -40,7 +40,7 @@ def execute_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (Callable): optional function to preset arguments for functions which are submitted later
-       cache_directory (str, optional): The directory to store file files. Defaults to "file".
+       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
     """
     interface = interface_bootup(
@@ -138,7 +138,7 @@ def _execute_task_with_cache(
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         future_queue (Queue): Queue for receiving new tasks.
-        cache_directory (str): The directory to store file files.
+        cache_directory (str): The directory to store cache files.
     """
     from executorlib.standalone.hdf import dump, get_output
 

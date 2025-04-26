@@ -42,7 +42,7 @@ class TestCacheFunctions(unittest.TestCase):
                 print(f.result())
 
     def tearDown(self):
-        if os.path.exists("file"):
-            shutil.rmtree("file")
+        if os.path.exists("cache"):
+            shutil.rmtree("cache")
         if os.path.exists("cache_error"):
             shutil.rmtree("cache_error")

@@ -30,7 +30,7 @@ class SlurmClusterExecutor(ExecutorBase):
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
                            cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
                            recommended, as computers have a limited number of compute cores.
-        cache_directory (str, optional): The directory to store file files. Defaults to "file".
+        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
@@ -107,7 +107,7 @@ class SlurmClusterExecutor(ExecutorBase):
             max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
                                number of cores which can be used in parallel - just like the max_cores parameter. Using
                                max_cores is recommended, as computers have a limited number of compute cores.
-            cache_directory (str, optional): The directory to store file files. Defaults to "file".
+            cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                                   - cores (int): number of MPI cores to be used for each function call
@@ -206,7 +206,7 @@ class SlurmJobExecutor(ExecutorBase):
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
                            cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
                            recommended, as computers have a limited number of compute cores.
-        cache_directory (str, optional): The directory to store file files. Defaults to "file".
+        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
@@ -285,7 +285,7 @@ class SlurmJobExecutor(ExecutorBase):
             max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
                                number of cores which can be used in parallel - just like the max_cores parameter. Using
                                max_cores is recommended, as computers have a limited number of compute cores.
-            cache_directory (str, optional): The directory to store file files. Defaults to "file".
+            cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                                   - cores (int): number of MPI cores to be used for each function call
@@ -383,7 +383,7 @@ def create_slurm_executor(
                            number of cores which can be used in parallel - just like the max_cores parameter. Using
                            max_cores is recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
-        cache_directory (str, optional): The directory to store file files. Defaults to "file".
+        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
