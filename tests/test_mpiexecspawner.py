@@ -10,8 +10,8 @@ import numpy as np
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.task_scheduler.interactive.shared import execute_tasks
-from executorlib.task_scheduler.interactive import BlockAllocationTaskScheduler
-from executorlib.task_scheduler.interactive import OneProcessTaskScheduler
+from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
+from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 from executorlib.standalone.interactive.backend import call_funct
 from executorlib.standalone.serialize import cloudpickle_register
 

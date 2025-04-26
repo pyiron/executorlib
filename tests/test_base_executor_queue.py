@@ -2,7 +2,7 @@ from concurrent.futures import Future, CancelledError
 from queue import Queue
 import unittest
 
-from executorlib.executor.base import cancel_items_in_queue
+from executorlib.standalone.queue import cancel_items_in_queue
 
 
 class TestQueue(unittest.TestCase):

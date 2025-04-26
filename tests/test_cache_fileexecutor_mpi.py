@@ -3,11 +3,11 @@ import os
 import shutil
 import unittest
 
-from executorlib.task_scheduler.file import execute_in_subprocess
+from executorlib.task_scheduler.file.subprocess_spawner import execute_in_subprocess
 
 
 try:
-    from executorlib.task_scheduler.file import FileTaskScheduler
+    from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler
 
     skip_h5py_test = False
 except ImportError:

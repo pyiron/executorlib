@@ -5,14 +5,14 @@ import shutil
 import unittest
 from threading import Thread
 
-from executorlib.task_scheduler.file import (
+from executorlib.task_scheduler.file.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
 
 try:
-    from executorlib.task_scheduler.file import FileTaskScheduler, create_file_executor
-    from executorlib.task_scheduler.file import execute_tasks_h5
+    from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
+    from executorlib.task_scheduler.file.shared import execute_tasks_h5
 
     skip_h5py_test = False
 except ImportError:

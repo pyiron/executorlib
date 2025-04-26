@@ -5,8 +5,8 @@ import unittest
 
 
 try:
-    from executorlib.task_scheduler.file import backend_execute_task_in_file
-    from executorlib.task_scheduler.file import _check_task_output, FutureItem
+    from executorlib.task_scheduler.file.backend import backend_execute_task_in_file
+    from executorlib.task_scheduler.file.shared import _check_task_output, FutureItem
     from executorlib.standalone.hdf import dump, get_runtime
     from executorlib.standalone.serialize import serialize_funct_h5
 
