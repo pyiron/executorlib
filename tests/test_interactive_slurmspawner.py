@@ -1,8 +1,8 @@
 import unittest
-from executorlib.interactive.slurmspawner import generate_slurm_command
+from executorlib.task_scheduler.interactive.slurmspawner import generate_slurm_command
 
 try:
-    from executorlib.cache.queue_spawner import _pysqa_execute_command
+    from executorlib.task_scheduler.file.queue_spawner import _pysqa_execute_command
 
     skip_pysqa_test = False
 except ImportError:

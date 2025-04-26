@@ -3,18 +3,19 @@ from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.base.executor import ExecutorBase, cancel_items_in_queue
-from executorlib.interactive.shared import execute_tasks
 from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
+from executorlib.standalone.queue import cancel_items_in_queue
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.interactive.shared import execute_tasks
 
 
-class BlockAllocationExecutor(ExecutorBase):
+class BlockAllocationTaskScheduler(TaskSchedulerBase):
     """
-    The executorlib.interactive.executor.InteractiveExecutor leverages the exeutorlib interfaces to distribute python
+    The executorlib.interactive.executor.InteractiveExecutor leverages the exeutorlib executor to distribute python
     tasks on a workstation or inside a queuing system allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the
     executorlib.interactive.executor.InteractiveExecutor can be executed in a serial python process and does not require
     the python script to be executed with MPI. Consequently, it is primarily an abstraction of its functionality to
@@ -28,7 +29,7 @@ class BlockAllocationExecutor(ExecutorBase):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.blockallocation import BlockAllocationExecutor
+        >>> from executorlib.interactive.blockallocation import BlockAllocationTaskScheduler
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -39,7 +40,7 @@ class BlockAllocationExecutor(ExecutorBase):
         >>> def init_k():
         >>>     return {"k": 3}
         >>>
-        >>> with BlockAllocationExecutor(max_workers=2, executor_kwargs={"init_function": init_k}) as p:
+        >>> with BlockAllocationTaskScheduler(max_workers=2, executor_kwargs={"init_function": init_k}) as p:
         >>>     fs = p.submit(calc, 2, j=4)
         >>>     print(fs.result())
         [(array([2, 4, 3]), 2, 0), (array([2, 4, 3]), 2, 1)]

@@ -5,14 +5,14 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.shared import execute_tasks
-from executorlib.interactive.blockallocation import BlockAllocationExecutor
+from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
 from executorlib.standalone.serialize import cloudpickle_register
 
 
 try:
     import flux.job
-    from executorlib.interactive.fluxspawner import FluxPythonSpawner
+    from executorlib.task_scheduler.interactive.fluxspawner import FluxPythonSpawner
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -48,7 +48,7 @@ class TestFlux(unittest.TestCase):
         self.flux_executor = flux.job.FluxExecutor()
 
     def test_flux_executor_serial(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=2,
             executor_kwargs={"flux_executor": self.flux_executor, "priority": 20},
             spawner=FluxPythonSpawner,
@@ -61,7 +61,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_threads(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,
@@ -77,7 +77,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_flux_executor_parallel(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,
@@ -91,7 +91,7 @@ class TestFlux(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_single_task(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,
@@ -138,7 +138,7 @@ class TestFlux(unittest.TestCase):
         q.join()
 
     def test_internal_memory(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={
                 "flux_executor": self.flux_executor,

@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.blockallocation import BlockAllocationExecutor
+from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
@@ -18,7 +18,7 @@ def calc(i):
 
 class TestFuture(unittest.TestCase):
     def test_pool_serial(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
@@ -34,7 +34,7 @@ class TestFuture(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_serial_multi_core(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -67,7 +67,7 @@ class TestFuture(unittest.TestCase):
             def submit():
                 # Executor only exists in this scope and can get garbage collected after
                 # this function is exits
-                future = BlockAllocationExecutor(
+                future = BlockAllocationTaskScheduler(
                     max_workers=1,
                     executor_kwargs={},
                     spawner=MpiExecSpawner,
@@ -108,7 +108,7 @@ class TestFuture(unittest.TestCase):
                 def run(self):
                     self.running = True
 
-                    future = BlockAllocationExecutor(
+                    future = BlockAllocationTaskScheduler(
                         max_workers=1,
                         executor_kwargs={},
                         spawner=MpiExecSpawner,

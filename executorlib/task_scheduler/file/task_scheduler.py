@@ -2,12 +2,6 @@ import os
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.base.executor import ExecutorBase
-from executorlib.cache.shared import execute_tasks_h5
-from executorlib.cache.subprocess_spawner import (
-    execute_in_subprocess,
-    terminate_subprocess,
-)
 from executorlib.standalone.inputcheck import (
     check_executor,
     check_flux_executor_pmi_mode,
@@ -16,15 +10,21 @@ from executorlib.standalone.inputcheck import (
     check_max_workers_and_cores,
     check_nested_flux_executor,
 )
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.file.shared import execute_tasks_h5
+from executorlib.task_scheduler.file.subprocess_spawner import (
+    execute_in_subprocess,
+    terminate_subprocess,
+)
 
 try:
-    from executorlib.cache.queue_spawner import execute_with_pysqa
+    from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = execute_in_subprocess  # type: ignore
 
 
-class FileExecutor(ExecutorBase):
+class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
         cache_directory: str = "cache",
@@ -113,7 +113,7 @@ def create_file_executor(
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     check_flux_log_files(flux_log_files=flux_log_files)
-    return FileExecutor(
+    return FileTaskScheduler(
         cache_directory=cache_directory,
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,

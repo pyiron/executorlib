@@ -1,10 +1,10 @@
 from executorlib._version import get_versions as _get_versions
-from executorlib.interfaces.flux import (
+from executorlib.executor.flux import (
     FluxClusterExecutor,
     FluxJobExecutor,
 )
-from executorlib.interfaces.single import SingleNodeExecutor
-from executorlib.interfaces.slurm import (
+from executorlib.executor.single import SingleNodeExecutor
+from executorlib.executor.slurm import (
     SlurmClusterExecutor,
     SlurmJobExecutor,
 )

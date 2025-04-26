@@ -2,8 +2,8 @@ import os
 import time
 from typing import Any
 
-from executorlib.cache.shared import FutureItem
 from executorlib.standalone.hdf import dump, load
+from executorlib.task_scheduler.file.shared import FutureItem
 
 
 def backend_load_file(file_name: str) -> dict:

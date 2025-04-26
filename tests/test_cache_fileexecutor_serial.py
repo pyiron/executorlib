@@ -5,14 +5,14 @@ import shutil
 import unittest
 from threading import Thread
 
-from executorlib.cache.subprocess_spawner import (
+from executorlib.task_scheduler.file.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
 
 try:
-    from executorlib.cache.executor import FileExecutor, create_file_executor
-    from executorlib.cache.shared import execute_tasks_h5
+    from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
+    from executorlib.task_scheduler.file.shared import execute_tasks_h5
 
     skip_h5py_test = False
 except ImportError:
@@ -36,14 +36,14 @@ def get_error(a):
 )
 class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_mixed(self):
-        with FileExecutor(execute_function=execute_in_subprocess) as exe:
+        with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
     def test_executor_dependence_mixed(self):
-        with FileExecutor(execute_function=execute_in_subprocess) as exe:
+        with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             fs2 = exe.submit(my_funct, 1, b=fs1)
             self.assertFalse(fs2.done())
@@ -58,7 +58,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_executor_dependence_error(self):
         with self.assertRaises(ValueError):
-            with FileExecutor(
+            with FileTaskScheduler(
                 execute_function=execute_in_subprocess, disable_dependencies=True
             ) as exe:
                 fs = exe.submit(my_funct, 1, b=exe.submit(my_funct, 1, b=2))
@@ -66,7 +66,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
-        with FileExecutor(
+        with FileTaskScheduler(
             resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
@@ -74,7 +74,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_executor_error(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
-        with FileExecutor(
+        with FileTaskScheduler(
             resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(get_error, a=1)

@@ -4,7 +4,6 @@ from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
 
-from executorlib.base.executor import ExecutorBase
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
     get_exception_lst,
@@ -16,9 +15,10 @@ from executorlib.standalone.plot import (
     generate_nodes_and_edges,
     generate_task_hash,
 )
+from executorlib.task_scheduler.base import TaskSchedulerBase
 
 
-class DependencyExecutor(ExecutorBase):
+class DependencyTaskScheduler(TaskSchedulerBase):
     """
     ExecutorWithDependencies is a class that extends ExecutorBase and provides functionality for executing tasks with
     dependencies.
@@ -38,7 +38,7 @@ class DependencyExecutor(ExecutorBase):
 
     def __init__(
         self,
-        executor: ExecutorBase,
+        executor: TaskSchedulerBase,
         max_cores: Optional[int] = None,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
@@ -188,7 +188,7 @@ class DependencyExecutor(ExecutorBase):
 def _execute_tasks_with_dependencies(
     future_queue: queue.Queue,
     executor_queue: queue.Queue,
-    executor: ExecutorBase,
+    executor: TaskSchedulerBase,
     refresh_rate: float = 0.01,
 ):
     """
@@ -198,7 +198,7 @@ def _execute_tasks_with_dependencies(
     Args:
         future_queue (Queue): Queue for receiving new tasks.
         executor_queue (Queue): Queue for the internal executor.
-        executor (ExecutorBase): Executor to execute the tasks with after the dependencies are resolved.
+        executor (TaskSchedulerBase): Executor to execute the tasks with after the dependencies are resolved.
         refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
     """
     wait_lst = []

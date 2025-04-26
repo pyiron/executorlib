@@ -1,10 +1,7 @@
 import contextlib
 from typing import Callable, Optional, Union
 
-from executorlib.base.executor import ExecutorInterface
-from executorlib.interactive.blockallocation import BlockAllocationExecutor
-from executorlib.interactive.dependency import DependencyExecutor
-from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
+from executorlib.executor.base import ExecutorBase
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_init_function,
@@ -14,15 +11,20 @@ from executorlib.standalone.inputcheck import (
     check_refresh_rate,
     validate_number_of_cores,
 )
+from executorlib.task_scheduler.interactive.blockallocation import (
+    BlockAllocationTaskScheduler,
+)
+from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
+from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
 with contextlib.suppress(ImportError):
-    from executorlib.interactive.fluxspawner import (
+    from executorlib.task_scheduler.interactive.fluxspawner import (
         FluxPythonSpawner,
         validate_max_workers,
     )
 
 
-class FluxJobExecutor(ExecutorInterface):
+class FluxJobExecutor(ExecutorBase):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -70,7 +72,7 @@ class FluxJobExecutor(ExecutorInterface):
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.flux import FluxJobExecutor
+        >>> from executorlib.executor.flux import FluxJobExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -167,7 +169,7 @@ class FluxJobExecutor(ExecutorInterface):
         )
         if not disable_dependencies:
             super().__init__(
-                executor=DependencyExecutor(
+                executor=DependencyTaskScheduler(
                     executor=create_flux_executor(
                         max_workers=max_workers,
                         cache_directory=cache_directory,
@@ -207,7 +209,7 @@ class FluxJobExecutor(ExecutorInterface):
             )
 
 
-class FluxClusterExecutor(ExecutorInterface):
+class FluxClusterExecutor(ExecutorBase):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -251,7 +253,7 @@ class FluxClusterExecutor(ExecutorInterface):
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.flux import FluxClusterExecutor
+        >>> from executorlib.executor.flux import FluxClusterExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -341,7 +343,9 @@ class FluxClusterExecutor(ExecutorInterface):
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not plot_dependency_graph:
-            from executorlib.cache.executor import create_file_executor
+            from executorlib.task_scheduler.file.task_scheduler import (
+                create_file_executor,
+            )
 
             super().__init__(
                 executor=create_file_executor(
@@ -363,7 +367,7 @@ class FluxClusterExecutor(ExecutorInterface):
             )
         else:
             super().__init__(
-                executor=DependencyExecutor(
+                executor=DependencyTaskScheduler(
                     executor=create_flux_executor(
                         max_workers=max_workers,
                         cache_directory=cache_directory,
@@ -397,7 +401,7 @@ def create_flux_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-) -> Union[OneTaskPerProcessExecutor, BlockAllocationExecutor]:
+) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a flux executor
 
@@ -468,13 +472,13 @@ def create_flux_executor(
             cores=cores_per_worker,
             threads_per_core=resource_dict.get("threads_per_core", 1),
         )
-        return BlockAllocationExecutor(
+        return BlockAllocationTaskScheduler(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=FluxPythonSpawner,
         )
     else:
-        return OneTaskPerProcessExecutor(
+        return OneProcessTaskScheduler(
             max_cores=max_cores,
             max_workers=max_workers,
             executor_kwargs=resource_dict,

@@ -1,9 +1,6 @@
 from typing import Callable, Optional, Union
 
-from executorlib.base.executor import ExecutorInterface
-from executorlib.interactive.blockallocation import BlockAllocationExecutor
-from executorlib.interactive.dependency import DependencyExecutor
-from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
+from executorlib.executor.base import ExecutorBase
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_gpus_per_worker,
@@ -13,9 +10,14 @@ from executorlib.standalone.inputcheck import (
     validate_number_of_cores,
 )
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
+from executorlib.task_scheduler.interactive.blockallocation import (
+    BlockAllocationTaskScheduler,
+)
+from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
+from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
 
-class SingleNodeExecutor(ExecutorInterface):
+class SingleNodeExecutor(ExecutorBase):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -58,7 +60,7 @@ class SingleNodeExecutor(ExecutorInterface):
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.interfaces.single import SingleNodeExecutor
+        >>> from executorlib.executor.single import SingleNodeExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -147,7 +149,7 @@ class SingleNodeExecutor(ExecutorInterface):
         )
         if not disable_dependencies:
             super().__init__(
-                executor=DependencyExecutor(
+                executor=DependencyTaskScheduler(
                     executor=create_single_node_executor(
                         max_workers=max_workers,
                         cache_directory=cache_directory,
@@ -187,7 +189,7 @@ def create_single_node_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-) -> Union[OneTaskPerProcessExecutor, BlockAllocationExecutor]:
+) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a single node executor
 
@@ -241,7 +243,7 @@ def create_single_node_executor(
         del resource_dict["slurm_cmd_args"]
     if block_allocation:
         resource_dict["init_function"] = init_function
-        return BlockAllocationExecutor(
+        return BlockAllocationTaskScheduler(
             max_workers=validate_number_of_cores(
                 max_cores=max_cores,
                 max_workers=max_workers,
@@ -252,7 +254,7 @@ def create_single_node_executor(
             spawner=MpiExecSpawner,
         )
     else:
-        return OneTaskPerProcessExecutor(
+        return OneProcessTaskScheduler(
             max_cores=max_cores,
             max_workers=max_workers,
             executor_kwargs=resource_dict,

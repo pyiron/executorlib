@@ -5,7 +5,7 @@ import unittest
 
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive.shared import execute_tasks
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
