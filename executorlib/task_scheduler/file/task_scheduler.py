@@ -2,9 +2,9 @@ import os
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.base.task_scheduler import TaskSchedulerBase
-from executorlib.cache.shared import execute_tasks_h5
-from executorlib.cache.subprocess_spawner import (
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.file.shared import execute_tasks_h5
+from executorlib.task_scheduler.file.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,
 )
@@ -18,7 +18,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 try:
-    from executorlib.cache.queue_spawner import execute_with_pysqa
+    from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = execute_in_subprocess  # type: ignore
@@ -27,7 +27,7 @@ except ImportError:
 class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
-        cache_directory: str = "cache",
+        cache_directory: str = "file",
         resource_dict: Optional[dict] = None,
         execute_function: Callable = execute_with_pysqa,
         terminate_function: Optional[Callable] = None,
@@ -39,7 +39,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         Initialize the FileExecutor.
 
         Args:
-            cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
+            cache_directory (str, optional): The directory to store file files. Defaults to "file".
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed

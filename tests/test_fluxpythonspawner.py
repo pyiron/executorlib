@@ -5,14 +5,14 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.shared import execute_tasks
-from executorlib.interactive.blockallocation import BlockAllocationTaskScheduler
+from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive import BlockAllocationTaskScheduler
 from executorlib.standalone.serialize import cloudpickle_register
 
 
 try:
     import flux.job
-    from executorlib.interactive.fluxspawner import FluxPythonSpawner
+    from executorlib.task_scheduler.interactive import FluxPythonSpawner
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)

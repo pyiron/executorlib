@@ -22,7 +22,7 @@ def get_error(a):
 )
 class TestCacheFunctions(unittest.TestCase):
     def test_cache_data(self):
-        cache_directory = "./cache"
+        cache_directory = "./file"
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             future_lst = [exe.submit(sum, [i, i]) for i in range(1, 4)]
             result_lst = [f.result() for f in future_lst]
@@ -42,7 +42,7 @@ class TestCacheFunctions(unittest.TestCase):
                 print(f.result())
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        if os.path.exists("file"):
+            shutil.rmtree("file")
         if os.path.exists("cache_error"):
             shutil.rmtree("cache_error")

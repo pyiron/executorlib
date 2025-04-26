@@ -7,11 +7,11 @@ import unittest
 
 import numpy as np
 
-from executorlib.base.task_scheduler import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
-from executorlib.interactive.shared import execute_tasks
-from executorlib.interactive.blockallocation import BlockAllocationTaskScheduler
-from executorlib.interactive.onetoone import OneProcessTaskScheduler
+from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive import BlockAllocationTaskScheduler
+from executorlib.task_scheduler.interactive import OneProcessTaskScheduler
 from executorlib.standalone.interactive.backend import call_funct
 from executorlib.standalone.serialize import cloudpickle_register
 
@@ -503,7 +503,7 @@ class TestFuturePool(unittest.TestCase):
 
 class TestFuturePoolCache(unittest.TestCase):
     def tearDown(self):
-        shutil.rmtree("./cache")
+        shutil.rmtree("./file")
 
     @unittest.skipIf(
         skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
@@ -519,7 +519,7 @@ class TestFuturePoolCache(unittest.TestCase):
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
-            cache_directory="./cache",
+            cache_directory="./file",
         )
         self.assertEqual(f.result(), 1)
         q.join()
@@ -538,6 +538,6 @@ class TestFuturePoolCache(unittest.TestCase):
                 cores=1,
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
-                cache_directory="./cache",
+                cache_directory="./file",
             )
         q.join()

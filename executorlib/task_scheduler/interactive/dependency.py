@@ -4,7 +4,7 @@ from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
 
-from executorlib.base.task_scheduler import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
     get_exception_lst,

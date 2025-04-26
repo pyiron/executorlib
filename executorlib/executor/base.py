@@ -7,7 +7,7 @@ from concurrent.futures import (
 )
 from typing import Callable, Optional
 
-from executorlib.base.task_scheduler import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase
 
 
 class ExecutorBase(FutureExecutor):

@@ -3,8 +3,8 @@ from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.base.task_scheduler import TaskSchedulerBase
-from executorlib.interactive.shared import execute_tasks
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.interactive.shared import execute_tasks
 from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
@@ -15,7 +15,7 @@ from executorlib.standalone.queue import cancel_items_in_queue
 
 class BlockAllocationTaskScheduler(TaskSchedulerBase):
     """
-    The executorlib.interactive.executor.InteractiveExecutor leverages the exeutorlib interfaces to distribute python
+    The executorlib.interactive.executor.InteractiveExecutor leverages the exeutorlib executor to distribute python
     tasks on a workstation or inside a queuing system allocation. In contrast to the mpi4py.futures.MPIPoolExecutor the
     executorlib.interactive.executor.InteractiveExecutor can be executed in a serial python process and does not require
     the python script to be executed with MPI. Consequently, it is primarily an abstraction of its functionality to

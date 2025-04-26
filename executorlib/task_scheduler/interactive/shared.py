@@ -40,7 +40,7 @@ def execute_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (Callable): optional function to preset arguments for functions which are submitted later
-       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
+       cache_directory (str, optional): The directory to store file files. Defaults to "file".
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
     """
     interface = interface_bootup(
@@ -131,14 +131,14 @@ def _execute_task_with_cache(
     cache_directory: str,
 ):
     """
-    Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
+    Execute the task in the task_dict by communicating it via the interface using the file in the file directory.
 
     Args:
         interface (SocketInterface): socket interface for zmq communication
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         future_queue (Queue): Queue for receiving new tasks.
-        cache_directory (str): The directory to store cache files.
+        cache_directory (str): The directory to store file files.
     """
     from executorlib.standalone.hdf import dump, get_output
 
@@ -149,10 +149,10 @@ def _execute_task_with_cache(
         resource_dict=task_dict.get("resource_dict", {}),
     )
     os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-    file_name = os.path.join(cache_directory, task_key, "cache.h5out")
+    file_name = os.path.join(cache_directory, task_key, "file.h5out")
     if not (
         task_key in os.listdir(cache_directory)
-        and "cache.h5out" in os.listdir(os.path.join(cache_directory, task_key))
+        and "file.h5out" in os.listdir(os.path.join(cache_directory, task_key))
     ):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():

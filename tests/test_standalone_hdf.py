@@ -26,7 +26,7 @@ def my_funct(a, b):
 )
 class TestSharedFunctions(unittest.TestCase):
     def test_hdf_mixed(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("file")
         os.makedirs(cache_directory, exist_ok=True)
         file_name = os.path.join(cache_directory, "test_mixed.h5")
         a = 1
@@ -46,7 +46,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertIsNone(output)
 
     def test_hdf_args(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("file")
         os.makedirs(cache_directory, exist_ok=True)
         file_name = os.path.join(cache_directory, "test_args.h5")
         a = 1
@@ -63,7 +63,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertIsNone(output)
 
     def test_hdf_kwargs(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("file")
         os.makedirs(cache_directory, exist_ok=True)
         file_name = os.path.join(cache_directory, "test_kwargs.h5")
         a = 1
@@ -89,7 +89,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertIsNone(output)
 
     def test_hdf_queue_id(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("file")
         os.makedirs(cache_directory, exist_ok=True)
         file_name = os.path.join(cache_directory, "test_queue.h5")
         queue_id = 123
@@ -105,7 +105,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertIsNone(output)
 
     def test_hdf_error(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("file")
         os.makedirs(cache_directory, exist_ok=True)
         file_name = os.path.join(cache_directory, "test_error.h5")
         error = ValueError()
@@ -120,5 +120,5 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(isinstance(output, error.__class__))
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        if os.path.exists("file"):
+            shutil.rmtree("file")

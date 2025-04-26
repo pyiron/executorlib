@@ -83,7 +83,7 @@ class TestExecutorBackend(unittest.TestCase):
 
 class TestExecutorBackendCache(unittest.TestCase):
     def tearDown(self):
-        shutil.rmtree("./cache")
+        shutil.rmtree("./file")
 
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
@@ -93,7 +93,7 @@ class TestExecutorBackendCache(unittest.TestCase):
             max_workers=2,
             resource_dict={"cores": 2},
             block_allocation=True,
-            cache_directory="./cache",
+            cache_directory="./file",
         ) as exe:
             cloudpickle_register(ind=1)
             time_1 = time.time()

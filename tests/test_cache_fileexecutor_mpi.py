@@ -3,11 +3,11 @@ import os
 import shutil
 import unittest
 
-from executorlib.cache.subprocess_spawner import execute_in_subprocess
+from executorlib.task_scheduler.file import execute_in_subprocess
 
 
 try:
-    from executorlib.cache.task_scheduler import FileTaskScheduler
+    from executorlib.task_scheduler.file import FileTaskScheduler
 
     skip_h5py_test = False
 except ImportError:
@@ -40,5 +40,5 @@ class TestCacheExecutorMPI(unittest.TestCase):
             self.assertTrue(fs1.done())
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        if os.path.exists("file"):
+            shutil.rmtree("file")

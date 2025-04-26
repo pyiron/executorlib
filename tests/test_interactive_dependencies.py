@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from executorlib.interactive.blockallocation import BlockAllocationTaskScheduler
+from executorlib.task_scheduler.interactive import BlockAllocationTaskScheduler
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 

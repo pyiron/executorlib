@@ -5,14 +5,14 @@ import shutil
 import unittest
 from threading import Thread
 
-from executorlib.cache.subprocess_spawner import (
+from executorlib.task_scheduler.file import (
     execute_in_subprocess,
     terminate_subprocess,
 )
 
 try:
-    from executorlib.cache.task_scheduler import FileTaskScheduler, create_file_executor
-    from executorlib.cache.shared import execute_tasks_h5
+    from executorlib.task_scheduler.file import FileTaskScheduler, create_file_executor
+    from executorlib.task_scheduler.file import execute_tasks_h5
 
     skip_h5py_test = False
 except ImportError:
@@ -93,7 +93,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "resource_dict": {},
             }
         )
-        cache_dir = os.path.abspath("cache")
+        cache_dir = os.path.abspath("file")
         os.makedirs(cache_dir, exist_ok=True)
         process = Thread(
             target=execute_tasks_h5,
@@ -134,7 +134,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "resource_dict": {},
             }
         )
-        cache_dir = os.path.abspath("cache")
+        cache_dir = os.path.abspath("file")
         os.makedirs(cache_dir, exist_ok=True)
         process = Thread(
             target=execute_tasks_h5,
@@ -175,7 +175,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "resource_dict": {},
             }
         )
-        cache_dir = os.path.abspath("cache")
+        cache_dir = os.path.abspath("file")
         os.makedirs(cache_dir, exist_ok=True)
         process = Thread(
             target=execute_tasks_h5,
@@ -203,5 +203,5 @@ class TestCacheExecutorSerial(unittest.TestCase):
             execute_in_subprocess(file_name=__file__, command=[], backend="flux")
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        if os.path.exists("file"):
+            shutil.rmtree("file")
