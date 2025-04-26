@@ -282,19 +282,8 @@ class ExecutorInterface(FutureExecutor):
         """
         return len(self._executor)
 
-    def __exit__(
-        self,
-        exc_type: Any,
-        exc_val: Any,
-        exc_tb: Any,
-    ) -> None:
+    def __exit__(self, *args, **kwargs) -> None:
         """
         Exit method called when exiting the context manager.
-
-        Args:
-            exc_type: The type of the exception.
-            exc_val: The exception instance.
-            exc_tb: The traceback object.
-
         """
-        self._executor.__exit__(exc_type=exc_type, exc_val=exc_val, exc_tb=exc_tb)
+        self._executor.__exit__(*args, **kwargs)
