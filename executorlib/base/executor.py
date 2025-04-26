@@ -72,6 +72,7 @@ class ExecutorBase(FutureExecutor):
     def submit(  # type: ignore
         self,
         fn: Callable,
+        /,
         *args,
         resource_dict: Optional[dict] = None,
         **kwargs,
@@ -221,6 +222,7 @@ class ExecutorInterface(FutureExecutor):
     def submit(  # type: ignore
         self,
         fn: Callable,
+        /,
         *args,
         resource_dict: Optional[dict] = None,
         **kwargs,
