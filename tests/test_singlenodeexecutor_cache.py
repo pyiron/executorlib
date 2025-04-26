@@ -2,7 +2,7 @@ import os
 import shutil
 import unittest
 
-from executorlib import SingleNodeExecutor
+from executorlib import SingleNodeExecutor, get_cache_data
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:
