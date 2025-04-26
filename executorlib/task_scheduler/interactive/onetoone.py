@@ -2,9 +2,9 @@ import queue
 from threading import Thread
 from typing import Optional
 
+from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.interactive.shared import execute_tasks
-from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 
 
 class OneProcessTaskScheduler(TaskSchedulerBase):

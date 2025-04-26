@@ -4,7 +4,6 @@ from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
 
-from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
     get_exception_lst,
@@ -16,6 +15,7 @@ from executorlib.standalone.plot import (
     generate_nodes_and_edges,
     generate_task_hash,
 )
+from executorlib.task_scheduler.base import TaskSchedulerBase
 
 
 class DependencyTaskScheduler(TaskSchedulerBase):

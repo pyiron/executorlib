@@ -1,9 +1,6 @@
 from typing import Callable, Optional, Union
 
 from executorlib.executor.base import ExecutorBase
-from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
-from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
-from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_gpus_per_worker,
@@ -13,6 +10,11 @@ from executorlib.standalone.inputcheck import (
     validate_number_of_cores,
 )
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
+from executorlib.task_scheduler.interactive.blockallocation import (
+    BlockAllocationTaskScheduler,
+)
+from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
+from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
 
 class SingleNodeExecutor(ExecutorBase):

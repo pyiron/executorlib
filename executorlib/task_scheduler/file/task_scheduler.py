@@ -2,12 +2,6 @@ import os
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.file.shared import execute_tasks_h5
-from executorlib.task_scheduler.file.subprocess_spawner import (
-    execute_in_subprocess,
-    terminate_subprocess,
-)
 from executorlib.standalone.inputcheck import (
     check_executor,
     check_flux_executor_pmi_mode,
@@ -15,6 +9,12 @@ from executorlib.standalone.inputcheck import (
     check_hostname_localhost,
     check_max_workers_and_cores,
     check_nested_flux_executor,
+)
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.file.shared import execute_tasks_h5
+from executorlib.task_scheduler.file.subprocess_spawner import (
+    execute_in_subprocess,
+    terminate_subprocess,
 )
 
 try:
