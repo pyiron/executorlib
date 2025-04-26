@@ -9,14 +9,24 @@ from executorlib.executor.slurm import (
     SlurmJobExecutor,
 )
 from executorlib.standalone.cache import get_cache_data
+from executorlib.standalone.command import get_command_path
+from executorlib.standalone.interactive.communication import SocketInterface, interface_bootup
+from executorlib.standalone.interactive.spawner import MpiExecSpawner, SubprocessSpawner
+from executorlib.standalone.queue import cancel_items_in_queue
 
 __all__: list[str] = [
+    "cancel_items_in_queue",
     "get_cache_data",
+    "get_command_path",
+    "interface_bootup",
     "FluxJobExecutor",
     "FluxClusterExecutor",
+    "MpiExecSpawner",
     "SingleNodeExecutor",
     "SlurmJobExecutor",
     "SlurmClusterExecutor",
+    "SocketInterface",
+    "SubprocessSpawner",
 ]
 
 __version__ = _get_versions()["version"]
