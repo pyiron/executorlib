@@ -22,7 +22,7 @@ def get_error(a):
 )
 class TestCacheFunctions(unittest.TestCase):
     def test_cache_data(self):
-        cache_directory = "./file"
+        cache_directory = "./cache"
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             future_lst = [exe.submit(sum, [i, i]) for i in range(1, 4)]
             result_lst = [f.result() for f in future_lst]
