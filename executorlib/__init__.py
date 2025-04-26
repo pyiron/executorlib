@@ -13,6 +13,10 @@ from executorlib.standalone.command import get_command_path
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
+    interface_connect,
+    interface_receive,
+    interface_send,
+    interface_shutdown,
 )
 from executorlib.standalone.interactive.spawner import MpiExecSpawner, SubprocessSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
@@ -24,6 +28,10 @@ __all__: list[str] = [
     "get_cache_data",
     "get_command_path",
     "interface_bootup",
+    "interface_connect",
+    "interface_receive",
+    "interface_send",
+    "interface_shutdown",
     "FluxJobExecutor",
     "FluxClusterExecutor",
     "MpiExecSpawner",
