@@ -10,7 +10,10 @@ from executorlib.executor.slurm import (
 )
 from executorlib.standalone.cache import get_cache_data
 from executorlib.standalone.command import get_command_path
-from executorlib.standalone.interactive.communication import SocketInterface, interface_bootup
+from executorlib.standalone.interactive.communication import (
+    SocketInterface,
+    interface_bootup,
+)
 from executorlib.standalone.interactive.spawner import MpiExecSpawner, SubprocessSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
