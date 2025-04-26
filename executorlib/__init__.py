@@ -24,8 +24,8 @@ try:
 except ImportError as import_error:
     warnings.warn(
         message="get_cache_data() is not available as the import of the"
-                + import_error.msg[2:]
-                + " failed.",
+        + import_error.msg[2:]
+        + " failed.",
         stacklevel=2,
     )
 else:
