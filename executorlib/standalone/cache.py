@@ -1,7 +1,6 @@
 import os
 
 import cloudpickle
-import numpy as np
 
 group_dict = {
     "fn": "function",
@@ -25,6 +24,7 @@ def get_cache_data(cache_directory: str) -> list[dict]:
         list[dict]: List of dictionaries each representing on of the HDF5 files in the cache directory.
     """
     import h5py
+    import numpy as np
 
     file_lst = []
     for task_key in os.listdir(cache_directory):
