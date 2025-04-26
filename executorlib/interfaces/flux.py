@@ -207,7 +207,7 @@ class FluxJobExecutor(ExecutorInterface):
             )
 
 
-class FluxClusterExecutor:
+class FluxClusterExecutor(ExecutorInterface):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
