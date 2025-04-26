@@ -13,6 +13,7 @@ group_dict = {
     "queue_id": "queue_id",
 }
 
+
 def get_cache_data(cache_directory: str) -> list[dict]:
     """
     Collect all HDF5 files in the cache directory
