@@ -3,8 +3,15 @@ import os
 import cloudpickle
 import numpy as np
 
-from executorlib.standalone.hdf import group_dict
-
+group_dict = {
+    "fn": "function",
+    "args": "input_args",
+    "kwargs": "input_kwargs",
+    "output": "output",
+    "error": "error",
+    "runtime": "runtime",
+    "queue_id": "queue_id",
+}
 
 def get_cache_data(cache_directory: str) -> list[dict]:
     """

@@ -4,15 +4,7 @@ import cloudpickle
 import h5py
 import numpy as np
 
-group_dict = {
-    "fn": "function",
-    "args": "input_args",
-    "kwargs": "input_kwargs",
-    "output": "output",
-    "error": "error",
-    "runtime": "runtime",
-    "queue_id": "queue_id",
-}
+from executorlib.standalone.cache import group_dict
 
 
 def dump(file_name: Optional[str], data_dict: dict) -> None:

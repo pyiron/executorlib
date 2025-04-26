@@ -8,7 +8,7 @@ from executorlib.executor.slurm import (
     SlurmClusterExecutor,
     SlurmJobExecutor,
 )
-from executorlib.task_scheduler.file.cache import get_cache_data
+from executorlib.standalone.cache import get_cache_data
 
 __all__: list[str] = [
     "get_cache_data",
