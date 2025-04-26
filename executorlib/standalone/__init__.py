@@ -1,8 +1,11 @@
 """
 Submodules in the executorlib.standalone module do not depend on other modules of the executorlib package. This strict
-separation simplifies the development, testing and debugging.
+separation simplifies the development, testing and debugging. The functionality in executorlib.standalone is designed
+to be used independently in other libraries.
 """
 
+from executorlib.standalone.cache import get_cache_data
+from executorlib.standalone.command import get_command_path
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
@@ -11,14 +14,21 @@ from executorlib.standalone.interactive.communication import (
     interface_send,
     interface_shutdown,
 )
-from executorlib.standalone.interactive.spawner import MpiExecSpawner
+from executorlib.standalone.interactive.spawner import MpiExecSpawner, SubprocessSpawner
+from executorlib.standalone.queue import cancel_items_in_queue
+from executorlib.standalone.serialize import cloudpickle_register
 
-__all__ = [
-    "SocketInterface",
+__all__: list[str] = [
+    "cancel_items_in_queue",
+    "cloudpickle_register",
+    "get_cache_data",
+    "get_command_path",
     "interface_bootup",
     "interface_connect",
+    "interface_receive",
     "interface_send",
     "interface_shutdown",
-    "interface_receive",
     "MpiExecSpawner",
+    "SocketInterface",
+    "SubprocessSpawner",
 ]
