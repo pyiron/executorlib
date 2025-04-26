@@ -7,7 +7,7 @@ from concurrent.futures import (
     Future,
 )
 from threading import Thread
-from typing import Callable, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
@@ -281,3 +281,20 @@ class ExecutorInterface(FutureExecutor):
             int: The length of the executor.
         """
         return len(self._executor)
+
+    def __exit__(
+        self,
+        exc_type: Any,
+        exc_val: Any,
+        exc_tb: Any,
+    ) -> None:
+        """
+        Exit method called when exiting the context manager.
+
+        Args:
+            exc_type: The type of the exception.
+            exc_val: The exception instance.
+            exc_tb: The traceback object.
+
+        """
+        self._executor.__exit__(exc_type=exc_type, exc_val=exc_val, exc_tb=exc_tb)
