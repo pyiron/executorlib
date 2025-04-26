@@ -181,6 +181,8 @@ class DependencyExecutor(ExecutorBase):
                 edge_lst=edge_lst,
                 filename=self._plot_dependency_graph_filename,
             )
+        else:
+            return None
 
 
 def _execute_tasks_with_dependencies(
