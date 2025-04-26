@@ -1,9 +1,9 @@
 from typing import Callable, Optional, Union
 
-from executorlib.base.executor import ExecutorInterface
-from executorlib.interactive.blockallocation import BlockAllocationExecutor
-from executorlib.interactive.dependency import DependencyExecutor
-from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
+from executorlib.base.executor import ExecutorBase
+from executorlib.interactive.blockallocation import BlockAllocationTaskScheduler
+from executorlib.interactive.dependency import DependencyTaskScheduler
+from executorlib.interactive.onetoone import OneProcessTaskScheduler
 from executorlib.interactive.slurmspawner import SrunSpawner, validate_max_workers
 from executorlib.standalone.inputcheck import (
     check_init_function,
@@ -13,7 +13,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 
-class SlurmClusterExecutor(ExecutorInterface):
+class SlurmClusterExecutor(ExecutorBase):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -147,7 +147,7 @@ class SlurmClusterExecutor(ExecutorInterface):
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not plot_dependency_graph:
-            from executorlib.cache.executor import create_file_executor
+            from executorlib.cache.task_scheduler import create_file_executor
 
             super().__init__(
                 executor=create_file_executor(
@@ -169,7 +169,7 @@ class SlurmClusterExecutor(ExecutorInterface):
             )
         else:
             super().__init__(
-                executor=DependencyExecutor(
+                executor=DependencyTaskScheduler(
                     executor=create_slurm_executor(
                         max_workers=max_workers,
                         cache_directory=cache_directory,
@@ -187,7 +187,7 @@ class SlurmClusterExecutor(ExecutorInterface):
             )
 
 
-class SlurmJobExecutor(ExecutorInterface):
+class SlurmJobExecutor(ExecutorBase):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -327,7 +327,7 @@ class SlurmJobExecutor(ExecutorInterface):
         )
         if not disable_dependencies:
             super().__init__(
-                executor=DependencyExecutor(
+                executor=DependencyTaskScheduler(
                     executor=create_slurm_executor(
                         max_workers=max_workers,
                         cache_directory=cache_directory,
@@ -367,7 +367,7 @@ def create_slurm_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
-) -> Union[OneTaskPerProcessExecutor, BlockAllocationExecutor]:
+) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
 
@@ -425,13 +425,13 @@ def create_slurm_executor(
             cores=cores_per_worker,
             threads_per_core=resource_dict.get("threads_per_core", 1),
         )
-        return BlockAllocationExecutor(
+        return BlockAllocationTaskScheduler(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=SrunSpawner,
         )
     else:
-        return OneTaskPerProcessExecutor(
+        return OneProcessTaskScheduler(
             max_cores=max_cores,
             max_workers=max_workers,
             executor_kwargs=resource_dict,

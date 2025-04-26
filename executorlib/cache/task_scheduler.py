@@ -2,7 +2,7 @@ import os
 from threading import Thread
 from typing import Callable, Optional
 
-from executorlib.base.executor import ExecutorBase
+from executorlib.base.executor import TaskSchedulerBase
 from executorlib.cache.shared import execute_tasks_h5
 from executorlib.cache.subprocess_spawner import (
     execute_in_subprocess,
@@ -24,7 +24,7 @@ except ImportError:
     execute_with_pysqa = execute_in_subprocess  # type: ignore
 
 
-class FileExecutor(ExecutorBase):
+class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
         cache_directory: str = "cache",
@@ -113,7 +113,7 @@ def create_file_executor(
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     check_flux_log_files(flux_log_files=flux_log_files)
-    return FileExecutor(
+    return FileTaskScheduler(
         cache_directory=cache_directory,
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,

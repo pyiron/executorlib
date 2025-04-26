@@ -2,12 +2,12 @@ import queue
 from threading import Thread
 from typing import Optional
 
-from executorlib.base.executor import ExecutorBase
+from executorlib.base.executor import TaskSchedulerBase
 from executorlib.interactive.shared import execute_tasks
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 
 
-class OneTaskPerProcessExecutor(ExecutorBase):
+class OneProcessTaskScheduler(TaskSchedulerBase):
     """
     The executorlib.interactive.executor.InteractiveStepExecutor leverages the executorlib interfaces to distribute python
     tasks. In contrast to the mpi4py.futures.MPIPoolExecutor the executorlib.interactive.executor.InteractiveStepExecutor
@@ -23,7 +23,7 @@ class OneTaskPerProcessExecutor(ExecutorBase):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
+        >>> from executorlib.interactive.onetoone import OneProcessTaskScheduler
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -31,7 +31,7 @@ class OneTaskPerProcessExecutor(ExecutorBase):
         >>>     rank = MPI.COMM_WORLD.Get_rank()
         >>>     return np.array([i, j, k]), size, rank
         >>>
-        >>> with OneTaskPerProcessExecutor(max_cores=2) as p:
+        >>> with OneProcessTaskScheduler(max_cores=2) as p:
         >>>     fs = p.submit(calc, 2, j=4, k=3, resource_dict={"cores": 2})
         >>>     print(fs.result())
 

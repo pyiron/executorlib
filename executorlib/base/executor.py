@@ -14,7 +14,7 @@ from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
 
 
-class ExecutorBase(FutureExecutor):
+class TaskSchedulerBase(FutureExecutor):
     """
     Base class for the executor.
 
@@ -181,15 +181,15 @@ class ExecutorBase(FutureExecutor):
             self.shutdown(wait=False)
 
 
-class ExecutorInterface(FutureExecutor):
+class ExecutorBase(FutureExecutor):
     """
     Interface class for the executor.
 
     Args:
-        executor (ExecutorBase): internal executor
+        executor (TaskSchedulerBase): internal executor
     """
 
-    def __init__(self, executor: ExecutorBase):
+    def __init__(self, executor: TaskSchedulerBase):
         self._task_scheduler = executor
 
     @property
