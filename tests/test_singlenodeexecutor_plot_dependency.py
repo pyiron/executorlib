@@ -59,12 +59,12 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertTrue(future_1.done())
             self.assertTrue(future_2.done())
-            self.assertEqual(len(exe._future_hash_dict), 2)
-            self.assertEqual(len(exe._task_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._future_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._task_hash_dict), 2)
             nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
+                task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
+                    v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
             self.assertEqual(len(nodes), 5)
@@ -120,12 +120,12 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
             for l in lst:
                 self.assertTrue(l.done())
             self.assertTrue(future_sum.done())
-            self.assertEqual(len(exe._future_hash_dict), 7)
-            self.assertEqual(len(exe._task_hash_dict), 7)
+            self.assertEqual(len(exe._task_scheduler._future_hash_dict), 7)
+            self.assertEqual(len(exe._task_scheduler._task_hash_dict), 7)
             nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
+                task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
+                    v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
             self.assertEqual(len(nodes), 19)
@@ -137,12 +137,12 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
                 return_input_dict,
                 input_dict={"a": exe.submit(sum, [2, 2])},
             )
-            self.assertEqual(len(exe._future_hash_dict), 2)
-            self.assertEqual(len(exe._task_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._future_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._task_hash_dict), 2)
             nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
+                task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
+                    v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
             self.assertEqual(len(nodes), 4)
@@ -165,12 +165,12 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertTrue(future_1.done())
             self.assertTrue(future_2.done())
-            self.assertEqual(len(exe._future_hash_dict), 2)
-            self.assertEqual(len(exe._task_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._future_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._task_hash_dict), 2)
             nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
+                task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
+                    v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
             self.assertEqual(len(nodes), 5)
@@ -210,12 +210,12 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
             for l in lst:
                 self.assertTrue(l.done())
             self.assertTrue(future_sum.done())
-            self.assertEqual(len(exe._future_hash_dict), 7)
-            self.assertEqual(len(exe._task_hash_dict), 7)
+            self.assertEqual(len(exe._task_scheduler._future_hash_dict), 7)
+            self.assertEqual(len(exe._task_scheduler._task_hash_dict), 7)
             nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
+                task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
+                    v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
             self.assertEqual(len(nodes), 19)
@@ -236,12 +236,12 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertTrue(future_1.done())
             self.assertTrue(future_2.done())
-            self.assertEqual(len(exe._future_hash_dict), 2)
-            self.assertEqual(len(exe._task_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._future_hash_dict), 2)
+            self.assertEqual(len(exe._task_scheduler._task_hash_dict), 2)
             nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
+                task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
+                    v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
             self.assertEqual(len(nodes), 5)
@@ -279,12 +279,12 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
             for l in lst:
                 self.assertTrue(l.done())
             self.assertTrue(future_sum.done())
-            self.assertEqual(len(exe._future_hash_dict), 7)
-            self.assertEqual(len(exe._task_hash_dict), 7)
+            self.assertEqual(len(exe._task_scheduler._future_hash_dict), 7)
+            self.assertEqual(len(exe._task_scheduler._task_hash_dict), 7)
             nodes, edges = generate_nodes_and_edges(
-                task_hash_dict=exe._task_hash_dict,
+                task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
-                    v: k for k, v in exe._future_hash_dict.items()
+                    v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
             self.assertEqual(len(nodes), 19)

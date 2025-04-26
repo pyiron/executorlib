@@ -19,7 +19,7 @@ class TestResizing(unittest.TestCase):
             sleep_funct(sec=0.5)
             exe.max_workers = 1
             self.assertTrue(len(exe) >= 1)
-            self.assertEqual(len(exe._process), 1)
+            self.assertEqual(len(exe._task_scheduler._process), 1)
             self.assertTrue(1 <= sum([f.done() for f in future_lst]) < 3)
             self.assertEqual([f.result() for f in future_lst], [1, 1, 1, 1])
             self.assertEqual([f.done() for f in future_lst], [True, True, True, True])
@@ -35,7 +35,7 @@ class TestResizing(unittest.TestCase):
             exe.max_workers = 2
             self.assertEqual(exe.max_workers, 2)
             self.assertTrue(len(exe) >= 1)
-            self.assertEqual(len(exe._process), 2)
+            self.assertEqual(len(exe._task_scheduler._process), 2)
             self.assertEqual([f.done() for f in future_lst], [True, False, False, False])
             self.assertEqual([f.result() for f in future_lst], [0.1, 0.1, 0.1, 0.1])
             self.assertEqual([f.done() for f in future_lst], [True, True, True, True])
