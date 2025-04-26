@@ -253,7 +253,7 @@ class ExecutorInterface(FutureExecutor):
             Future: A Future representing the given call.
         """
         return self._executor.submit(
-            fn=fn, *args, resource_dict=resource_dict, **kwargs
+            *([fn] + list(args)), resource_dict=resource_dict, **kwargs
         )
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
