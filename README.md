@@ -156,6 +156,7 @@ as hierarchical job scheduler within the allocations.
   * [Pull Requests](https://executorlib.readthedocs.io/en/latest/4-developer.html#pull-requests)
   * [License](https://executorlib.readthedocs.io/en/latest/4-developer.html#license)
   * [Modules](https://executorlib.readthedocs.io/en/latest/4-developer.html#modules)
+  * [Interface Class Hierarchy](https://executorlib.readthedocs.io/en/latest/4-developer.html#interface-class-hierarchy)
   * [Communication](https://executorlib.readthedocs.io/en/latest/4-developer.html#communication)
   * [External Executables](https://executorlib.readthedocs.io/en/latest/4-developer.html#external-executables)
 * [Interface](https://executorlib.readthedocs.io/en/latest/api.html)
