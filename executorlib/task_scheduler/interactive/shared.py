@@ -131,7 +131,7 @@ def _execute_task_with_cache(
     cache_directory: str,
 ):
     """
-    Execute the task in the task_dict by communicating it via the interface using the file in the file directory.
+    Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
 
     Args:
         interface (SocketInterface): socket interface for zmq communication
