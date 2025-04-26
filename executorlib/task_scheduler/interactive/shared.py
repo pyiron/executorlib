@@ -140,7 +140,7 @@ def _execute_task_with_cache(
         future_queue (Queue): Queue for receiving new tasks.
         cache_directory (str): The directory to store cache files.
     """
-    from executorlib.standalone.hdf import dump, get_output
+    from executorlib.task_scheduler.file.hdf import dump, get_output
 
     task_key, data_dict = serialize_funct_h5(
         fn=task_dict["fn"],

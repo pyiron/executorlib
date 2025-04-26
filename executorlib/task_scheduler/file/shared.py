@@ -7,8 +7,8 @@ from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_command_path
-from executorlib.standalone.hdf import dump, get_output
 from executorlib.standalone.serialize import serialize_funct_h5
+from executorlib.task_scheduler.file.hdf import dump, get_output
 
 
 class FutureItem:

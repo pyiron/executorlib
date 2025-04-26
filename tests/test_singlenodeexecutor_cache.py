@@ -2,11 +2,11 @@ import os
 import shutil
 import unittest
 
-from executorlib import SingleNodeExecutor
+from executorlib import SingleNodeExecutor, get_cache_data
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:
-    from executorlib import get_cache_data
+    import h5py
 
     skip_h5py_test = False
 except ImportError:
