@@ -7,11 +7,11 @@ import unittest
 
 import numpy as np
 
-from executorlib.base.executor import ExecutorBase
+from executorlib.base.executor import TaskSchedulerBase
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.interactive.shared import execute_tasks
-from executorlib.interactive.blockallocation import BlockAllocationExecutor
-from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
+from executorlib.interactive.blockallocation import BlockAllocationTaskScheduler
+from executorlib.interactive.onetoone import OneProcessTaskScheduler
 from executorlib.standalone.interactive.backend import call_funct
 from executorlib.standalone.serialize import cloudpickle_register
 
@@ -64,7 +64,7 @@ def sleep_one(i):
 
 class TestPyMpiExecutorSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=2,
             executor_kwargs={},
             spawner=MpiExecSpawner,
@@ -78,7 +78,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_max_workers(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=2,
             executor_kwargs={},
             spawner=MpiExecSpawner,
@@ -86,7 +86,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertEqual(exe.max_workers, 2)
 
     def test_pympiexecutor_one_worker(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={},
             spawner=MpiExecSpawner,
@@ -102,7 +102,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
 
 class TestPyMpiExecutorStepSerial(unittest.TestCase):
     def test_pympiexecutor_two_workers(self):
-        with OneTaskPerProcessExecutor(
+        with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={},
             spawner=MpiExecSpawner,
@@ -116,7 +116,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_max_workers(self):
-        with OneTaskPerProcessExecutor(
+        with OneProcessTaskScheduler(
             max_workers=2,
             executor_kwargs={},
             spawner=MpiExecSpawner,
@@ -124,7 +124,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
             self.assertEqual(exe.max_workers, 2)
 
     def test_pympiexecutor_one_worker(self):
-        with OneTaskPerProcessExecutor(
+        with OneProcessTaskScheduler(
             max_cores=1,
             executor_kwargs={},
             spawner=MpiExecSpawner,
@@ -143,7 +143,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
 )
 class TestPyMpiExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -154,7 +154,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -174,7 +174,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
         )
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -189,7 +189,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 )
 class TestPyMpiStepExecutorMPI(unittest.TestCase):
     def test_pympiexecutor_one_worker_with_mpi(self):
-        with OneTaskPerProcessExecutor(
+        with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -200,7 +200,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
             self.assertTrue(fs_1.done())
 
     def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
-        with OneTaskPerProcessExecutor(
+        with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -220,7 +220,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
         )
 
     def test_pympiexecutor_one_worker_with_mpi_echo(self):
-        with OneTaskPerProcessExecutor(
+        with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -232,7 +232,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
 
 class TestPyMpiExecutorInitFunction(unittest.TestCase):
     def test_internal_memory(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={
                 "cores": 1,
@@ -273,7 +273,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
 
 class TestFuturePool(unittest.TestCase):
     def test_pool_serial(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
@@ -288,7 +288,7 @@ class TestFuturePool(unittest.TestCase):
         self.assertEqual(output.result(), np.array(4))
 
     def test_executor_multi_submission(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
@@ -301,7 +301,7 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
     def test_shutdown(self):
-        p = BlockAllocationExecutor(
+        p = BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
@@ -317,7 +317,7 @@ class TestFuturePool(unittest.TestCase):
             fs2.result()
 
     def test_pool_serial_map(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
@@ -327,7 +327,7 @@ class TestFuturePool(unittest.TestCase):
 
     def test_executor_exception(self):
         with self.assertRaises(RuntimeError):
-            with BlockAllocationExecutor(
+            with BlockAllocationTaskScheduler(
                 max_workers=1,
                 executor_kwargs={"cores": 1},
                 spawner=MpiExecSpawner,
@@ -337,7 +337,7 @@ class TestFuturePool(unittest.TestCase):
 
     def test_executor_exception_future(self):
         with self.assertRaises(RuntimeError):
-            with BlockAllocationExecutor(
+            with BlockAllocationTaskScheduler(
                 max_workers=1,
                 executor_kwargs={"cores": 1},
                 spawner=MpiExecSpawner,
@@ -358,7 +358,7 @@ class TestFuturePool(unittest.TestCase):
             "openmpi_oversubscribe": False,
             "max_workers": 1,
         }
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={
                 "cores": 2,
@@ -374,7 +374,7 @@ class TestFuturePool(unittest.TestCase):
                     self.assertEqual(exe.info[k], v)
                 else:
                     self.assertEqual(str(exe.info[k]), v)
-        with ExecutorBase() as exe:
+        with TaskSchedulerBase() as exe:
             self.assertIsNone(exe.info)
 
     def test_meta_step(self):
@@ -386,7 +386,7 @@ class TestFuturePool(unittest.TestCase):
             "openmpi_oversubscribe": False,
             "max_cores": 2,
         }
-        with OneTaskPerProcessExecutor(
+        with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={
                 "cores": 2,
@@ -406,7 +406,7 @@ class TestFuturePool(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
@@ -424,7 +424,7 @@ class TestFuturePool(unittest.TestCase):
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
     def test_pool_multi_core_map(self):
-        with BlockAllocationExecutor(
+        with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
