@@ -190,15 +190,15 @@ class ExecutorInterface(FutureExecutor):
     """
 
     def __init__(self, executor: ExecutorBase):
-        self._executor = executor
+        self._task_scheduler = executor
 
     @property
     def max_workers(self) -> Optional[int]:
-        return self._executor.max_workers
+        return self._task_scheduler.max_workers
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
-        self._executor.max_workers = max_workers
+        self._task_scheduler.max_workers = max_workers
 
     @property
     def info(self) -> Optional[dict]:
@@ -208,7 +208,7 @@ class ExecutorInterface(FutureExecutor):
         Returns:
             Optional[dict]: Information about the executor.
         """
-        return self._executor.info
+        return self._task_scheduler.info
 
     @property
     def future_queue(self) -> Optional[queue.Queue]:
@@ -218,7 +218,7 @@ class ExecutorInterface(FutureExecutor):
         Returns:
             queue.Queue: The future queue.
         """
-        return self._executor.future_queue
+        return self._task_scheduler.future_queue
 
     def submit(  # type: ignore
         self,
@@ -252,7 +252,7 @@ class ExecutorInterface(FutureExecutor):
         Returns:
             Future: A Future representing the given call.
         """
-        return self._executor.submit(
+        return self._task_scheduler.submit(
             *([fn] + list(args)), resource_dict=resource_dict, **kwargs
         )
 
@@ -271,7 +271,7 @@ class ExecutorInterface(FutureExecutor):
                 futures. Futures that are completed or running will not be
                 cancelled.
         """
-        self._executor.shutdown(wait=wait, cancel_futures=cancel_futures)
+        self._task_scheduler.shutdown(wait=wait, cancel_futures=cancel_futures)
 
     def __len__(self) -> int:
         """
@@ -280,10 +280,10 @@ class ExecutorInterface(FutureExecutor):
         Returns:
             int: The length of the executor.
         """
-        return len(self._executor)
+        return len(self._task_scheduler)
 
     def __exit__(self, *args, **kwargs) -> None:
         """
         Exit method called when exiting the context manager.
         """
-        self._executor.__exit__(*args, **kwargs)
+        self._task_scheduler.__exit__(*args, **kwargs)
