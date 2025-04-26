@@ -7,7 +7,7 @@ from concurrent.futures import (
     Future,
 )
 from threading import Thread
-from typing import Any, Callable, Optional, Union
+from typing import Callable, Optional, Union
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
