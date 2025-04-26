@@ -1,5 +1,6 @@
 from typing import Callable, Optional, Union
 
+from executorlib.base.executor import ExecutorInterface
 from executorlib.interactive.blockallocation import BlockAllocationExecutor
 from executorlib.interactive.dependency import DependencyExecutor
 from executorlib.interactive.onetoone import OneTaskPerProcessExecutor
@@ -12,7 +13,7 @@ from executorlib.standalone.inputcheck import (
 )
 
 
-class SlurmClusterExecutor:
+class SlurmClusterExecutor(ExecutorInterface):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -89,24 +90,6 @@ class SlurmClusterExecutor:
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
     ):
-        # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
-        pass
-
-    def __new__(
-        cls,
-        max_workers: Optional[int] = None,
-        cache_directory: Optional[str] = None,
-        max_cores: Optional[int] = None,
-        resource_dict: Optional[dict] = None,
-        pysqa_config_directory: Optional[str] = None,
-        hostname_localhost: Optional[bool] = None,
-        block_allocation: bool = False,
-        init_function: Optional[Callable] = None,
-        disable_dependencies: bool = False,
-        refresh_rate: float = 0.01,
-        plot_dependency_graph: bool = False,
-        plot_dependency_graph_filename: Optional[str] = None,
-    ):
         """
         Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
         executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
@@ -166,41 +149,45 @@ class SlurmClusterExecutor:
         if not plot_dependency_graph:
             from executorlib.cache.executor import create_file_executor
 
-            return create_file_executor(
-                max_workers=max_workers,
-                backend="slurm_submission",
-                max_cores=max_cores,
-                cache_directory=cache_directory,
-                resource_dict=resource_dict,
-                flux_executor=None,
-                flux_executor_pmi_mode=None,
-                flux_executor_nesting=False,
-                flux_log_files=False,
-                pysqa_config_directory=pysqa_config_directory,
-                hostname_localhost=hostname_localhost,
-                block_allocation=block_allocation,
-                init_function=init_function,
-                disable_dependencies=disable_dependencies,
-            )
-        else:
-            return DependencyExecutor(
-                executor=create_slurm_executor(
+            super().__init__(
+                executor=create_file_executor(
                     max_workers=max_workers,
-                    cache_directory=cache_directory,
+                    backend="slurm_submission",
                     max_cores=max_cores,
+                    cache_directory=cache_directory,
                     resource_dict=resource_dict,
+                    flux_executor=None,
+                    flux_executor_pmi_mode=None,
+                    flux_executor_nesting=False,
+                    flux_log_files=False,
+                    pysqa_config_directory=pysqa_config_directory,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
-                ),
-                max_cores=max_cores,
-                refresh_rate=refresh_rate,
-                plot_dependency_graph=plot_dependency_graph,
-                plot_dependency_graph_filename=plot_dependency_graph_filename,
+                    disable_dependencies=disable_dependencies,
+                )
+            )
+        else:
+            super().__init__(
+                executor=DependencyExecutor(
+                    executor=create_slurm_executor(
+                        max_workers=max_workers,
+                        cache_directory=cache_directory,
+                        max_cores=max_cores,
+                        resource_dict=resource_dict,
+                        hostname_localhost=hostname_localhost,
+                        block_allocation=block_allocation,
+                        init_function=init_function,
+                    ),
+                    max_cores=max_cores,
+                    refresh_rate=refresh_rate,
+                    plot_dependency_graph=plot_dependency_graph,
+                    plot_dependency_graph_filename=plot_dependency_graph_filename,
+                )
             )
 
 
-class SlurmJobExecutor:
+class SlurmJobExecutor(ExecutorInterface):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -279,23 +266,6 @@ class SlurmJobExecutor:
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
     ):
-        # Use __new__() instead of __init__(). This function is only implemented to enable auto-completion.
-        pass
-
-    def __new__(
-        cls,
-        max_workers: Optional[int] = None,
-        cache_directory: Optional[str] = None,
-        max_cores: Optional[int] = None,
-        resource_dict: Optional[dict] = None,
-        hostname_localhost: Optional[bool] = None,
-        block_allocation: bool = False,
-        init_function: Optional[Callable] = None,
-        disable_dependencies: bool = False,
-        refresh_rate: float = 0.01,
-        plot_dependency_graph: bool = False,
-        plot_dependency_graph_filename: Optional[str] = None,
-    ):
         """
         Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
         executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
@@ -356,7 +326,27 @@ class SlurmJobExecutor:
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not disable_dependencies:
-            return DependencyExecutor(
+            super().__init__(
+                executor=DependencyExecutor(
+                    executor=create_slurm_executor(
+                        max_workers=max_workers,
+                        cache_directory=cache_directory,
+                        max_cores=max_cores,
+                        resource_dict=resource_dict,
+                        hostname_localhost=hostname_localhost,
+                        block_allocation=block_allocation,
+                        init_function=init_function,
+                    ),
+                    max_cores=max_cores,
+                    refresh_rate=refresh_rate,
+                    plot_dependency_graph=plot_dependency_graph,
+                    plot_dependency_graph_filename=plot_dependency_graph_filename,
+                )
+            )
+        else:
+            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
+            check_refresh_rate(refresh_rate=refresh_rate)
+            super().__init__(
                 executor=create_slurm_executor(
                     max_workers=max_workers,
                     cache_directory=cache_directory,
@@ -365,23 +355,7 @@ class SlurmJobExecutor:
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
-                ),
-                max_cores=max_cores,
-                refresh_rate=refresh_rate,
-                plot_dependency_graph=plot_dependency_graph,
-                plot_dependency_graph_filename=plot_dependency_graph_filename,
-            )
-        else:
-            check_plot_dependency_graph(plot_dependency_graph=plot_dependency_graph)
-            check_refresh_rate(refresh_rate=refresh_rate)
-            return create_slurm_executor(
-                max_workers=max_workers,
-                cache_directory=cache_directory,
-                max_cores=max_cores,
-                resource_dict=resource_dict,
-                hostname_localhost=hostname_localhost,
-                block_allocation=block_allocation,
-                init_function=init_function,
+                )
             )
 
 
