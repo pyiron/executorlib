@@ -187,6 +187,7 @@ class ExecutorInterface(FutureExecutor):
     Args:
         executor (ExecutorBase): internal executor
     """
+
     def __init__(self, executor: ExecutorBase):
         self._executor = executor
 
@@ -249,7 +250,9 @@ class ExecutorInterface(FutureExecutor):
         Returns:
             Future: A Future representing the given call.
         """
-        return self._executor.submit(fn=fn, *args, resource_dict=resource_dict, **kwargs)
+        return self._executor.submit(
+            fn=fn, *args, resource_dict=resource_dict, **kwargs
+        )
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """
