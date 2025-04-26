@@ -281,9 +281,3 @@ class ExecutorInterface(FutureExecutor):
             int: The length of the executor.
         """
         return len(self._executor)
-
-    def __del__(self):
-        """
-        Clean-up the resources associated with the Executor.
-        """
-        del self._executor
