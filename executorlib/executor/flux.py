@@ -1,4 +1,3 @@
-import contextlib
 from typing import Callable, Optional, Union
 
 from executorlib.executor.base import ExecutorBase
@@ -16,12 +15,6 @@ from executorlib.task_scheduler.interactive.blockallocation import (
 )
 from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
-
-with contextlib.suppress(ImportError):
-    from executorlib.task_scheduler.interactive.fluxspawner import (
-        FluxPythonSpawner,
-        validate_max_workers,
-    )
 
 
 class FluxJobExecutor(ExecutorBase):
@@ -440,6 +433,11 @@ def create_flux_executor(
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
     """
+    from executorlib.task_scheduler.interactive.fluxspawner import (
+        FluxPythonSpawner,
+        validate_max_workers,
+    )
+
     if resource_dict is None:
         resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
