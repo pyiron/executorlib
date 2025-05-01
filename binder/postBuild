@@ -7,6 +7,7 @@ pip install . --no-deps --no-build-isolation
 
 # copy notebooks
 mv notebooks/*.ipynb .
+mv notebooks/images .
 
 # clean up
 rm -rf .ci_support .github binder docs notebooks executorlib executorlib.egg-info tests .coveralls.yml .gitignore .readthedocs.yml LICENSE MANIFEST.in README.md pyproject.toml setup.py build

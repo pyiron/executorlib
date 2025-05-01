@@ -16,6 +16,7 @@ build:
       - pip install . --no-deps --no-build-isolation
       - "cp README.md docs"
       - "cp notebooks/*.ipynb docs"
+      - "cp -r notebooks/images docs"
       - "jupyter-book config sphinx docs/"
 
 # Build documentation in the docs/ directory with Sphinx
