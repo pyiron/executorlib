@@ -3,8 +3,8 @@ def get_setup_version_and_pattern(setup_content):
     for l in setup_content:
         if "==" in l:
             lst = (
-                l.split("[")[-1]
-                .split("]")[0]
+                l.split("= [")[-1]
+                .split("]\n")[0]
                 .replace(" ", "")
                 .replace('"', "")
                 .replace("'", "")
