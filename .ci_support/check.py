@@ -5,7 +5,7 @@ if __name__ == "__main__":
     with open("pyproject.toml", "r") as f:
         data = tomlkit.load(f)
 
-    lst = []
+    lst = list(data['build-system']['requires'])
     for sub_lst in data["project"]["optional-dependencies"].values():
         for el in sub_lst:
             lst.append(el)
