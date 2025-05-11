@@ -140,9 +140,11 @@ def interface_bootup(
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
     """
-    if hostname_localhost is None and sys.platform == "darwin":
-        hostname_localhost = True
-    elif hostname_localhost is None:
+    if (
+        hostname_localhost is None
+        and sys.platform == "darwin"
+        or hostname_localhost is None
+    ):
         hostname_localhost = True
     if not hostname_localhost:
         command_lst += [
