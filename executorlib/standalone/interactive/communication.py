@@ -143,7 +143,7 @@ def interface_bootup(
     if hostname_localhost is None and sys.platform == "darwin":
         hostname_localhost = True
     elif hostname_localhost is None:
-        hostname_localhost = False
+        hostname_localhost = True
     if not hostname_localhost:
         command_lst += [
             "--host",
