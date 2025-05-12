@@ -11,4 +11,4 @@ dependencies:
 - networkx =3.4.2
 - pygraphviz =1.14
 - ipython =9.0.2
-- setuptools =80.1.0
+- setuptools =80.4.0
