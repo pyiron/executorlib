@@ -102,7 +102,7 @@ ignore = [
 
 [tool.hatch.build]
 include = [
-    "executorlib*"
+    "executorlib"
 ]
 
 [tool.hatch.build.hooks.vcs]
@@ -110,12 +110,12 @@ version-file = "executorlib/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "executorlib*"
+    "executorlib"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "executorlib*"
+    "executorlib"
 ]
 
 [tool.hatch.version]
