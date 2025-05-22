@@ -1,6 +1,8 @@
 channels:
 - conda-forge
 dependencies:
+- hatchling
+- hatch-vcs
 - nbsphinx
 - sphinx
 - sphinx_rtd_theme

@@ -12,7 +12,6 @@ build:
   jobs:
     pre_build:
       # Generate the Sphinx configuration for this Jupyter Book so it builds.
-      - pip install versioneer[toml]==0.29
       - pip install . --no-deps --no-build-isolation
       - "cp README.md docs"
       - "cp notebooks/*.ipynb docs"
