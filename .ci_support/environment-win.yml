@@ -11,4 +11,5 @@ dependencies:
 - networkx =3.4.2
 - pygraphviz =1.14
 - ipython =9.0.2
-- setuptools =80.8.0
+- hatchling =1.27.0
+- hatch-vcs =0.4.0

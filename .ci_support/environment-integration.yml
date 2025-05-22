@@ -9,7 +9,8 @@ dependencies:
 - mpi4py
 - pyzmq =26.3.0
 - flux-core =0.59.0
-- versioneer =0.28
+- hatchling =1.27.0
+- hatch-vcs =0.4.0
 - h5py
 - matplotlib =3.10.0
 - networkx =3.4.2

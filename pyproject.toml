@@ -1,11 +1,11 @@
 [build-system]
 requires = [
+    "hatchling==1.27.0",
+    "hatch-vcs==0.4.0",
     "cloudpickle==3.1.1",
     "pyzmq==26.4.0",
-    "setuptools==80.8.0",
-    "versioneer[toml]==0.29",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
 
 [project]
 name = "executorlib"
@@ -100,15 +100,24 @@ ignore = [
     "PLR0912",
 ]
 
-[tool.setuptools.packages.find]
-include = ["executorlib*"]
+[tool.hatch.build]
+include = [
+    "executorlib"
+]
 
-[tool.setuptools.dynamic]
-version = {attr = "executorlib.__version__"}
+[tool.hatch.build.hooks.vcs]
+version-file = "executorlib/_version.py"
 
-[tool.versioneer]
-VCS = "git"
-style = "pep440-pre"
-versionfile_source = "executorlib/_version.py"
-parentdir_prefix = "executorlib"
-tag_prefix = "executorlib-"
+[tool.hatch.build.targets.sdist]
+include = [
+    "executorlib"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "executorlib"
+]
+
+[tool.hatch.version]
+source = "vcs"
+path = "executorlib/_version.py"

@@ -74,7 +74,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
@@ -95,7 +94,7 @@ jobs:
     - name: Setup
       shell: bash -l {0}
       run: |
-        pip install versioneer[toml]==0.29 tomlkit
+        pip install tomlkit
         python .ci_support/check.py
         cat pyproject.toml
         pip install . --no-deps --no-build-isolation
@@ -129,7 +128,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 10
       run: |
-        pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         python tests/benchmark/llh.py static >> timing.log
         python tests/benchmark/llh.py process >> timing.log
@@ -161,9 +159,7 @@ jobs:
           environment-file: environment.yml
       - name: Install
         shell: bash -l {0}
-        run: |
-          pip install versioneer[toml]==0.29
-          pip install . --no-deps --no-build-isolation
+        run: pip install . --no-deps --no-build-isolation
       - name: Notebooks
         shell: bash -l {0}
         timeout-minutes: 5
@@ -190,9 +186,7 @@ jobs:
           environment-file: .ci_support/environment-integration.yml
       - name: Install
         shell: bash -l {0}
-        run: |
-          pip install versioneer[toml]==0.29
-          pip install . --no-deps --no-build-isolation
+        run: pip install . --no-deps --no-build-isolation
       - name: Notebooks
         shell: bash -l {0}
         timeout-minutes: 20
@@ -209,7 +203,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        echo -e '- coverage\n- flux-core =0.59.0\n- versioneer =0.28'>> .ci_support/environment-mpich.yml
+        echo -e '- coverage\n- flux-core =0.59.0'>> .ci_support/environment-mpich.yml
         cat .ci_support/environment-mpich.yml
         echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
@@ -240,7 +234,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        echo -e '- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0\n- versioneer =0.28' >> .ci_support/environment-openmpi.yml
+        echo -e '- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0' >> .ci_support/environment-openmpi.yml
         cat .ci_support/environment-openmpi.yml
         echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
@@ -303,7 +297,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
@@ -341,7 +334,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
@@ -364,7 +356,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
@@ -386,7 +377,6 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        pip install versioneer[toml]==0.29
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
