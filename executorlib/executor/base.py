@@ -11,7 +11,7 @@ from typing import Callable, Optional
 from executorlib.task_scheduler.base import TaskSchedulerBase
 
 
-class ExecutorBase(FutureExecutor, ABC):
+class BaseExecutor(FutureExecutor, ABC):
     """
     Interface class for the executor.
 
