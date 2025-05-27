@@ -19,11 +19,11 @@ from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskSchedu
 
 class SingleNodeExecutor(BaseExecutor):
     """
-    The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
-    preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
-    the mpi4py.futures.MPIPoolExecutor the executorlib.Executor can be executed in a serial python process and does not
-    require the python script to be executed with MPI. It is even possible to execute the executorlib.Executor directly
-    in an interactive Jupyter notebook.
+    The executorlib.SingleNodeExecutor leverages either the message passing interface (MPI), the SLURM workload manager
+    or preferable the flux framework for distributing python functions within a given resource allocation. In contrast
+    to the mpi4py.futures.MPIPoolExecutor the executorlib.SingleNodeExecutor can be executed in a serial python process
+    and does not require the python script to be executed with MPI. It is even possible to execute the
+    executorlib.SingleNodeExecutor directly in an interactive Jupyter notebook.
 
     Args:
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
@@ -60,7 +60,7 @@ class SingleNodeExecutor(BaseExecutor):
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.executor.single import SingleNodeExecutor
+        >>> from executorlib import SingleNodeExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -93,12 +93,11 @@ class SingleNodeExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
     ):
         """
-        Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
-        executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
-        executorlib.flux.PyFluxExecutor is the preferred choice while the executorlib.mpi.PyMPIExecutor is primarily used
-        for development and testing. The executorlib.flux.PyFluxExecutor requires flux-core from the flux-framework to be
-        installed and in addition flux-sched to enable GPU scheduling. Finally, the executorlib.slurm.PySlurmExecutor
-        requires the SLURM workload manager to be installed on the system.
+        The executorlib.SingleNodeExecutor leverages either the message passing interface (MPI), the SLURM workload
+        manager or preferable the flux framework for distributing python functions within a given resource allocation.
+        In contrast to the mpi4py.futures.MPIPoolExecutor the executorlib.SingleNodeExecutor can be executed in a serial
+        python process and does not require the python script to be executed with MPI. It is even possible to execute
+        the executorlib.SingleNodeExecutor directly in an interactive Jupyter notebook.
 
         Args:
             max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
