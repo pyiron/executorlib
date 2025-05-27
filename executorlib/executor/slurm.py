@@ -1,6 +1,6 @@
 from typing import Callable, Optional, Union
 
-from executorlib.executor.base import ExecutorBase
+from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
     check_init_function,
     check_plot_dependency_graph,
@@ -18,7 +18,7 @@ from executorlib.task_scheduler.interactive.slurmspawner import (
 )
 
 
-class SlurmClusterExecutor(ExecutorBase):
+class SlurmClusterExecutor(BaseExecutor):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -194,7 +194,7 @@ class SlurmClusterExecutor(ExecutorBase):
             )
 
 
-class SlurmJobExecutor(ExecutorBase):
+class SlurmJobExecutor(BaseExecutor):
     """
     The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to

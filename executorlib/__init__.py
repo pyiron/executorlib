@@ -1,3 +1,4 @@
+from executorlib.executor.base import BaseExecutor
 from executorlib.executor.flux import (
     FluxClusterExecutor,
     FluxJobExecutor,
@@ -13,6 +14,7 @@ from . import _version
 
 __all__: list[str] = [
     "get_cache_data",
+    "BaseExecutor",
     "FluxJobExecutor",
     "FluxClusterExecutor",
     "SingleNodeExecutor",
