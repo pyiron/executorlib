@@ -20,11 +20,11 @@ from executorlib.task_scheduler.interactive.slurmspawner import (
 
 class SlurmClusterExecutor(BaseExecutor):
     """
-    The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
-    preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
-    the mpi4py.futures.MPIPoolExecutor the executorlib.Executor can be executed in a serial python process and does not
-    require the python script to be executed with MPI. It is even possible to execute the executorlib.Executor directly
-    in an interactive Jupyter notebook.
+    The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
+    manager or preferable the flux framework for distributing python functions within a given resource allocation. In
+    contrast to the mpi4py.futures.MPIPoolExecutor the executorlib.SlurmClusterExecutor can be executed in a serial
+    python process and does not require the python script to be executed with MPI. It is even possible to execute the
+    executorlib.SlurmClusterExecutor directly in an interactive Jupyter notebook.
 
     Args:
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
@@ -62,7 +62,7 @@ class SlurmClusterExecutor(BaseExecutor):
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.executor.slurm import SlurmClusterExecutor
+        >>> from executorlib import SlurmClusterExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -96,12 +96,11 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
     ):
         """
-        Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
-        executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
-        executorlib.flux.PyFluxExecutor is the preferred choice while the executorlib.mpi.PyMPIExecutor is primarily used
-        for development and testing. The executorlib.flux.PyFluxExecutor requires flux-core from the flux-framework to be
-        installed and in addition flux-sched to enable GPU scheduling. Finally, the executorlib.slurm.PySlurmExecutor
-        requires the SLURM workload manager to be installed on the system.
+        The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
+        manager or preferable the flux framework for distributing python functions within a given resource allocation.
+        In contrast to the mpi4py.futures.MPIPoolExecutor the executorlib.SlurmClusterExecutor can be executed in a
+        serial python process and does not require the python script to be executed with MPI. It is even possible to
+        execute the executorlib.SlurmClusterExecutor directly in an interactive Jupyter notebook.
 
         Args:
             max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
@@ -196,11 +195,11 @@ class SlurmClusterExecutor(BaseExecutor):
 
 class SlurmJobExecutor(BaseExecutor):
     """
-    The executorlib.Executor leverages either the message passing interface (MPI), the SLURM workload manager or
+    The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
-    the mpi4py.futures.MPIPoolExecutor the executorlib.Executor can be executed in a serial python process and does not
-    require the python script to be executed with MPI. It is even possible to execute the executorlib.Executor directly
-    in an interactive Jupyter notebook.
+    the mpi4py.futures.MPIPoolExecutor the executorlib.SlurmJobExecutor can be executed in a serial python process and
+    does not require the python script to be executed with MPI. It is even possible to execute the
+    executorlib.SlurmJobExecutor directly in an interactive Jupyter notebook.
 
     Args:
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
@@ -241,7 +240,7 @@ class SlurmJobExecutor(BaseExecutor):
     Examples:
         ```
         >>> import numpy as np
-        >>> from executorlib.executor.slurm import SlurmJobExecutor
+        >>> from executorlib import SlurmJobExecutor
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
@@ -274,12 +273,11 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
     ):
         """
-        Instead of returning a executorlib.Executor object this function returns either a executorlib.mpi.PyMPIExecutor,
-        executorlib.slurm.PySlurmExecutor or executorlib.flux.PyFluxExecutor depending on which backend is available. The
-        executorlib.flux.PyFluxExecutor is the preferred choice while the executorlib.mpi.PyMPIExecutor is primarily used
-        for development and testing. The executorlib.flux.PyFluxExecutor requires flux-core from the flux-framework to be
-        installed and in addition flux-sched to enable GPU scheduling. Finally, the executorlib.slurm.PySlurmExecutor
-        requires the SLURM workload manager to be installed on the system.
+        The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
+        manager or preferable the flux framework for distributing python functions within a given resource allocation.
+        In contrast to the mpi4py.futures.MPIPoolExecutor the executorlib.SlurmJobExecutor can be executed in a serial
+        python process and does not require the python script to be executed with MPI. It is even possible to execute
+        the executorlib.SlurmJobExecutor directly in an interactive Jupyter notebook.
 
         Args:
             max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
