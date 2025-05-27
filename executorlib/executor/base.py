@@ -103,6 +103,24 @@ class BaseExecutor(FutureExecutor, ABC):
         """
         self._task_scheduler.shutdown(wait=wait, cancel_futures=cancel_futures)
 
+    def __len__(self) -> int:
+        """
+        Get the length of the executor.
+
+        Returns:
+            int: The length of the executor.
+        """
+        return len(self._task_scheduler)
+
+    def __bool__(self):
+        """
+        Overwrite length to always return True
+
+        Returns:
+            bool: Always return True
+        """
+        return True
+
     def __exit__(self, *args, **kwargs) -> None:
         """
         Exit method called when exiting the context manager.

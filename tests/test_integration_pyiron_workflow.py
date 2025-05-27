@@ -76,6 +76,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         dynamic_dynamic = slowly_returns_dynamic()
         executor = SingleNodeExecutor(block_allocation=True, max_workers=1)
+        self.assertTrue(executor)
         cloudpickle_register(ind=1)
         dynamic_object = does_nothing()
         fs = executor.submit(dynamic_dynamic.run, dynamic_object)
@@ -106,6 +107,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             dynamic_42.result, msg="Just a sanity check that the test is set up right"
         )
         executor = SingleNodeExecutor(block_allocation=True, max_workers=1)
+        self.assertTrue(executor)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
@@ -137,6 +139,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
             msg="Sanity check that the test starts in the expected condition",
         )
         executor = SingleNodeExecutor(block_allocation=True, max_workers=1)
+        self.assertTrue(executor)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_42.run)
         fs.add_done_callback(dynamic_42.process_result)
@@ -161,6 +164,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         re = raise_error()
         executor = SingleNodeExecutor(block_allocation=True, max_workers=1)
+        self.assertTrue(executor)
         cloudpickle_register(ind=1)
         fs = executor.submit(re.run)
         with self.assertRaises(
@@ -191,6 +195,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         dynamic_dynamic = slowly_returns_dynamic()
         executor = SingleNodeExecutor(block_allocation=True, max_workers=1)
+        self.assertTrue(executor)
         cloudpickle_register(ind=1)
         fs = executor.submit(dynamic_dynamic.run)
         self.assertIsInstance(
@@ -220,6 +225,7 @@ class TestDynamicallyDefinedObjects(unittest.TestCase):
 
         f = slow()
         executor = SingleNodeExecutor(block_allocation=True, max_workers=1)
+        self.assertTrue(executor)
         cloudpickle_register(ind=1)
         fs = executor.submit(f.run)
         self.assertEqual(
