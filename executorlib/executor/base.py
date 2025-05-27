@@ -1,4 +1,5 @@
 import queue
+from abc import ABC
 from concurrent.futures import (
     Executor as FutureExecutor,
 )
@@ -10,7 +11,7 @@ from typing import Callable, Optional
 from executorlib.task_scheduler.base import TaskSchedulerBase
 
 
-class ExecutorBase(FutureExecutor):
+class ExecutorBase(FutureExecutor, ABC):
     """
     Interface class for the executor.
 
