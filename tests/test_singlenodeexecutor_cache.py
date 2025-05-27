@@ -24,6 +24,7 @@ class TestCacheFunctions(unittest.TestCase):
     def test_cache_data(self):
         cache_directory = "./cache"
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
+            self.assertTrue(exe)
             future_lst = [exe.submit(sum, [i, i]) for i in range(1, 4)]
             result_lst = [f.result() for f in future_lst]
 
@@ -36,6 +37,7 @@ class TestCacheFunctions(unittest.TestCase):
     def test_cache_error(self):
         cache_directory = "./cache_error"
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
+            self.assertTrue(exe)
             cloudpickle_register(ind=1)
             f = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
