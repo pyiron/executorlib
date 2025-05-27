@@ -1,6 +1,6 @@
 from typing import Callable, Optional, Union
 
-from executorlib.executor.base import ExecutorBase
+from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_init_function,
@@ -17,7 +17,7 @@ from executorlib.task_scheduler.interactive.dependency import DependencyTaskSche
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
 
-class FluxJobExecutor(ExecutorBase):
+class FluxJobExecutor(BaseExecutor):
     """
     The executorlib.FluxJobExecutor leverages either the message passing interface (MPI), the SLURM workload manager or
     preferable the flux framework for distributing python functions within a given resource allocation. In contrast to
@@ -201,7 +201,7 @@ class FluxJobExecutor(ExecutorBase):
             )
 
 
-class FluxClusterExecutor(ExecutorBase):
+class FluxClusterExecutor(BaseExecutor):
     """
     The executorlib.FluxClusterExecutor leverages either the message passing interface (MPI), the SLURM workload manager
     or preferable the flux framework for distributing python functions within a given resource allocation. In contrast
