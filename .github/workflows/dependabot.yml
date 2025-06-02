@@ -27,6 +27,7 @@ jobs:
           sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-win.yml
           sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-docs.yml
           sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-mini.yml
+          sed -i "/${package}/s/${from}/${to}/g" .ci_support/environment-integration.yml
           sed -i "/${package}/s/${from}/${to}/g" binder/environment.yml
       - name: UpdateDependabotPR commit
         run: |
