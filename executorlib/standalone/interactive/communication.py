@@ -13,10 +13,10 @@ class SocketInterface:
 
     Args:
         spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
-        log_size_of_communicated_objects (boolean): Enable debug mode which reports the size of the communicated objects.
+        log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
     """
 
-    def __init__(self, spawner=None, log_size_of_communicated_objects=False):
+    def __init__(self, spawner=None, log_obj_size=False):
         """
         Initialize the SocketInterface.
 
@@ -26,7 +26,7 @@ class SocketInterface:
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
-        if log_size_of_communicated_objects:
+        if log_obj_size:
             self._logger = logging.getLogger("executorlib")
         else:
             self._logger = None
@@ -133,7 +133,7 @@ def interface_bootup(
     command_lst: list[str],
     connections,
     hostname_localhost: Optional[bool] = None,
-    log_size_of_communicated_objects: bool = False,
+    log_obj_size: bool = False,
 ) -> SocketInterface:
     """
     Start interface for ZMQ communication
@@ -149,7 +149,7 @@ def interface_bootup(
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-        log_size_of_communicated_objects (boolean): Enable debug mode which reports the size of the communicated objects.
+        log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
 
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
@@ -165,7 +165,7 @@ def interface_bootup(
         ]
     interface = SocketInterface(
         spawner=connections,
-        log_size_of_communicated_objects=log_size_of_communicated_objects,
+        log_obj_size=log_obj_size,
     )
     command_lst += [
         "--zmqport",

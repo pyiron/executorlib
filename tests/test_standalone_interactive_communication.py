@@ -61,7 +61,7 @@ class TestInterface(unittest.TestCase):
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
             spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
-            log_size_of_communicated_objects=False,
+            log_obj_size=False,
         )
         interface.bootup(
             command_lst=[
@@ -90,7 +90,7 @@ class TestInterface(unittest.TestCase):
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
             spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
-            log_size_of_communicated_objects=True,
+            log_obj_size=True,
         )
         interface.bootup(
             command_lst=[

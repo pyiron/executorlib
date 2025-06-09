@@ -23,7 +23,7 @@ def execute_tasks(
     init_function: Optional[Callable] = None,
     cache_directory: Optional[str] = None,
     queue_join_on_shutdown: bool = True,
-    log_size_of_communicated_objects: bool = False,
+    log_obj_size: bool = False,
     **kwargs,
 ) -> None:
     """
@@ -43,7 +43,7 @@ def execute_tasks(
        init_function (Callable): optional function to preset arguments for functions which are submitted later
        cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
-       log_size_of_communicated_objects (bool): Enable debug mode which reports the size of the communicated objects.
+       log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
@@ -51,7 +51,7 @@ def execute_tasks(
         ),
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
-        log_size_of_communicated_objects=log_size_of_communicated_objects,
+        log_obj_size=log_obj_size,
     )
     if init_function is not None:
         interface.send_dict(
