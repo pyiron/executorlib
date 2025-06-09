@@ -1,3 +1,4 @@
+import logging
 import sys
 from socket import gethostname
 from typing import Optional
@@ -24,6 +25,7 @@ class SocketInterface:
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
+        self._logger = logging.getLogger("executorlib")
         self._spawner = spawner
 
     def send_dict(self, input_dict: dict):
@@ -34,7 +36,9 @@ class SocketInterface:
             input_dict (dict): dictionary of commands to be communicated. The key "shutdown" is reserved to stop the
                 connected client from listening.
         """
-        self._socket.send(cloudpickle.dumps(input_dict))
+        data = cloudpickle.dumps(input_dict)
+        self._logger.warning("Size of data: " + str(sys.getsizeof(data)))
+        self._socket.send(data)
 
     def receive_dict(self) -> dict:
         """
