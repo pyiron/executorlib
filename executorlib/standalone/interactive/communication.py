@@ -54,7 +54,9 @@ class SocketInterface:
         """
         data = self._socket.recv()
         if self._logger is not None:
-            self._logger.warning("Received dictionary of size: " + str(sys.getsizeof(data)))
+            self._logger.warning(
+                "Received dictionary of size: " + str(sys.getsizeof(data))
+            )
         output = cloudpickle.loads(data)
         if "result" in output:
             return output["result"]
