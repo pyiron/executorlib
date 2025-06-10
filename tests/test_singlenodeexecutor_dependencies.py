@@ -341,6 +341,7 @@ class TestInfo(unittest.TestCase):
             'openmpi_oversubscribe': False,
             'cache_directory': None,
             'hostname_localhost': None,
+            'log_obj_size': False,
             'spawner': MpiExecSpawner,
             'max_cores': None,
             'max_workers': None,
