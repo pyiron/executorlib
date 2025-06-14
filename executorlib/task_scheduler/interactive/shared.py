@@ -41,7 +41,7 @@ def execute_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (Callable): optional function to preset arguments for functions which are submitted later
-       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
+       cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
     """

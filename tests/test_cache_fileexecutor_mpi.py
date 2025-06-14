@@ -40,5 +40,5 @@ class TestCacheExecutorMPI(unittest.TestCase):
             self.assertTrue(fs1.done())
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        if os.path.exists("executorlib_cache"):
+            shutil.rmtree("executorlib_cache")

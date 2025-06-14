@@ -22,7 +22,7 @@ def get_error(a):
 )
 class TestCacheFunctions(unittest.TestCase):
     def test_cache_data(self):
-        cache_directory = "./cache"
+        cache_directory = os.path.abspath("executorlib_cache")
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             self.assertTrue(exe)
             future_lst = [exe.submit(sum, [i, i]) for i in range(1, 4)]
@@ -35,7 +35,7 @@ class TestCacheFunctions(unittest.TestCase):
         )
 
     def test_cache_error(self):
-        cache_directory = "./cache_error"
+        cache_directory = os.path.abspath("cache_error")
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             self.assertTrue(exe)
             cloudpickle_register(ind=1)
@@ -44,7 +44,7 @@ class TestCacheFunctions(unittest.TestCase):
                 print(f.result())
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        if os.path.exists("executorlib_cache"):
+            shutil.rmtree("executorlib_cache")
         if os.path.exists("cache_error"):
             shutil.rmtree("cache_error")
