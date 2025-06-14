@@ -1,3 +1,4 @@
+import logging
 import sys
 from socket import gethostname
 from typing import Optional
@@ -12,9 +13,10 @@ class SocketInterface:
 
     Args:
         spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
+        log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
     """
 
-    def __init__(self, spawner=None):
+    def __init__(self, spawner=None, log_obj_size=False):
         """
         Initialize the SocketInterface.
 
@@ -24,6 +26,10 @@ class SocketInterface:
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._process = None
+        if log_obj_size:
+            self._logger = logging.getLogger("executorlib")
+        else:
+            self._logger = None
         self._spawner = spawner
 
     def send_dict(self, input_dict: dict):
@@ -34,7 +40,10 @@ class SocketInterface:
             input_dict (dict): dictionary of commands to be communicated. The key "shutdown" is reserved to stop the
                 connected client from listening.
         """
-        self._socket.send(cloudpickle.dumps(input_dict))
+        data = cloudpickle.dumps(input_dict)
+        if self._logger is not None:
+            self._logger.warning("Send dictionary of size: " + str(sys.getsizeof(data)))
+        self._socket.send(data)
 
     def receive_dict(self) -> dict:
         """
@@ -43,7 +52,12 @@ class SocketInterface:
         Returns:
             dict: dictionary with response received from the connected client
         """
-        output = cloudpickle.loads(self._socket.recv())
+        data = self._socket.recv()
+        if self._logger is not None:
+            self._logger.warning(
+                "Received dictionary of size: " + str(sys.getsizeof(data))
+            )
+        output = cloudpickle.loads(data)
         if "result" in output:
             return output["result"]
         else:
@@ -121,6 +135,7 @@ def interface_bootup(
     command_lst: list[str],
     connections,
     hostname_localhost: Optional[bool] = None,
+    log_obj_size: bool = False,
 ) -> SocketInterface:
     """
     Start interface for ZMQ communication
@@ -136,6 +151,7 @@ def interface_bootup(
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
+        log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
 
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
@@ -149,7 +165,10 @@ def interface_bootup(
             "--host",
             gethostname(),
         ]
-    interface = SocketInterface(spawner=connections)
+    interface = SocketInterface(
+        spawner=connections,
+        log_obj_size=log_obj_size,
+    )
     command_lst += [
         "--zmqport",
         str(interface.bind_to_random_port()),

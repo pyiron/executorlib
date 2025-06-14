@@ -56,11 +56,41 @@ class TestInterface(unittest.TestCase):
         )
         interface.shutdown(wait=True)
 
-    def test_interface_serial(self):
+    def test_interface_serial_without_debug(self):
         cloudpickle_register(ind=1)
         task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
         interface = SocketInterface(
-            spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False)
+            spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
+            log_obj_size=False,
+        )
+        interface.bootup(
+            command_lst=[
+                sys.executable,
+                os.path.abspath(
+                    os.path.join(
+                        __file__,
+                        "..",
+                        "..",
+                        "executorlib",
+                        "backend",
+                        "interactive_serial.py",
+                    )
+                ),
+                "--zmqport",
+                str(interface.bind_to_random_port()),
+            ]
+        )
+        self.assertEqual(
+            interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
+        )
+        interface.shutdown(wait=True)
+
+    def test_interface_serial_with_debug(self):
+        cloudpickle_register(ind=1)
+        task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
+        interface = SocketInterface(
+            spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
+            log_obj_size=True,
         )
         interface.bootup(
             command_lst=[
