@@ -24,6 +24,7 @@ def execute_tasks(
     cache_directory: Optional[str] = None,
     cache_key: Optional[str] = None,
     queue_join_on_shutdown: bool = True,
+    log_obj_size: bool = False,
     **kwargs,
 ) -> None:
     """
@@ -45,6 +46,7 @@ def execute_tasks(
        cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                   overwritten by setting the cache_key.
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
+       log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
@@ -52,6 +54,7 @@ def execute_tasks(
         ),
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
+        log_obj_size=log_obj_size,
     )
     if init_function is not None:
         interface.send_dict(

@@ -151,6 +151,8 @@ class SlurmClusterExecutor(BaseExecutor):
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not plot_dependency_graph:
+            import pysqa  # noqa
+
             from executorlib.task_scheduler.file.task_scheduler import (
                 create_file_executor,
             )
@@ -236,6 +238,7 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
     Examples:
         ```
@@ -271,6 +274,7 @@ class SlurmJobExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        log_obj_size: bool = False,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -315,6 +319,7 @@ class SlurmJobExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
         """
         default_resource_dict: dict = {
@@ -341,6 +346,7 @@ class SlurmJobExecutor(BaseExecutor):
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
+                        log_obj_size=log_obj_size,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -360,6 +366,7 @@ class SlurmJobExecutor(BaseExecutor):
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
+                    log_obj_size=log_obj_size,
                 )
             )
 
@@ -372,6 +379,7 @@ def create_slurm_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
+    log_obj_size: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -407,6 +415,7 @@ def create_slurm_executor(
                                     resources have to be defined on the executor, rather than during the submission
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -416,6 +425,7 @@ def create_slurm_executor(
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
+    resource_dict["log_obj_size"] = log_obj_size
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     if block_allocation:
         resource_dict["init_function"] = init_function

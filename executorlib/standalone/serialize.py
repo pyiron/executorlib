@@ -73,7 +73,6 @@ def serialize_funct_h5(
                 "fn": fn,
                 "args": fn_args,
                 "kwargs": fn_kwargs,
-                "resource_dict": resource_dict,
             }
         )
         task_key = fn.__name__ + _get_hash(binary=binary_all)

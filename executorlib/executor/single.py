@@ -91,6 +91,7 @@ class SingleNodeExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        log_obj_size: bool = False,
     ):
         """
         The executorlib.SingleNodeExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -131,6 +132,7 @@ class SingleNodeExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
         """
         default_resource_dict: dict = {
@@ -157,6 +159,7 @@ class SingleNodeExecutor(BaseExecutor):
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
+                        log_obj_size=log_obj_size,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -176,6 +179,7 @@ class SingleNodeExecutor(BaseExecutor):
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
+                    log_obj_size=log_obj_size,
                 )
             )
 
@@ -188,6 +192,7 @@ def create_single_node_executor(
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
+    log_obj_size: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a single node executor
@@ -219,6 +224,7 @@ def create_single_node_executor(
                                     resources have to be defined on the executor, rather than during the submission
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -228,6 +234,7 @@ def create_single_node_executor(
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
+    resource_dict["log_obj_size"] = log_obj_size
 
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_gpus_per_worker(gpus_per_worker=resource_dict.get("gpus_per_core", 0))
