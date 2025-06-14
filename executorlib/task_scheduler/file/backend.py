@@ -42,19 +42,19 @@ def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
         None
 
     """
-    file_name_out = os.path.splitext(file_name)[0]
-    os.rename(file_name, file_name_out + ".h5ready")
+    file_name_out = os.path.splitext(file_name)[0][:-2]
+    os.rename(file_name, file_name_out + "_r.h5")
     if "result" in output:
         dump(
-            file_name=file_name_out + ".h5ready",
+            file_name=file_name_out + "_r.h5",
             data_dict={"output": output["result"], "runtime": runtime},
         )
     else:
         dump(
-            file_name=file_name_out + ".h5ready",
+            file_name=file_name_out + "_r.h5",
             data_dict={"error": output["error"], "runtime": runtime},
         )
-    os.rename(file_name_out + ".h5ready", file_name_out + ".h5out")
+    os.rename(file_name_out + "_r.h5", file_name_out + "_o.h5")
 
 
 def backend_execute_task_in_file(file_name: str) -> None:

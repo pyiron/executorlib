@@ -412,11 +412,11 @@ jobs:
         python-version: "3.13"
         miniforge-version: latest
         condarc-file: .condarc
-        environment-file: .ci_support/environment-uml.yml
-    - name: Test
+    - name: Generate UML diagram
       shell: bash -l {0}
       timeout-minutes: 10
       run: |
+        conda install -y pylint graphviz
         pyreverse -o png -p ./${{ github.event.repository.name }} ./${{ github.event.repository.name }}
         zip -m uml.zip *.png
     - uses: actions/upload-artifact@v4

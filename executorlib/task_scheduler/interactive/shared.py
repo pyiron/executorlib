@@ -42,7 +42,7 @@ def execute_tasks(
                                      this look up for security reasons. So on MacOS it is required to set this
                                      option to true
        init_function (Callable): optional function to preset arguments for functions which are submitted later
-       cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
+       cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
        cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                   overwritten by setting the cache_key.
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
@@ -159,12 +159,9 @@ def _execute_task_with_cache(
         resource_dict=task_dict.get("resource_dict", {}),
         cache_key=cache_key,
     )
-    os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-    file_name = os.path.join(cache_directory, task_key, "cache.h5out")
-    if not (
-        task_key in os.listdir(cache_directory)
-        and "cache.h5out" in os.listdir(os.path.join(cache_directory, task_key))
-    ):
+    os.makedirs(cache_directory, exist_ok=True)
+    file_name = os.path.join(cache_directory, task_key + "_o.h5")
+    if task_key + "_o.h5" not in os.listdir(cache_directory):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():
             try:

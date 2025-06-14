@@ -100,7 +100,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "resource_dict": {},
             }
         )
-        cache_dir = os.path.abspath("cache")
+        cache_dir = os.path.abspath("executorlib_cache")
         os.makedirs(cache_dir, exist_ok=True)
         process = Thread(
             target=execute_tasks_h5,
@@ -141,7 +141,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "resource_dict": {},
             }
         )
-        cache_dir = os.path.abspath("cache")
+        cache_dir = os.path.abspath("executorlib_cache")
         os.makedirs(cache_dir, exist_ok=True)
         process = Thread(
             target=execute_tasks_h5,
@@ -182,7 +182,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "resource_dict": {},
             }
         )
-        cache_dir = os.path.abspath("cache")
+        cache_dir = os.path.abspath("executorlib_cache")
         os.makedirs(cache_dir, exist_ok=True)
         process = Thread(
             target=execute_tasks_h5,
@@ -210,5 +210,4 @@ class TestCacheExecutorSerial(unittest.TestCase):
             execute_in_subprocess(file_name=__file__, command=[], backend="flux")
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)

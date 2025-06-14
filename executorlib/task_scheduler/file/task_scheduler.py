@@ -27,7 +27,7 @@ except ImportError:
 class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
-        cache_directory: str = "cache",
+        cache_directory: str = "executorlib_cache",
         resource_dict: Optional[dict] = None,
         execute_function: Callable = execute_with_pysqa,
         terminate_function: Optional[Callable] = None,
@@ -39,7 +39,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         Initialize the FileExecutor.
 
         Args:
-            cache_directory (str, optional): The directory to store cache files. Defaults to "cache".
+            cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed

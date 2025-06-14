@@ -111,13 +111,9 @@ def execute_tasks_h5(
                 cache_key=cache_key,
             )
             if task_key not in memory_dict:
-                if not (
-                    task_key in os.listdir(cache_directory)
-                    and "cache.h5out"
-                    in os.listdir(os.path.join(cache_directory, task_key))
-                ):
-                    os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-                    file_name = os.path.join(cache_directory, task_key, "cache.h5in")
+                if task_key + "_o.h5" not in os.listdir(cache_directory):
+                    os.makedirs(cache_directory, exist_ok=True)
+                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
@@ -141,10 +137,10 @@ def execute_tasks_h5(
                         resource_dict=task_resource_dict,
                         config_directory=pysqa_config_directory,
                         backend=backend,
-                        cache_directory=os.path.join(cache_directory, task_key),
+                        cache_directory=cache_directory,
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key, "cache.h5out"
+                    cache_directory, task_key + "_o.h5"
                 )
                 memory_dict[task_key] = task_dict["future"]
             future_queue.task_done()
@@ -200,7 +196,7 @@ def _check_task_output(
         Future: The updated future object.
 
     """
-    file_name = os.path.join(cache_directory, task_key, "cache.h5out")
+    file_name = os.path.join(cache_directory, task_key + "_o.h5")
     if not os.path.exists(file_name):
         return future_obj
     exec_flag, no_error_flag, result = get_output(file_name=file_name)
