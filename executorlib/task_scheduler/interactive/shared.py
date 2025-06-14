@@ -151,12 +151,9 @@ def _execute_task_with_cache(
         fn_kwargs=task_dict["kwargs"],
         resource_dict=task_dict.get("resource_dict", {}),
     )
-    os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-    file_name = os.path.join(cache_directory, task_key, "cache.h5out")
-    if not (
-        task_key in os.listdir(cache_directory)
-        and "cache.h5out" in os.listdir(os.path.join(cache_directory, task_key))
-    ):
+    os.makedirs(cache_directory, exist_ok=True)
+    file_name = os.path.join(cache_directory, task_key + "_o.h5")
+    if task_key + "_o.h5" not in os.listdir(cache_directory):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():
             try:
