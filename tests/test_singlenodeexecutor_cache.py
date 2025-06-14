@@ -35,10 +35,10 @@ class TestCacheFunctions(unittest.TestCase):
         )
 
     def test_cache_key(self):
-        cache_directory = "./cache"
+        cache_directory = os.path.abspath("executorlib_cache")
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             self.assertTrue(exe)
-            future_lst = [exe.submit(sum, [i, i], resource_dict={"cache_key": "same_" + str(i)}) for i in range(1, 4)]
+            future_lst = [exe.submit(sum, [i, i], resource_dict={"cache_key": "same/j" + str(i)}) for i in range(1, 4)]
             result_lst = [f.result() for f in future_lst]
 
         cache_lst = get_cache_data(cache_directory=cache_directory)

@@ -44,7 +44,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
 
     def test_executor_mixed_cache_key(self):
         with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
-            fs1 = exe.submit(my_funct, 1, b=2, resource_dict={"cache_key": "abc"})
+            fs1 = exe.submit(my_funct, 1, b=2, resource_dict={"cache_key": "a/b/c"})
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
