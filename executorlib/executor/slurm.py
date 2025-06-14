@@ -154,6 +154,7 @@ class SlurmClusterExecutor(BaseExecutor):
             from executorlib.task_scheduler.file.task_scheduler import (
                 create_file_executor,
             )
+            import pysqa
 
             super().__init__(
                 executor=create_file_executor(
