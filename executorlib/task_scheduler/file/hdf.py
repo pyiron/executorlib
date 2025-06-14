@@ -1,3 +1,4 @@
+import os
 from typing import Any, Optional
 
 import cloudpickle
@@ -16,6 +17,7 @@ def dump(file_name: Optional[str], data_dict: dict) -> None:
         data_dict (dict): dictionary containing the python function to be executed {"fn": ..., "args": (), "kwargs": {}}
     """
     if file_name is not None:
+        os.makedirs(os.path.join(*file_name.split(os.sep)[:-1]), exist_ok=True)
         with h5py.File(file_name, "a") as fname:
             for data_key, data_value in data_dict.items():
                 if data_key in group_dict:

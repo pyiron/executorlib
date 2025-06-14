@@ -6,6 +6,7 @@ import sys
 import time
 from typing import Callable, Optional
 
+from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
@@ -161,7 +162,7 @@ def _execute_task_with_cache(
     )
     os.makedirs(cache_directory, exist_ok=True)
     file_name = os.path.join(cache_directory, task_key + "_o.h5")
-    if task_key + "_o.h5" not in os.listdir(cache_directory):
+    if task_key + "_o.h5" not in get_cache_files(cache_directory=cache_directory):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():
             try:
