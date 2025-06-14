@@ -72,6 +72,7 @@ def execute_tasks_h5(
         terminate_function (Callable): The function to terminate the tasks.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         backend (str, optional): name of the backend used to spawn tasks.
+        disable_dependencies (boolean): Disable resolving future objects during the submission.
 
     Returns:
         None
@@ -101,11 +102,13 @@ def execute_tasks_h5(
             task_resource_dict.update(
                 {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
             )
+            cache_key = task_resource_dict.pop("cache_key", None)
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
                 fn_kwargs=task_kwargs,
                 resource_dict=task_resource_dict,
+                cache_key=cache_key,
             )
             if task_key not in memory_dict:
                 if not (

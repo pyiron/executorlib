@@ -33,6 +33,7 @@ def serialize_funct_h5(
     fn_args: Optional[list] = None,
     fn_kwargs: Optional[dict] = None,
     resource_dict: Optional[dict] = None,
+    cache_key: Optional[str] = None,
 ) -> tuple[str, dict]:
     """
     Serialize a function and its arguments and keyword arguments into an HDF5 file.
@@ -51,6 +52,8 @@ def serialize_funct_h5(
                                   executor: None,
                                   hostname_localhost: False,
                               }
+        cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
+                                   overwritten by setting the cache_key.
 
     Returns:
         Tuple[str, dict]: A tuple containing the task key and the serialized data.
@@ -62,16 +65,11 @@ def serialize_funct_h5(
         fn_kwargs = {}
     if resource_dict is None:
         resource_dict = {}
-    if "cache_key" in resource_dict:
-        task_key = resource_dict["cache_key"]
+    if cache_key is not None:
+        task_key = cache_key
     else:
         binary_all = cloudpickle.dumps(
-            {
-                "fn": fn,
-                "args": fn_args,
-                "kwargs": fn_kwargs,
-                "resource_dict": resource_dict,
-            }
+            {"fn": fn, "args": fn_args, "kwargs": fn_kwargs, "resource_dict": resource_dict}
         )
         task_key = fn.__name__ + _get_hash(binary=binary_all)
     data = {
