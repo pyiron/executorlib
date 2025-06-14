@@ -25,7 +25,9 @@ def get_cache_files(cache_directory: str) -> list[str]:
     """
     file_lst = []
     for dirpath, _, filenames in os.walk(cache_directory):
-        file_lst += [os.path.join(dirpath, f)[2:] for f in filenames if f.endswith("_o.h5")]
+        file_lst += [
+            os.path.join(dirpath, f)[2:] for f in filenames if f.endswith("_o.h5")
+        ]
     return file_lst
 
 
