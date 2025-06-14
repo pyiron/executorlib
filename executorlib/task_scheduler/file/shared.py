@@ -137,7 +137,7 @@ def execute_tasks_h5(
                         cache_directory=os.path.join(cache_directory, task_key),
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key, "_o.h5"
+                    cache_directory, task_key + "_o.h5"
                 )
                 memory_dict[task_key] = task_dict["future"]
             future_queue.task_done()
