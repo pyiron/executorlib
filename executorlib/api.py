@@ -1,5 +1,5 @@
 """
-External application programming interface (API) following the semantic versioning this inteface is promised to remain
+External application programming interface (API) following the semantic versioning this interface is promised to remain
 stable during minor releases and any change in the interface leads to a major version bump. External libraries should
 only use the functionality in this API in combination with the user interface defined in the root __init__.py, all other
 functionality is considered internal and might change during minor releases.
