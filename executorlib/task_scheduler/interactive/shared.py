@@ -153,9 +153,7 @@ def _execute_task_with_cache(
     )
     os.makedirs(cache_directory, exist_ok=True)
     file_name = os.path.join(cache_directory, task_key + "_o.h5")
-    if not (
-        task_key + "_o.h5" in os.listdir(cache_directory)
-    ):
+    if task_key + "_o.h5" not in os.listdir(cache_directory):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():
             try:

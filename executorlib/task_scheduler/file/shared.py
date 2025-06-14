@@ -108,9 +108,7 @@ def execute_tasks_h5(
                 resource_dict=task_resource_dict,
             )
             if task_key not in memory_dict:
-                if not (
-                    task_key + "_o.h5" in os.listdir(cache_directory)
-                ):
+                if task_key + "_o.h5" not in os.listdir(cache_directory):
                     os.makedirs(cache_directory, exist_ok=True)
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     dump(file_name=file_name, data_dict=data_dict)
