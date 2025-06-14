@@ -195,7 +195,7 @@ def _check_task_output(
         Future: The updated future object.
 
     """
-    file_name = os.path.join(cache_directory, task_key, "cache.h5out")
+    file_name = os.path.join(cache_directory, task_key + "_o.h5")
     if not os.path.exists(file_name):
         return future_obj
     exec_flag, no_error_flag, result = get_output(file_name=file_name)

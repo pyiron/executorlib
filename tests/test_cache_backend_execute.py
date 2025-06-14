@@ -35,8 +35,8 @@ class TestSharedFunctions(unittest.TestCase):
             fn_args=[1],
             fn_kwargs={"b": 2},
         )
-        file_name = os.path.join(cache_directory, task_key, "cache.h5in")
-        os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
+        file_name = os.path.join(cache_directory, task_key + "_i.h5")
+        os.makedirs(cache_directory, exist_ok=True)
         dump(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
@@ -46,11 +46,11 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key, "cache.h5out"))
+            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(
-            file_name=os.path.join(cache_directory, task_key, "cache.h5out")
+            file_name=os.path.join(cache_directory, task_key + "_o.h5")
         )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
@@ -63,7 +63,7 @@ class TestSharedFunctions(unittest.TestCase):
             fn_args=[1, 2],
             fn_kwargs={},
         )
-        file_name = os.path.join(cache_directory, task_key, "cache.h5in")
+        file_name = os.path.join(cache_directory, task_key + "_i.h5")
         os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
         dump(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
@@ -74,11 +74,11 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key, "cache.h5out"))
+            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(
-            file_name=os.path.join(cache_directory, task_key, "cache.h5out")
+            file_name=os.path.join(cache_directory, task_key + "_o.h5")
         )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
@@ -91,8 +91,8 @@ class TestSharedFunctions(unittest.TestCase):
             fn_args=[],
             fn_kwargs={"a": 1, "b": 2},
         )
-        file_name = os.path.join(cache_directory, task_key, "cache.h5in")
-        os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
+        file_name = os.path.join(cache_directory, task_key + "_i.h5")
+        os.makedirs(cache_directory, exist_ok=True)
         dump(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
@@ -102,11 +102,11 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key, "cache.h5out"))
+            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(
-            file_name=os.path.join(cache_directory, task_key, "cache.h5out")
+            file_name=os.path.join(cache_directory, task_key + "_o.h5")
         )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
@@ -119,8 +119,8 @@ class TestSharedFunctions(unittest.TestCase):
             fn_args=[],
             fn_kwargs={"a": 1},
         )
-        file_name = os.path.join(cache_directory, task_key, "cache.h5in")
-        os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
+        file_name = os.path.join(cache_directory, task_key + "_i.h5")
+        os.makedirs(cache_directory, exist_ok=True)
         dump(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
@@ -131,11 +131,11 @@ class TestSharedFunctions(unittest.TestCase):
         with self.assertRaises(ValueError):
             future_obj.result()
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key, "cache.h5out"))
+            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(
-            file_name=os.path.join(cache_directory, task_key, "cache.h5out")
+            file_name=os.path.join(cache_directory, task_key + "_o.h5")
         )
         self.assertTrue(future_file_obj.done())
         with self.assertRaises(ValueError):
