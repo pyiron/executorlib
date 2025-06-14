@@ -109,12 +109,10 @@ def execute_tasks_h5(
             )
             if task_key not in memory_dict:
                 if not (
-                    task_key in os.listdir(cache_directory)
-                    and "cache.h5out"
-                    in os.listdir(os.path.join(cache_directory, task_key))
+                    task_key + "_o.h5" in os.listdir(cache_directory)
                 ):
-                    os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-                    file_name = os.path.join(cache_directory, task_key, "cache.h5in")
+                    os.makedirs(cache_directory, exist_ok=True)
+                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
@@ -141,7 +139,7 @@ def execute_tasks_h5(
                         cache_directory=os.path.join(cache_directory, task_key),
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key, "cache.h5out"
+                    cache_directory, task_key, "_o.h5"
                 )
                 memory_dict[task_key] = task_dict["future"]
             future_queue.task_done()

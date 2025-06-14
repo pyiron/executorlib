@@ -28,8 +28,8 @@ def get_cache_data(cache_directory: str) -> list[dict]:
 
     file_lst = []
     for task_key in os.listdir(cache_directory):
-        file_name = os.path.join(cache_directory, task_key, "cache.h5out")
-        os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
+        file_name = os.path.join(cache_directory, task_key + "_o.h5")
+        os.makedirs(cache_directory, exist_ok=True)
         if os.path.exists(file_name):
             with h5py.File(file_name, "r") as hdf:
                 file_content_dict = {
