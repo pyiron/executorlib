@@ -83,7 +83,7 @@ class TestExecutorBackend(unittest.TestCase):
 
 class TestExecutorBackendCache(unittest.TestCase):
     def tearDown(self):
-        shutil.rmtree("executorlib_cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)
 
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."

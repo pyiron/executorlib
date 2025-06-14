@@ -503,7 +503,7 @@ class TestFuturePool(unittest.TestCase):
 
 class TestFuturePoolCache(unittest.TestCase):
     def tearDown(self):
-        shutil.rmtree("executorlib_cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)
 
     @unittest.skipIf(
         skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."

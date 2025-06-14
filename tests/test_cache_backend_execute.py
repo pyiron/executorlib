@@ -142,5 +142,4 @@ class TestSharedFunctions(unittest.TestCase):
             future_file_obj.result()
 
     def tearDown(self):
-        if os.path.exists("executorlib_cache"):
-            shutil.rmtree("executorlib_cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)

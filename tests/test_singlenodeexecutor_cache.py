@@ -44,7 +44,5 @@ class TestCacheFunctions(unittest.TestCase):
                 print(f.result())
 
     def tearDown(self):
-        if os.path.exists("executorlib_cache"):
-            shutil.rmtree("executorlib_cache")
-        if os.path.exists("cache_error"):
-            shutil.rmtree("cache_error")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)
+        shutil.rmtree("cache_error", ignore_errors=True)

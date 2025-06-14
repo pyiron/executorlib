@@ -203,5 +203,4 @@ class TestCacheExecutorSerial(unittest.TestCase):
             execute_in_subprocess(file_name=__file__, command=[], backend="flux")
 
     def tearDown(self):
-        if os.path.exists("executorlib_cache"):
-            shutil.rmtree("executorlib_cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)
