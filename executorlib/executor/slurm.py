@@ -151,10 +151,11 @@ class SlurmClusterExecutor(BaseExecutor):
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not plot_dependency_graph:
+            import pysqa  # noqa
+
             from executorlib.task_scheduler.file.task_scheduler import (
                 create_file_executor,
             )
-            import pysqa  # noqa
 
             super().__init__(
                 executor=create_file_executor(
