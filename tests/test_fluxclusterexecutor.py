@@ -33,9 +33,9 @@ def mpi_funct(i):
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
         with FluxClusterExecutor(
-            resource_dict={"cores": 2, "cwd": "cache"},
+            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
-            cache_directory="cache",
+            cache_directory="executorlib_cache",
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -44,5 +44,4 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertTrue(fs1.done())
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)

@@ -503,7 +503,7 @@ class TestFuturePool(unittest.TestCase):
 
 class TestFuturePoolCache(unittest.TestCase):
     def tearDown(self):
-        shutil.rmtree("./cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)
 
     @unittest.skipIf(
         skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
@@ -519,7 +519,7 @@ class TestFuturePoolCache(unittest.TestCase):
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
-            cache_directory="./cache",
+            cache_directory="executorlib_cache",
         )
         self.assertEqual(f.result(), 1)
         q.join()
@@ -538,6 +538,6 @@ class TestFuturePoolCache(unittest.TestCase):
                 cores=1,
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
-                cache_directory="./cache",
+                cache_directory="executorlib_cache",
             )
         q.join()

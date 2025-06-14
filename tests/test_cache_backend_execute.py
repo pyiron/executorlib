@@ -28,7 +28,7 @@ def get_error(a):
 )
 class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_mixed(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
             fn=my_funct,
@@ -56,7 +56,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(future_file_obj.result(), 3)
 
     def test_execute_function_args(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
             fn=my_funct,
@@ -84,7 +84,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(future_file_obj.result(), 3)
 
     def test_execute_function_kwargs(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
             fn=my_funct,
@@ -112,7 +112,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(future_file_obj.result(), 3)
 
     def test_execute_function_error(self):
-        cache_directory = os.path.abspath("cache")
+        cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
             fn=get_error,
@@ -142,5 +142,4 @@ class TestSharedFunctions(unittest.TestCase):
             future_file_obj.result()
 
     def tearDown(self):
-        if os.path.exists("cache"):
-            shutil.rmtree("cache")
+        shutil.rmtree("executorlib_cache", ignore_errors=True)
