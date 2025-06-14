@@ -18,8 +18,8 @@ def dump(file_name: Optional[str], data_dict: dict) -> None:
     """
     if file_name is not None:
         file_name_abs = os.path.abspath(file_name)
-        os.makedirs(os.path.join("/", *file_name_abs.split(os.sep)[:-1]), exist_ok=True)
-        with h5py.File(file_name, "a") as fname:
+        os.makedirs(os.path.dirname(file_name_abs), exist_ok=True)
+        with h5py.File(file_name_abs, "a") as fname:
             for data_key, data_value in data_dict.items():
                 if data_key in group_dict:
                     fname.create_dataset(
