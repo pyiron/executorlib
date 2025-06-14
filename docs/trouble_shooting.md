@@ -4,7 +4,8 @@ Some of the most frequent issues are covered below, for everything else do not b
 ## Filesystem Usage
 The cache of executorlib is not removed after the Python process completed. So it is the responsibility of the user to 
 clean up the cache directory they created. This can be easily forgot, so it is important to check for remaining cache 
-directories from time to time and remove them. 
+directories from time to time and remove them. In addition, there is no guarantee for cache compatibility between 
+different versions, the cache is only intended for temporary use and it is not designed for long-term storage. 
 
 ## Firewall Issues
 MacOS comes with a rather strict firewall, which does not allow to connect to an MacOS computer using the hostname even
@@ -24,6 +25,11 @@ and [cloudpickle](https://github.com/cloudpipe/cloudpickle). Additional features
 and the [HPC Job Executors](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-job-executor) require 
 additional dependencies. The dependencies are explained in more detail in the 
 [installation section](https://executorlib.readthedocs.io/en/latest/installation.html).
+
+Typical error messages related to missing dependencies are `ModuleNotFoundError` like the following:
+* `ModuleNotFoundError: No module named 'pysqa'` - Install [pysqa](https://pysqa.readthedocs.io/) as explained in the [HPC Cluster Executors](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-cluster-executor) section of the installation.
+* `ModuleNotFoundError: No module named 'h5py'` - Install [h5py](https://www.h5py.org/) as explained in the [Caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching) section of the installation. 
+* `ModuleNotFoundError: No module named 'networkx'` - Install [networkx](https://networkx.org/) as explained in the [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation) section of the installation.
 
 ## Python Version 
 Executorlib supports all current Python version ranging from 3.9 to 3.13. Still some of the dependencies and especially 
