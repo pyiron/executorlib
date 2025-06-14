@@ -62,10 +62,13 @@ def serialize_funct_h5(
         fn_kwargs = {}
     if resource_dict is None:
         resource_dict = {}
-    binary_all = cloudpickle.dumps(
-        {"fn": fn, "args": fn_args, "kwargs": fn_kwargs, "resource_dict": resource_dict}
-    )
-    task_key = fn.__name__ + _get_hash(binary=binary_all)
+    if "cache_key" in resource_dict:
+        task_key = resource_dict["cache_key"]
+    else:
+        binary_all = cloudpickle.dumps(
+            {"fn": fn, "args": fn_args, "kwargs": fn_kwargs, "resource_dict": resource_dict}
+        )
+        task_key = fn.__name__ + _get_hash(binary=binary_all)
     data = {
         "fn": fn,
         "args": fn_args,
