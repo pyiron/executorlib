@@ -6,6 +6,7 @@ import sys
 from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
+from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.task_scheduler.file.hdf import dump, get_output
@@ -72,6 +73,7 @@ def execute_tasks_h5(
         terminate_function (Callable): The function to terminate the tasks.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         backend (str, optional): name of the backend used to spawn tasks.
+        disable_dependencies (boolean): Disable resolving future objects during the submission.
 
     Returns:
         None
@@ -101,15 +103,18 @@ def execute_tasks_h5(
             task_resource_dict.update(
                 {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
             )
+            cache_key = task_resource_dict.pop("cache_key", None)
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
                 fn_kwargs=task_kwargs,
                 resource_dict=task_resource_dict,
+                cache_key=cache_key,
             )
             if task_key not in memory_dict:
-                if task_key + "_o.h5" not in os.listdir(cache_directory):
-                    os.makedirs(cache_directory, exist_ok=True)
+                if task_key + "_o.h5" not in get_cache_files(
+                    cache_directory=cache_directory
+                ):
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:

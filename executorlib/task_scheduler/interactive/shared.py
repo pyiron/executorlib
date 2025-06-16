@@ -6,6 +6,7 @@ import sys
 import time
 from typing import Callable, Optional
 
+from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
@@ -22,6 +23,7 @@ def execute_tasks(
     hostname_localhost: Optional[bool] = None,
     init_function: Optional[Callable] = None,
     cache_directory: Optional[str] = None,
+    cache_key: Optional[str] = None,
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
     **kwargs,
@@ -42,6 +44,8 @@ def execute_tasks(
                                      option to true
        init_function (Callable): optional function to preset arguments for functions which are submitted later
        cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
+       cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
+                                  overwritten by setting the cache_key.
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
     """
@@ -76,6 +80,7 @@ def execute_tasks(
                     task_dict=task_dict,
                     future_queue=future_queue,
                     cache_directory=cache_directory,
+                    cache_key=cache_key,
                 )
 
 
@@ -132,6 +137,7 @@ def _execute_task_with_cache(
     task_dict: dict,
     future_queue: queue.Queue,
     cache_directory: str,
+    cache_key: Optional[str] = None,
 ):
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
@@ -142,6 +148,8 @@ def _execute_task_with_cache(
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         future_queue (Queue): Queue for receiving new tasks.
         cache_directory (str): The directory to store cache files.
+        cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
+                                  overwritten by setting the cache_key.
     """
     from executorlib.task_scheduler.file.hdf import dump, get_output
 
@@ -150,10 +158,11 @@ def _execute_task_with_cache(
         fn_args=task_dict["args"],
         fn_kwargs=task_dict["kwargs"],
         resource_dict=task_dict.get("resource_dict", {}),
+        cache_key=cache_key,
     )
     os.makedirs(cache_directory, exist_ok=True)
-    file_name = os.path.join(cache_directory, task_key + "_o.h5")
-    if task_key + "_o.h5" not in os.listdir(cache_directory):
+    file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
+    if file_name not in get_cache_files(cache_directory=cache_directory):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():
             try:
