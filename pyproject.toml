@@ -92,6 +92,8 @@ select = [
 ignore = [
     # ignore line-length violations
     "E501",
+    # ignore imports which are not at the top of a module
+    "PLC0415",
     # Too many arguments in function definition
     "PLR0913",
     # Magic value used in comparison
