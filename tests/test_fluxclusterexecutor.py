@@ -5,10 +5,10 @@ import shutil
 
 from executorlib import FluxClusterExecutor
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.task_scheduler.file.hdf import dump
 
 try:
     import flux.job
+    from executorlib.task_scheduler.file.hdf import dump
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
