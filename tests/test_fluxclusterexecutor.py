@@ -67,7 +67,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs1.done())
-            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+            self.assertEqual(len(os.listdir("executorlib_cache")), 5)
             for file_name in os.listdir("executorlib_cache"):
                 file_path = os.path.join("executorlib_cache", file_name )
                 os.remove(file_path)
@@ -85,7 +85,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs1.done())
-            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+            self.assertEqual(len(os.listdir("executorlib_cache")), 6)
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
