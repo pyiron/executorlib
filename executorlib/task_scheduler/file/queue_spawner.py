@@ -50,7 +50,9 @@ def execute_with_pysqa(
         if "cwd" in resource_dict and resource_dict["cwd"] is not None:
             cwd = resource_dict["cwd"]
         else:
-            cwd = cache_directory
+            folder = command[-1].split("_i.h5")[0]
+            cwd = os.path.join(cache_directory, folder)
+            os.makedirs(cwd, exist_ok=True)
         submit_kwargs = {
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],
