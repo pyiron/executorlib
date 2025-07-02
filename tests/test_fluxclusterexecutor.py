@@ -41,7 +41,51 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
+            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
             self.assertTrue(fs1.done())
+
+    def test_executor_existing_files(self):
+        with FluxClusterExecutor(
+            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            block_allocation=False,
+            cache_directory="executorlib_cache",
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs1 = exe.submit(mpi_funct, 1)
+            self.assertFalse(fs1.done())
+            self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
+            self.assertTrue(fs1.done())
+            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+
+        with FluxClusterExecutor(
+            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            block_allocation=False,
+            cache_directory="executorlib_cache",
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs1 = exe.submit(mpi_funct, 1)
+            self.assertFalse(fs1.done())
+            self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
+            self.assertTrue(fs1.done())
+            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+            for file_name in os.listdir("executorlib_cache"):
+                file_path = os.path.join("executorlib_cache", file_name )
+                os.remove(file_path)
+                if ".h5" in file_path:
+                    with open(file_path, "w") as f:
+                        f.write("test")
+
+        with FluxClusterExecutor(
+            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            block_allocation=False,
+            cache_directory="executorlib_cache",
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs1 = exe.submit(mpi_funct, 1)
+            self.assertFalse(fs1.done())
+            self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
+            self.assertTrue(fs1.done())
+            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
