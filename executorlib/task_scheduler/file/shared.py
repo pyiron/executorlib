@@ -116,7 +116,11 @@ def execute_tasks_h5(
                     cache_directory=cache_directory
                 ):
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
-                    dump(file_name=file_name, data_dict=data_dict)
+                    try:
+                        dump(file_name=file_name, data_dict=data_dict)
+                    except ValueError:
+                        os.remove(file_name)
+                        dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
