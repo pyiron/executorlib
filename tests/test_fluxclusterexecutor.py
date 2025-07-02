@@ -5,6 +5,7 @@ import shutil
 
 from executorlib import FluxClusterExecutor
 from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.task_scheduler.file.hdf import dump
 
 try:
     import flux.job
@@ -72,8 +73,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
                 file_path = os.path.join("executorlib_cache", file_name )
                 os.remove(file_path)
                 if ".h5" in file_path:
-                    with open(file_path, "w") as f:
-                        f.write("test")
+                    dump(file_name=file_path, data_dict={"a": 1})
 
         with FluxClusterExecutor(
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
