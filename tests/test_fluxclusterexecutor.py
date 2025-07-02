@@ -40,8 +40,8 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
-            self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
+            self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
 
     def test_executor_no_cwd(self):
@@ -53,8 +53,8 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
-            self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
+            self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
 
     def tearDown(self):
