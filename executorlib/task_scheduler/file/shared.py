@@ -112,7 +112,7 @@ def execute_tasks_h5(
                 cache_key=cache_key,
             )
             if task_key not in memory_dict:
-                if task_key + "_o.h5" not in get_cache_files(
+                if os.path.join(cache_directory, task_key + "_o.h5") not in get_cache_files(
                     cache_directory=cache_directory
                 ):
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
