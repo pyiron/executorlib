@@ -10,18 +10,19 @@ from executorlib.task_scheduler.file.hdf import dump, get_queue_id
 
 def execute_with_pysqa(
     command: list,
+    cache_directory: str,
     task_dependent_lst: Optional[list[int]] = None,
     file_name: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
-    cache_directory: Optional[str] = None,
 ) -> Optional[int]:
     """
     Execute a command by submitting it to the queuing system
 
     Args:
         command (list): The command to be executed.
+        cache_directory (str): The directory to store the HDF5 files.
         task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
         file_name (str): Name of the HDF5 file which contains the Python function
         resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.
@@ -30,7 +31,6 @@ def execute_with_pysqa(
                               }
         config_directory (str, optional): path to the config directory.
         backend (str, optional): name of the backend used to spawn tasks.
-        cache_directory (str): The directory to store the HDF5 files.
 
     Returns:
         int: queuing system ID
@@ -50,7 +50,9 @@ def execute_with_pysqa(
         if "cwd" in resource_dict and resource_dict["cwd"] is not None:
             cwd = resource_dict["cwd"]
         else:
-            cwd = cache_directory
+            folder = command[-1].split("_i.h5")[0]
+            cwd = os.path.join(cache_directory, folder)
+            os.makedirs(cwd, exist_ok=True)
         submit_kwargs = {
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],
