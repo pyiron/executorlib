@@ -116,6 +116,8 @@ def execute_tasks_h5(
                     cache_directory, task_key + "_o.h5"
                 ) not in get_cache_files(cache_directory=cache_directory):
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
+                    if os.path.exists(file_name):
+                        os.remove(file_name)
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
