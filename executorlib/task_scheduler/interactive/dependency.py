@@ -1,6 +1,6 @@
 import queue
 from concurrent.futures import Future
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
@@ -234,10 +234,14 @@ def _execute_tasks_with_dependencies(
             if task_dict["task"] == "get_info":
                 task_dict["future"].set_result(dependency_thread_input.executor.info)
             elif task_dict["task"] == "get_max_workers":
-                task_dict["future"].set_result(dependency_thread_input.executor.max_workers)
+                task_dict["future"].set_result(
+                    dependency_thread_input.executor.max_workers
+                )
             elif task_dict["task"] == "set_max_workers":
                 try:
-                    dependency_thread_input.executor.max_workers = task_dict["max_workers"]
+                    dependency_thread_input.executor.max_workers = task_dict[
+                        "max_workers"
+                    ]
                 except NotImplementedError:
                     task_dict["future"].set_result(False)
                 else:
