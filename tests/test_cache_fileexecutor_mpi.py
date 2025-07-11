@@ -32,7 +32,8 @@ def mpi_funct(i):
 class TestCacheExecutorMPI(unittest.TestCase):
     def test_executor(self):
         with FileTaskScheduler(
-            resource_dict={"cores": 2}, execute_function=execute_in_subprocess
+            resource_dict={"cores": 2, "cache_directory": "executorlib_cache"},
+            execute_function=execute_in_subprocess,
         ) as exe:
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())
