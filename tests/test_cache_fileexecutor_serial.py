@@ -12,7 +12,7 @@ from executorlib.task_scheduler.file.subprocess_spawner import (
 
 try:
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
-    from executorlib.task_scheduler.file.shared import execute_tasks_h5, H5Task
+    from executorlib.task_scheduler.file.shared import execute_tasks_h5, H5ThreadInput
 
     skip_h5py_test = False
 except ImportError:
@@ -107,7 +107,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         process = Thread(
             target=execute_tasks_h5,
             kwargs={
-                "h5task": H5Task(
+                "h5_thread_input": H5ThreadInput(
                     future_queue=q,
                     execute_function=execute_in_subprocess,
                     resource_dict={"cores": 1, "cwd": None, "cache_directory": cache_dir},
@@ -149,7 +149,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         process = Thread(
             target=execute_tasks_h5,
             kwargs={
-                "h5task": H5Task(
+                "h5_thread_input": H5ThreadInput(
                     future_queue=q,
                     execute_function=execute_in_subprocess,
                     resource_dict={"cores": 1, "cwd": None, "cache_directory": cache_dir},
@@ -191,7 +191,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         process = Thread(
             target=execute_tasks_h5,
             kwargs={
-                "h5task": H5Task(
+                "h5_thread_input": H5ThreadInput(
                     future_queue=q,
                     execute_function=execute_in_subprocess,
                     resource_dict={"cores": 1, "cache_directory": cache_dir},

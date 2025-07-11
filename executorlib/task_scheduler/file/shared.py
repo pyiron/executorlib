@@ -14,9 +14,9 @@ from executorlib.task_scheduler.file.hdf import dump, get_output
 
 
 @dataclass
-class H5Task:
+class H5ThreadInput:
     """
-    H5Task dataclass
+    H5ThreadInput dataclass
 
     Args:
         future_queue (queue.Queue): The queue containing the tasks.
@@ -79,13 +79,13 @@ class FutureItem:
 
 
 def execute_tasks_h5(
-    h5task: H5Task,
+    h5_thread_input: H5ThreadInput,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
 
     Args:
-        h5task (H5Task): Dataclass to aggregate all arguments for the thread
+        h5_thread_input (H5ThreadInput): Dataclass to aggregate all arguments for the thread
 
     Returns:
         None
@@ -98,13 +98,13 @@ def execute_tasks_h5(
     while True:
         task_dict = None
         with contextlib.suppress(queue.Empty):
-            task_dict = h5task.future_queue.get_nowait()
+            task_dict = h5_thread_input.future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if h5task.terminate_function is not None:
+            if h5_thread_input.terminate_function is not None:
                 for task in process_dict.values():
-                    h5task.terminate_function(task=task)
-            h5task.future_queue.task_done()
-            h5task.future_queue.join()
+                    h5_thread_input.terminate_function(task=task)
+            h5_thread_input.future_queue.task_done()
+            h5_thread_input.future_queue.join()
             break
         elif task_dict is not None:
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
@@ -116,7 +116,7 @@ def execute_tasks_h5(
             task_resource_dict.update(
                 {
                     k: v
-                    for k, v in h5task.resource_dict.items()
+                    for k, v in h5_thread_input.resource_dict.items()
                     if k not in task_resource_dict
                 }
             )
@@ -137,7 +137,7 @@ def execute_tasks_h5(
                     if os.path.exists(file_name):
                         os.remove(file_name)
                     dump(file_name=file_name, data_dict=data_dict)
-                    if not h5task.disable_dependencies:
+                    if not h5_thread_input.disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
                         ]
@@ -149,7 +149,7 @@ def execute_tasks_h5(
                                 )
                             )
                         task_dependent_lst = []
-                    process_dict[task_key] = h5task.execute_function(
+                    process_dict[task_key] = h5_thread_input.execute_function(
                         command=_get_execute_command(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
@@ -157,16 +157,16 @@ def execute_tasks_h5(
                         file_name=file_name,
                         task_dependent_lst=task_dependent_lst,
                         resource_dict=task_resource_dict,
-                        config_directory=h5task.pysqa_config_directory,
-                        backend=h5task.backend,
-                        cache_directory=h5task.cache_directory,
+                        config_directory=h5_thread_input.pysqa_config_directory,
+                        backend=h5_thread_input.backend,
+                        cache_directory=h5_thread_input.cache_directory,
                     )
                 file_name_dict[task_key] = os.path.join(
                     cache_directory, task_key + "_o.h5"
                 )
                 memory_dict[task_key] = task_dict["future"]
                 cache_dir_dict[task_key] = cache_directory
-            h5task.future_queue.task_done()
+            h5_thread_input.future_queue.task_done()
         else:
             memory_dict = {
                 key: _check_task_output(

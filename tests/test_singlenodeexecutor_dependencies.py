@@ -6,7 +6,7 @@ from threading import Thread
 
 from executorlib import SingleNodeExecutor
 from executorlib.executor.single import create_single_node_executor
-from executorlib.task_scheduler.interactive.dependency import _execute_tasks_with_dependencies, DependencyTask
+from executorlib.task_scheduler.interactive.dependency import _execute_tasks_with_dependencies, DependencyThreadInput
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
@@ -93,7 +93,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "dependency_task": DependencyTask(
+                "dependency_task": DependencyThreadInput(
                     future_queue=q,
                     executor_queue=executor._future_queue,
                     executor=executor,
@@ -147,7 +147,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "dependency_task": DependencyTask(
+                "dependency_task": DependencyThreadInput(
                     future_queue=q,
                     executor_queue=executor._future_queue,
                     executor=executor,
@@ -203,7 +203,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "dependency_task": DependencyTask(
+                "dependency_task": DependencyThreadInput(
                     future_queue=q,
                     executor_queue=executor._future_queue,
                     executor=executor,

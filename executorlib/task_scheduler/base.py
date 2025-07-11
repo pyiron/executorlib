@@ -27,7 +27,7 @@ class TaskSchedulerBase(FutureExecutor):
         Initialize the ExecutorBase class.
         """
         cloudpickle_register(ind=3)
-        self._process_kwargs: dict = {}
+        self._thread_input: dict = {}
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
         self._process: Optional[Union[Thread, list[Thread]]] = None
@@ -48,7 +48,7 @@ class TaskSchedulerBase(FutureExecutor):
         Returns:
             Optional[dict]: Information about the executor.
         """
-        meta_data_dict = self._process_kwargs.copy()
+        meta_data_dict = self._thread_input.copy()
         if "future_queue" in meta_data_dict:
             del meta_data_dict["future_queue"]
         if self._process is not None and isinstance(self._process, list):

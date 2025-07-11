@@ -1,6 +1,6 @@
 import queue
 from concurrent.futures import Future
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
@@ -20,9 +20,9 @@ from executorlib.task_scheduler.base import TaskSchedulerBase
 
 
 @dataclass
-class DependencyTask:
+class DependencyThreadInput:
     """
-    DependencyTask dataclass
+    DependencyThreadInput dataclass
 
     Args:
         future_queue (Queue): Queue for receiving new tasks.
@@ -64,7 +64,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         plot_dependency_graph_filename: Optional[str] = None,
     ) -> None:
         super().__init__(max_cores=max_cores)
-        self._process_kwargs = DependencyTask(
+        thread_input = DependencyThreadInput(
             future_queue=self._future_queue,
             executor_queue=executor._future_queue,
             executor=executor,
@@ -73,9 +73,10 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         self._set_process(
             Thread(
                 target=_execute_tasks_with_dependencies,
-                kwargs={"dependency_task": self._process_kwargs},
+                kwargs={"dependency_thread_input": thread_input},
             )
         )
+        self._thread_input = asdict(thread_input)
         self._future_hash_dict: dict = {}
         self._task_hash_dict: dict = {}
         self._plot_dependency_graph_filename = plot_dependency_graph_filename
@@ -205,38 +206,38 @@ class DependencyTaskScheduler(TaskSchedulerBase):
 
 
 def _execute_tasks_with_dependencies(
-    dependency_task: DependencyTask,
+    dependency_thread_input: DependencyThreadInput,
 ):
     """
     Resolve the dependencies of multiple tasks, by analysing which task requires concurrent.future.Futures objects from
     other tasks.
 
     Args:
-        dependency_task (DependencyTask): Dataclass to aggregate all arguments for the thread
+        dependency_thread_input (DependencyThreadInput): Dataclass to aggregate all arguments for the thread
     """
     wait_lst = []
     while True:
         try:
-            task_dict = dependency_task.future_queue.get_nowait()
+            task_dict = dependency_thread_input.future_queue.get_nowait()
         except queue.Empty:
             task_dict = None
         if (  # shutdown the executor
             task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]
         ):
-            dependency_task.executor.shutdown(wait=task_dict["wait"])
-            dependency_task.future_queue.task_done()
-            dependency_task.future_queue.join()
+            dependency_thread_input.executor.shutdown(wait=task_dict["wait"])
+            dependency_thread_input.future_queue.task_done()
+            dependency_thread_input.future_queue.join()
             break
         if (  # shutdown the executor
             task_dict is not None and "internal" in task_dict and task_dict["internal"]
         ):
             if task_dict["task"] == "get_info":
-                task_dict["future"].set_result(dependency_task.executor.info)
+                task_dict["future"].set_result(dependency_thread_input.executor.info)
             elif task_dict["task"] == "get_max_workers":
-                task_dict["future"].set_result(dependency_task.executor.max_workers)
+                task_dict["future"].set_result(dependency_thread_input.executor.max_workers)
             elif task_dict["task"] == "set_max_workers":
                 try:
-                    dependency_task.executor.max_workers = task_dict["max_workers"]
+                    dependency_thread_input.executor.max_workers = task_dict["max_workers"]
                 except NotImplementedError:
                     task_dict["future"].set_result(False)
                 else:
@@ -256,23 +257,23 @@ def _execute_tasks_with_dependencies(
                     task_dict["args"], task_dict["kwargs"] = update_futures_in_input(
                         args=task_dict["args"], kwargs=task_dict["kwargs"]
                     )
-                    dependency_task.executor_queue.put(task_dict)
+                    dependency_thread_input.executor_queue.put(task_dict)
                 else:  # Otherwise add the function to the wait list
                     task_dict["future_lst"] = future_lst
                     wait_lst.append(task_dict)
-            dependency_task.future_queue.task_done()
+            dependency_thread_input.future_queue.task_done()
         elif len(wait_lst) > 0:
             number_waiting = len(wait_lst)
             # Check functions in the wait list and execute them if all future objects are now ready
             wait_lst = _update_waiting_task(
-                wait_lst=wait_lst, executor_queue=dependency_task.executor_queue
+                wait_lst=wait_lst, executor_queue=dependency_thread_input.executor_queue
             )
             # if no job is ready, sleep for a moment
             if len(wait_lst) == number_waiting:
-                sleep(dependency_task.refresh_rate)
+                sleep(dependency_thread_input.refresh_rate)
         else:
             # If there is nothing else to do, sleep for a moment
-            sleep(dependency_task.refresh_rate)
+            sleep(dependency_thread_input.refresh_rate)
 
 
 def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> list:
