@@ -93,7 +93,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "dependency_task": DependencyThreadInput(
+                "dependency_thread_input": DependencyThreadInput(
                     future_queue=q,
                     executor_queue=executor._future_queue,
                     executor=executor,
@@ -147,7 +147,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "dependency_task": DependencyThreadInput(
+                "dependency_thread_input": DependencyThreadInput(
                     future_queue=q,
                     executor_queue=executor._future_queue,
                     executor=executor,
@@ -203,7 +203,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "dependency_task": DependencyThreadInput(
+                "dependency_thread_input": DependencyThreadInput(
                     future_queue=q,
                     executor_queue=executor._future_queue,
                     executor=executor,
