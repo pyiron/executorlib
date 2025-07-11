@@ -2,10 +2,12 @@ import contextlib
 import queue
 from concurrent.futures import (
     Executor as FutureExecutor,
-    wait as wait_for_futures,
 )
 from concurrent.futures import (
     Future,
+)
+from concurrent.futures import (
+    wait as wait_for_futures,
 )
 from threading import Thread
 from typing import Callable, Optional, Union
