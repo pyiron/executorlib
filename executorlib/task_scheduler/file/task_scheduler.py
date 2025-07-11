@@ -50,6 +50,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         default_resource_dict = {
             "cores": 1,
             "cwd": None,
+            "cache_directory": "executorlib_cache",
         }
         if resource_dict is None:
             resource_dict = {}
@@ -91,10 +92,6 @@ def create_file_executor(
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
 ):
-    if cache_directory is None:
-        resource_dict["cache_directory"] = "executorlib_cache"
-    else:
-        resource_dict["cache_directory"] = cache_directory
     if block_allocation:
         raise ValueError(
             "The option block_allocation is not available with the pysqa based backend."
@@ -103,6 +100,8 @@ def create_file_executor(
         raise ValueError(
             "The option to specify an init_function is not available with the pysqa based backend."
         )
+    if cache_directory is not None:
+        resource_dict["cache_directory"] = cache_directory
     check_flux_executor_pmi_mode(flux_executor_pmi_mode=flux_executor_pmi_mode)
     check_max_workers_and_cores(max_cores=max_cores, max_workers=max_workers)
     check_hostname_localhost(hostname_localhost=hostname_localhost)

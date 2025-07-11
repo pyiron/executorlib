@@ -79,6 +79,7 @@ def execute_tasks_h5(
     """
     memory_dict: dict = {}
     process_dict: dict = {}
+    cache_dir_dict: dict = {}
     file_name_dict: dict = {}
     while True:
         task_dict = None
@@ -145,23 +146,18 @@ def execute_tasks_h5(
                 file_name_dict[task_key] = os.path.join(
                     cache_directory, task_key + "_o.h5"
                 )
-                memory_dict[task_key] = {
-                    "future": task_dict["future"],
-                    "cache_directory": cache_directory,
-                }
+                memory_dict[task_key] = task_dict["future"]
+                cache_dir_dict[task_key] = cache_directory
             future_queue.task_done()
         else:
             memory_dict = {
-                key: {
-                    "future": _check_task_output(
-                        task_key=key,
-                        future_obj=value["future"],
-                        cache_directory=value["cache_directory"],
-                    ),
-                    "cache_directory": value["cache_directory"],
-                }
+                key: _check_task_output(
+                    task_key=key,
+                    future_obj=value,
+                    cache_directory=cache_dir_dict[key],
+                )
                 for key, value in memory_dict.items()
-                if not value["future"].done()
+                if not value.done()
             }
 
 
