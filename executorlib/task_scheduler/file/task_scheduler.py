@@ -40,6 +40,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
+                              - cache_directory (str): The directory to store cache files.
             execute_function (Callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
             terminate_function (Callable, optional): The function to terminate the tasks.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
