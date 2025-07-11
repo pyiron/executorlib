@@ -20,10 +20,10 @@ class H5Task:
 
     Args:
         future_queue (queue.Queue): The queue containing the tasks.
-        cache_directory (str): The directory to store the HDF5 files.
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
+                              - cache_directory (str): The directory to store the HDF5 files.
         execute_function (Callable): The function to execute the tasks.
         terminate_function (Callable): The function to terminate the tasks.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
@@ -31,7 +31,6 @@ class H5Task:
         disable_dependencies (boolean): Disable resolving future objects during the submission.
     """
     future_queue: queue.Queue
-    cache_directory: str
     execute_function: Callable
     resource_dict: dict
     terminate_function: Optional[Callable] = None
@@ -93,6 +92,7 @@ def execute_tasks_h5(
     """
     memory_dict: dict = {}
     process_dict: dict = {}
+    cache_dir_dict: dict = {}
     file_name_dict: dict = {}
     while True:
         task_dict = None
@@ -116,6 +116,7 @@ def execute_tasks_h5(
                 {k: v for k, v in h5task.resource_dict.items() if k not in task_resource_dict}
             )
             cache_key = task_resource_dict.pop("cache_key", None)
+            cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
@@ -125,9 +126,9 @@ def execute_tasks_h5(
             )
             if task_key not in memory_dict:
                 if os.path.join(
-                    h5task.cache_directory, task_key + "_o.h5"
-                ) not in get_cache_files(cache_directory=h5task.cache_directory):
-                    file_name = os.path.join(h5task.cache_directory, task_key + "_i.h5")
+                    cache_directory, task_key + "_o.h5"
+                ) not in get_cache_files(cache_directory=cache_directory):
+                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     if os.path.exists(file_name):
                         os.remove(file_name)
                     dump(file_name=file_name, data_dict=data_dict)
@@ -156,14 +157,17 @@ def execute_tasks_h5(
                         cache_directory=h5task.cache_directory,
                     )
                 file_name_dict[task_key] = os.path.join(
-                    h5task.cache_directory, task_key + "_o.h5"
+                    cache_directory, task_key + "_o.h5"
                 )
                 memory_dict[task_key] = task_dict["future"]
+                cache_dir_dict[task_key] = cache_directory
             h5task.future_queue.task_done()
         else:
             memory_dict = {
                 key: _check_task_output(
-                    task_key=key, future_obj=value, cache_directory=h5task.cache_directory
+                    task_key=key,
+                    future_obj=value,
+                    cache_directory=cache_dir_dict[key],
                 )
                 for key, value in memory_dict.items()
                 if not value.done()

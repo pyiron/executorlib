@@ -1,4 +1,3 @@
-import os
 from threading import Thread
 from typing import Callable, Optional
 
@@ -27,7 +26,6 @@ except ImportError:
 class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
-        cache_directory: str = "executorlib_cache",
         resource_dict: Optional[dict] = None,
         execute_function: Callable = execute_with_pysqa,
         terminate_function: Optional[Callable] = None,
@@ -39,10 +37,10 @@ class FileTaskScheduler(TaskSchedulerBase):
         Initialize the FileExecutor.
 
         Args:
-            cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
+                              - cache_directory (str): The directory to store cache files.
             execute_function (Callable, optional): The function to execute tasks. Defaults to execute_in_subprocess.
             terminate_function (Callable, optional): The function to terminate the tasks.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
@@ -53,6 +51,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         default_resource_dict = {
             "cores": 1,
             "cwd": None,
+            "cache_directory": "executorlib_cache",
         }
         if resource_dict is None:
             resource_dict = {}
@@ -61,13 +60,10 @@ class FileTaskScheduler(TaskSchedulerBase):
         )
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
-        cache_directory_path = os.path.abspath(cache_directory)
-        os.makedirs(cache_directory_path, exist_ok=True)
         self._process_kwargs = {
+            "resource_dict": resource_dict,
             "future_queue": self._future_queue,
             "execute_function": execute_function,
-            "cache_directory": cache_directory_path,
-            "resource_dict": resource_dict,
             "terminate_function": terminate_function,
             "pysqa_config_directory": pysqa_config_directory,
             "backend": backend,
@@ -82,11 +78,11 @@ class FileTaskScheduler(TaskSchedulerBase):
 
 
 def create_file_executor(
+    resource_dict: dict,
     max_workers: Optional[int] = None,
     backend: str = "flux_submission",
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: Optional[dict] = None,
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
@@ -97,8 +93,6 @@ def create_file_executor(
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
 ):
-    if cache_directory is None:
-        cache_directory = "executorlib_cache"
     if block_allocation:
         raise ValueError(
             "The option block_allocation is not available with the pysqa based backend."
@@ -107,6 +101,8 @@ def create_file_executor(
         raise ValueError(
             "The option to specify an init_function is not available with the pysqa based backend."
         )
+    if cache_directory is not None:
+        resource_dict["cache_directory"] = cache_directory
     check_flux_executor_pmi_mode(flux_executor_pmi_mode=flux_executor_pmi_mode)
     check_max_workers_and_cores(max_cores=max_cores, max_workers=max_workers)
     check_hostname_localhost(hostname_localhost=hostname_localhost)
@@ -114,7 +110,6 @@ def create_file_executor(
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     check_flux_log_files(flux_log_files=flux_log_files)
     return FileTaskScheduler(
-        cache_directory=cache_directory,
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,
         backend=backend.split("_submission")[0],

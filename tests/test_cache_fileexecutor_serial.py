@@ -58,10 +58,12 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertTrue(fs2.done())
 
     def test_create_file_executor_error(self):
+        with self.assertRaises(TypeError):
+            create_file_executor()
         with self.assertRaises(ValueError):
-            create_file_executor(block_allocation=True)
+            create_file_executor(block_allocation=True, resource_dict={})
         with self.assertRaises(ValueError):
-            create_file_executor(init_function=True)
+            create_file_executor(init_function=True, resource_dict={})
 
     def test_executor_dependence_error(self):
         with self.assertRaises(ValueError):
@@ -106,9 +108,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
-                "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None},
+                "resource_dict": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -147,9 +148,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
-                "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None},
+                "resource_dict": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -188,9 +188,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
-                "cache_directory": cache_dir,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1},
+                "resource_dict": {"cores": 1, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
