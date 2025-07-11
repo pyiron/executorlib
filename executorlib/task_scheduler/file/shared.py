@@ -4,12 +4,40 @@ import os
 import queue
 import sys
 from concurrent.futures import Future
+from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.task_scheduler.file.hdf import dump, get_output
+
+
+@dataclass
+class H5Task:
+    """
+    H5Task dataclass:
+
+    Args:
+        future_queue (queue.Queue): The queue containing the tasks.
+        cache_directory (str): The directory to store the HDF5 files.
+        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+                              - cores (int): number of MPI cores to be used for each function call
+                              - cwd (str/None): current working directory where the parallel python task is executed
+        execute_function (Callable): The function to execute the tasks.
+        terminate_function (Callable): The function to terminate the tasks.
+        pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
+        backend (str, optional): name of the backend used to spawn tasks.
+        disable_dependencies (boolean): Disable resolving future objects during the submission.
+    """
+    future_queue: queue.Queue
+    cache_directory: str
+    execute_function: Callable
+    resource_dict: dict
+    terminate_function: Optional[Callable] = None
+    pysqa_config_directory: Optional[str] = None
+    backend: Optional[str] = None
+    disable_dependencies: bool = False
 
 
 class FutureItem:
@@ -51,29 +79,13 @@ class FutureItem:
 
 
 def execute_tasks_h5(
-    future_queue: queue.Queue,
-    cache_directory: str,
-    execute_function: Callable,
-    resource_dict: dict,
-    terminate_function: Optional[Callable] = None,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
-    disable_dependencies: bool = False,
+    h5task: H5Task,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
 
     Args:
-        future_queue (queue.Queue): The queue containing the tasks.
-        cache_directory (str): The directory to store the HDF5 files.
-        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - cwd (str/None): current working directory where the parallel python task is executed
-        execute_function (Callable): The function to execute the tasks.
-        terminate_function (Callable): The function to terminate the tasks.
-        pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
-        backend (str, optional): name of the backend used to spawn tasks.
-        disable_dependencies (boolean): Disable resolving future objects during the submission.
+        h5task (H5Task): Dataclass to aggregate all arguments for the thread
 
     Returns:
         None
@@ -85,13 +97,13 @@ def execute_tasks_h5(
     while True:
         task_dict = None
         with contextlib.suppress(queue.Empty):
-            task_dict = future_queue.get_nowait()
+            task_dict = h5task.future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if terminate_function is not None:
+            if h5task.terminate_function is not None:
                 for task in process_dict.values():
-                    terminate_function(task=task)
-            future_queue.task_done()
-            future_queue.join()
+                    h5task.terminate_function(task=task)
+            h5task.future_queue.task_done()
+            h5task.future_queue.join()
             break
         elif task_dict is not None:
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
@@ -101,7 +113,7 @@ def execute_tasks_h5(
             )
             task_resource_dict = task_dict["resource_dict"].copy()
             task_resource_dict.update(
-                {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
+                {k: v for k, v in h5task.resource_dict.items() if k not in task_resource_dict}
             )
             cache_key = task_resource_dict.pop("cache_key", None)
             task_key, data_dict = serialize_funct_h5(
@@ -113,13 +125,13 @@ def execute_tasks_h5(
             )
             if task_key not in memory_dict:
                 if os.path.join(
-                    cache_directory, task_key + "_o.h5"
-                ) not in get_cache_files(cache_directory=cache_directory):
-                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
+                    h5task.cache_directory, task_key + "_o.h5"
+                ) not in get_cache_files(cache_directory=h5task.cache_directory):
+                    file_name = os.path.join(h5task.cache_directory, task_key + "_i.h5")
                     if os.path.exists(file_name):
                         os.remove(file_name)
                     dump(file_name=file_name, data_dict=data_dict)
-                    if not disable_dependencies:
+                    if not h5task.disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
                         ]
@@ -131,7 +143,7 @@ def execute_tasks_h5(
                                 )
                             )
                         task_dependent_lst = []
-                    process_dict[task_key] = execute_function(
+                    process_dict[task_key] = h5task.execute_function(
                         command=_get_execute_command(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
@@ -139,19 +151,19 @@ def execute_tasks_h5(
                         file_name=file_name,
                         task_dependent_lst=task_dependent_lst,
                         resource_dict=task_resource_dict,
-                        config_directory=pysqa_config_directory,
-                        backend=backend,
-                        cache_directory=cache_directory,
+                        config_directory=h5task.pysqa_config_directory,
+                        backend=h5task.backend,
+                        cache_directory=h5task.cache_directory,
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key + "_o.h5"
+                    h5task.cache_directory, task_key + "_o.h5"
                 )
                 memory_dict[task_key] = task_dict["future"]
-            future_queue.task_done()
+            h5task.future_queue.task_done()
         else:
             memory_dict = {
                 key: _check_task_output(
-                    task_key=key, future_obj=value, cache_directory=cache_directory
+                    task_key=key, future_obj=value, cache_directory=h5task.cache_directory
                 )
                 for key, value in memory_dict.items()
                 if not value.done()
