@@ -61,12 +61,10 @@ class FileTaskScheduler(TaskSchedulerBase):
         )
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
-        cache_directory_path = os.path.abspath(cache_directory)
-        os.makedirs(cache_directory_path, exist_ok=True)
         self._process_kwargs = {
             "future_queue": self._future_queue,
             "execute_function": execute_function,
-            "cache_directory": cache_directory_path,
+            "cache_directory": os.path.abspath(cache_directory),
             "resource_dict": resource_dict,
             "terminate_function": terminate_function,
             "pysqa_config_directory": pysqa_config_directory,
