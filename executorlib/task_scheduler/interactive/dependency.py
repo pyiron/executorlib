@@ -1,6 +1,6 @@
 import queue
 from concurrent.futures import Future
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
