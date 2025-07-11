@@ -159,7 +159,7 @@ def execute_tasks_h5(
                         resource_dict=task_resource_dict,
                         config_directory=h5_thread_input.pysqa_config_directory,
                         backend=h5_thread_input.backend,
-                        cache_directory=h5_thread_input.cache_directory,
+                        cache_directory=cache_directory,
                     )
                 file_name_dict[task_key] = os.path.join(
                     cache_directory, task_key + "_o.h5"
