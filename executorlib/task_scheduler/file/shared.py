@@ -102,7 +102,7 @@ def execute_tasks_h5(
                 {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
             )
             cache_key = task_resource_dict.pop("cache_key", None)
-            cache_directory = task_resource_dict.pop("cache_directory")
+            cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,

@@ -93,9 +93,9 @@ def create_file_executor(
     disable_dependencies: bool = False,
 ):
     if cache_directory is None:
-        resource_dict["cache_directory"] = os.path.abspath("executorlib_cache")
+        resource_dict["cache_directory"] = "executorlib_cache"
     else:
-        resource_dict["cache_directory"] = os.path.abspath(cache_directory)
+        resource_dict["cache_directory"] = cache_directory
     if block_allocation:
         raise ValueError(
             "The option block_allocation is not available with the pysqa based backend."
