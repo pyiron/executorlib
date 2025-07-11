@@ -2,6 +2,7 @@ import contextlib
 import queue
 from concurrent.futures import (
     Executor as FutureExecutor,
+    wait as wait_for_futures,
 )
 from concurrent.futures import (
     Future,
@@ -31,6 +32,7 @@ class TaskSchedulerBase(FutureExecutor):
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
         self._process: Optional[Union[Thread, list[Thread]]] = None
+        self._futures: set[Future] = set()
 
     @property
     def max_workers(self) -> Optional[int]:
@@ -124,6 +126,7 @@ class TaskSchedulerBase(FutureExecutor):
                     "resource_dict": resource_dict,
                 }
             )
+        self._futures.add(f)
         return f
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
@@ -143,11 +146,17 @@ class TaskSchedulerBase(FutureExecutor):
         """
         if cancel_futures and self._future_queue is not None:
             cancel_items_in_queue(que=self._future_queue)
+        if cancel_futures:
+            for f in self._futures:
+                f.cancel()
+        if wait:
+            wait_for_futures(self._futures)
         if self._process is not None and self._future_queue is not None:
             self._future_queue.put({"shutdown": True, "wait": wait})
             if wait and isinstance(self._process, Thread):
                 self._process.join()
                 self._future_queue.join()
+        self._futures.clear()
         self._process = None
         self._future_queue = None
 
