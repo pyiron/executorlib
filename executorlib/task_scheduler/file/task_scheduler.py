@@ -62,7 +62,6 @@ class FileTaskScheduler(TaskSchedulerBase):
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
         cache_directory_path = os.path.abspath(cache_directory)
-        os.makedirs(cache_directory_path, exist_ok=True)
         self._process_kwargs = {
             "future_queue": self._future_queue,
             "execute_function": execute_function,
