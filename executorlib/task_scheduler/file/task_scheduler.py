@@ -63,9 +63,9 @@ class FileTaskScheduler(TaskSchedulerBase):
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
         self._process_kwargs = {
+            "resource_dict": resource_dict,
             "future_queue": self._future_queue,
             "execute_function": execute_function,
-            "resource_dict": resource_dict,
             "terminate_function": terminate_function,
             "pysqa_config_directory": pysqa_config_directory,
             "backend": backend,
@@ -80,11 +80,11 @@ class FileTaskScheduler(TaskSchedulerBase):
 
 
 def create_file_executor(
+    resource_dict: dict,
     max_workers: Optional[int] = None,
     backend: str = "flux_submission",
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: Optional[dict] = None,
     flux_executor=None,
     flux_executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
