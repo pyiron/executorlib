@@ -16,7 +16,7 @@ from executorlib.task_scheduler.file.hdf import dump, get_output
 @dataclass
 class H5Task:
     """
-    H5Task dataclass:
+    H5Task dataclass
 
     Args:
         future_queue (queue.Queue): The queue containing the tasks.

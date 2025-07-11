@@ -1,4 +1,5 @@
 import queue
+from dataclasses import dataclass
 from concurrent.futures import Future
 from threading import Thread
 from time import sleep
@@ -16,6 +17,23 @@ from executorlib.standalone.plot import (
     generate_task_hash,
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
+
+
+@dataclass
+class DependencyTask:
+    """
+    DependencyTask dataclass
+
+    Args:
+        future_queue (Queue): Queue for receiving new tasks.
+        executor_queue (Queue): Queue for the internal executor.
+        executor (TaskSchedulerBase): Executor to execute the tasks with after the dependencies are resolved.
+        refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
+    """
+    future_queue: queue.Queue
+    executor_queue: queue.Queue
+    executor: TaskSchedulerBase
+    refresh_rate: float = 0.01
 
 
 class DependencyTaskScheduler(TaskSchedulerBase):
@@ -45,16 +63,16 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         plot_dependency_graph_filename: Optional[str] = None,
     ) -> None:
         super().__init__(max_cores=max_cores)
-        self._process_kwargs = {
-            "future_queue": self._future_queue,
-            "executor_queue": executor._future_queue,
-            "executor": executor,
-            "refresh_rate": refresh_rate,
-        }
+        self._process_kwargs = DependencyTask(
+            future_queue=self._future_queue,
+            executor_queue=executor._future_queue,
+            executor=executor,
+            refresh_rate=refresh_rate,
+        )
         self._set_process(
             Thread(
                 target=_execute_tasks_with_dependencies,
-                kwargs=self._process_kwargs,
+                kwargs={"dependency_task": self._process_kwargs},
             )
         )
         self._future_hash_dict: dict = {}
@@ -186,44 +204,38 @@ class DependencyTaskScheduler(TaskSchedulerBase):
 
 
 def _execute_tasks_with_dependencies(
-    future_queue: queue.Queue,
-    executor_queue: queue.Queue,
-    executor: TaskSchedulerBase,
-    refresh_rate: float = 0.01,
+    dependency_task: DependencyTask,
 ):
     """
     Resolve the dependencies of multiple tasks, by analysing which task requires concurrent.future.Futures objects from
     other tasks.
 
     Args:
-        future_queue (Queue): Queue for receiving new tasks.
-        executor_queue (Queue): Queue for the internal executor.
-        executor (TaskSchedulerBase): Executor to execute the tasks with after the dependencies are resolved.
-        refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
+        dependency_task (DependencyTask): Dataclass to aggregate all arguments for the thread
     """
     wait_lst = []
     while True:
         try:
-            task_dict = future_queue.get_nowait()
+            task_dict = dependency_task.future_queue.get_nowait()
         except queue.Empty:
             task_dict = None
         if (  # shutdown the executor
             task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]
         ):
-            executor.shutdown(wait=task_dict["wait"])
-            future_queue.task_done()
-            future_queue.join()
+            dependency_task.executor.shutdown(wait=task_dict["wait"])
+            dependency_task.future_queue.task_done()
+            dependency_task.future_queue.join()
             break
         if (  # shutdown the executor
             task_dict is not None and "internal" in task_dict and task_dict["internal"]
         ):
             if task_dict["task"] == "get_info":
-                task_dict["future"].set_result(executor.info)
+                task_dict["future"].set_result(dependency_task.executor.info)
             elif task_dict["task"] == "get_max_workers":
-                task_dict["future"].set_result(executor.max_workers)
+                task_dict["future"].set_result(dependency_task.executor.max_workers)
             elif task_dict["task"] == "set_max_workers":
                 try:
-                    executor.max_workers = task_dict["max_workers"]
+                    dependency_task.executor.max_workers = task_dict["max_workers"]
                 except NotImplementedError:
                     task_dict["future"].set_result(False)
                 else:
@@ -243,23 +255,23 @@ def _execute_tasks_with_dependencies(
                     task_dict["args"], task_dict["kwargs"] = update_futures_in_input(
                         args=task_dict["args"], kwargs=task_dict["kwargs"]
                     )
-                    executor_queue.put(task_dict)
+                    dependency_task.executor_queue.put(task_dict)
                 else:  # Otherwise add the function to the wait list
                     task_dict["future_lst"] = future_lst
                     wait_lst.append(task_dict)
-            future_queue.task_done()
+            dependency_task.future_queue.task_done()
         elif len(wait_lst) > 0:
             number_waiting = len(wait_lst)
             # Check functions in the wait list and execute them if all future objects are now ready
             wait_lst = _update_waiting_task(
-                wait_lst=wait_lst, executor_queue=executor_queue
+                wait_lst=wait_lst, executor_queue=dependency_task.executor_queue
             )
             # if no job is ready, sleep for a moment
             if len(wait_lst) == number_waiting:
-                sleep(refresh_rate)
+                sleep(dependency_task.refresh_rate)
         else:
             # If there is nothing else to do, sleep for a moment
-            sleep(refresh_rate)
+            sleep(dependency_task.refresh_rate)
 
 
 def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> list:

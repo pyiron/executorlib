@@ -6,7 +6,7 @@ from threading import Thread
 
 from executorlib import SingleNodeExecutor
 from executorlib.executor.single import create_single_node_executor
-from executorlib.task_scheduler.interactive.dependency import _execute_tasks_with_dependencies
+from executorlib.task_scheduler.interactive.dependency import _execute_tasks_with_dependencies, DependencyTask
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
@@ -93,10 +93,12 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "future_queue": q,
-                "executor_queue": executor._future_queue,
-                "executor": executor,
-                "refresh_rate": 0.01,
+                "dependency_task": DependencyTask(
+                    future_queue=q,
+                    executor_queue=executor._future_queue,
+                    executor=executor,
+                    refresh_rate=0.01,
+                )
             },
         )
         process.start()
@@ -145,10 +147,12 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "future_queue": q,
-                "executor_queue": executor._future_queue,
-                "executor": executor,
-                "refresh_rate": 0.01,
+                "dependency_task": DependencyTask(
+                    future_queue=q,
+                    executor_queue=executor._future_queue,
+                    executor=executor,
+                    refresh_rate=0.01,
+                )
             },
         )
         process.start()
@@ -199,10 +203,12 @@ class TestExecutorWithDependencies(unittest.TestCase):
         process = Thread(
             target=_execute_tasks_with_dependencies,
             kwargs={
-                "future_queue": q,
-                "executor_queue": executor._future_queue,
-                "executor": executor,
-                "refresh_rate": 0.01,
+                "dependency_task": DependencyTask(
+                    future_queue=q,
+                    executor_queue=executor._future_queue,
+                    executor=executor,
+                    refresh_rate=0.01,
+                )
             },
         )
         process.start()

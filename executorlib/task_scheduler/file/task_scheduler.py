@@ -10,7 +10,7 @@ from executorlib.standalone.inputcheck import (
     check_nested_flux_executor,
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.file.shared import execute_tasks_h5
+from executorlib.task_scheduler.file.shared import execute_tasks_h5, H5Task
 from executorlib.task_scheduler.file.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,
@@ -60,19 +60,19 @@ class FileTaskScheduler(TaskSchedulerBase):
         )
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
-        self._process_kwargs = {
-            "resource_dict": resource_dict,
-            "future_queue": self._future_queue,
-            "execute_function": execute_function,
-            "terminate_function": terminate_function,
-            "pysqa_config_directory": pysqa_config_directory,
-            "backend": backend,
-            "disable_dependencies": disable_dependencies,
-        }
+        self._process_kwargs = H5Task(
+            resource_dict=resource_dict,
+            future_queue=self._future_queue,
+            execute_function=execute_function,
+            terminate_function=terminate_function,
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+            disable_dependencies=disable_dependencies,
+        )
         self._set_process(
             Thread(
                 target=execute_tasks_h5,
-                kwargs=self._process_kwargs,
+                kwargs={"h5task": self._process_kwargs},
             )
         )
 
