@@ -68,7 +68,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_dependence_error(self):
         with self.assertRaises(ValueError):
             with FileTaskScheduler(
-                execute_function=execute_in_subprocess, disable_dependencies=True,
+                execute_function=execute_in_subprocess, disable_dependencies=True
             ) as exe:
                 fs = exe.submit(my_funct, 1, b=exe.submit(my_funct, 1, b=2))
                 fs.result()
@@ -76,7 +76,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
         with FileTaskScheduler(
-            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess,
+            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
@@ -84,7 +84,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_error(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
         with FileTaskScheduler(
-            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess,
+            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
