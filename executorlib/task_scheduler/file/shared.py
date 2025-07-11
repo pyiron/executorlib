@@ -52,7 +52,6 @@ class FutureItem:
 
 def execute_tasks_h5(
     future_queue: queue.Queue,
-    cache_directory: str,
     execute_function: Callable,
     resource_dict: dict,
     terminate_function: Optional[Callable] = None,
@@ -65,7 +64,6 @@ def execute_tasks_h5(
 
     Args:
         future_queue (queue.Queue): The queue containing the tasks.
-        cache_directory (str): The directory to store the HDF5 files.
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
@@ -104,6 +102,7 @@ def execute_tasks_h5(
                 {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
             )
             cache_key = task_resource_dict.pop("cache_key", None)
+            cache_directory = task_resource_dict.pop("cache_directory")
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
@@ -146,15 +145,23 @@ def execute_tasks_h5(
                 file_name_dict[task_key] = os.path.join(
                     cache_directory, task_key + "_o.h5"
                 )
-                memory_dict[task_key] = task_dict["future"]
+                memory_dict[task_key] = {
+                    "future": task_dict["future"],
+                    "cache_directory": cache_directory,
+                }
             future_queue.task_done()
         else:
             memory_dict = {
-                key: _check_task_output(
-                    task_key=key, future_obj=value, cache_directory=cache_directory
-                )
+                key: {
+                    "future": _check_task_output(
+                        task_key=key,
+                        future_obj=value["future"],
+                        cache_directory=value["cache_directory"],
+                    ),
+                    "cache_directory": value["cache_directory"],
+                }
                 for key, value in memory_dict.items()
-                if not value.done()
+                if not value["future"].done()
             }
 
 

@@ -27,7 +27,7 @@ except ImportError:
 class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
-        cache_directory: str = "executorlib_cache",
+        cache_directory: Optional[str] = None,
         resource_dict: Optional[dict] = None,
         execute_function: Callable = execute_with_pysqa,
         terminate_function: Optional[Callable] = None,
@@ -53,6 +53,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         default_resource_dict = {
             "cores": 1,
             "cwd": None,
+            "cache_directory": cache_directory,
         }
         if resource_dict is None:
             resource_dict = {}
@@ -61,12 +62,9 @@ class FileTaskScheduler(TaskSchedulerBase):
         )
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
-        cache_directory_path = os.path.abspath(cache_directory)
-        os.makedirs(cache_directory_path, exist_ok=True)
         self._process_kwargs = {
             "future_queue": self._future_queue,
             "execute_function": execute_function,
-            "cache_directory": cache_directory_path,
             "resource_dict": resource_dict,
             "terminate_function": terminate_function,
             "pysqa_config_directory": pysqa_config_directory,
@@ -98,7 +96,9 @@ def create_file_executor(
     disable_dependencies: bool = False,
 ):
     if cache_directory is None:
-        cache_directory = "executorlib_cache"
+        resource_dict["cache_directory"] = os.path.abspath("executorlib_cache")
+    else:
+        resource_dict["cache_directory"] = os.path.abspath(cache_directory)
     if block_allocation:
         raise ValueError(
             "The option block_allocation is not available with the pysqa based backend."
@@ -114,7 +114,6 @@ def create_file_executor(
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     check_flux_log_files(flux_log_files=flux_log_files)
     return FileTaskScheduler(
-        cache_directory=cache_directory,
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,
         backend=backend.split("_submission")[0],
