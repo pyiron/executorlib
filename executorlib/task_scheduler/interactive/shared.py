@@ -160,7 +160,6 @@ def _execute_task_with_cache(
         resource_dict=task_dict.get("resource_dict", {}),
         cache_key=cache_key,
     )
-    os.makedirs(cache_directory, exist_ok=True)
     file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
     if file_name not in get_cache_files(cache_directory=cache_directory):
         f = task_dict.pop("future")
