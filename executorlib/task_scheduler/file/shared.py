@@ -30,6 +30,7 @@ class H5Task:
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
     """
+
     future_queue: queue.Queue
     execute_function: Callable
     resource_dict: dict
@@ -113,7 +114,11 @@ def execute_tasks_h5(
             )
             task_resource_dict = task_dict["resource_dict"].copy()
             task_resource_dict.update(
-                {k: v for k, v in h5task.resource_dict.items() if k not in task_resource_dict}
+                {
+                    k: v
+                    for k, v in h5task.resource_dict.items()
+                    if k not in task_resource_dict
+                }
             )
             cache_key = task_resource_dict.pop("cache_key", None)
             cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))

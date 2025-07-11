@@ -10,7 +10,7 @@ from executorlib.standalone.inputcheck import (
     check_nested_flux_executor,
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.file.shared import execute_tasks_h5, H5Task
+from executorlib.task_scheduler.file.shared import H5Task, execute_tasks_h5
 from executorlib.task_scheduler.file.subprocess_spawner import (
     execute_in_subprocess,
     terminate_subprocess,

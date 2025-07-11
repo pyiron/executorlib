@@ -1,6 +1,6 @@
 import queue
-from dataclasses import dataclass
 from concurrent.futures import Future
+from dataclasses import dataclass
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
@@ -30,6 +30,7 @@ class DependencyTask:
         executor (TaskSchedulerBase): Executor to execute the tasks with after the dependencies are resolved.
         refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
     """
+
     future_queue: queue.Queue
     executor_queue: queue.Queue
     executor: TaskSchedulerBase
