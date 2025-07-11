@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from threading import Thread
 from typing import Callable, Optional
 
@@ -61,7 +60,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         )
         if execute_function == execute_in_subprocess and terminate_function is None:
             terminate_function = terminate_subprocess
-        thread_input = H5ThreadInput(
+        self._thread_input = H5ThreadInput(
             resource_dict=resource_dict,
             future_queue=self._future_queue,
             execute_function=execute_function,
@@ -73,10 +72,9 @@ class FileTaskScheduler(TaskSchedulerBase):
         self._set_process(
             Thread(
                 target=execute_tasks_h5,
-                kwargs={"h5_thread_input": thread_input},
+                kwargs={"h5_thread_input": self._thread_input},
             )
         )
-        self._thread_input = asdict(thread_input)
 
 
 def create_file_executor(

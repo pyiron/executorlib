@@ -1,6 +1,6 @@
 import queue
 from concurrent.futures import Future
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
@@ -64,7 +64,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         plot_dependency_graph_filename: Optional[str] = None,
     ) -> None:
         super().__init__(max_cores=max_cores)
-        thread_input = DependencyThreadInput(
+        self._thread_input = DependencyThreadInput(
             future_queue=self._future_queue,
             executor_queue=executor._future_queue,
             executor=executor,
@@ -73,10 +73,9 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         self._set_process(
             Thread(
                 target=_execute_tasks_with_dependencies,
-                kwargs={"dependency_thread_input": thread_input},
+                kwargs={"dependency_thread_input": self._thread_input},
             )
         )
-        self._thread_input = asdict(thread_input)
         self._future_hash_dict: dict = {}
         self._task_hash_dict: dict = {}
         self._plot_dependency_graph_filename = plot_dependency_graph_filename
