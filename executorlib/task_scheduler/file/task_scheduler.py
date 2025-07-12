@@ -80,7 +80,7 @@ class FileTaskScheduler(TaskSchedulerBase):
 def create_file_executor(
     resource_dict: dict,
     max_workers: Optional[int] = None,
-    backend: str = "flux_submission",
+    backend: Optional[str] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
     flux_executor=None,
@@ -92,6 +92,7 @@ def create_file_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
+    execute_function: Callable = execute_with_pysqa,
 ):
     if block_allocation:
         raise ValueError(
@@ -112,6 +113,7 @@ def create_file_executor(
     return FileTaskScheduler(
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,
-        backend=backend.split("_submission")[0],
+        backend=backend,
         disable_dependencies=disable_dependencies,
+        execute_function=execute_function,
     )
