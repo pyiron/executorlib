@@ -18,6 +18,8 @@ from executorlib.standalone.inputcheck import (
     check_hostname_localhost,
     check_pysqa_config_directory,
     check_file_exists,
+    check_terminate_tasks_on_shutdown,
+    check_log_obj_size,
     validate_number_of_cores,
 )
 
@@ -119,3 +121,11 @@ class TestInputCheck(unittest.TestCase):
             ),
             int,
         )
+
+    def test_check_log_obj_size(self):
+        with self.assertRaises(ValueError):
+            check_log_obj_size(log_obj_size=True)
+
+    def test_terminate_tasks_on_shutdown(self):
+        with self.assertRaises(ValueError):
+            check_terminate_tasks_on_shutdown(terminate_tasks_on_shutdown=False)

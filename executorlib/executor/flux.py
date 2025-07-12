@@ -4,10 +4,12 @@ from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_init_function,
+    check_log_obj_size,
     check_oversubscribe,
     check_plot_dependency_graph,
     check_pmi,
     check_refresh_rate,
+    check_terminate_tasks_on_shutdown,
     validate_number_of_cores,
 )
 from executorlib.task_scheduler.interactive.blockallocation import (
@@ -62,6 +64,7 @@ class FluxJobExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
     Examples:
         ```
@@ -102,6 +105,7 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        terminate_tasks_on_shutdown: bool = True,
     ):
         """
         The executorlib.FluxJobExecutor leverages either the message passing interface (MPI), the SLURM workload manager
@@ -147,6 +151,7 @@ class FluxJobExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
         """
         default_resource_dict: dict = {
@@ -161,6 +166,9 @@ class FluxJobExecutor(BaseExecutor):
             resource_dict = {}
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
+        )
+        check_terminate_tasks_on_shutdown(
+            terminate_tasks_on_shutdown=terminate_tasks_on_shutdown
         )
         if not disable_dependencies:
             super().__init__(
@@ -246,6 +254,8 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
     Examples:
         ```
@@ -282,6 +292,8 @@ class FluxClusterExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        log_obj_size: bool = False,
+        terminate_tasks_on_shutdown: bool = True,
     ):
         """
         The executorlib.FluxClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -323,6 +335,8 @@ class FluxClusterExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
         """
         default_resource_dict: dict = {
@@ -338,12 +352,20 @@ class FluxClusterExecutor(BaseExecutor):
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
+        check_log_obj_size(log_obj_size=log_obj_size)
         if not plot_dependency_graph:
             import pysqa  # noqa
 
             from executorlib.task_scheduler.file.task_scheduler import (
                 create_file_executor,
             )
+            if terminate_tasks_on_shutdown:
+                from executorlib.task_scheduler.file.queue_spawner import (
+                    terminate_with_pysqa,
+                )
+                terminate_function = terminate_with_pysqa
+            else:
+                terminate_function = None
 
             super().__init__(
                 executor=create_file_executor(
@@ -361,6 +383,7 @@ class FluxClusterExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
+                    terminate_function=terminate_function,
                 )
             )
         else:

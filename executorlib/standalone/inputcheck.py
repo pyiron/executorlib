@@ -194,7 +194,33 @@ def validate_number_of_cores(
 
 
 def check_file_exists(file_name: Optional[str]):
+    """
+    Check if file exists and raise a ValueError if it does not or file_name is None.
+    """
     if file_name is None:
         raise ValueError("file_name is not set.")
     if not os.path.exists(file_name):
         raise ValueError("file_name is not written to the file system.")
+
+
+def check_log_obj_size(log_obj_size: bool) -> None:
+    """
+    Check if log_obj_size is True and raise a ValueError if it is.
+    """
+    if log_obj_size:
+        raise ValueError(
+            "log_obj_size is not supported for the executorlib.SlurmClusterExecutor and executorlib.FluxClusterExecutor."
+            "Please use log_obj_size=False instead of log_obj_size=True."
+        )
+
+
+def check_terminate_tasks_on_shutdown(terminate_tasks_on_shutdown: bool) -> None:
+    """
+    Check if terminate_tasks_on_shutdown is False and raise a ValueError if it is.
+    """
+    if not terminate_tasks_on_shutdown:
+        raise ValueError(
+            "terminate_tasks_on_shutdown is not supported for the executorlib.SingleNodeExecutor, "
+            "executorlib.SlurmJobExecutor and executorlib.FluxJobExecutor."
+            "Please use terminate_tasks_on_shutdown=True instead of terminate_tasks_on_shutdown=False."
+        )
