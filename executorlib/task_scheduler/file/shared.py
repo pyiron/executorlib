@@ -86,6 +86,16 @@ def execute_tasks_h5(
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
+            while len(memory_dict) > 0:
+                memory_dict = {
+                    key: _check_task_output(
+                        task_key=key,
+                        future_obj=value,
+                        cache_directory=cache_dir_dict[key],
+                    )
+                    for key, value in memory_dict.items()
+                    if not value.done()
+                }
             if terminate_function is not None:
                 for task in process_dict.values():
                     terminate_function(task=task)
