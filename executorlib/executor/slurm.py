@@ -160,7 +160,7 @@ class SlurmClusterExecutor(BaseExecutor):
             super().__init__(
                 executor=create_file_executor(
                     max_workers=max_workers,
-                    backend="slurm_submission",
+                    backend="slurm",
                     max_cores=max_cores,
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,

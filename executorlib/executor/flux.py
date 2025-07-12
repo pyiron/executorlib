@@ -348,7 +348,7 @@ class FluxClusterExecutor(BaseExecutor):
             super().__init__(
                 executor=create_file_executor(
                     max_workers=max_workers,
-                    backend="flux_submission",
+                    backend="flux",
                     max_cores=max_cores,
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,
