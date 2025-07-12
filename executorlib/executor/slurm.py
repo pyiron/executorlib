@@ -165,10 +165,12 @@ class SlurmClusterExecutor(BaseExecutor):
             from executorlib.task_scheduler.file.task_scheduler import (
                 create_file_executor,
             )
+
             if terminate_tasks_on_shutdown:
                 from executorlib.task_scheduler.file.queue_spawner import (
                     terminate_with_pysqa,
                 )
+
                 terminate_function = terminate_with_pysqa
             else:
                 terminate_function = None

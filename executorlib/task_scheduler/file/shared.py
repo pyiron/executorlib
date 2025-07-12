@@ -10,9 +10,7 @@ from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.task_scheduler.file.hdf import dump, get_output
-from executorlib.task_scheduler.file.subprocess_spawner import (
-    terminate_subprocess
-)
+from executorlib.task_scheduler.file.subprocess_spawner import terminate_subprocess
 
 
 class FutureItem:
@@ -89,7 +87,10 @@ def execute_tasks_h5(
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if terminate_function is not None and terminate_function == terminate_subprocess:
+            if (
+                terminate_function is not None
+                and terminate_function == terminate_subprocess
+            ):
                 for task in process_dict.values():
                     terminate_function(task=task)
             elif terminate_function is not None:
