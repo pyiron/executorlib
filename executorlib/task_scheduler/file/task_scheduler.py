@@ -80,7 +80,7 @@ class FileTaskScheduler(TaskSchedulerBase):
 def create_file_executor(
     resource_dict: dict,
     max_workers: Optional[int] = None,
-    backend: str = "flux",
+    backend: Optional[str] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
     flux_executor=None,
