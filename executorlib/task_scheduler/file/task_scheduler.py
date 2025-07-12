@@ -13,7 +13,6 @@ from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
 from executorlib.task_scheduler.file.subprocess_spawner import (
     execute_in_subprocess,
-    terminate_subprocess,
 )
 
 try:
