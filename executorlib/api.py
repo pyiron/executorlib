@@ -5,6 +5,7 @@ only use the functionality in this API in combination with the user interface de
 functionality is considered internal and might change during minor releases.
 """
 
+from executorlib.executor.single import TestClusterExecutor
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
@@ -19,6 +20,7 @@ from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
 
 __all__: list[str] = [
+    "TestClusterExecutor",
     "cancel_items_in_queue",
     "cloudpickle_register",
     "get_command_path",
