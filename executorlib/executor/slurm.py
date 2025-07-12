@@ -3,6 +3,7 @@ from typing import Callable, Optional, Union
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
     check_init_function,
+    check_log_obj_size,
     check_plot_dependency_graph,
     check_refresh_rate,
     validate_number_of_cores,
@@ -58,6 +59,7 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
     Examples:
         ```
@@ -94,6 +96,7 @@ class SlurmClusterExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        log_obj_size: bool = False,
     ):
         """
         The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -135,6 +138,7 @@ class SlurmClusterExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
         """
         default_resource_dict: dict = {
@@ -150,6 +154,7 @@ class SlurmClusterExecutor(BaseExecutor):
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
+        check_log_obj_size(log_obj_size=log_obj_size)
         if not plot_dependency_graph:
             import pysqa  # noqa
 
