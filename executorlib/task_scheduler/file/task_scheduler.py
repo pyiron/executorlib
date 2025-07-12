@@ -13,7 +13,6 @@ from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
 from executorlib.task_scheduler.file.subprocess_spawner import (
     execute_in_subprocess,
-    terminate_subprocess,
 )
 
 try:
@@ -58,8 +57,6 @@ class FileTaskScheduler(TaskSchedulerBase):
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
-        if execute_function == execute_in_subprocess and terminate_function is None:
-            terminate_function = terminate_subprocess
         self._process_kwargs = {
             "resource_dict": resource_dict,
             "future_queue": self._future_queue,
@@ -93,6 +90,7 @@ def create_file_executor(
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
     execute_function: Callable = execute_with_pysqa,
+    terminate_function: Optional[Callable] = None,
 ):
     if block_allocation:
         raise ValueError(
@@ -116,4 +114,5 @@ def create_file_executor(
         backend=backend,
         disable_dependencies=disable_dependencies,
         execute_function=execute_function,
+        terminate_function=terminate_function,
     )
