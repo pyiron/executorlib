@@ -92,6 +92,7 @@ def create_file_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
+    execute_function: Callable = execute_with_pysqa,
 ):
     if block_allocation:
         raise ValueError(
@@ -114,4 +115,5 @@ def create_file_executor(
         pysqa_config_directory=pysqa_config_directory,
         backend=backend,
         disable_dependencies=disable_dependencies,
+        execute_function=execute_function,
     )
