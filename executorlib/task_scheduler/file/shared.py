@@ -10,6 +10,7 @@ from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.task_scheduler.file.hdf import dump, get_output
+from executorlib.task_scheduler.file.subprocess_spawner import terminate_subprocess
 
 
 class FutureItem:
@@ -96,9 +97,19 @@ def execute_tasks_h5(
                     for key, value in memory_dict.items()
                     if not value.done()
                 }
-            if terminate_function is not None:
+            if (
+                terminate_function is not None
+                and terminate_function == terminate_subprocess
+            ):
                 for task in process_dict.values():
                     terminate_function(task=task)
+            elif terminate_function is not None:
+                for queue_id in process_dict.values():
+                    terminate_function(
+                        queue_id=queue_id,
+                        config_directory=pysqa_config_directory,
+                        backend=backend,
+                    )
             future_queue.task_done()
             future_queue.join()
             break
