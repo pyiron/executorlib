@@ -256,11 +256,8 @@ class TestClusterExecutor(BaseExecutor):
         log_obj_size: bool = False,
     ):
         """
-        The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
-        manager or preferable the flux framework for distributing python functions within a given resource allocation.
-        In contrast to the mpi4py.futures.MPIPoolExecutor the executorlib.SlurmClusterExecutor can be executed in a
-        serial python process and does not require the python script to be executed with MPI. It is even possible to
-        execute the executorlib.SlurmClusterExecutor directly in an interactive Jupyter notebook.
+        The executorlib.TestClusterExecutor is designed to test the file based communication used in the SlurmClusterExecutor
+        and the FluxClusterExecutor locally. It is not recommended for production use, rather use the SingleNodeExecutor.
 
         Args:
             max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
