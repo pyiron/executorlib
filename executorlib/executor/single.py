@@ -186,8 +186,9 @@ class SingleNodeExecutor(BaseExecutor):
 
 class TestClusterExecutor(BaseExecutor):
     """
-    The executorlib.TestClusterExecutor is designed to test the file based communication used in the SlurmClusterExecutor
-    and the FluxClusterExecutor locally. It is not recommended for production use, rather use the SingleNodeExecutor.
+    The executorlib.api.TestClusterExecutor is designed to test the file based communication used in the
+    SlurmClusterExecutor and the FluxClusterExecutor locally. It is not recommended for production use, rather use the
+    SingleNodeExecutor.
 
     Args:
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
@@ -256,8 +257,9 @@ class TestClusterExecutor(BaseExecutor):
         log_obj_size: bool = False,
     ):
         """
-        The executorlib.TestClusterExecutor is designed to test the file based communication used in the SlurmClusterExecutor
-        and the FluxClusterExecutor locally. It is not recommended for production use, rather use the SingleNodeExecutor.
+        The executorlib.api.TestClusterExecutor is designed to test the file based communication used in the
+        SlurmClusterExecutor and the FluxClusterExecutor locally. It is not recommended for production use, rather use
+        the SingleNodeExecutor.
 
         Args:
             max_workers (int): for backwards compatibility with the standard library, max_workers also defines the
