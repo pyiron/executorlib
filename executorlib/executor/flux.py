@@ -3,8 +3,8 @@ from typing import Callable, Optional, Union
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
-    check_log_obj_size,
     check_init_function,
+    check_log_obj_size,
     check_oversubscribe,
     check_plot_dependency_graph,
     check_pmi,
