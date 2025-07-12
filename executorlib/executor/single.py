@@ -306,11 +306,11 @@ class TestClusterExecutor(BaseExecutor):
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
         if not plot_dependency_graph:
-            from executorlib.task_scheduler.file.task_scheduler import (
-                create_file_executor,
-            )
             from executorlib.task_scheduler.file.subprocess_spawner import (
                 execute_in_subprocess,
+            )
+            from executorlib.task_scheduler.file.task_scheduler import (
+                create_file_executor,
             )
 
             super().__init__(
