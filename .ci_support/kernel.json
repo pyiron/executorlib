@@ -2,7 +2,7 @@
  "argv": [
   "flux",
   "start",
-  "/home/runner/miniconda3/bin/python",
+  "/home/runner/miniconda3/envs/test/bin/python",
   "-m",
   "ipykernel_launcher",
   "-f",
