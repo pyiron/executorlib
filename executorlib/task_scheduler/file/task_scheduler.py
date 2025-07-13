@@ -24,7 +24,7 @@ try:
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = execute_in_subprocess  # type: ignore
-    terminate_with_pysqa = None
+    terminate_with_pysqa = None  # type: ignore
 
 
 class FileTaskScheduler(TaskSchedulerBase):
