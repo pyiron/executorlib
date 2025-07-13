@@ -95,7 +95,6 @@ def create_file_executor(
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
     execute_function: Callable = execute_with_pysqa,
-    terminate_tasks_on_shutdown: bool = True,
 ):
     if block_allocation:
         raise ValueError(
@@ -113,12 +112,10 @@ def create_file_executor(
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     check_flux_log_files(flux_log_files=flux_log_files)
-    if terminate_tasks_on_shutdown and execute_function != execute_in_subprocess:
+    if execute_function != execute_in_subprocess:
         terminate_function = terminate_with_pysqa  # type: ignore
-    elif terminate_tasks_on_shutdown and execute_function == execute_in_subprocess:
-        terminate_function = terminate_subprocess  # type: ignore
     else:
-        terminate_function = None  # type: ignore
+        terminate_function = terminate_subprocess  # type: ignore
     return FileTaskScheduler(
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,
