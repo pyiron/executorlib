@@ -38,9 +38,7 @@ def set_global():
 )
 class TestSlurmBackend(unittest.TestCase):
     def test_slurm_executor_serial(self):
-        with SlurmJobExecutor(
-            block_allocation=True,
-        ) as exe:
+        with SlurmJobExecutor() as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
             self.assertEqual(fs_1.result(), 1)
@@ -50,7 +48,6 @@ class TestSlurmBackend(unittest.TestCase):
 
     def test_slurm_executor_serial_no_depencies(self):
         with SlurmJobExecutor(
-            block_allocation=True,
             disable_dependencies=True,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -63,7 +60,6 @@ class TestSlurmBackend(unittest.TestCase):
     def test_slurm_executor_threads(self):
         with SlurmJobExecutor(
             resource_dict={"threads_per_core": 2},
-            block_allocation=True,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
             fs_2 = exe.submit(calc, 2)
@@ -75,7 +71,6 @@ class TestSlurmBackend(unittest.TestCase):
     def test_slurm_executor_parallel(self):
         with SlurmJobExecutor(
             resource_dict={"cores": 2},
-            block_allocation=True,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
@@ -84,21 +79,9 @@ class TestSlurmBackend(unittest.TestCase):
     def test_single_task(self):
         with SlurmJobExecutor(
             resource_dict={"cores": 2},
-            block_allocation=True,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(
             list(output),
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
-
-    def test_internal_memory(self):
-        with SlurmJobExecutor(
-            resource_dict={"cores": 1},
-            init_function=set_global,
-            block_allocation=True,
-        ) as p:
-            f = p.submit(get_global)
-            self.assertFalse(f.done())
-            self.assertEqual(f.result(), np.array([5]))
-            self.assertTrue(f.done())
