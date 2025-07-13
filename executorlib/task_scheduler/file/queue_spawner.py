@@ -99,7 +99,8 @@ def terminate_with_pysqa(
         queue_type=backend,
         execute_command=_pysqa_execute_command,
     )
-    if qa.get_status_of_job(process_id=queue_id) is not None:
+    status = qa.get_status_of_job(process_id=queue_id)
+    if status is not None and status not in ["finished", "error"]:
         qa.delete_job(process_id=queue_id)
 
 
