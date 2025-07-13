@@ -152,3 +152,5 @@ def get_terminate_function(terminate_tasks_on_shutdown: bool) -> Optional[Callab
     """
     if terminate_tasks_on_shutdown:
         return terminate_with_pysqa
+    else:
+        return None
