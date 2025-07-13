@@ -360,14 +360,13 @@ class FluxClusterExecutor(BaseExecutor):
                 create_file_executor,
             )
 
-            if terminate_tasks_on_shutdown:
-                from executorlib.task_scheduler.file.queue_spawner import (
-                    terminate_with_pysqa,
-                )
+            from executorlib.task_scheduler.file.queue_spawner import (
+                get_terminate_function,
+            )
 
-                terminate_function = terminate_with_pysqa
-            else:
-                terminate_function = None
+            terminate_function = get_terminate_function(
+                terminate_tasks_on_shutdown=terminate_tasks_on_shutdown
+            )
 
             super().__init__(
                 executor=create_file_executor(
