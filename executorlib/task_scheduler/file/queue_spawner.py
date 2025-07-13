@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import Optional, Union
+from typing import Callable, Optional, Union
 
 from pysqa import QueueAdapter
 
@@ -140,7 +140,7 @@ def _pysqa_execute_command(
         return out
 
 
-def get_terminate_function(terminate_tasks_on_shutdown: bool) -> Optional[callable]:
+def get_terminate_function(terminate_tasks_on_shutdown: bool) -> Optional[Callable]:
     """
     Get the appropriate terminate function based on the shutdown configuration.
 
@@ -148,7 +148,7 @@ def get_terminate_function(terminate_tasks_on_shutdown: bool) -> Optional[callab
         terminate_tasks_on_shutdown (bool): Flag indicating whether to terminate tasks on shutdown.
 
     Returns:
-        Optional[callable]: The terminate function to use, or None if no termination is needed.
+        Optional[Callable]: The terminate function to use, or None if no termination is needed.
     """
     if terminate_tasks_on_shutdown:
         return terminate_with_pysqa
