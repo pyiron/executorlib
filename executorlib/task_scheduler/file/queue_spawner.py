@@ -138,19 +138,3 @@ def _pysqa_execute_command(
         return out.split("\n")
     else:
         return out
-
-
-def get_terminate_function(terminate_tasks_on_shutdown: bool) -> Optional[Callable]:
-    """
-    Get the appropriate terminate function based on the shutdown configuration.
-
-    Args:
-        terminate_tasks_on_shutdown (bool): Flag indicating whether to terminate tasks on shutdown.
-
-    Returns:
-        Optional[Callable]: The terminate function to use, or None if no termination is needed.
-    """
-    if terminate_tasks_on_shutdown:
-        return terminate_with_pysqa
-    else:
-        return None

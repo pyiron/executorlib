@@ -12,14 +12,15 @@ from executorlib.standalone.inputcheck import (
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
 from executorlib.task_scheduler.file.subprocess_spawner import (
-    execute_in_subprocess,
+    execute_in_subprocess, terminate_subprocess
 )
 
 try:
-    from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa
+    from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa, terminate_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = execute_in_subprocess  # type: ignore
+    terminate_with_pysqa = None
 
 
 class FileTaskScheduler(TaskSchedulerBase):
@@ -90,7 +91,7 @@ def create_file_executor(
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
     execute_function: Callable = execute_with_pysqa,
-    terminate_function: Optional[Callable] = None,
+    terminate_tasks_on_shutdown: bool = True,
 ):
     if block_allocation:
         raise ValueError(
@@ -108,6 +109,12 @@ def create_file_executor(
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     check_flux_log_files(flux_log_files=flux_log_files)
+    if terminate_tasks_on_shutdown and execute_function != execute_in_subprocess:
+        terminate_function = terminate_with_pysqa
+    elif terminate_tasks_on_shutdown and execute_function == execute_in_subprocess:
+        terminate_function = terminate_subprocess
+    else:
+        terminate_function = None
     return FileTaskScheduler(
         resource_dict=resource_dict,
         pysqa_config_directory=pysqa_config_directory,

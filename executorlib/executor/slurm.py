@@ -166,14 +166,6 @@ class SlurmClusterExecutor(BaseExecutor):
                 create_file_executor,
             )
 
-            from executorlib.task_scheduler.file.queue_spawner import (
-                get_terminate_function,
-            )
-
-            terminate_function = get_terminate_function(
-                terminate_tasks_on_shutdown=terminate_tasks_on_shutdown
-            )
-
             super().__init__(
                 executor=create_file_executor(
                     max_workers=max_workers,
@@ -190,7 +182,7 @@ class SlurmClusterExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
-                    terminate_function=terminate_function,
+                    terminate_tasks_on_shutdown=terminate_tasks_on_shutdown,
                 )
             )
         else:
