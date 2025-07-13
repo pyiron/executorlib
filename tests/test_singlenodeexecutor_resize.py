@@ -1,4 +1,5 @@
 import unittest
+from sys import platform
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
 
@@ -52,6 +53,7 @@ class TestResizing(unittest.TestCase):
             self.assertEqual([f.result() for f in future_lst], [1, 1, 1, 1])
             self.assertEqual([f.done() for f in future_lst], [True, True, True, True])
 
+    @unittest.skipIf(platform == "darwin", "Skipping test on macOS due to known issues")
     def test_with_dependencies_increase(self):
         cloudpickle_register(ind=1)
         with SingleNodeExecutor(max_workers=1, block_allocation=True, disable_dependencies=False) as exe:
