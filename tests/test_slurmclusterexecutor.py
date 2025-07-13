@@ -14,6 +14,18 @@ else:
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 
+submission_template = """\
+#!/bin/bash
+#SBATCH --output=time.out
+#SBATCH --job-name={{job_name}}
+#SBATCH --chdir={{working_directory}}
+#SBATCH --get-user-env=L
+#SBATCH --cpus-per-task={{cores}}
+
+{{command}}
+"""
+
+
 def mpi_funct(i):
     from mpi4py import MPI
 
@@ -29,7 +41,7 @@ def mpi_funct(i):
 class TestCacheExecutorPysqa(unittest.TestCase):
     def test_executor(self):
         with SlurmClusterExecutor(
-            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
             terminate_tasks_on_shutdown=False,
@@ -43,7 +55,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def test_executor_no_cwd(self):
         with SlurmClusterExecutor(
-            resource_dict={"cores": 2},
+            resource_dict={"cores": 2, "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
             terminate_tasks_on_shutdown=True,
@@ -57,7 +69,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def test_executor_existing_files(self):
         with SlurmClusterExecutor(
-            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
         ) as exe:
@@ -75,7 +87,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
                     dump(file_name=task_key, data_dict={"a": 1})
 
         with SlurmClusterExecutor(
-            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
         ) as exe:
