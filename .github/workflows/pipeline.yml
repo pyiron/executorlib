@@ -325,8 +325,8 @@ jobs:
       run: |
         pip install . --no-deps --no-build-isolation
         cd tests
-        python -m unittest test_slrumclusterexecutor.py
-        python -m unittest test_slrumjobexecutor.py
+        python -m unittest test_slurmclusterexecutor.py
+        python -m unittest test_slurmjobexecutor.py
 
   unittest_mpich:
     needs: [black]
