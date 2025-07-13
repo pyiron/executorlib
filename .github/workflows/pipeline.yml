@@ -165,8 +165,8 @@ jobs:
         timeout-minutes: 5
         run: |
           papermill notebooks/1-single-node.ipynb notebooks/1-single-node-out.ipynb -k python3
-          flux start papermill notebooks/2-hpc-cluster.ipynb notebooks/2-hpc-cluster-out.ipynb -k python3
-          flux start papermill notebooks/3-hpc-job.ipynb notebooks/3-hpc-job-out.ipynb -k python3
+          flux start && papermill notebooks/2-hpc-cluster.ipynb notebooks/2-hpc-cluster-out.ipynb -k python3
+          flux start && papermill notebooks/3-hpc-job.ipynb notebooks/3-hpc-job-out.ipynb -k python3
           papermill notebooks/4-developer.ipynb notebooks/4-developer-out.ipynb -k python3
 
   notebooks_integration:
@@ -191,8 +191,8 @@ jobs:
         shell: bash -l {0}
         timeout-minutes: 20
         run: |
-          flux start papermill notebooks/5-1-gpaw.ipynb notebooks/5-1-gpaw-out.ipynb -k python3
-          flux start papermill notebooks/5-2-quantum-espresso.ipynb notebooks/5-2-quantum-espresso-out.ipynb -k python3
+          flux start && papermill notebooks/5-1-gpaw.ipynb notebooks/5-1-gpaw-out.ipynb -k python3
+          flux start && papermill notebooks/5-2-quantum-espresso.ipynb notebooks/5-2-quantum-espresso-out.ipynb -k python3
 
   unittest_flux_mpich:
     needs: [black]
