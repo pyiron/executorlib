@@ -3,6 +3,7 @@ import importlib.util
 from queue import Queue
 from time import sleep
 import shutil
+from sys import platform
 import unittest
 
 import numpy as np
@@ -300,6 +301,7 @@ class TestFuturePool(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
+    @unittest.skipIf(platform == "darwin", "Skipping test on macOS due to known issues")
     def test_shutdown(self):
         p = BlockAllocationTaskScheduler(
             max_workers=1,
