@@ -81,6 +81,29 @@ def execute_with_pysqa(
     return queue_id
 
 
+def terminate_with_pysqa(
+    queue_id: int,
+    config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+):
+    """
+    Delete job from queuing system
+
+    Args:
+        queue_id (int): Queuing system ID of the job to delete.
+        config_directory (str, optional): path to the config directory.
+        backend (str, optional): name of the backend used to spawn tasks.
+    """
+    qa = QueueAdapter(
+        directory=config_directory,
+        queue_type=backend,
+        execute_command=_pysqa_execute_command,
+    )
+    status = qa.get_status_of_job(process_id=queue_id)
+    if status is not None and status not in ["finished", "error"]:
+        qa.delete_job(process_id=queue_id)
+
+
 def _pysqa_execute_command(
     commands: str,
     working_directory: Optional[str] = None,
