@@ -278,6 +278,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: koesterlab/setup-slurm-action@v1
+      timeout-minutes: 5
     - name: Conda config
       shell: bash -l {0}
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
