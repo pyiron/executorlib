@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import Callable, Optional, Union
+from typing import Optional, Union
 
 from pysqa import QueueAdapter
 
