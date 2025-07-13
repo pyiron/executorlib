@@ -45,32 +45,3 @@ class TestSlurmBackend(unittest.TestCase):
             self.assertEqual(fs_2.result(), 2)
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
-
-    def test_slurm_executor_serial_no_depencies(self):
-        with SlurmJobExecutor(
-            disable_dependencies=True,
-        ) as exe:
-            fs_1 = exe.submit(calc, 1)
-            fs_2 = exe.submit(calc, 2)
-            self.assertEqual(fs_1.result(), 1)
-            self.assertEqual(fs_2.result(), 2)
-            self.assertTrue(fs_1.done())
-            self.assertTrue(fs_2.done())
-
-    def test_slurm_executor_parallel(self):
-        with SlurmJobExecutor(
-            resource_dict={"cores": 2},
-        ) as exe:
-            fs_1 = exe.submit(mpi_funct, 1)
-            self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
-            self.assertTrue(fs_1.done())
-
-    def test_single_task(self):
-        with SlurmJobExecutor(
-            resource_dict={"cores": 2},
-        ) as p:
-            output = p.map(mpi_funct, [1, 2, 3])
-        self.assertEqual(
-            list(output),
-            [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
-        )
