@@ -1,0 +1,16 @@
+{
+ "argv": [
+  "flux",
+  "start",
+  "/home/runner/miniconda3/bin/python",
+  "-m",
+  "ipykernel_launcher",
+  "-f",
+  "{connection_file}"
+ ],
+ "display_name": "flux",
+ "language": "python",
+ "metadata": {
+  "debugger": true
+ }
+}

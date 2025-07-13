@@ -147,6 +147,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Merge Notebook environment
         run: |
+          mkdir -p /home/runner/.local/share/jupyter/kernels/flux
+          cp .ci_support/kernel.json /home/runner/.local/share/jupyter/kernels/flux
           cp binder/environment.yml environment.yml
           tail --lines=+4 .ci_support/environment-notebooks.yml >> environment.yml
           echo -e "channels:\n  - conda-forge\n" > .condarc
@@ -165,8 +167,8 @@ jobs:
         timeout-minutes: 5
         run: |
           papermill notebooks/1-single-node.ipynb notebooks/1-single-node-out.ipynb -k python3
-          flux start papermill notebooks/2-hpc-cluster.ipynb notebooks/2-hpc-cluster-out.ipynb -k python3
-          flux start papermill notebooks/3-hpc-job.ipynb notebooks/3-hpc-job-out.ipynb -k python3
+          papermill notebooks/2-hpc-cluster.ipynb notebooks/2-hpc-cluster-out.ipynb -k flux
+          papermill notebooks/3-hpc-job.ipynb notebooks/3-hpc-job-out.ipynb -k flux
           papermill notebooks/4-developer.ipynb notebooks/4-developer-out.ipynb -k python3
 
   notebooks_integration:
