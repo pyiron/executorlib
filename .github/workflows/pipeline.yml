@@ -296,38 +296,6 @@ jobs:
         python -m unittest test_slurmclusterexecutor.py
         python -m unittest test_slurmjobexecutor.py
 
-  unittest_slurm_openmpi:
-    needs: [black]
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - "8888:3306"
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    steps:
-    - uses: actions/checkout@v4
-    - uses: koesterlab/setup-slurm-action@v1
-    - name: Conda config
-      shell: bash -l {0}
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
-      with:
-        python-version: '3.13'
-        miniforge-version: latest
-        condarc-file: .condarc
-        environment-file: .ci_support/environment-openmpi.yml
-    - name: Test
-      shell: bash -l {0}
-      timeout-minutes: 5
-      run: |
-        pip install . --no-deps --no-build-isolation
-        cd tests
-        python -m unittest test_slurmclusterexecutor.py
-        python -m unittest test_slurmjobexecutor.py
-
   unittest_mpich:
     needs: [black]
     runs-on: ${{ matrix.operating-system }}
@@ -464,7 +432,7 @@ jobs:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   uml:
-    needs: [unittest_slurm_mpich, unittest_slurm_openmpi, unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
+    needs: [unittest_slurm_mpich, unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4

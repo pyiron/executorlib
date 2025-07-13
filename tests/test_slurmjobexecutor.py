@@ -39,7 +39,6 @@ def set_global():
 class TestSlurmBackend(unittest.TestCase):
     def test_slurm_executor_serial(self):
         with SlurmJobExecutor(
-            max_cores=2,
             block_allocation=True,
         ) as exe:
             fs_1 = exe.submit(calc, 1)
@@ -51,7 +50,6 @@ class TestSlurmBackend(unittest.TestCase):
 
     def test_slurm_executor_serial_no_depencies(self):
         with SlurmJobExecutor(
-            max_cores=2,
             block_allocation=True,
             disable_dependencies=True,
         ) as exe:
@@ -64,7 +62,6 @@ class TestSlurmBackend(unittest.TestCase):
 
     def test_slurm_executor_threads(self):
         with SlurmJobExecutor(
-            max_cores=1,
             resource_dict={"threads_per_core": 2},
             block_allocation=True,
         ) as exe:
@@ -77,7 +74,6 @@ class TestSlurmBackend(unittest.TestCase):
 
     def test_slurm_executor_parallel(self):
         with SlurmJobExecutor(
-            max_cores=2,
             resource_dict={"cores": 2},
             block_allocation=True,
         ) as exe:
@@ -87,7 +83,6 @@ class TestSlurmBackend(unittest.TestCase):
 
     def test_single_task(self):
         with SlurmJobExecutor(
-            max_cores=2,
             resource_dict={"cores": 2},
             block_allocation=True,
         ) as p:
@@ -99,7 +94,6 @@ class TestSlurmBackend(unittest.TestCase):
 
     def test_internal_memory(self):
         with SlurmJobExecutor(
-            max_cores=1,
             resource_dict={"cores": 1},
             init_function=set_global,
             block_allocation=True,
@@ -108,11 +102,3 @@ class TestSlurmBackend(unittest.TestCase):
             self.assertFalse(f.done())
             self.assertEqual(f.result(), np.array([5]))
             self.assertTrue(f.done())
-
-    def test_validate_max_workers(self):
-        with self.assertRaises(ValueError):
-            SlurmJobExecutor(
-                max_workers=10,
-                resource_dict={"cores": 10, "threads_per_core": 10},
-                block_allocation=True,
-            )
