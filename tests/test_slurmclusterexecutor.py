@@ -13,6 +13,12 @@ else:
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
+try:
+    from executorlib.task_scheduler.file.hdf import dump
+
+    skip_h5py_test = False
+except ImportError:
+    skip_h5py_test = True
 
 submission_template = """\
 #!/bin/bash
@@ -35,7 +41,7 @@ def mpi_funct(i):
 
 
 @unittest.skipIf(
-    skip_slurm_test or skip_mpi4py_test,
+    skip_slurm_test or skip_mpi4py_test or skip_h5py_test,
     "h5py or mpi4py or SLRUM are not installed, so the h5py, slurm and mpi4py tests are skipped.",
 )
 class TestCacheExecutorPysqa(unittest.TestCase):
