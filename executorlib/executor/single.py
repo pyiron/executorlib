@@ -56,6 +56,7 @@ class SingleNodeExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
     Examples:
         ```
