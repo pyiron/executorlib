@@ -9,7 +9,7 @@ from typing import Any, Callable, Optional
 from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.serialize import serialize_funct_h5
-from executorlib.task_scheduler.file.hdf import dump, get_output
+from executorlib.task_scheduler.file.hdf import get_output
 from executorlib.task_scheduler.file.subprocess_spawner import terminate_subprocess
 
 
@@ -138,9 +138,6 @@ def execute_tasks_h5(
                     cache_directory, task_key + "_o.h5"
                 ) not in get_cache_files(cache_directory=cache_directory):
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
-                    if os.path.exists(file_name):
-                        os.remove(file_name)
-                    dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
@@ -159,6 +156,7 @@ def execute_tasks_h5(
                             cores=task_resource_dict["cores"],
                         ),
                         file_name=file_name,
+                        data_dict=data_dict,
                         task_dependent_lst=task_dependent_lst,
                         resource_dict=task_resource_dict,
                         config_directory=pysqa_config_directory,

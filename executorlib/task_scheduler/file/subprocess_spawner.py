@@ -1,14 +1,17 @@
 import subprocess
 import time
+import os
 from typing import Optional
 
 from executorlib.standalone.inputcheck import check_file_exists
+from executorlib.task_scheduler.file.hdf import dump
 
 
 def execute_in_subprocess(
     command: list,
     task_dependent_lst: Optional[list] = None,
     file_name: Optional[str] = None,
+    data_dict: Optional[dict] = None,
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -21,6 +24,7 @@ def execute_in_subprocess(
         command (list): The command to be executed.
         task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
         file_name (str): Name of the HDF5 file which contains the Python function
+        data_dict (dict): dictionary containing the python function to be executed {"fn": ..., "args": (), "kwargs": {}}
         resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.
                               Example resource dictionary: {
                                   cwd: None,
@@ -35,6 +39,9 @@ def execute_in_subprocess(
     """
     if task_dependent_lst is None:
         task_dependent_lst = []
+    if os.path.exists(file_name):
+        os.remove(file_name)
+    dump(file_name=file_name, data_dict=data_dict)
     check_file_exists(file_name=file_name)
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
