@@ -101,7 +101,7 @@ def get_queue_id(file_name: Optional[str]) -> Optional[int]:
     Returns:
         int: queuing system id from the execution of the python function
     """
-    if file_name is not None:
+    if file_name is not None and os.path.exists(file_name):
         with h5py.File(file_name, "r") as hdf:
             if "queue_id" in hdf:
                 return cloudpickle.loads(np.void(hdf["/queue_id"]))
