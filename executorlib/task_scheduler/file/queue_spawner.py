@@ -10,10 +10,10 @@ from executorlib.task_scheduler.file.hdf import dump, get_queue_id
 
 def execute_with_pysqa(
     command: list,
+    file_name: str,
+    data_dict: dict,
     cache_directory: str,
     task_dependent_lst: Optional[list[int]] = None,
-    file_name: Optional[str] = None,
-    data_dict: Optional[dict] = None,
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -23,10 +23,10 @@ def execute_with_pysqa(
 
     Args:
         command (list): The command to be executed.
-        cache_directory (str): The directory to store the HDF5 files.
-        task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
         file_name (str): Name of the HDF5 file which contains the Python function
         data_dict (dict): dictionary containing the python function to be executed {"fn": ..., "args": (), "kwargs": {}}
+        cache_directory (str): The directory to store the HDF5 files.
+        task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
         resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.
                               Example resource dictionary: {
                                   cwd: None,
