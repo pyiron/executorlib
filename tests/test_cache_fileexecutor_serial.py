@@ -5,12 +5,11 @@ import shutil
 import unittest
 from threading import Thread
 
-from executorlib.task_scheduler.file.subprocess_spawner import (
-    execute_in_subprocess,
-    terminate_subprocess,
-)
-
 try:
+    from executorlib.task_scheduler.file.subprocess_spawner import (
+        execute_in_subprocess,
+        terminate_subprocess,
+    )
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
     from executorlib.task_scheduler.file.shared import execute_tasks_h5
 
