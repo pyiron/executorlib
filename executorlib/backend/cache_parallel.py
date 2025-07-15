@@ -56,9 +56,8 @@ def main() -> None:
                 output={"error": error},
                 runtime=time.time() - time_start,
             )
-            if write_error_file:
-                file_name_error = os.path.splitext(os.path.basename(file_name))[0]
-                with open(os.path.join(os.path.dirname(file_name), "error_" + file_name_error + ".out"), "a") as f:
+            if apply_dict.get("write_error_file", False):
+                with open(apply_dict.get("error_file_name", "error.out"), "a") as f:
                     f.write(error.output)
     else:
         if mpi_rank_zero:

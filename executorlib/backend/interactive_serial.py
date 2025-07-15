@@ -11,7 +11,7 @@ from executorlib.standalone.interactive.communication import (
 )
 
 
-def main(argument_lst: Optional[list[str]] = None, write_error_file: bool = False):
+def main(argument_lst: Optional[list[str]] = None):
     """
     The main function of the program.
 
@@ -59,8 +59,8 @@ def main(argument_lst: Optional[list[str]] = None, write_error_file: bool = Fals
                     socket=socket,
                     result_dict={"error": error},
                 )
-                if write_error_file:
-                    with open("error.out", "a") as f:
+                if input_dict.get("write_error_file", False):
+                    with open(input_dict.get("error_file_name", "error.out"), "a") as f:
                         f.write(error.output)
             else:
                 # Send output
