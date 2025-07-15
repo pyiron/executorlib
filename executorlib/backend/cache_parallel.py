@@ -9,7 +9,6 @@ from executorlib.task_scheduler.file.backend import (
     backend_write_file,
 )
 
-
 write_error_file = False
 
 
@@ -58,7 +57,12 @@ def main() -> None:
             )
             if write_error_file:
                 file_name_error = os.path.splitext(os.path.basename(file_name))[0]
-                with open(os.path.join(os.path.dirname(file_name), "error_" + file_name_error + ".out"), "a") as f:
+                with open(
+                    os.path.join(
+                        os.path.dirname(file_name), "error_" + file_name_error + ".out"
+                    ),
+                    "a",
+                ) as f:
                     f.write(error.output)
     else:
         if mpi_rank_zero:
