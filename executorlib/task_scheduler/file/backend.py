@@ -79,7 +79,10 @@ def backend_execute_task_in_file(file_name: str) -> None:
         result = {"error": error}
         if apply_dict.get("write_error_file", False):
             with open(apply_dict.get("error_file_name", "error.out"), "a") as f:
-                f.write(error.output)
+                if hasattr(error, "output"):
+                    f.write(error.output)
+                else:
+                    f.write(error)
 
     backend_write_file(
         file_name=file_name,

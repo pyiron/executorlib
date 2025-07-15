@@ -84,7 +84,10 @@ def main() -> None:
                     )
                     if input_dict.get("write_error_file", False):
                         with open(input_dict.get("error_file_name", "error.out"), "a") as f:
-                            f.write(error.output)
+                            if hasattr(error, "output"):
+                                f.write(error.output)
+                            else:
+                                f.write(error)
             else:
                 # Send output
                 if mpi_rank_zero:

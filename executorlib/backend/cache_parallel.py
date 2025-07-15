@@ -58,7 +58,10 @@ def main() -> None:
             )
             if apply_dict.get("write_error_file", False):
                 with open(apply_dict.get("error_file_name", "error.out"), "a") as f:
-                    f.write(error.output)
+                    if hasattr(error, "output"):
+                        f.write(error.output)
+                    else:
+                        f.write(error)
     else:
         if mpi_rank_zero:
             backend_write_file(
