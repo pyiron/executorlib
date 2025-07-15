@@ -83,7 +83,9 @@ def main() -> None:
                         result_dict={"error": error},
                     )
                     if input_dict.get("write_error_file", False):
-                        with open(input_dict.get("error_file_name", "error.out"), "a") as f:
+                        with open(
+                            input_dict.get("error_file_name", "error.out"), "a"
+                        ) as f:
                             f.write(error.output)
             else:
                 # Send output
