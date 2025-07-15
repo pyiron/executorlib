@@ -60,7 +60,7 @@ def main() -> None:
                     if hasattr(error, "output"):
                         f.write(error.output)
                     else:
-                        f.write(error)
+                        f.write(str(error))
     else:
         if mpi_rank_zero:
             backend_write_file(

@@ -82,7 +82,7 @@ def backend_execute_task_in_file(file_name: str) -> None:
                 if hasattr(error, "output"):
                     f.write(error.output)
                 else:
-                    f.write(error)
+                    f.write(str(error))
 
     backend_write_file(
         file_name=file_name,

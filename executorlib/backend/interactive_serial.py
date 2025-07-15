@@ -64,7 +64,7 @@ def main(argument_lst: Optional[list[str]] = None):
                         if hasattr(error, "output"):
                             f.write(error.output)
                         else:
-                            f.write(error)
+                            f.write(str(error))
             else:
                 # Send output
                 interface_send(socket=socket, result_dict={"result": output})

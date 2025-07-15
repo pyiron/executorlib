@@ -89,7 +89,7 @@ def main() -> None:
                             if hasattr(error, "output"):
                                 f.write(error.output)
                             else:
-                                f.write(error)
+                                f.write(str(error))
             else:
                 # Send output
                 if mpi_rank_zero:
