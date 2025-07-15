@@ -57,12 +57,13 @@ def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
     os.rename(file_name_out + "_r.h5", file_name_out + "_o.h5")
 
 
-def backend_execute_task_in_file(file_name: str) -> None:
+def backend_execute_task_in_file(file_name: str, write_error_file: bool = False) -> None:
     """
     Execute the task stored in a given HDF5 file.
 
     Args:
         file_name (str): The file name of the HDF5 file as an absolute path.
+        write_error_file (bool):
 
     Returns:
         None
@@ -77,6 +78,10 @@ def backend_execute_task_in_file(file_name: str) -> None:
         }
     except Exception as error:
         result = {"error": error}
+        if write_error_file:
+            file_name_error = os.path.splitext(os.path.basename(file_name))[0]
+            with open(os.path.join(os.path.dirname(file_name), "error_" + file_name_error + ".out"), "a") as f:
+                f.write(error.output)
 
     backend_write_file(
         file_name=file_name,

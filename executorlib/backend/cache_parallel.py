@@ -10,6 +10,9 @@ from executorlib.task_scheduler.file.backend import (
 )
 
 
+write_error_file = False
+
+
 def main() -> None:
     """
     Main function for executing the cache_parallel script.
@@ -53,6 +56,10 @@ def main() -> None:
                 output={"error": error},
                 runtime=time.time() - time_start,
             )
+            if write_error_file:
+                file_name_error = os.path.splitext(os.path.basename(file_name))[0]
+                with open(os.path.join(os.path.dirname(file_name), "error_" + file_name_error + ".out"), "a") as f:
+                    f.write(error.output)
     else:
         if mpi_rank_zero:
             backend_write_file(

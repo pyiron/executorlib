@@ -11,12 +11,13 @@ from executorlib.standalone.interactive.communication import (
 )
 
 
-def main(argument_lst: Optional[list[str]] = None):
+def main(argument_lst: Optional[list[str]] = None, write_error_file: bool = False):
     """
     The main function of the program.
 
     Args:
         argument_lst (Optional[List[str]]): List of command line arguments. If None, sys.argv will be used.
+        write_error_file (bool):
 
     Returns:
         None
@@ -58,6 +59,9 @@ def main(argument_lst: Optional[list[str]] = None):
                     socket=socket,
                     result_dict={"error": error},
                 )
+                if write_error_file:
+                    with open("error.out", "a") as f:
+                        f.write(error.output)
             else:
                 # Send output
                 interface_send(socket=socket, result_dict={"result": output})

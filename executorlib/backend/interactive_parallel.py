@@ -15,6 +15,9 @@ from executorlib.standalone.interactive.communication import (
 )
 
 
+write_error_file = False
+
+
 def main() -> None:
     """
     Entry point of the program.
@@ -82,6 +85,9 @@ def main() -> None:
                         socket=socket,
                         result_dict={"error": error},
                     )
+                    if write_error_file:
+                        with open("error.out", "a") as f:
+                            f.write(error.output)
             else:
                 # Send output
                 if mpi_rank_zero:
