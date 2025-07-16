@@ -9,6 +9,7 @@ from executorlib.standalone.serialize import cloudpickle_register
 try:
     import flux.job
     from executorlib.task_scheduler.file.hdf import dump
+    from executorlib.task_scheduler.file.queue_spawner import terminate_with_pysqa, terminate_tasks_in_cache
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -58,6 +59,9 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
 
+    def test_terminate_with_pysqa(self):
+        self.assertisNone(terminate_with_pysqa(queue_id=1, backend="flux"))
+
     def test_executor_existing_files(self):
         with FluxClusterExecutor(
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
@@ -88,6 +92,14 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs1.done())
             self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+
+    def terminate_tasks_in_cache(self):
+        file = os.path.join("executorlib_cache", "test_i.h5")
+        dump(file_name=file, data_dict={"queue_id": 1})
+        self.assertisNone(terminate_tasks_in_cache(
+            cache_directory="executorlib_cache",
+            backend="flux",
+        ))
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
