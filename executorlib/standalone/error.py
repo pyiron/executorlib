@@ -1,4 +1,3 @@
-
 import traceback
 
 
@@ -13,7 +12,7 @@ def backend_write_error_file(error: Exception, apply_dict: dict) -> None:
     Returns:
         None
     """
-    error_log_file = apply_dict.get("error_log_file", None)
+    error_log_file = apply_dict.get("error_log_file")
     if error_log_file is not None:
         with open(error_log_file, "a") as f:
             f.write("function: " + str(apply_dict["fn"]) + "\n")
