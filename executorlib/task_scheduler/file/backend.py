@@ -2,6 +2,7 @@ import os
 import time
 from typing import Any
 
+from executorlib.standalone.error import backend_write_error_file
 from executorlib.task_scheduler.file.hdf import dump, load
 from executorlib.task_scheduler.file.shared import FutureItem
 
@@ -77,6 +78,10 @@ def backend_execute_task_in_file(file_name: str) -> None:
         }
     except Exception as error:
         result = {"error": error}
+        backend_write_error_file(
+            error=error,
+            apply_dict=apply_dict,
+        )
 
     backend_write_file(
         file_name=file_name,

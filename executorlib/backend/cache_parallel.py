@@ -4,6 +4,7 @@ import time
 
 import cloudpickle
 
+from executorlib.standalone.error import backend_write_error_file
 from executorlib.task_scheduler.file.backend import (
     backend_load_file,
     backend_write_file,
@@ -52,6 +53,10 @@ def main() -> None:
                 file_name=file_name,
                 output={"error": error},
                 runtime=time.time() - time_start,
+            )
+            backend_write_error_file(
+                error=error,
+                apply_dict=apply_dict,
             )
     else:
         if mpi_rank_zero:

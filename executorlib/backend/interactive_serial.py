@@ -2,6 +2,7 @@ import sys
 from os.path import abspath
 from typing import Optional
 
+from executorlib.standalone.error import backend_write_error_file
 from executorlib.standalone.interactive.backend import call_funct, parse_arguments
 from executorlib.standalone.interactive.communication import (
     interface_connect,
@@ -57,6 +58,10 @@ def main(argument_lst: Optional[list[str]] = None):
                 interface_send(
                     socket=socket,
                     result_dict={"error": error},
+                )
+                backend_write_error_file(
+                    error=error,
+                    apply_dict=input_dict,
                 )
             else:
                 # Send output
