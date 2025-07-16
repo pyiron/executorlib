@@ -285,7 +285,6 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        terminate_tasks_on_shutdown: bool = True,
     ):
         """
         The executorlib.FluxClusterExecutor leverages either the message passing interface (MPI), the SLURM workload

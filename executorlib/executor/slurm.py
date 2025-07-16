@@ -97,7 +97,6 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        terminate_tasks_on_shutdown: bool = True,
     ):
         """
         The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -281,7 +280,6 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        terminate_tasks_on_shutdown: bool = True,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
