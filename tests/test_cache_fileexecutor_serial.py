@@ -200,7 +200,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
         process.join()
 
     def test_execute_in_subprocess_errors(self):
-        file_name = os.path.join(__file__, "..", "executorlib_cache", "test.h5")
+        file_name = os.path.abspath(os.path.join(__file__, "..", "executorlib_cache", "test.h5"))
+        os.makedirs(os.path.dirname(file_name))
         with open(file_name, "w") as f:
             f.write("test")
         with self.assertRaises(ValueError):
