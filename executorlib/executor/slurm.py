@@ -62,6 +62,7 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Examples:
         ```
@@ -100,6 +101,7 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
         terminate_tasks_on_shutdown: bool = True,
+        write_error_file: bool = False,
     ):
         """
         The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -143,6 +145,7 @@ class SlurmClusterExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
+            write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
         """
         default_resource_dict: dict = {
@@ -183,6 +186,7 @@ class SlurmClusterExecutor(BaseExecutor):
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
                     terminate_tasks_on_shutdown=terminate_tasks_on_shutdown,
+                    write_error_file=write_error_file,
                 )
             )
         else:
@@ -196,6 +200,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
+                        write_error_file=write_error_file,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -250,6 +255,7 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Examples:
         ```
@@ -287,6 +293,7 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
         terminate_tasks_on_shutdown: bool = True,
+        write_error_file: bool = False,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -333,6 +340,7 @@ class SlurmJobExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
+            write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
         """
         default_resource_dict: dict = {
@@ -363,6 +371,7 @@ class SlurmJobExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        write_error_file=write_error_file,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -383,6 +392,7 @@ class SlurmJobExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    write_error_file=write_error_file,
                 )
             )
 
@@ -396,6 +406,7 @@ def create_slurm_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    write_error_file: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -432,6 +443,7 @@ def create_slurm_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -442,6 +454,7 @@ def create_slurm_executor(
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
+    resource_dict["write_error_file"] = write_error_file
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     if block_allocation:
         resource_dict["init_function"] = init_function

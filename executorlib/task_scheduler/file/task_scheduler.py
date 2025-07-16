@@ -36,6 +36,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         pysqa_config_directory: Optional[str] = None,
         backend: Optional[str] = None,
         disable_dependencies: bool = False,
+        write_error_file: bool = False,
     ):
         """
         Initialize the FileExecutor.
@@ -50,6 +51,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str, optional): name of the backend used to spawn tasks.
             disable_dependencies (boolean): Disable resolving future objects during the submission.
+            write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
         """
         super().__init__(max_cores=None)
         default_resource_dict = {
@@ -70,6 +72,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             "pysqa_config_directory": pysqa_config_directory,
             "backend": backend,
             "disable_dependencies": disable_dependencies,
+            "write_error_file": write_error_file,
         }
         self._set_process(
             Thread(
@@ -96,6 +99,7 @@ def create_file_executor(
     disable_dependencies: bool = False,
     execute_function: Callable = execute_with_pysqa,
     terminate_tasks_on_shutdown: bool = True,
+    write_error_file: bool = False,
 ):
     if block_allocation:
         raise ValueError(
@@ -126,4 +130,5 @@ def create_file_executor(
         disable_dependencies=disable_dependencies,
         execute_function=execute_function,
         terminate_function=terminate_function,
+        write_error_file=write_error_file,
     )

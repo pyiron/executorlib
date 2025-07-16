@@ -51,12 +51,24 @@ class TestCacheFunctions(unittest.TestCase):
 
     def test_cache_error(self):
         cache_directory = os.path.abspath("cache_error")
-        with SingleNodeExecutor(cache_directory=cache_directory) as exe:
+        with SingleNodeExecutor(cache_directory=cache_directory, write_error_file=False) as exe:
             self.assertTrue(exe)
             cloudpickle_register(ind=1)
             f = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
                 print(f.result())
+
+    def test_cache_error_file(self):
+        cache_directory = os.path.abspath("cache_error")
+        with SingleNodeExecutor(cache_directory=cache_directory, write_error_file=True) as exe:
+            self.assertTrue(exe)
+            cloudpickle_register(ind=1)
+            f = exe.submit(get_error, a=1)
+            with self.assertRaises(ValueError):
+                print(f.result())
+        error_out = os.path.join(os.path.dirname(__file__), "error.out")
+        self.assertTrue(os.path.exists(error_out))
+        os.remove(error_out)
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)

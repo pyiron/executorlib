@@ -84,11 +84,25 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_error(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
         with FileTaskScheduler(
-            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
+            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess, write_error_file=False,
         ) as exe:
             fs1 = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
                 fs1.result()
+        self.assertEqual(len(os.listdir(cwd)), 1)
+
+    def test_executor_error_file(self):
+        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        with FileTaskScheduler(
+            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess, write_error_file=True,
+        ) as exe:
+            fs1 = exe.submit(get_error, a=1)
+            with self.assertRaises(ValueError):
+                fs1.result()
+        working_directory_file_lst = os.listdir(cwd)
+        self.assertEqual(len(working_directory_file_lst), 2)
+        self.assertTrue("error.out" in working_directory_file_lst)
+        os.remove(os.path.join(cwd, "error.out"))
 
     def test_executor_function(self):
         fs1 = Future()
@@ -208,5 +222,5 @@ class TestCacheExecutorSerial(unittest.TestCase):
         with self.assertRaises(ValueError):
             execute_in_subprocess(file_name=__file__, command=[], backend="flux")
 
-    def tearDown(self):
-        shutil.rmtree("executorlib_cache", ignore_errors=True)
+    # def tearDown(self):
+    #     shutil.rmtree("executorlib_cache", ignore_errors=True)

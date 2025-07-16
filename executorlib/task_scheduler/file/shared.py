@@ -59,6 +59,7 @@ def execute_tasks_h5(
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
+    write_error_file: bool = False,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -73,6 +74,7 @@ def execute_tasks_h5(
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Returns:
         None
@@ -139,6 +141,7 @@ def execute_tasks_h5(
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     if os.path.exists(file_name):
                         os.remove(file_name)
+                    data_dict["write_error_file"] = write_error_file
                     dump(file_name=file_name, data_dict=data_dict)
                     if not disable_dependencies:
                         task_dependent_lst = [

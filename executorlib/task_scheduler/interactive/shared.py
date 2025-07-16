@@ -26,6 +26,7 @@ def execute_tasks(
     cache_key: Optional[str] = None,
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
+    write_error_file: bool = False,
     **kwargs,
 ) -> None:
     """
@@ -48,6 +49,7 @@ def execute_tasks(
                                   overwritten by setting the cache_key.
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+       write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
     """
     interface = interface_bootup(
         command_lst=_get_backend_path(
@@ -70,6 +72,7 @@ def execute_tasks(
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
+            task_dict["write_error_file"] = write_error_file
             if cache_directory is None:
                 _execute_task_without_cache(
                     interface=interface, task_dict=task_dict, future_queue=future_queue

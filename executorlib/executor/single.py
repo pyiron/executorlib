@@ -57,6 +57,7 @@ class SingleNodeExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Examples:
         ```
@@ -93,6 +94,7 @@ class SingleNodeExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        write_error_file: bool = False,
     ):
         """
         The executorlib.SingleNodeExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -134,6 +136,7 @@ class SingleNodeExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
         """
         default_resource_dict: dict = {
@@ -161,6 +164,7 @@ class SingleNodeExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        write_error_file=write_error_file,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -181,6 +185,7 @@ class SingleNodeExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    write_error_file=write_error_file,
                 )
             )
 
@@ -220,6 +225,7 @@ class TestClusterExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Examples:
         ```
@@ -256,6 +262,7 @@ class TestClusterExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        write_error_file: bool = False,
     ):
         """
         The executorlib.api.TestClusterExecutor is designed to test the file based communication used in the
@@ -291,6 +298,7 @@ class TestClusterExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
         """
         default_resource_dict: dict = {
@@ -330,6 +338,7 @@ class TestClusterExecutor(BaseExecutor):
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
                     execute_function=execute_in_subprocess,
+                    write_error_file=write_error_file,
                 )
             )
         else:
@@ -344,6 +353,7 @@ class TestClusterExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        write_error_file=write_error_file,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -362,6 +372,7 @@ def create_single_node_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    write_error_file: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a single node executor
@@ -394,6 +405,7 @@ def create_single_node_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -404,6 +416,7 @@ def create_single_node_executor(
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
+    resource_dict["write_error_file"] = write_error_file
 
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_gpus_per_worker(gpus_per_worker=resource_dict.get("gpus_per_core", 0))

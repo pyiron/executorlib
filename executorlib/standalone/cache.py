@@ -10,6 +10,7 @@ group_dict = {
     "error": "error",
     "runtime": "runtime",
     "queue_id": "queue_id",
+    "write_error_file": "write_error_file"
 }
 
 
