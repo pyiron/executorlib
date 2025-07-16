@@ -66,7 +66,7 @@ class TestCacheFunctions(unittest.TestCase):
             f = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
                 print(f.result())
-        error_out = os.path.join(os.path.dirname(__file__), "error.out")
+        error_out =  "error.out"
         self.assertTrue(os.path.exists(error_out))
         os.remove(error_out)
 
