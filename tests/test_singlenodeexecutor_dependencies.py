@@ -345,6 +345,7 @@ class TestInfo(unittest.TestCase):
             'spawner': MpiExecSpawner,
             'max_cores': None,
             'max_workers': None,
+            'write_error_file': False
         }
 
     def test_info_disable_dependencies_true(self):
