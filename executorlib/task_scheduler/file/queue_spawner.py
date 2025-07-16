@@ -115,6 +115,7 @@ def terminate_with_pysqa(
         except subprocess.CalledProcessError:
             pass
 
+
 def _pysqa_execute_command(
     commands: str,
     working_directory: Optional[str] = None,
