@@ -50,7 +50,6 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
-            terminate_tasks_on_shutdown=False,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -64,7 +63,6 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
-            terminate_tasks_on_shutdown=True,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
