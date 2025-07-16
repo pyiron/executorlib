@@ -15,6 +15,6 @@ def backend_write_error_file(error: Exception, apply_dict: dict) -> None:
     if apply_dict.get("write_error_file", False):
         with open(apply_dict.get("error_file_name", "error.out"), "a") as f:
             f.write("function: " + str(apply_dict["fn"]) + "\n")
-            f.write("args: " + str(apply_dict["args"])+ "\n")
-            f.write("kwargs: " + str(apply_dict["kwargs"])+ "\n")
+            f.write("args: " + str(apply_dict["args"]) + "\n")
+            f.write("kwargs: " + str(apply_dict["kwargs"]) + "\n")
             traceback.print_exception(error, file=f)
