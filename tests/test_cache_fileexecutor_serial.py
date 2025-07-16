@@ -5,12 +5,11 @@ import shutil
 import unittest
 from threading import Thread
 
-from executorlib.task_scheduler.file.subprocess_spawner import (
-    execute_in_subprocess,
-    terminate_subprocess,
-)
-
 try:
+    from executorlib.task_scheduler.file.subprocess_spawner import (
+        execute_in_subprocess,
+        terminate_subprocess,
+    )
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
     from executorlib.task_scheduler.file.shared import execute_tasks_h5
 
@@ -215,12 +214,24 @@ class TestCacheExecutorSerial(unittest.TestCase):
         process.join()
 
     def test_execute_in_subprocess_errors(self):
+        file_name = os.path.abspath(os.path.join(__file__, "..", "executorlib_cache", "test.h5"))
+        os.makedirs(os.path.dirname(file_name))
+        with open(file_name, "w") as f:
+            f.write("test")
         with self.assertRaises(ValueError):
             execute_in_subprocess(
-                file_name=__file__, command=[], config_directory="test"
+                file_name=file_name,
+                data_dict={},
+                command=[],
+                config_directory="test",
             )
         with self.assertRaises(ValueError):
-            execute_in_subprocess(file_name=__file__, command=[], backend="flux")
+            execute_in_subprocess(
+                file_name=file_name,
+                data_dict={},
+                command=[],
+                backend="flux",
+            )
 
     # def tearDown(self):
     #     shutil.rmtree("executorlib_cache", ignore_errors=True)

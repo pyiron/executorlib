@@ -9,7 +9,6 @@ from executorlib.standalone.inputcheck import (
     check_plot_dependency_graph,
     check_pmi,
     check_refresh_rate,
-    check_terminate_tasks_on_shutdown,
     validate_number_of_cores,
 )
 from executorlib.task_scheduler.interactive.blockallocation import (
@@ -64,7 +63,6 @@ class FluxJobExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
         write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Examples:
@@ -106,7 +104,6 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        terminate_tasks_on_shutdown: bool = True,
         write_error_file: bool = False,
     ):
         """
@@ -153,7 +150,6 @@ class FluxJobExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
             write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
         """
@@ -170,9 +166,6 @@ class FluxJobExecutor(BaseExecutor):
             resource_dict = {}
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
-        )
-        check_terminate_tasks_on_shutdown(
-            terminate_tasks_on_shutdown=terminate_tasks_on_shutdown
         )
         if not disable_dependencies:
             super().__init__(
@@ -259,7 +252,6 @@ class FluxClusterExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
         write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Examples:
@@ -298,7 +290,6 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        terminate_tasks_on_shutdown: bool = True,
         write_error_file: bool = False,
     ):
         """
@@ -342,7 +333,6 @@ class FluxClusterExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
             write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
         """
@@ -384,7 +374,6 @@ class FluxClusterExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
-                    terminate_tasks_on_shutdown=terminate_tasks_on_shutdown,
                 )
             )
         else:
