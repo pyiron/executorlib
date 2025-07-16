@@ -39,6 +39,8 @@ class SingleNodeExecutor(BaseExecutor):
                               - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
                                                               SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
+                                                      by the Python functions submitted to the Executor.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -116,6 +118,8 @@ class SingleNodeExecutor(BaseExecutor):
                                                                   and SLURM only) - default False
                                   - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                            only)
+                                  - error_log_file (str): Name of the error log file to use for storing exceptions
+                                                          raised by the Python functions submitted to the Executor.
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -202,6 +206,8 @@ class TestClusterExecutor(BaseExecutor):
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
                               - cwd (str/None): current working directory where the parallel python task is executed
+                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
+                                                      by the Python functions submitted to the Executor.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -273,6 +279,8 @@ class TestClusterExecutor(BaseExecutor):
                                   - threads_per_core (int): number of OpenMP threads to be used for each function call
                                   - gpus_per_core (int): number of GPUs per worker - defaults to 0
                                   - cwd (str/None): current working directory where the parallel python task is executed
+                                  - error_log_file (str): Name of the error log file to use for storing exceptions
+                                                          raised by the Python functions submitted to the Executor.
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -381,6 +389,8 @@ def create_single_node_executor(
                                                               and SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                        only)
+                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
+                                                      by the Python functions submitted to the Executor.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                   context of an HPC cluster this essential to be able to communicate to an
                                   Executor running on a different compute node within the same allocation. And
