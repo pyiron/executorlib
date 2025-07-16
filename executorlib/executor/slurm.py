@@ -6,7 +6,6 @@ from executorlib.standalone.inputcheck import (
     check_log_obj_size,
     check_plot_dependency_graph,
     check_refresh_rate,
-    check_terminate_tasks_on_shutdown,
     validate_number_of_cores,
 )
 from executorlib.task_scheduler.interactive.blockallocation import (
@@ -61,7 +60,6 @@ class SlurmClusterExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
     Examples:
         ```
@@ -142,7 +140,6 @@ class SlurmClusterExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
         """
         default_resource_dict: dict = {
@@ -182,7 +179,6 @@ class SlurmClusterExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
-                    terminate_tasks_on_shutdown=terminate_tasks_on_shutdown,
                 )
             )
         else:
@@ -249,7 +245,6 @@ class SlurmJobExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
     Examples:
         ```
@@ -332,7 +327,6 @@ class SlurmJobExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            terminate_tasks_on_shutdown (bool): Shutdown all tasks when the Executor is shutdown, this is the default.
 
         """
         default_resource_dict: dict = {
@@ -347,9 +341,6 @@ class SlurmJobExecutor(BaseExecutor):
             resource_dict = {}
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
-        )
-        check_terminate_tasks_on_shutdown(
-            terminate_tasks_on_shutdown=terminate_tasks_on_shutdown
         )
         if not disable_dependencies:
             super().__init__(
