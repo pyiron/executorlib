@@ -45,12 +45,8 @@ def execute_with_pysqa(
         execute_command=_pysqa_execute_command,
     )
     queue_id = get_queue_id(file_name=file_name)
-    if (
-        os.path.exists(file_name)
-        and (
-            queue_id is None
-            or qa.get_status_of_job(process_id=queue_id) is None
-        )
+    if os.path.exists(file_name) and (
+        queue_id is None or qa.get_status_of_job(process_id=queue_id) is None
     ):
         os.remove(file_name)
         dump(file_name=file_name, data_dict=data_dict)
