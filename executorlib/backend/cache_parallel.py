@@ -4,9 +4,9 @@ import time
 
 import cloudpickle
 
+from executorlib.standalone.error import backend_write_error_file
 from executorlib.task_scheduler.file.backend import (
     backend_load_file,
-    backend_write_error_file,
     backend_write_file,
 )
 

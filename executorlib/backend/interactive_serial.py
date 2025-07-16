@@ -2,6 +2,7 @@ import sys
 from os.path import abspath
 from typing import Optional
 
+from executorlib.standalone.error import backend_write_error_file
 from executorlib.standalone.interactive.backend import (
     backend_write_error_file,
     call_funct,

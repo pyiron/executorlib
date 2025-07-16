@@ -6,8 +6,8 @@ from typing import Optional
 import cloudpickle
 import zmq
 
+from executorlib.standalone.error import backend_write_error_file
 from executorlib.standalone.interactive.backend import (
-    backend_write_error_file,
     call_funct,
     parse_arguments,
 )
