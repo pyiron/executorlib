@@ -58,6 +58,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             "cores": 1,
             "cwd": None,
             "cache_directory": "executorlib_cache",
+            "write_error_file": write_error_file,
         }
         if resource_dict is None:
             resource_dict = {}
@@ -72,7 +73,6 @@ class FileTaskScheduler(TaskSchedulerBase):
             "pysqa_config_directory": pysqa_config_directory,
             "backend": backend,
             "disable_dependencies": disable_dependencies,
-            "write_error_file": write_error_file,
         }
         self._set_process(
             Thread(
