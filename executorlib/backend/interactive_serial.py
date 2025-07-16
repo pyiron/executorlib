@@ -2,7 +2,11 @@ import sys
 from os.path import abspath
 from typing import Optional
 
-from executorlib.standalone.interactive.backend import backend_write_error_file, call_funct, parse_arguments
+from executorlib.standalone.interactive.backend import (
+    backend_write_error_file,
+    call_funct,
+    parse_arguments,
+)
 from executorlib.standalone.interactive.communication import (
     interface_connect,
     interface_receive,

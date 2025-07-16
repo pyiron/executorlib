@@ -6,8 +6,8 @@ import cloudpickle
 
 from executorlib.task_scheduler.file.backend import (
     backend_load_file,
+    backend_write_error_file,
     backend_write_file,
-    backend_write_error_file
 )
 
 write_error_file = False

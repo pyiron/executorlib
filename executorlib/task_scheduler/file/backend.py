@@ -89,9 +89,7 @@ def backend_execute_task_in_file(file_name: str) -> None:
     )
 
 
-def backend_write_error_file(
-    error: Exception, apply_dict: dict
-) -> None:
+def backend_write_error_file(error: Exception, apply_dict: dict) -> None:
     """
     Write an error to a file if specified in the apply_dict.
 
