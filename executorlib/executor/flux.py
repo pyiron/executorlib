@@ -41,6 +41,8 @@ class FluxJobExecutor(BaseExecutor):
                                                            Defaults to None.
                               - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
                                                   compute notes. Defaults to False.
+                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
+                                                      by the Python functions submitted to the Executor.
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -126,6 +128,8 @@ class FluxJobExecutor(BaseExecutor):
                                                                Defaults to None.
                                   - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
                                                       compute notes. Defaults to False.
+                                  - error_log_file (str): Name of the error log file to use for storing exceptions
+                                                          raised by the Python functions submitted to the Executor.
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -229,6 +233,8 @@ class FluxClusterExecutor(BaseExecutor):
                               - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
                                                               SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
+                                                      by the Python functions submitted to the Executor.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -308,6 +314,8 @@ class FluxClusterExecutor(BaseExecutor):
                                                                   and SLURM only) - default False
                                   - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                            only)
+                                  - error_log_file (str): Name of the error log file to use for storing exceptions
+                                                          raised by the Python functions submitted to the Executor.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -424,6 +432,8 @@ def create_flux_executor(
                                                            Defaults to None.
                               - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
                                                   compute notes. Defaults to False.
+                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
+                                                      by the Python functions submitted to the Executor.
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.

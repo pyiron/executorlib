@@ -126,6 +126,7 @@ def execute_tasks_h5(
             )
             cache_key = task_resource_dict.pop("cache_key", None)
             cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
+            error_log_file = task_resource_dict.pop("error_log_file", None)
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
@@ -133,6 +134,7 @@ def execute_tasks_h5(
                 resource_dict=task_resource_dict,
                 cache_key=cache_key,
             )
+            data_dict["error_log_file"] = error_log_file
             if task_key not in memory_dict:
                 if os.path.join(
                     cache_directory, task_key + "_o.h5"

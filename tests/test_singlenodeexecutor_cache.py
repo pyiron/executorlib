@@ -58,6 +58,18 @@ class TestCacheFunctions(unittest.TestCase):
             with self.assertRaises(ValueError):
                 print(f.result())
 
+    def test_cache_error_file(self):
+        cache_directory = os.path.abspath("cache_error")
+        error_out =  "error.out"
+        with SingleNodeExecutor(cache_directory=cache_directory) as exe:
+            self.assertTrue(exe)
+            cloudpickle_register(ind=1)
+            f = exe.submit(get_error, a=1, resource_dict={"error_log_file": error_out})
+            with self.assertRaises(ValueError):
+                print(f.result())
+        self.assertTrue(os.path.exists(error_out))
+        os.remove(error_out)
+
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
         shutil.rmtree("cache_error", ignore_errors=True)

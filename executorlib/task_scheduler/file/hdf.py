@@ -52,6 +52,10 @@ def load(file_name: str) -> dict:
             data_dict["kwargs"] = cloudpickle.loads(np.void(hdf["/input_kwargs"]))
         else:
             data_dict["kwargs"] = {}
+        if "error_log_file" in hdf:
+            data_dict["error_log_file"] = cloudpickle.loads(
+                np.void(hdf["/error_log_file"])
+            )
         return data_dict
 
 
