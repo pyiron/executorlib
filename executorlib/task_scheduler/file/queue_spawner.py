@@ -10,9 +10,10 @@ from executorlib.task_scheduler.file.hdf import dump, get_queue_id
 
 def execute_with_pysqa(
     command: list,
+    file_name: str,
+    data_dict: dict,
     cache_directory: str,
     task_dependent_lst: Optional[list[int]] = None,
-    file_name: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -22,9 +23,10 @@ def execute_with_pysqa(
 
     Args:
         command (list): The command to be executed.
+        file_name (str): Name of the HDF5 file which contains the Python function
+        data_dict (dict): dictionary containing the python function to be executed {"fn": ..., "args": (), "kwargs": {}}
         cache_directory (str): The directory to store the HDF5 files.
         task_dependent_lst (list): A list of subprocesses that the current subprocess depends on. Defaults to [].
-        file_name (str): Name of the HDF5 file which contains the Python function
         resource_dict (dict): resource dictionary, which defines the resources used for the execution of the function.
                               Example resource dictionary: {
                                   cwd: None,
@@ -37,13 +39,20 @@ def execute_with_pysqa(
     """
     if task_dependent_lst is None:
         task_dependent_lst = []
-    check_file_exists(file_name=file_name)
-    queue_id = get_queue_id(file_name=file_name)
     qa = QueueAdapter(
         directory=config_directory,
         queue_type=backend,
         execute_command=_pysqa_execute_command,
     )
+    queue_id = get_queue_id(file_name=file_name)
+    if os.path.exists(file_name) and (
+        queue_id is None or qa.get_status_of_job(process_id=queue_id) is None
+    ):
+        os.remove(file_name)
+        dump(file_name=file_name, data_dict=data_dict)
+    elif not os.path.exists(file_name):
+        dump(file_name=file_name, data_dict=data_dict)
+    check_file_exists(file_name=file_name)
     if queue_id is None or qa.get_status_of_job(process_id=queue_id) is None:
         if resource_dict is None:
             resource_dict = {}
