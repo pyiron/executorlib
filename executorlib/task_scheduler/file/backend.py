@@ -77,18 +77,37 @@ def backend_execute_task_in_file(file_name: str) -> None:
         }
     except Exception as error:
         result = {"error": error}
-        if apply_dict.get("write_error_file", False):
-            with open(apply_dict.get("error_file_name", "error.out"), "a") as f:
-                if hasattr(error, "output"):
-                    f.write(error.output)
-                else:
-                    f.write(str(error))
+        backend_write_error_file(
+            error=error,
+            apply_dict=apply_dict,
+        )
 
     backend_write_file(
         file_name=file_name,
         output=result,
         runtime=time.time() - time_start,
     )
+
+
+def backend_write_error_file(
+    error: Exception, apply_dict: dict
+) -> None:
+    """
+    Write an error to a file if specified in the apply_dict.
+
+    Args:
+        error (Exception): The error to be written.
+        apply_dict (dict): Dictionary containing additional parameters.
+
+    Returns:
+        None
+    """
+    if apply_dict.get("write_error_file", False):
+        with open(apply_dict.get("error_file_name", "error.out"), "a") as f:
+            if hasattr(error, "output"):
+                f.write(error.output)
+            else:
+                f.write(str(error))
 
 
 def _isinstance(obj: Any, cls: type) -> bool:

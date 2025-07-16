@@ -7,6 +7,7 @@ import cloudpickle
 from executorlib.task_scheduler.file.backend import (
     backend_load_file,
     backend_write_file,
+    backend_write_error_file
 )
 
 write_error_file = False
@@ -55,12 +56,10 @@ def main() -> None:
                 output={"error": error},
                 runtime=time.time() - time_start,
             )
-            if apply_dict.get("write_error_file", False):
-                with open(apply_dict.get("error_file_name", "error.out"), "a") as f:
-                    if hasattr(error, "output"):
-                        f.write(error.output)
-                    else:
-                        f.write(str(error))
+            backend_write_error_file(
+                error=error,
+                apply_dict=apply_dict,
+            )
     else:
         if mpi_rank_zero:
             backend_write_file(
