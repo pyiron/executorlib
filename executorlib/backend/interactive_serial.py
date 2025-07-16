@@ -3,10 +3,7 @@ from os.path import abspath
 from typing import Optional
 
 from executorlib.standalone.error import backend_write_error_file
-from executorlib.standalone.interactive.backend import (
-    call_funct,
-    parse_arguments,
-)
+from executorlib.standalone.interactive.backend import call_funct, parse_arguments
 from executorlib.standalone.interactive.communication import (
     interface_connect,
     interface_receive,
@@ -21,7 +18,7 @@ def main(argument_lst: Optional[list[str]] = None):
 
     Args:
         argument_lst (Optional[List[str]]): List of command line arguments. If None, sys.argv will be used.
-        write_error_file (bool):
+        write_error_file (boolean): Enable writing error.out files when the computation of a Python function fails
 
     Returns:
         None
