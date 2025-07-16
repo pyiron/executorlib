@@ -127,7 +127,7 @@ def terminate_tasks_in_cache(
         backend (str, optional): name of the backend used to spawn tasks.
     """
     hdf5_file_lst = []
-    for root, folder, files in os.walk(cache_directory):
+    for root, _, files in os.walk(cache_directory):
         hdf5_file_lst += [os.path.join(root, f) for f in files if "_i.h5" == f[-5:]]
 
     for f in hdf5_file_lst:
