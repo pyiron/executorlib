@@ -75,10 +75,12 @@ class TestSharedFunctions(unittest.TestCase):
                 "args": (),
                 "kwargs": {"a": a, "b": b},
                 "queue_id": 123,
+                "write_error_file": True,
             },
         )
         data_dict = load(file_name=file_name)
         self.assertTrue("fn" in data_dict.keys())
+        self.assertTrue(data_dict.get("write_error_file", False))
         self.assertEqual(data_dict["args"], ())
         self.assertEqual(data_dict["kwargs"], {"a": a, "b": b})
         self.assertEqual(get_queue_id(file_name=file_name), 123)
