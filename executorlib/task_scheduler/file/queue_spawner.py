@@ -1,3 +1,4 @@
+import contextlib
 import os
 import subprocess
 from typing import Optional, Union
@@ -110,10 +111,9 @@ def terminate_with_pysqa(
     )
     status = qa.get_status_of_job(process_id=queue_id)
     if status is not None and status not in ["finished", "error"]:
-        try:
+        with contextlib.suppress(subprocess.CalledProcessError):
             qa.delete_job(process_id=queue_id)
-        except subprocess.CalledProcessError:
-            pass
+
 
 def _pysqa_execute_command(
     commands: str,
