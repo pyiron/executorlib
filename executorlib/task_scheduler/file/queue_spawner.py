@@ -33,7 +33,7 @@ def execute_with_pysqa(
                                   cwd: None,
                               }
         config_directory (str, optional): path to the config directory.
-        backend (str, optional): name of the backend used to spawn tasks.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
 
     Returns:
         int: queuing system ID
@@ -102,7 +102,7 @@ def terminate_with_pysqa(
     Args:
         queue_id (int): Queuing system ID of the job to delete.
         config_directory (str, optional): path to the config directory.
-        backend (str, optional): name of the backend used to spawn tasks.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
     qa = QueueAdapter(
         directory=config_directory,
@@ -126,7 +126,7 @@ def terminate_tasks_in_cache(
     Args:
         cache_directory (str): The directory to store cache files.
         config_directory (str, optional): path to the config directory.
-        backend (str, optional): name of the backend used to spawn tasks.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
     hdf5_file_lst = []
     for root, _, files in os.walk(cache_directory):
