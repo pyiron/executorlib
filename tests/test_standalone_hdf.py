@@ -75,6 +75,7 @@ class TestSharedFunctions(unittest.TestCase):
                 "args": (),
                 "kwargs": {"a": a, "b": b},
                 "queue_id": 123,
+                "error_log_file": "error.out",
             },
         )
         data_dict = load(file_name=file_name)
