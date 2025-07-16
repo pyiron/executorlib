@@ -93,7 +93,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertTrue(fs1.done())
             self.assertEqual(len(os.listdir("executorlib_cache")), 4)
 
-    def terminate_tasks_in_cache(self):
+    def test_terminate_tasks_in_cache(self):
         file = os.path.join("executorlib_cache", "test_i.h5")
         dump(file_name=file, data_dict={"queue_id": 1})
         self.assertIsNone(terminate_tasks_in_cache(
