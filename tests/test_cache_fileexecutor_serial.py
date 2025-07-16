@@ -90,7 +90,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 fs1.result()
         self.assertEqual(len(os.listdir(cwd)), 1)
 
-    def test_executor_error(self):
+    def test_executor_error_file(self):
         cwd = os.path.join(os.path.dirname(__file__), "executables")
         with FileTaskScheduler(
             resource_dict={"cwd": cwd, "error_log_file": "error.out"}, 
