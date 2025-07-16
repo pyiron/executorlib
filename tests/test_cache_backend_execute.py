@@ -121,6 +121,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         file_name = os.path.join(cache_directory, task_key + "_i.h5")
         os.makedirs(cache_directory, exist_ok=True)
+        data_dict["error_log_file"] = os.path.join(cache_directory, "error.out")
         dump(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
@@ -130,6 +131,11 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(future_obj.done())
         with self.assertRaises(ValueError):
             future_obj.result()
+        with open(os.path.join(cache_directory, "error.out"), "r") as f:
+            content = f.readlines()
+        self.assertEqual(content[1], 'args: []\n')
+        self.assertEqual(content[2], "kwargs: {'a': 1}\n")
+        self.assertEqual(content[-1], 'ValueError: 1\n')
         self.assertTrue(
             get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
