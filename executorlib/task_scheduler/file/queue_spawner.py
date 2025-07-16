@@ -131,11 +131,13 @@ def terminate_tasks_in_cache(
         hdf5_file_lst += [os.path.join(root, f) for f in files if "_i.h5" == f[-5:]]
 
     for f in hdf5_file_lst:
-        terminate_with_pysqa(
-            queue_id=get_queue_id(f),
-            config_directory=config_directory,
-            backend=backend,
-        )
+        queue_id = get_queue_id(f)
+        if queue_id is not None:
+            terminate_with_pysqa(
+                queue_id=queue_id,
+                config_directory=config_directory,
+                backend=backend,
+            )
 
 
 def _pysqa_execute_command(
