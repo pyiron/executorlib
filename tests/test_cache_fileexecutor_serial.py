@@ -233,5 +233,5 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 backend="flux",
             )
 
-    # def tearDown(self):
-    #     shutil.rmtree("executorlib_cache", ignore_errors=True)
+    def tearDown(self):
+        shutil.rmtree("executorlib_cache", ignore_errors=True)
