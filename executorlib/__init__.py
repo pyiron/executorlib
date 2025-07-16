@@ -36,4 +36,10 @@ __all__: list[str] = [
     "SlurmClusterExecutor",
 ]
 
+try:
+    from executorlib.task_scheduler.file.queue_spawner import terminate_tasks_in_cache
+    __all__ += ["terminate_tasks_in_cache"]
+except ImportError:
+    pass
+
 __version__ = _version.__version__

@@ -113,6 +113,31 @@ def terminate_with_pysqa(
         qa.delete_job(process_id=queue_id)
 
 
+def terminate_tasks_in_cache(
+    cache_directory: str,
+    config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+):
+    """
+    Delete all jobs stored in the cache directory from the queuing system
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+        config_directory (str, optional): path to the config directory.
+        backend (str, optional): name of the backend used to spawn tasks.
+    """
+    hdf5_file_lst = []
+    for root, folder, files in os.walk(cache_directory):
+        hdf5_file_lst += [os.path.join(root, f) for f in files if "_i.h5" == f[-5:]]
+
+    for f in hdf5_file_lst:
+        terminate_with_pysqa(
+            queue_id=get_queue_id(f),
+            config_directory=config_directory,
+            backend=backend,
+        )
+
+
 def _pysqa_execute_command(
     commands: str,
     working_directory: Optional[str] = None,
