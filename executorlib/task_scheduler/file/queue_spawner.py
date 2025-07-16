@@ -115,7 +115,6 @@ def terminate_with_pysqa(
             qa.delete_job(process_id=queue_id)
 
 
-
 def _pysqa_execute_command(
     commands: str,
     working_directory: Optional[str] = None,
