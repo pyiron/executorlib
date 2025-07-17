@@ -89,6 +89,38 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertFalse(no_error)
         self.assertIsNone(output)
 
+    def test_hdf_missing_funct(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_missing_funct.h5")
+        dump(
+            file_name=file_name,
+            data_dict={
+                "queue_id": 123,
+            },
+        )
+        with self.assertRaises(TypeError):
+            load(file_name=file_name)
+
+    def test_hdf_missing_args(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_missing_args.h5")
+        dump(
+            file_name=file_name,
+            data_dict={
+                "fn": my_funct,
+            },
+        )
+        data_dict = load(file_name=file_name)
+        self.assertTrue("fn" in data_dict.keys())
+        self.assertEqual(data_dict["args"], ())
+        flag, no_error, output = get_output(file_name=file_name)
+        self.assertTrue(get_runtime(file_name=file_name) == 0.0)
+        self.assertFalse(flag)
+        self.assertFalse(no_error)
+        self.assertIsNone(output)
+
     def test_hdf_queue_id(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
