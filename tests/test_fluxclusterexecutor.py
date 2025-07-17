@@ -62,7 +62,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def test_pysqa_interface(self):
         queue_id = execute_with_pysqa(
-            command=["sleep", "10"],
+            command=["flux", "run", "sleep", "10"],
             file_name="test.h5",
             data_dict={"fn": sleep},
             cache_directory="executorlib_cache",
