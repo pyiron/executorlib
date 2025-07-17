@@ -4,6 +4,7 @@ from queue import Queue
 import shutil
 import unittest
 from threading import Thread
+from time import sleep
 
 try:
     from executorlib.task_scheduler.file.subprocess_spawner import (
@@ -213,6 +214,14 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertTrue(fs2.done())
         q.put({"shutdown": True, "wait": True})
         process.join()
+
+    def test_execute_in_subprocess(self):
+        process = execute_in_subprocess(
+            command=["sleep", "5"],
+            file_name="test.h5",
+            data_dict={"fn": sleep, "args": (5,)},
+        )
+        self.assertIsNone(terminate_subprocess(task=process))
 
     def test_execute_in_subprocess_errors(self):
         file_name = os.path.abspath(os.path.join(__file__, "..", "executorlib_cache", "test.h5"))
