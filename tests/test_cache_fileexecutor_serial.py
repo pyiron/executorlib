@@ -11,7 +11,7 @@ try:
         terminate_subprocess,
     )
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
-    from executorlib.task_scheduler.file.shared import execute_tasks_h5
+    from executorlib.task_scheduler.file.shared import execute_tasks_h5, _convert_args_and_kwargs
 
     skip_h5py_test = False
 except ImportError:
@@ -233,6 +233,20 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 command=[],
                 backend="flux",
             )
+
+    def test_convert_args_and_kwargs(self):
+        f1 = Future()
+        f1.set_result(1)
+        f2 = Future()
+        f2.set_result(2)
+        task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
+            task_dict={"fn": 1, "args": (f1,), "kwargs": {"a": f2}},
+            memory_dict={},
+            file_name_dict={},
+        )
+        self.assertEqual(task_args, [1])
+        self.assertEqual(task_kwargs, {"a": 2})
+        self.assertTrue(len(future_wait_key_lst) == 0)
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
