@@ -2,6 +2,7 @@ import os
 import importlib
 import unittest
 import shutil
+from time import sleep
 
 from executorlib import FluxClusterExecutor
 from executorlib.standalone.serialize import cloudpickle_register
@@ -9,7 +10,7 @@ from executorlib.standalone.serialize import cloudpickle_register
 try:
     import flux.job
     from executorlib.task_scheduler.file.hdf import dump
-    from executorlib.task_scheduler.file.queue_spawner import terminate_with_pysqa, terminate_tasks_in_cache
+    from executorlib.task_scheduler.file.queue_spawner import terminate_with_pysqa, terminate_tasks_in_cache, execute_with_pysqa
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -59,8 +60,15 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
 
-    def test_terminate_with_pysqa(self):
-        self.assertIsNone(terminate_with_pysqa(queue_id=1, backend="flux"))
+    def test_pysqa_interface(self):
+        queue_id = execute_with_pysqa(
+            command=["sleep", "10"],
+            file_name="test.h5",
+            data_dict={"fn": sleep},
+            cache_directory="executorlib_cache",
+            backend="flux"
+        )
+        self.assertIsNone(terminate_with_pysqa(queue_id=queue_id, backend="flux"))
 
     def test_executor_existing_files(self):
         with FluxClusterExecutor(
