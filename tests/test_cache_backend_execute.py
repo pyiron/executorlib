@@ -61,7 +61,7 @@ class TestSharedFunctions(unittest.TestCase):
         task_key, data_dict = serialize_funct_h5(
             fn=my_funct,
             fn_args=[1, 2],
-            fn_kwargs={},
+            fn_kwargs=None,
         )
         file_name = os.path.join(cache_directory, task_key + "_i.h5")
         os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
@@ -88,7 +88,7 @@ class TestSharedFunctions(unittest.TestCase):
         os.makedirs(cache_directory, exist_ok=True)
         task_key, data_dict = serialize_funct_h5(
             fn=my_funct,
-            fn_args=[],
+            fn_args=None,
             fn_kwargs={"a": 1, "b": 2},
         )
         file_name = os.path.join(cache_directory, task_key + "_i.h5")
