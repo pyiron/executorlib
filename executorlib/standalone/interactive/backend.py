@@ -48,8 +48,9 @@ def parse_arguments(argument_lst: list[str]) -> dict:
         argument_dict={
             "zmqport": "--zmqport",
             "host": "--host",
+            "worker_id": "--worker-id",
         },
-        default_dict={"host": "localhost"},
+        default_dict={"host": "localhost", "worker_id": 0},
     )
 
 

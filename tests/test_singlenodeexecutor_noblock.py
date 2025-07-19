@@ -12,6 +12,14 @@ def resource_dict(resource_dict):
     return resource_dict
 
 
+def get_worker_id(worker_id):
+    return worker_id
+
+
+def init_function():
+    return {"a": 1, "b": 2}
+
+
 class TestExecutorBackend(unittest.TestCase):
     def test_meta_executor_serial_with_dependencies(self):
         with SingleNodeExecutor(
@@ -75,3 +83,30 @@ class TestExecutorBackend(unittest.TestCase):
                 block_allocation=True,
             ) as exe:
                 exe.submit(resource_dict, resource_dict={})
+
+
+class TestWorkerID(unittest.TestCase):
+    def test_block_allocation_True(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=True,
+        ) as exe:
+            worker_id = exe.submit(get_worker_id, resource_dict={}).result()
+        self.assertEqual(worker_id, 0)
+
+    def test_init_function(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=True,
+            init_function=init_function,
+        ) as exe:
+            worker_id = exe.submit(get_worker_id, resource_dict={}).result()
+        self.assertEqual(worker_id, 0)
+
+    def test_block_allocation_False(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=False,
+        ) as exe:
+            worker_id = exe.submit(get_worker_id, resource_dict={}).result()
+        self.assertEqual(worker_id, 0)

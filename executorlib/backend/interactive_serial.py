@@ -29,7 +29,7 @@ def main(argument_lst: Optional[list[str]] = None):
         host=argument_dict["host"], port=argument_dict["zmqport"]
     )
 
-    memory = None
+    memory = {"worker_id": int(argument_dict["worker_id"])}
 
     # required for flux interface - otherwise the current path is not included in the python path
     cwd = abspath(".")
@@ -72,7 +72,7 @@ def main(argument_lst: Optional[list[str]] = None):
             and "args" in input_dict
             and "kwargs" in input_dict
         ):
-            memory = call_funct(input_dict=input_dict, funct=None)
+            memory.update(call_funct(input_dict=input_dict, funct=None))
 
 
 if __name__ == "__main__":

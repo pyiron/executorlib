@@ -25,6 +25,7 @@ def execute_tasks(
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
+    worker_id: Optional[int] = None,
     **kwargs,
 ) -> None:
     """
@@ -47,6 +48,10 @@ def execute_tasks(
                                   overwritten by setting the cache_key.
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+       error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
+                             submitted to the Executor.
+       worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
+                        distribution.
     """
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
@@ -55,6 +60,7 @@ def execute_tasks(
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
         log_obj_size=log_obj_size,
+        worker_id=worker_id,
     )
     if init_function is not None:
         interface.send_dict(
