@@ -1,4 +1,5 @@
 import unittest
+from time import sleep
 
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
@@ -13,6 +14,7 @@ def resource_dict(resource_dict):
 
 
 def get_worker_id(worker_id):
+    sleep(0.01)
     return worker_id
 
 
