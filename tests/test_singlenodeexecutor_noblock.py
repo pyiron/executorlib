@@ -14,7 +14,7 @@ def resource_dict(resource_dict):
 
 
 def get_worker_id(worker_id):
-    sleep(0.01)
+    sleep(0.1)
     return worker_id
 
 
