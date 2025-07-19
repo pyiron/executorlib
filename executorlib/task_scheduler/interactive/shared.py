@@ -47,6 +47,8 @@ def execute_tasks(
                                   overwritten by setting the cache_key.
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+       error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
+                             submitted to the Executor.
     """
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
