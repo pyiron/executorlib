@@ -6,12 +6,12 @@ from time import sleep
 
 from executorlib import FluxClusterExecutor
 from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.standalone.command import get_cache_execute_command
 
 try:
     import flux.job
     from executorlib.task_scheduler.file.hdf import dump
     from executorlib.task_scheduler.file.queue_spawner import terminate_with_pysqa, terminate_tasks_in_cache, execute_with_pysqa
-    from executorlib.task_scheduler.file.shared import _get_execute_command
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -63,7 +63,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def test_pysqa_interface(self):
         queue_id = execute_with_pysqa(
-            command=_get_execute_command(
+            command=get_cache_execute_command(
                 file_name="test_i.h5",
                 cores=1,
             ),

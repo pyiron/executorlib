@@ -1,13 +1,11 @@
 import contextlib
-import importlib.util
 import os
 import queue
-import sys
 import time
 from typing import Callable, Optional
 
 from executorlib.standalone.cache import get_cache_files
-from executorlib.standalone.command import get_command_path
+from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
@@ -51,7 +49,7 @@ def execute_tasks(
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
     """
     interface = interface_bootup(
-        command_lst=_get_backend_path(
+        command_lst=get_interactive_execute_command(
             cores=cores,
         ),
         connections=spawner(cores=cores, **kwargs),
@@ -85,30 +83,6 @@ def execute_tasks(
                     cache_directory=cache_directory,
                     cache_key=cache_key,
                 )
-
-
-def _get_backend_path(
-    cores: int,
-) -> list:
-    """
-    Get command to call backend as a list of two strings
-
-    Args:
-        cores (int): Number of cores used to execute the task, if it is greater than one use interactive_parallel.py else interactive_serial.py
-
-    Returns:
-        list[str]: List of strings containing the python executable path and the backend script to execute
-    """
-    command_lst = [sys.executable]
-    if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
-        command_lst += [get_command_path(executable="interactive_parallel.py")]
-    elif cores > 1:
-        raise ImportError(
-            "mpi4py is required for parallel calculations. Please install mpi4py."
-        )
-    else:
-        command_lst += [get_command_path(executable="interactive_serial.py")]
-    return command_lst
 
 
 def _execute_task_without_cache(
