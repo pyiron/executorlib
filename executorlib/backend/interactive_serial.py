@@ -29,7 +29,7 @@ def main(argument_lst: Optional[list[str]] = None):
         host=argument_dict["host"], port=argument_dict["zmqport"]
     )
 
-    memory = {"worker_id": int(argument_dict["worker_id"])}
+    memory = {"executorlib_worker_id": int(argument_dict["worker_id"])}
 
     # required for flux interface - otherwise the current path is not included in the python path
     cwd = abspath(".")

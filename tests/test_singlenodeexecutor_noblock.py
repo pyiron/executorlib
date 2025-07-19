@@ -13,9 +13,9 @@ def resource_dict(resource_dict):
     return resource_dict
 
 
-def get_worker_id(worker_id):
+def get_worker_id(executorlib_worker_id):
     sleep(0.1)
-    return worker_id
+    return executorlib_worker_id
 
 
 def init_function():
