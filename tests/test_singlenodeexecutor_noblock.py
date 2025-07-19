@@ -94,6 +94,15 @@ class TestWorkerID(unittest.TestCase):
             worker_id = exe.submit(get_worker_id, resource_dict={}).result()
         self.assertEqual(worker_id, 0)
 
+    def test_block_allocation_True_two_workers(self):
+        with SingleNodeExecutor(
+            max_cores=2,
+            block_allocation=True,
+        ) as exe:
+            f1_worker_id = exe.submit(get_worker_id, resource_dict={})
+            f2_worker_id = exe.submit(get_worker_id, resource_dict={})
+        self.assertEqual(sum([f1_worker_id.result(), f2_worker_id.result()]), 1)
+
     def test_init_function(self):
         with SingleNodeExecutor(
             max_cores=1,
@@ -103,6 +112,16 @@ class TestWorkerID(unittest.TestCase):
             worker_id = exe.submit(get_worker_id, resource_dict={}).result()
         self.assertEqual(worker_id, 0)
 
+    def test_init_function_two_workers(self):
+        with SingleNodeExecutor(
+            max_cores=2,
+            block_allocation=True,
+            init_function=init_function,
+        ) as exe:
+            f1_worker_id = exe.submit(get_worker_id, resource_dict={})
+            f2_worker_id = exe.submit(get_worker_id, resource_dict={})
+        self.assertEqual(sum([f1_worker_id.result(), f2_worker_id.result()]), 1)
+
     def test_block_allocation_False(self):
         with SingleNodeExecutor(
             max_cores=1,
@@ -110,3 +129,12 @@ class TestWorkerID(unittest.TestCase):
         ) as exe:
             worker_id = exe.submit(get_worker_id, resource_dict={}).result()
         self.assertEqual(worker_id, 0)
+
+    def test_block_allocation_False_two_workers(self):
+        with SingleNodeExecutor(
+            max_cores=2,
+            block_allocation=False,
+        ) as exe:
+            f1_worker_id = exe.submit(get_worker_id, resource_dict={})
+            f2_worker_id = exe.submit(get_worker_id, resource_dict={})
+        self.assertEqual(sum([f1_worker_id.result(), f2_worker_id.result()]), 0)
