@@ -1,6 +1,6 @@
+import importlib
 import os
 import sys
-import importlib
 
 
 def get_command_path(executable: str) -> str:
