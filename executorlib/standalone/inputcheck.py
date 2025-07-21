@@ -3,6 +3,7 @@ import multiprocessing
 import os.path
 from concurrent.futures import Executor
 from typing import Callable, Optional
+from warnings import warn
 
 
 def check_oversubscribe(oversubscribe: bool) -> None:
@@ -190,7 +191,13 @@ def validate_number_of_cores(
             "Block allocation requires a fixed set of computational resources. Neither max_cores nor max_workers are defined."
         )
     else:
-        return multiprocessing.cpu_count()
+        max_workers = multiprocessing.cpu_count()
+        warn(
+            "max_workers parameter is not set, set default based on CPU count to: max_workers="
+            + str(max_workers),
+            stacklevel=2,
+        )
+        return max_workers
 
 
 def check_file_exists(file_name: Optional[str]):
