@@ -195,7 +195,7 @@ def validate_number_of_cores(
         warn(
             "max_workers parameter is not set, set default based on CPU count to: max_workers="
             + str(max_workers),
-            stacklevel=2
+            stacklevel=2,
         )
         return max_workers
 
