@@ -192,7 +192,10 @@ def validate_number_of_cores(
         )
     else:
         max_workers = multiprocessing.cpu_count()
-        warn("max_workers parameter is not set, set default based on CPU count to: max_workers=" + str(max_workers))
+        warn(
+            "max_workers parameter is not set, set default based on CPU count to: max_workers="
+            + str(max_workers)
+        )
         return max_workers
 
 
