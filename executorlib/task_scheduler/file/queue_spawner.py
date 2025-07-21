@@ -1,3 +1,4 @@
+import contextlib
 import os
 import subprocess
 from typing import Optional, Union
@@ -32,7 +33,7 @@ def execute_with_pysqa(
                                   cwd: None,
                               }
         config_directory (str, optional): path to the config directory.
-        backend (str, optional): name of the backend used to spawn tasks.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
 
     Returns:
         int: queuing system ID
@@ -101,7 +102,7 @@ def terminate_with_pysqa(
     Args:
         queue_id (int): Queuing system ID of the job to delete.
         config_directory (str, optional): path to the config directory.
-        backend (str, optional): name of the backend used to spawn tasks.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
     qa = QueueAdapter(
         directory=config_directory,
@@ -110,7 +111,35 @@ def terminate_with_pysqa(
     )
     status = qa.get_status_of_job(process_id=queue_id)
     if status is not None and status not in ["finished", "error"]:
-        qa.delete_job(process_id=queue_id)
+        with contextlib.suppress(subprocess.CalledProcessError):
+            qa.delete_job(process_id=queue_id)
+
+
+def terminate_tasks_in_cache(
+    cache_directory: str,
+    config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+):
+    """
+    Delete all jobs stored in the cache directory from the queuing system
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+        config_directory (str, optional): path to the config directory.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
+    """
+    hdf5_file_lst = []
+    for root, _, files in os.walk(cache_directory):
+        hdf5_file_lst += [os.path.join(root, f) for f in files if f[-5:] == "_i.h5"]
+
+    for f in hdf5_file_lst:
+        queue_id = get_queue_id(f)
+        if queue_id is not None:
+            terminate_with_pysqa(
+                queue_id=queue_id,
+                config_directory=config_directory,
+                backend=backend,
+            )
 
 
 def _pysqa_execute_command(

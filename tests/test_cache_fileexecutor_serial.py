@@ -4,6 +4,7 @@ from queue import Queue
 import shutil
 import unittest
 from threading import Thread
+from time import sleep
 
 try:
     from executorlib.task_scheduler.file.subprocess_spawner import (
@@ -11,7 +12,7 @@ try:
         terminate_subprocess,
     )
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
-    from executorlib.task_scheduler.file.shared import execute_tasks_h5
+    from executorlib.task_scheduler.file.shared import execute_tasks_h5, _convert_args_and_kwargs
 
     skip_h5py_test = False
 except ImportError:
@@ -88,6 +89,21 @@ class TestCacheExecutorSerial(unittest.TestCase):
             fs1 = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
                 fs1.result()
+        self.assertEqual(len(os.listdir(cwd)), 1)
+
+    def test_executor_error_file(self):
+        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        with FileTaskScheduler(
+            resource_dict={"cwd": cwd, "error_log_file": "error.out"}, 
+            execute_function=execute_in_subprocess
+        ) as exe:
+            fs1 = exe.submit(get_error, a=1)
+            with self.assertRaises(ValueError):
+                fs1.result()
+        working_directory_file_lst = os.listdir(cwd)
+        self.assertEqual(len(working_directory_file_lst), 2)
+        self.assertTrue("error.out" in working_directory_file_lst)
+        os.remove(os.path.join(cwd, "error.out"))
 
     def test_executor_function(self):
         fs1 = Future()
@@ -199,6 +215,14 @@ class TestCacheExecutorSerial(unittest.TestCase):
         q.put({"shutdown": True, "wait": True})
         process.join()
 
+    def test_execute_in_subprocess(self):
+        process = execute_in_subprocess(
+            command=["sleep", "5"],
+            file_name="test.h5",
+            data_dict={"fn": sleep, "args": (5,)},
+        )
+        self.assertIsNone(terminate_subprocess(task=process))
+
     def test_execute_in_subprocess_errors(self):
         file_name = os.path.abspath(os.path.join(__file__, "..", "executorlib_cache", "test.h5"))
         os.makedirs(os.path.dirname(file_name))
@@ -218,6 +242,20 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 command=[],
                 backend="flux",
             )
+
+    def test_convert_args_and_kwargs(self):
+        f1 = Future()
+        f1.set_result(1)
+        f2 = Future()
+        f2.set_result(2)
+        task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
+            task_dict={"fn": 1, "args": (f1,), "kwargs": {"a": f2}},
+            memory_dict={},
+            file_name_dict={},
+        )
+        self.assertEqual(task_args, [1])
+        self.assertEqual(task_kwargs, {"a": 2})
+        self.assertTrue(len(future_wait_key_lst) == 0)
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)

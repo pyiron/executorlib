@@ -1,13 +1,11 @@
 import contextlib
-import importlib.util
 import os
 import queue
-import sys
 from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.cache import get_cache_files
-from executorlib.standalone.command import get_command_path
+from executorlib.standalone.command import get_cache_execute_command
 from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.task_scheduler.file.hdf import get_output
 from executorlib.task_scheduler.file.subprocess_spawner import terminate_subprocess
@@ -126,6 +124,7 @@ def execute_tasks_h5(
             )
             cache_key = task_resource_dict.pop("cache_key", None)
             cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
+            error_log_file = task_resource_dict.pop("error_log_file", None)
             task_key, data_dict = serialize_funct_h5(
                 fn=task_dict["fn"],
                 fn_args=task_args,
@@ -133,6 +132,7 @@ def execute_tasks_h5(
                 resource_dict=task_resource_dict,
                 cache_key=cache_key,
             )
+            data_dict["error_log_file"] = error_log_file
             if task_key not in memory_dict:
                 if os.path.join(
                     cache_directory, task_key + "_o.h5"
@@ -151,7 +151,7 @@ def execute_tasks_h5(
                             )
                         task_dependent_lst = []
                     process_dict[task_key] = execute_function(
-                        command=_get_execute_command(
+                        command=get_cache_execute_command(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
                         ),
@@ -179,33 +179,6 @@ def execute_tasks_h5(
                 for key, value in memory_dict.items()
                 if not value.done()
             }
-
-
-def _get_execute_command(file_name: str, cores: int = 1) -> list:
-    """
-    Get command to call backend as a list of two strings
-
-    Args:
-        file_name (str): The name of the file.
-        cores (int, optional): Number of cores used to execute the task. Defaults to 1.
-
-    Returns:
-        list[str]: List of strings containing the python executable path and the backend script to execute
-    """
-    command_lst = [sys.executable]
-    if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
-        command_lst = (
-            ["mpiexec", "-n", str(cores)]
-            + command_lst
-            + [get_command_path(executable="cache_parallel.py"), file_name]
-        )
-    elif cores > 1:
-        raise ImportError(
-            "mpi4py is required for parallel calculations. Please install mpi4py."
-        )
-    else:
-        command_lst += [get_command_path(executable="cache_serial.py"), file_name]
-    return command_lst
 
 
 def _check_task_output(

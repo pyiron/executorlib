@@ -1,13 +1,11 @@
 import contextlib
-import importlib.util
 import os
 import queue
-import sys
 import time
 from typing import Callable, Optional
 
 from executorlib.standalone.cache import get_cache_files
-from executorlib.standalone.command import get_command_path
+from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
@@ -26,6 +24,7 @@ def execute_tasks(
     cache_key: Optional[str] = None,
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
+    error_log_file: Optional[str] = None,
     **kwargs,
 ) -> None:
     """
@@ -48,9 +47,11 @@ def execute_tasks(
                                   overwritten by setting the cache_key.
        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+       error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
+                             submitted to the Executor.
     """
     interface = interface_bootup(
-        command_lst=_get_backend_path(
+        command_lst=get_interactive_execute_command(
             cores=cores,
         ),
         connections=spawner(cores=cores, **kwargs),
@@ -70,6 +71,8 @@ def execute_tasks(
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
+            if error_log_file is not None:
+                task_dict["error_log_file"] = error_log_file
             if cache_directory is None:
                 _execute_task_without_cache(
                     interface=interface, task_dict=task_dict, future_queue=future_queue
@@ -82,30 +85,6 @@ def execute_tasks(
                     cache_directory=cache_directory,
                     cache_key=cache_key,
                 )
-
-
-def _get_backend_path(
-    cores: int,
-) -> list:
-    """
-    Get command to call backend as a list of two strings
-
-    Args:
-        cores (int): Number of cores used to execute the task, if it is greater than one use interactive_parallel.py else interactive_serial.py
-
-    Returns:
-        list[str]: List of strings containing the python executable path and the backend script to execute
-    """
-    command_lst = [sys.executable]
-    if cores > 1 and importlib.util.find_spec("mpi4py") is not None:
-        command_lst += [get_command_path(executable="interactive_parallel.py")]
-    elif cores > 1:
-        raise ImportError(
-            "mpi4py is required for parallel calculations. Please install mpi4py."
-        )
-    else:
-        command_lst += [get_command_path(executable="interactive_serial.py")]
-    return command_lst
 
 
 def _execute_task_without_cache(

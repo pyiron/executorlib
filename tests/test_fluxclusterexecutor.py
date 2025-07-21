@@ -2,13 +2,16 @@ import os
 import importlib
 import unittest
 import shutil
+from time import sleep
 
 from executorlib import FluxClusterExecutor
 from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.standalone.command import get_cache_execute_command
 
 try:
     import flux.job
     from executorlib.task_scheduler.file.hdf import dump
+    from executorlib.task_scheduler.file.queue_spawner import terminate_with_pysqa, terminate_tasks_in_cache, execute_with_pysqa
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -58,6 +61,20 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
 
+    def test_pysqa_interface(self):
+        queue_id = execute_with_pysqa(
+            command=get_cache_execute_command(
+                file_name="test_i.h5",
+                cores=1,
+            ),
+            file_name="test_i.h5",
+            data_dict={"fn": sleep, "args": (10,)},
+            resource_dict={"cores": 1},
+            cache_directory="executorlib_cache",
+            backend="flux"
+        )
+        self.assertIsNone(terminate_with_pysqa(queue_id=queue_id, backend="flux"))
+
     def test_executor_existing_files(self):
         with FluxClusterExecutor(
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
@@ -88,6 +105,14 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs1.done())
             self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+
+    def test_terminate_tasks_in_cache(self):
+        file = os.path.join("executorlib_cache", "test_i.h5")
+        dump(file_name=file, data_dict={"queue_id": 1})
+        self.assertIsNone(terminate_tasks_in_cache(
+            cache_directory="executorlib_cache",
+            backend="flux",
+        ))
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
