@@ -18,5 +18,5 @@ dependencies:
 - pysqa =0.2.7
 - ipython =9.0.2
 - atomistics =0.2.5
-- qe =7.2
+- qe =7.4
 - gpaw =24.6.0
