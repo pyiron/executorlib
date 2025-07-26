@@ -50,6 +50,23 @@ class BaseExecutor(FutureExecutor, ABC):
         """
         return self._task_scheduler.future_queue
 
+    def batched(
+        self,
+        iterable: list[Future],
+        n: Optional[int] = None,
+    ) -> list[Future]:
+        """
+        Batch futures from the iterable into tuples of length n. The last batch may be shorter than n.
+
+        Args:
+            iterable (list): list of future objects to batch based on which future objects finish first
+            n (int): badge size
+
+        Returns:
+            list[Future]: list of future objects one for each batch
+        """
+        return self._task_scheduler.batched(iterable=iterable, n=n)
+
     def submit(  # type: ignore
         self,
         fn: Callable,
