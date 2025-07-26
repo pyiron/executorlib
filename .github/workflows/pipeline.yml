@@ -255,6 +255,7 @@ jobs:
       run: >
         flux start
         coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
+        coverage report
         coverage xml
       env:
         EXECUTORLIB_PMIX: "pmix"
