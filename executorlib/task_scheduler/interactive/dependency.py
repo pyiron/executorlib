@@ -157,7 +157,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
     def batched(
         self,
         iterable: list[Future],
-        n: Optional[int] = None,
+        n: int,
     ) -> list[Future]:
         """
         Batch futures from the iterable into tuples of length n. The last batch may be shorter than n.
@@ -169,9 +169,6 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         Returns:
             list[Future]: list of future objects one for each batch
         """
-        if n is None:
-            raise TypeError("batched() missing required argument 'n' (pos 2)")
-
         skip_lst: list[Future] = []
         future_lst: list[Future] = []
         for _ in range(len(iterable) // n + (1 if len(iterable) % n > 0 else 0)):
