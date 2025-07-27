@@ -26,7 +26,7 @@ submission_template = """\
 #SBATCH --job-name={{job_name}}
 #SBATCH --chdir={{working_directory}}
 #SBATCH --get-user-env=L
-#SBATCH --cpus-per-task={{cores}}
+#SBATCH --ntasks={{cores}}
 
 {{command}}
 """
@@ -50,6 +50,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode="pmi2",
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -63,6 +64,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode="pmi2",
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -76,6 +78,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode="pmi2",
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -94,6 +97,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode="pmi2",
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)

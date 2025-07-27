@@ -11,7 +11,8 @@ from executorlib.standalone.command import get_cache_execute_command
 try:
     import flux.job
     from executorlib.task_scheduler.file.hdf import dump
-    from executorlib.task_scheduler.file.queue_spawner import terminate_with_pysqa, terminate_tasks_in_cache, execute_with_pysqa
+    from executorlib.task_scheduler.file.queue_spawner import terminate_tasks_in_cache, execute_with_pysqa
+    from executorlib.standalone.scheduler import terminate_with_pysqa
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -40,6 +41,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -53,6 +55,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -80,6 +83,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -98,6 +102,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
+            pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
