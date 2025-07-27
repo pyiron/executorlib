@@ -47,8 +47,8 @@ def get_cache_execute_command(
                 + [get_command_path(executable="cache_parallel.py"), file_name]
             )
         elif backend == "flux":
-            if flux_executor_pmi_mode:
-                flux_command = ["flux", "run", "-o", "pmi=pmix", "-n", str(cores)]
+            if flux_executor_pmi_mode is not None:
+                flux_command = ["flux", "run", "-o", "pmi=" + flux_executor_pmi_mode, "-n", str(cores)]
             else:
                 flux_command = ["flux", "run", "-n", str(cores)]
             command_lst = (
