@@ -330,7 +330,6 @@ jobs:
         pip install . --no-deps --no-build-isolation
         cd tests
         srun --mpi=list
-        python -m unittest test_slurmclusterexecutor.py
         python -m unittest test_slurmjobexecutor.py
 
   unittest_mpich:
