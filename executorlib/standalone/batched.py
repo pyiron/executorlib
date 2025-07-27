@@ -39,7 +39,4 @@ def _merge_lists(lst: list[list]) -> list:
     Returns:
         list: merged list of lists
     """
-    results_lst = []
-    for el in lst:
-        results_lst += el
-    return results_lst
+    return [item for items in lst for item in items]
