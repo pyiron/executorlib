@@ -15,7 +15,7 @@ def batched_futures(lst: list[Future], skip_lst: list[list], n: int) -> list[lis
     Returns:
         list: results of the batched futures
     """
-    skipped_elements_lst = _merge_lists(lst=skip_lst)
+    skipped_elements_lst = [item for items in skip_lst for item in items]
 
     done_lst = []
     for v in lst:
@@ -27,16 +27,3 @@ def batched_futures(lst: list[Future], skip_lst: list[list], n: int) -> list[lis
         return done_lst
     else:
         return []
-
-
-def _merge_lists(lst: list[list]) -> list:
-    """
-    Merge two lists into a new list.
-
-    Args:
-        lst (list): list of lists
-
-    Returns:
-        list: merged list of lists
-    """
-    return [item for items in lst for item in items]
