@@ -322,7 +322,7 @@ jobs:
         python-version: '3.13'
         miniforge-version: latest
         condarc-file: .condarc
-        environment-file: .ci_support/environment-mpich.yml
+        environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
