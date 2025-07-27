@@ -120,7 +120,7 @@ For the version 5 of openmpi the backend changed to `pmix`, this requires the ad
 ```
 conda install -c conda-forge flux-core flux-sched flux-pmix openmpi>=5 executorlib
 ```
-In addition, the `flux_executor_pmi_mode="pmix"` parameter has to be set for the `FluxJobExecutor` or the 
+In addition, the `pmi_mode="pmix"` parameter has to be set for the `FluxJobExecutor` or the 
 `FluxClusterExecutor` to switch to `pmix` as backend.
 
 ### Test Flux Framework
