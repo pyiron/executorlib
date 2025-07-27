@@ -2,7 +2,7 @@ import unittest
 from executorlib.task_scheduler.interactive.slurmspawner import generate_slurm_command
 
 try:
-    from executorlib.task_scheduler.file.queue_spawner import _pysqa_execute_command
+    from executorlib.standalone.scheduler import pysqa_execute_command
 
     skip_pysqa_test = False
 except ImportError:
@@ -14,7 +14,7 @@ except ImportError:
 )
 class TestPysqaExecuteCommand(unittest.TestCase):
     def test_pysqa_execute_command_list(self):
-        out = _pysqa_execute_command(
+        out = pysqa_execute_command(
             commands=["echo", "test"],
             working_directory=None,
             split_output=True,
@@ -25,7 +25,7 @@ class TestPysqaExecuteCommand(unittest.TestCase):
         self.assertEqual("test", out[0])
 
     def test_pysqa_execute_command_string(self):
-        out = _pysqa_execute_command(
+        out = pysqa_execute_command(
             commands="echo test",
             working_directory=None,
             split_output=False,
@@ -37,7 +37,7 @@ class TestPysqaExecuteCommand(unittest.TestCase):
 
     def test_pysqa_execute_command_fail(self):
         with self.assertRaises(FileNotFoundError):
-            _pysqa_execute_command(
+            pysqa_execute_command(
                 commands=["no/executable/available"],
                 working_directory=None,
                 split_output=True,

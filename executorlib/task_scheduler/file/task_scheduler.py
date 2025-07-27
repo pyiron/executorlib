@@ -17,10 +17,8 @@ from executorlib.task_scheduler.file.subprocess_spawner import (
 )
 
 try:
-    from executorlib.task_scheduler.file.queue_spawner import (
-        execute_with_pysqa,
-        terminate_with_pysqa,
-    )
+    from executorlib.standalone.scheduler import terminate_with_pysqa
+    from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = execute_in_subprocess  # type: ignore
