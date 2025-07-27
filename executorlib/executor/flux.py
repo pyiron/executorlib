@@ -236,6 +236,7 @@ class FluxClusterExecutor(BaseExecutor):
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
+        flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -283,6 +284,7 @@ class FluxClusterExecutor(BaseExecutor):
         max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         pysqa_config_directory: Optional[str] = None,
+        flux_executor_pmi_mode: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
         init_function: Optional[Callable] = None,
@@ -317,6 +319,7 @@ class FluxClusterExecutor(BaseExecutor):
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
+            flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -366,7 +369,7 @@ class FluxClusterExecutor(BaseExecutor):
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,
                     flux_executor=None,
-                    flux_executor_pmi_mode=None,
+                    flux_executor_pmi_mode=flux_executor_pmi_mode,
                     flux_executor_nesting=False,
                     flux_log_files=False,
                     pysqa_config_directory=pysqa_config_directory,
