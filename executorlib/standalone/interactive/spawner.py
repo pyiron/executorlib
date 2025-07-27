@@ -73,7 +73,7 @@ class SubprocessSpawner(BaseSpawner):
             cwd (str, optional): The current working directory. Defaults to None.
             cores (int, optional): The number of cores to use. Defaults to 1.
             threads_per_core (int, optional): The number of threads per core. Defaults to 1.
-            oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+            openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         """
         super().__init__(
             cwd=cwd,
