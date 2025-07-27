@@ -3,11 +3,11 @@ from typing import Callable, Optional
 
 from executorlib.standalone.inputcheck import (
     check_executor,
-    check_pmi_mode,
     check_flux_log_files,
     check_hostname_localhost,
     check_max_workers_and_cores,
     check_nested_flux_executor,
+    check_pmi_mode,
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
