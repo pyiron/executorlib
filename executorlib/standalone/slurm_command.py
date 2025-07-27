@@ -13,6 +13,7 @@ def generate_slurm_command(
     exclusive: bool = False,
     openmpi_oversubscribe: bool = False,
     slurm_cmd_args: Optional[list[str]] = None,
+    pmi_mode: Optional[str] = None,
 ) -> list[str]:
     """
     Generate the command list for the SLURM interface.
@@ -26,6 +27,7 @@ def generate_slurm_command(
         exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
 
     Returns:
         list[str]: The generated command list.
@@ -33,6 +35,8 @@ def generate_slurm_command(
     command_prepend_lst = [SLURM_COMMAND, "-n", str(cores)]
     if cwd is not None:
         command_prepend_lst += ["-D", cwd]
+    if pmi_mode is not None:
+        command_prepend_lst += ["--mpi=" + pmi_mode]
     if num_nodes is not None:
         command_prepend_lst += ["-N", str(num_nodes)]
     if threads_per_core > 1:
