@@ -174,7 +174,7 @@ class SlurmClusterExecutor(BaseExecutor):
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,
                     flux_executor=None,
-                    flux_executor_pmi_mode=None,
+                    executor_pmi_mode=None,
                     flux_executor_nesting=False,
                     flux_log_files=False,
                     pysqa_config_directory=pysqa_config_directory,
@@ -393,6 +393,7 @@ def create_slurm_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    executor_pmi_mode: Optional[str] = None,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -431,6 +432,7 @@ def create_slurm_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -441,6 +443,7 @@ def create_slurm_executor(
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
+    resource_dict["executor_pmi_mode"] = executor_pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     if block_allocation:
         resource_dict["init_function"] = init_function

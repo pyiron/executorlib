@@ -31,6 +31,7 @@ class SrunSpawner(SubprocessSpawner):
         exclusive: bool = False,
         openmpi_oversubscribe: bool = False,
         slurm_cmd_args: Optional[list[str]] = None,
+        executor_pmi_mode: Optional[str] = None,
     ):
         """
         Srun interface implementation.
@@ -44,6 +45,7 @@ class SrunSpawner(SubprocessSpawner):
             exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
             slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
+            executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         """
         super().__init__(
             cwd=cwd,
@@ -55,6 +57,7 @@ class SrunSpawner(SubprocessSpawner):
         self._slurm_cmd_args = slurm_cmd_args
         self._num_nodes = num_nodes
         self._exclusive = exclusive
+        self._executor_pmi_mode = executor_pmi_mode
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
@@ -75,6 +78,7 @@ class SrunSpawner(SubprocessSpawner):
             exclusive=self._exclusive,
             openmpi_oversubscribe=self._openmpi_oversubscribe,
             slurm_cmd_args=self._slurm_cmd_args,
+            executor_pmi_mode=self._executor_pmi_mode,
         )
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,
@@ -90,6 +94,7 @@ def generate_slurm_command(
     exclusive: bool = False,
     openmpi_oversubscribe: bool = False,
     slurm_cmd_args: Optional[list[str]] = None,
+    executor_pmi_mode: Optional[str] = None,
 ) -> list[str]:
     """
     Generate the command list for the SLURM interface.
@@ -103,6 +108,7 @@ def generate_slurm_command(
         exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
+        executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
 
     Returns:
         list[str]: The generated command list.
@@ -110,6 +116,8 @@ def generate_slurm_command(
     command_prepend_lst = [SLURM_COMMAND, "-n", str(cores)]
     if cwd is not None:
         command_prepend_lst += ["-D", cwd]
+    if executor_pmi_mode is not None:
+        command_prepend_lst += ["--mpi=" + executor_pmi_mode]
     if num_nodes is not None:
         command_prepend_lst += ["-N", str(num_nodes)]
     if threads_per_core > 1:

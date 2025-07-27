@@ -369,7 +369,7 @@ class FluxClusterExecutor(BaseExecutor):
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,
                     flux_executor=None,
-                    flux_executor_pmi_mode=flux_executor_pmi_mode,
+                    executor_pmi_mode=flux_executor_pmi_mode,
                     flux_executor_nesting=False,
                     flux_log_files=False,
                     pysqa_config_directory=pysqa_config_directory,

@@ -34,7 +34,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         pysqa_config_directory: Optional[str] = None,
         backend: Optional[str] = None,
         disable_dependencies: bool = False,
-        flux_executor_pmi_mode: Optional[str] = None,
+        executor_pmi_mode: Optional[str] = None,
     ):
         """
         Initialize the FileExecutor.
@@ -49,7 +49,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str, optional): name of the backend used to spawn tasks.
             disable_dependencies (boolean): Disable resolving future objects during the submission.
-            flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+            executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         """
         super().__init__(max_cores=None)
         default_resource_dict = {
@@ -70,7 +70,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             "pysqa_config_directory": pysqa_config_directory,
             "backend": backend,
             "disable_dependencies": disable_dependencies,
-            "flux_executor_pmi_mode": flux_executor_pmi_mode,
+            "executor_pmi_mode": executor_pmi_mode,
         }
         self._set_process(
             Thread(
@@ -87,7 +87,7 @@ def create_file_executor(
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
     flux_executor=None,
-    flux_executor_pmi_mode: Optional[str] = None,
+    executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
     flux_log_files: bool = False,
     pysqa_config_directory: Optional[str] = None,
@@ -108,7 +108,7 @@ def create_file_executor(
     if cache_directory is not None:
         resource_dict["cache_directory"] = cache_directory
     if backend != "flux":
-        check_flux_executor_pmi_mode(flux_executor_pmi_mode=flux_executor_pmi_mode)
+        check_flux_executor_pmi_mode(flux_executor_pmi_mode=executor_pmi_mode)
     check_max_workers_and_cores(max_cores=max_cores, max_workers=max_workers)
     check_hostname_localhost(hostname_localhost=hostname_localhost)
     check_executor(executor=flux_executor)
@@ -125,5 +125,5 @@ def create_file_executor(
         disable_dependencies=disable_dependencies,
         execute_function=execute_function,
         terminate_function=terminate_function,
-        flux_executor_pmi_mode=flux_executor_pmi_mode,
+        executor_pmi_mode=executor_pmi_mode,
     )

@@ -67,7 +67,7 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(output[4], sys.executable)
         self.assertEqual(output[5].split(os.sep)[-1], "cache_parallel.py")
         self.assertEqual(output[6], file_name)
-        output = get_cache_execute_command(cores=2, file_name=file_name, backend="flux", flux_executor_pmi_mode="pmix")
+        output = get_cache_execute_command(cores=2, file_name=file_name, backend="flux", executor_pmi_mode="pmix")
         self.assertEqual(output[0], "flux")
         self.assertEqual(output[1], "run")
         self.assertEqual(output[2], "-o")
