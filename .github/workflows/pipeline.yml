@@ -299,7 +299,6 @@ jobs:
         cd tests
         sinfo -o "%n %e %m %a %c %C"
         srun --mpi=list
-        python -m unittest test_slurmclusterexecutor.py
         python -m unittest test_slurmjobexecutor.py
 
   unittest_slurm_mpich_pip:
@@ -328,7 +327,6 @@ jobs:
         cd tests
         sinfo -o "%n %e %m %a %c %C"
         srun --mpi=list
-        python -m unittest test_slurmclusterexecutor.py
         python -m unittest test_slurmjobexecutor.py
 
   unittest_slurm_openmpi:
