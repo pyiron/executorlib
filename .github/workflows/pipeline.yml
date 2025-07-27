@@ -320,7 +320,7 @@ jobs:
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.13'
+        python-version: '3.12'
         miniforge-version: latest
         condarc-file: .condarc
         environment-file: .ci_support/environment-slurm.yml
