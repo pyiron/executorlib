@@ -107,7 +107,7 @@ def generate_slurm_command(
     Returns:
         list[str]: The generated command list.
     """
-    command_prepend_lst = [SLURM_COMMAND, "-n", str(cores)]
+    command_prepend_lst = [SLURM_COMMAND, "-n", str(cores), "--mpi=pmix"]
     if cwd is not None:
         command_prepend_lst += ["-D", cwd]
     if num_nodes is not None:
