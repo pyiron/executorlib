@@ -6,17 +6,17 @@ from executorlib.standalone.slurm_command import generate_slurm_command
 
 
 def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):
-    cores_total = int(os.environ["SLURM_NTASKS"]) * int(
-        os.environ["SLURM_CPUS_PER_TASK"]
-    )
-    cores_requested = max_workers * cores * threads_per_core
-    if cores_total < cores_requested:
-        raise ValueError(
-            "The number of requested cores is larger than the available cores "
-            + str(cores_total)
-            + " < "
-            + str(cores_requested)
-        )
+    env = os.environ
+    if "SLURM_NTASKS" in env and "SLURM_CPUS_PER_TASK" in env:
+        cores_total = int(env["SLURM_NTASKS"]) * int(env["SLURM_CPUS_PER_TASK"])
+        cores_requested = max_workers * cores * threads_per_core
+        if cores_total < cores_requested:
+            raise ValueError(
+                "The number of requested cores is larger than the available cores "
+                + str(cores_total)
+                + " < "
+                + str(cores_requested)
+            )
 
 
 class SrunSpawner(SubprocessSpawner):
@@ -30,6 +30,7 @@ class SrunSpawner(SubprocessSpawner):
         exclusive: bool = False,
         openmpi_oversubscribe: bool = False,
         slurm_cmd_args: Optional[list[str]] = None,
+        pmi_mode: Optional[str] = None,
     ):
         """
         Srun interface implementation.
@@ -43,6 +44,7 @@ class SrunSpawner(SubprocessSpawner):
             exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
             slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
+            pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         """
         super().__init__(
             cwd=cwd,
@@ -54,6 +56,7 @@ class SrunSpawner(SubprocessSpawner):
         self._slurm_cmd_args = slurm_cmd_args
         self._num_nodes = num_nodes
         self._exclusive = exclusive
+        self._pmi_mode = pmi_mode
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
@@ -74,6 +77,7 @@ class SrunSpawner(SubprocessSpawner):
             exclusive=self._exclusive,
             openmpi_oversubscribe=self._openmpi_oversubscribe,
             slurm_cmd_args=self._slurm_cmd_args,
+            pmi_mode=self._pmi_mode,
         )
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,

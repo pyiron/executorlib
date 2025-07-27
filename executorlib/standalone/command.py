@@ -17,7 +17,12 @@ def get_command_path(executable: str) -> str:
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def get_cache_execute_command(file_name: str, cores: int = 1, backend: Optional[str] = None) -> list:
+def get_cache_execute_command(
+    file_name: str,
+    cores: int = 1,
+    backend: Optional[str] = None,
+    pmi_mode: Optional[str] = None,
+) -> list:
     """
     Get command to call backend as a list of two strings
 
@@ -25,6 +30,7 @@ def get_cache_execute_command(file_name: str, cores: int = 1, backend: Optional[
         file_name (str): The name of the file.
         cores (int, optional): Number of cores used to execute the task. Defaults to 1.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
 
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
@@ -38,19 +44,26 @@ def get_cache_execute_command(file_name: str, cores: int = 1, backend: Optional[
                 + [get_command_path(executable="cache_parallel.py"), file_name]
             )
         elif backend == "slurm":
+            command_prepend = ["srun", "-n", str(cores)]
+            if pmi_mode is not None:
+                command_prepend += ["--mpi=" + pmi_mode]
             command_lst = (
-                ["srun", "-n", str(cores)]
+                command_prepend
                 + command_lst
                 + [get_command_path(executable="cache_parallel.py"), file_name]
             )
         elif backend == "flux":
+            flux_command = ["flux", "run"]
+            if pmi_mode is not None:
+                flux_command += ["-o", "pmi=" + pmi_mode]
             command_lst = (
-                ["flux", "run", "-n", str(cores)]
+                flux_command
+                + ["-n", str(cores)]
                 + command_lst
                 + [get_command_path(executable="cache_parallel.py"), file_name]
             )
         else:
-            raise ValueError("backend should be None, slurm or flux, not {}".format(backend))
+            raise ValueError(f"backend should be None, slurm or flux, not {backend}")
     elif cores > 1:
         raise ImportError(
             "mpi4py is required for parallel calculations. Please install mpi4py."

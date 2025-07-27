@@ -57,6 +57,7 @@ def execute_tasks_h5(
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
+    pmi_mode: Optional[str] = None,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -71,6 +72,7 @@ def execute_tasks_h5(
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
 
     Returns:
         None
@@ -155,6 +157,7 @@ def execute_tasks_h5(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
                             backend=backend,
+                            pmi_mode=pmi_mode,
                         ),
                         file_name=file_name,
                         data_dict=data_dict,
