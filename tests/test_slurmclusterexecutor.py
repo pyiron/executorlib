@@ -26,7 +26,7 @@ submission_template = """\
 #SBATCH --job-name={{job_name}}
 #SBATCH --chdir={{working_directory}}
 #SBATCH --get-user-env=L
-#SBATCH --cpus-per-task={{cores}}
+#SBATCH --ntasks={{cores}}
 
 {{command}}
 """

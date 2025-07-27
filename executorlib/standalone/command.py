@@ -45,7 +45,7 @@ def get_cache_execute_command(
             )
         elif backend == "slurm":
             command_lst = (
-                ["srun", "-n", str(cores)]
+                ["srun", "-n", str(cores), "--mpi=pmi2"]
                 + command_lst
                 + [get_command_path(executable="cache_parallel.py"), file_name]
             )

@@ -300,6 +300,7 @@ jobs:
         sinfo -o "%n %e %m %a %c %C"
         srun --mpi=list
         python -m unittest test_slurmjobexecutor.py
+        python -m unittest test_slurmclusterexecutor.py
 
   unittest_mpich:
     needs: [black]
