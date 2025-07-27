@@ -295,6 +295,7 @@ jobs:
       run: |
         pip install . --no-deps --no-build-isolation
         cd tests
+        sinfo
         srun --mpi=list
         python -m unittest test_slurmclusterexecutor.py
         python -m unittest test_slurmjobexecutor.py
@@ -329,6 +330,7 @@ jobs:
       run: |
         pip install . --no-deps --no-build-isolation
         cd tests
+        sinfo
         srun --mpi=list
         python -m unittest test_slurmjobexecutor.py
 
