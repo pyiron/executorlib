@@ -44,6 +44,7 @@ class SlurmClusterExecutor(BaseExecutor):
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -91,6 +92,7 @@ class SlurmClusterExecutor(BaseExecutor):
         max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         pysqa_config_directory: Optional[str] = None,
+        pmi_mode: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
         init_function: Optional[Callable] = None,
@@ -125,6 +127,7 @@ class SlurmClusterExecutor(BaseExecutor):
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
+            pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -173,8 +176,8 @@ class SlurmClusterExecutor(BaseExecutor):
                     max_cores=max_cores,
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,
+                    pmi_mode=pmi_mode,
                     flux_executor=None,
-                    flux_executor_pmi_mode=None,
                     flux_executor_nesting=False,
                     flux_log_files=False,
                     pysqa_config_directory=pysqa_config_directory,
@@ -232,6 +235,7 @@ class SlurmJobExecutor(BaseExecutor):
                                                   compute notes. Defaults to False.
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -278,6 +282,7 @@ class SlurmJobExecutor(BaseExecutor):
         cache_directory: Optional[str] = None,
         max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
+        pmi_mode: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
         init_function: Optional[Callable] = None,
@@ -315,6 +320,7 @@ class SlurmJobExecutor(BaseExecutor):
                                                       compute notes. Defaults to False.
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
+            pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -356,6 +362,7 @@ class SlurmJobExecutor(BaseExecutor):
                         cache_directory=cache_directory,
                         max_cores=max_cores,
                         resource_dict=resource_dict,
+                        pmi_mode=pmi_mode,
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
@@ -376,6 +383,7 @@ class SlurmJobExecutor(BaseExecutor):
                     cache_directory=cache_directory,
                     max_cores=max_cores,
                     resource_dict=resource_dict,
+                    pmi_mode=pmi_mode,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
@@ -389,6 +397,7 @@ def create_slurm_executor(
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
     resource_dict: Optional[dict] = None,
+    pmi_mode: Optional[str] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
@@ -418,6 +427,7 @@ def create_slurm_executor(
                                                   compute notes. Defaults to False.
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                   context of an HPC cluster this essential to be able to communicate to an
                                   Executor running on a different compute node within the same allocation. And
@@ -441,6 +451,7 @@ def create_slurm_executor(
     resource_dict["cache_directory"] = cache_directory
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
+    resource_dict["pmi_mode"] = pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     if block_allocation:
         resource_dict["init_function"] = init_function

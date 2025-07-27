@@ -280,6 +280,8 @@ jobs:
     - uses: actions/checkout@v4
     - uses: koesterlab/setup-slurm-action@v1
       timeout-minutes: 5
+    - name: ubnuntu install
+      run: sudo apt install -y mpich
     - name: Conda config
       shell: bash -l {0}
       run: echo -e "channels:\n  - conda-forge\n" > .condarc
@@ -295,8 +297,10 @@ jobs:
       run: |
         pip install . --no-deps --no-build-isolation
         cd tests
-        python -m unittest test_slurmclusterexecutor.py
+        sinfo -o "%n %e %m %a %c %C"
+        srun --mpi=list
         python -m unittest test_slurmjobexecutor.py
+        python -m unittest test_slurmclusterexecutor.py
 
   unittest_mpich:
     needs: [black]
