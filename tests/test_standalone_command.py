@@ -1,14 +1,22 @@
+import importlib.util
 import sys
-from unittest import TestCase
+import unittest
 from executorlib.standalone.command import get_cache_execute_command, get_interactive_execute_command
 
 
-class TestCommands(TestCase):
+skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
+
+
+class TestCommands(unittest.TestCase):
     def test_get_interactive_execute_command_serial(self):
         output = get_interactive_execute_command(cores=1)
         self.assertEqual(output[0], sys.executable)
         self.assertEqual(output[1].split("/")[-1], "interactive_serial.py")
 
+    @unittest.skipIf(
+        skip_mpi4py_test,
+        "mpi4py is not installed, so the mpi4py tests are skipped.",
+    )
     def test_get_interactive_execute_command_parallel(self):
         output = get_interactive_execute_command(cores=2)
         self.assertEqual(output[0], sys.executable)
@@ -29,6 +37,10 @@ class TestCommands(TestCase):
         self.assertEqual(output[1].split("/")[-1], "cache_serial.py")
         self.assertEqual(output[2], file_name)
 
+    @unittest.skipIf(
+        skip_mpi4py_test,
+        "mpi4py is not installed, so the mpi4py tests are skipped.",
+    )
     def test_get_cache_execute_command_parallel(self):
         file_name = "test.txt"
         output = get_cache_execute_command(cores=2, file_name=file_name)
