@@ -40,7 +40,7 @@ class TestCacheExecutorMPI(unittest.TestCase):
     def test_batched_error(self):
         with self.assertRaises(NotImplementedError):
             with FileTaskScheduler() as exe:
-                exe.batched(iterable=[])
+                exe.batched(iterable=[], n=2)
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
