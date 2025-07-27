@@ -146,8 +146,8 @@ def check_hostname_localhost(hostname_localhost: Optional[bool]) -> None:
         )
 
 
-def check_executor_pmi_mode(executor_pmi_mode: Optional[str]) -> None:
-    if executor_pmi_mode is not None:
+def check_pmi_mode(pmi_mode: Optional[str]) -> None:
+    if pmi_mode is not None:
         raise ValueError(
             "The option to specify the pmi mode is not available on a local workstation, it requires SLURM or flux."
         )

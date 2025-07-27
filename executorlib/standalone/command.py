@@ -21,7 +21,7 @@ def get_cache_execute_command(
     file_name: str,
     cores: int = 1,
     backend: Optional[str] = None,
-    executor_pmi_mode: Optional[str] = None,
+    pmi_mode: Optional[str] = None,
 ) -> list:
     """
     Get command to call backend as a list of two strings
@@ -30,7 +30,7 @@ def get_cache_execute_command(
         file_name (str): The name of the file.
         cores (int, optional): Number of cores used to execute the task. Defaults to 1.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
-        executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
 
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
@@ -45,8 +45,8 @@ def get_cache_execute_command(
             )
         elif backend == "slurm":
             command_prepend = ["srun", "-n", str(cores)]
-            if executor_pmi_mode is not None:
-                command_prepend += ["--mpi=pmi2"]
+            if pmi_mode is not None:
+                command_prepend += ["--mpi=" + pmi_mode]
             command_lst = (
                 command_prepend
                 + command_lst

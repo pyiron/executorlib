@@ -102,7 +102,7 @@ class TestParser(unittest.TestCase):
             gpus_per_core=1,
             openmpi_oversubscribe=True,
             slurm_cmd_args=["--account=test", "--job-name=executorlib"],
-            executor_pmi_mode="pmi2",
+            pmi_mode="pmi2",
         )
         self.assertEqual(
             command_lst,

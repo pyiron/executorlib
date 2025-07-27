@@ -329,7 +329,7 @@ class TestClusterExecutor(BaseExecutor):
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,
                     flux_executor=None,
-                    executor_pmi_mode=None,
+                    pmi_mode=None,
                     flux_executor_nesting=False,
                     flux_log_files=False,
                     pysqa_config_directory=None,

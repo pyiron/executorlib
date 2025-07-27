@@ -13,7 +13,7 @@ from executorlib.standalone.inputcheck import (
     check_refresh_rate,
     check_resource_dict,
     check_resource_dict_is_empty,
-    check_executor_pmi_mode,
+    check_pmi_mode,
     check_max_workers_and_cores,
     check_hostname_localhost,
     check_pysqa_config_directory,
@@ -77,9 +77,9 @@ class TestInputCheck(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_plot_dependency_graph(plot_dependency_graph=True)
 
-    def test_check_executor_pmi_mode(self):
+    def test_check_pmi_mode(self):
         with self.assertRaises(ValueError):
-            check_executor_pmi_mode(executor_pmi_mode="test")
+            check_pmi_mode(pmi_mode="test")
 
     def test_check_max_workers_and_cores(self):
         with self.assertRaises(ValueError):
