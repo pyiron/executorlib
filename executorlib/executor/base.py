@@ -53,7 +53,7 @@ class BaseExecutor(FutureExecutor, ABC):
     def batched(
         self,
         iterable: list[Future],
-        n: Optional[int] = None,
+        n: int,
     ) -> list[Future]:
         """
         Batch futures from the iterable into tuples of length n. The last batch may be shorter than n.
