@@ -11,6 +11,6 @@ dependencies:
 - networkx =3.4.2
 - pygraphviz =1.14
 - pysqa =0.2.7
-- ipython =9.0.2
+- ipython
 - hatchling =1.27.0
 - hatch-vcs =0.5.0
