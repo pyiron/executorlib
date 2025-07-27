@@ -295,6 +295,41 @@ jobs:
       run: |
         pip install . --no-deps --no-build-isolation
         cd tests
+        srun --mpi=list
+        python -m unittest test_slurmclusterexecutor.py
+        python -m unittest test_slurmjobexecutor.py
+
+  unittest_slurm_openmpi:
+    needs: [black]
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - "8888:3306"
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    steps:
+    - uses: actions/checkout@v4
+    - uses: koesterlab/setup-slurm-action@v1
+      timeout-minutes: 5
+    - name: Conda config
+      shell: bash -l {0}
+      run: echo -e "channels:\n  - conda-forge\n" > .condarc
+    - uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.13'
+        miniforge-version: latest
+        condarc-file: .condarc
+        environment-file: .ci_support/environment-mpich.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 5
+      run: |
+        pip install . --no-deps --no-build-isolation
+        cd tests
+        srun --mpi=list
         python -m unittest test_slurmclusterexecutor.py
         python -m unittest test_slurmjobexecutor.py
 
