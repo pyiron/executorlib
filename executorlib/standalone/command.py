@@ -17,7 +17,9 @@ def get_command_path(executable: str) -> str:
     return os.path.abspath(os.path.join(__file__, "..", "..", "backend", executable))
 
 
-def get_cache_execute_command(file_name: str, cores: int = 1, backend: Optional[str] = None) -> list:
+def get_cache_execute_command(
+    file_name: str, cores: int = 1, backend: Optional[str] = None
+) -> list:
     """
     Get command to call backend as a list of two strings
 
@@ -50,7 +52,7 @@ def get_cache_execute_command(file_name: str, cores: int = 1, backend: Optional[
                 + [get_command_path(executable="cache_parallel.py"), file_name]
             )
         else:
-            raise ValueError("backend should be None, slurm or flux, not {}".format(backend))
+            raise ValueError(f"backend should be None, slurm or flux, not {backend}")
     elif cores > 1:
         raise ImportError(
             "mpi4py is required for parallel calculations. Please install mpi4py."
