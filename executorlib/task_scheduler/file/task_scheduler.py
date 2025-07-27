@@ -3,7 +3,7 @@ from typing import Callable, Optional
 
 from executorlib.standalone.inputcheck import (
     check_executor,
-    check_flux_executor_pmi_mode,
+    check_executor_pmi_mode,
     check_flux_log_files,
     check_hostname_localhost,
     check_max_workers_and_cores,
@@ -107,8 +107,8 @@ def create_file_executor(
         )
     if cache_directory is not None:
         resource_dict["cache_directory"] = cache_directory
-    if backend != "flux":
-        check_flux_executor_pmi_mode(flux_executor_pmi_mode=executor_pmi_mode)
+    if backend is None:
+        check_executor_pmi_mode(executor_pmi_mode=executor_pmi_mode)
     check_max_workers_and_cores(max_cores=max_cores, max_workers=max_workers)
     check_hostname_localhost(hostname_localhost=hostname_localhost)
     check_executor(executor=flux_executor)

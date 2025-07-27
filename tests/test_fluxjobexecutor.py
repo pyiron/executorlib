@@ -90,7 +90,7 @@ class TestFluxBackend(unittest.TestCase):
             resource_dict={"cores": 2},
             flux_executor=self.executor,
             block_allocation=True,
-            flux_executor_pmi_mode=pmi,
+            executor_pmi_mode=pmi,
         ) as exe:
             fs_1 = exe.submit(mpi_funct, 1)
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
@@ -102,7 +102,7 @@ class TestFluxBackend(unittest.TestCase):
             resource_dict={"cores": 2},
             flux_executor=self.executor,
             block_allocation=True,
-            flux_executor_pmi_mode=pmi,
+            executor_pmi_mode=pmi,
         ) as p:
             output = p.map(mpi_funct, [1, 2, 3])
         self.assertEqual(

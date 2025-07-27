@@ -44,7 +44,7 @@ class FluxJobExecutor(BaseExecutor):
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
-        flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
         flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -94,7 +94,7 @@ class FluxJobExecutor(BaseExecutor):
         max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         flux_executor=None,
-        flux_executor_pmi_mode: Optional[str] = None,
+        executor_pmi_mode: Optional[str] = None,
         flux_executor_nesting: bool = False,
         flux_log_files: bool = False,
         hostname_localhost: Optional[bool] = None,
@@ -131,7 +131,7 @@ class FluxJobExecutor(BaseExecutor):
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
-            flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+            executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
             flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -176,7 +176,7 @@ class FluxJobExecutor(BaseExecutor):
                         max_cores=max_cores,
                         resource_dict=resource_dict,
                         flux_executor=flux_executor,
-                        flux_executor_pmi_mode=flux_executor_pmi_mode,
+                        executor_pmi_mode=executor_pmi_mode,
                         flux_executor_nesting=flux_executor_nesting,
                         flux_log_files=flux_log_files,
                         hostname_localhost=hostname_localhost,
@@ -200,7 +200,7 @@ class FluxJobExecutor(BaseExecutor):
                     max_cores=max_cores,
                     resource_dict=resource_dict,
                     flux_executor=flux_executor,
-                    flux_executor_pmi_mode=flux_executor_pmi_mode,
+                    executor_pmi_mode=executor_pmi_mode,
                     flux_executor_nesting=flux_executor_nesting,
                     flux_log_files=flux_log_files,
                     hostname_localhost=hostname_localhost,
@@ -236,7 +236,7 @@ class FluxClusterExecutor(BaseExecutor):
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
-        flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -284,7 +284,7 @@ class FluxClusterExecutor(BaseExecutor):
         max_cores: Optional[int] = None,
         resource_dict: Optional[dict] = None,
         pysqa_config_directory: Optional[str] = None,
-        flux_executor_pmi_mode: Optional[str] = None,
+        executor_pmi_mode: Optional[str] = None,
         hostname_localhost: Optional[bool] = None,
         block_allocation: bool = False,
         init_function: Optional[Callable] = None,
@@ -319,7 +319,7 @@ class FluxClusterExecutor(BaseExecutor):
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
-            flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+            executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -369,7 +369,7 @@ class FluxClusterExecutor(BaseExecutor):
                     cache_directory=cache_directory,
                     resource_dict=resource_dict,
                     flux_executor=None,
-                    executor_pmi_mode=flux_executor_pmi_mode,
+                    executor_pmi_mode=executor_pmi_mode,
                     flux_executor_nesting=False,
                     flux_log_files=False,
                     pysqa_config_directory=pysqa_config_directory,
@@ -388,7 +388,7 @@ class FluxClusterExecutor(BaseExecutor):
                         max_cores=max_cores,
                         resource_dict=resource_dict,
                         flux_executor=None,
-                        flux_executor_pmi_mode=None,
+                        executor_pmi_mode=None,
                         flux_executor_nesting=False,
                         flux_log_files=False,
                         hostname_localhost=hostname_localhost,
@@ -409,7 +409,7 @@ def create_flux_executor(
     cache_directory: Optional[str] = None,
     resource_dict: Optional[dict] = None,
     flux_executor=None,
-    flux_executor_pmi_mode: Optional[str] = None,
+    executor_pmi_mode: Optional[str] = None,
     flux_executor_nesting: bool = False,
     flux_log_files: bool = False,
     hostname_localhost: Optional[bool] = None,
@@ -438,7 +438,7 @@ def create_flux_executor(
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
-        flux_executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
         flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -470,7 +470,7 @@ def create_flux_executor(
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    check_pmi(backend="flux_allocation", pmi=flux_executor_pmi_mode)
+    check_pmi(backend="flux_allocation", pmi=executor_pmi_mode)
     check_oversubscribe(oversubscribe=resource_dict.get("openmpi_oversubscribe", False))
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
@@ -480,7 +480,7 @@ def create_flux_executor(
     if "slurm_cmd_args" in resource_dict:
         del resource_dict["slurm_cmd_args"]
     resource_dict["flux_executor"] = flux_executor
-    resource_dict["flux_executor_pmi_mode"] = flux_executor_pmi_mode
+    resource_dict["executor_pmi_mode"] = executor_pmi_mode
     resource_dict["flux_executor_nesting"] = flux_executor_nesting
     resource_dict["flux_log_files"] = flux_log_files
     if block_allocation:

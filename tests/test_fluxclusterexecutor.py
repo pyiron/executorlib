@@ -41,7 +41,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
-            flux_executor_pmi_mode=pmi,
+            executor_pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -55,7 +55,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2},
             block_allocation=False,
             cache_directory="executorlib_cache",
-            flux_executor_pmi_mode=pmi,
+            executor_pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -83,7 +83,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
-            flux_executor_pmi_mode=pmi,
+            executor_pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
@@ -102,7 +102,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
-            flux_executor_pmi_mode=pmi,
+            executor_pmi_mode=pmi,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
