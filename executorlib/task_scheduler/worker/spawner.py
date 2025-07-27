@@ -76,7 +76,9 @@ class PysqaSpawner(BaseSpawner):
         elif self._cores > 1 and self._backend == "flux":
             command_prepend = ["flux", "run", "-n", str(self._cores)]
         elif self._cores > 1:
-            raise ValueError("backend should be None, slurm or flux, not {}".format(self._backend))
+            raise ValueError(
+                "backend should be None, slurm or flux, not {}".format(self._backend)
+            )
         else:
             command_prepend = []
         return command_prepend + command_lst
@@ -109,6 +111,9 @@ class PysqaSpawner(BaseSpawner):
             execute_command=pysqa_execute_command,
         )
         if self._process is not None:
-            return qa.get_status_of_job(process_id=self._process) in ["running", "pending"]
+            return qa.get_status_of_job(process_id=self._process) in [
+                "running",
+                "pending",
+            ]
         else:
             return False
