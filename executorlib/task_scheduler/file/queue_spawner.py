@@ -4,7 +4,7 @@ from typing import Optional
 from pysqa import QueueAdapter
 
 from executorlib.standalone.inputcheck import check_file_exists
-from executorlib.standalone.scheduler import terminate_with_pysqa, pysqa_execute_command
+from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
 from executorlib.task_scheduler.file.hdf import dump, get_queue_id
 
 
