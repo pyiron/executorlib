@@ -154,6 +154,7 @@ def execute_tasks_h5(
                         command=get_cache_execute_command(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
+                            backend=backend,
                         ),
                         file_name=file_name,
                         data_dict=data_dict,
