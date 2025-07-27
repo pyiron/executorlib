@@ -54,8 +54,8 @@ def get_cache_execute_command(
             )
         elif backend == "flux":
             flux_command = ["flux", "run"]
-            if executor_pmi_mode is not None:
-                flux_command += ["-o", "pmi=" + executor_pmi_mode]
+            if pmi_mode is not None:
+                flux_command += ["-o", "pmi=" + pmi_mode]
             command_lst = (
                 flux_command
                 + ["-n", str(cores)]

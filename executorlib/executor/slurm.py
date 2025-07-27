@@ -235,7 +235,7 @@ class SlurmJobExecutor(BaseExecutor):
                                                   compute notes. Defaults to False.
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
-        executor_pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
