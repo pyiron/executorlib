@@ -164,7 +164,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
 
         Args:
             iterable (list): list of future objects to batch based on which future objects finish first
-            n (int): badge size
+            n (int): batch size
 
         Returns:
             list[Future]: list of future objects one for each batch
