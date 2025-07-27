@@ -7,17 +7,17 @@ SLURM_COMMAND = "srun"
 
 
 def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):
-    cores_total = int(os.environ["SLURM_NTASKS"]) * int(
-        os.environ["SLURM_CPUS_PER_TASK"]
-    )
-    cores_requested = max_workers * cores * threads_per_core
-    if cores_total < cores_requested:
-        raise ValueError(
-            "The number of requested cores is larger than the available cores "
-            + str(cores_total)
-            + " < "
-            + str(cores_requested)
-        )
+    env = os.environ
+    if "SLURM_NTASKS" in env and "SLRUM_CPUS_PER_TASK" in env:
+        cores_total = int(env["SLURM_NTASKS"]) * int(env["SLURM_CPUS_PER_TASK"])
+        cores_requested = max_workers * cores * threads_per_core
+        if cores_total < cores_requested:
+            raise ValueError(
+                "The number of requested cores is larger than the available cores "
+                + str(cores_total)
+                + " < "
+                + str(cores_requested)
+            )
 
 
 class SrunSpawner(SubprocessSpawner):
