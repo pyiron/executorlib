@@ -51,7 +51,14 @@ def get_cache_execute_command(
             )
         elif backend == "flux":
             if flux_executor_pmi_mode is not None:
-                flux_command = ["flux", "run", "-o", "pmi=" + flux_executor_pmi_mode, "-n", str(cores)]
+                flux_command = [
+                    "flux",
+                    "run",
+                    "-o",
+                    "pmi=" + flux_executor_pmi_mode,
+                    "-n",
+                    str(cores),
+                ]
             else:
                 flux_command = ["flux", "run", "-n", str(cores)]
             command_lst = (
