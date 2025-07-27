@@ -18,7 +18,10 @@ def get_command_path(executable: str) -> str:
 
 
 def get_cache_execute_command(
-    file_name: str, cores: int = 1, backend: Optional[str] = None, flux_executor_pmi_mode: Optional[str] = None,
+    file_name: str,
+    cores: int = 1,
+    backend: Optional[str] = None,
+    flux_executor_pmi_mode: Optional[str] = None,
 ) -> list:
     """
     Get command to call backend as a list of two strings
