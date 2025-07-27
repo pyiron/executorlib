@@ -146,10 +146,10 @@ def check_hostname_localhost(hostname_localhost: Optional[bool]) -> None:
         )
 
 
-def check_flux_executor_pmi_mode(flux_executor_pmi_mode: Optional[str]) -> None:
-    if flux_executor_pmi_mode is not None:
+def check_pmi_mode(pmi_mode: Optional[str]) -> None:
+    if pmi_mode is not None:
         raise ValueError(
-            "The option to specify the flux pmi mode is not available with the pysqa based backend."
+            "The option to specify the pmi mode is not available on a local workstation, it requires SLURM or flux."
         )
 
 

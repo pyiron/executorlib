@@ -82,7 +82,7 @@ class TestFlux(unittest.TestCase):
             executor_kwargs={
                 "flux_executor": self.flux_executor,
                 "cores": 2,
-                "flux_executor_pmi_mode": pmi,
+                "pmi_mode": pmi,
             },
             spawner=FluxPythonSpawner,
         ) as exe:
@@ -96,7 +96,7 @@ class TestFlux(unittest.TestCase):
             executor_kwargs={
                 "flux_executor": self.flux_executor,
                 "cores": 2,
-                "flux_executor_pmi_mode": pmi,
+                "pmi_mode": pmi,
             },
             spawner=FluxPythonSpawner,
         ) as p:

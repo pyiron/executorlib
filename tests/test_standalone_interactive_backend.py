@@ -84,6 +84,7 @@ class TestParser(unittest.TestCase):
             "2",
             "-D",
             os.path.abspath("."),
+            "--mpi=pmi2",
             "--gpus-per-task=1",
             "--oversubscribe",
             "--account=test",
@@ -101,6 +102,7 @@ class TestParser(unittest.TestCase):
             gpus_per_core=1,
             openmpi_oversubscribe=True,
             slurm_cmd_args=["--account=test", "--job-name=executorlib"],
+            pmi_mode="pmi2",
         )
         self.assertEqual(
             command_lst,
