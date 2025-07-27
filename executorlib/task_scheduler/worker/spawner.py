@@ -77,7 +77,7 @@ class PysqaSpawner(BaseSpawner):
             command_prepend = ["flux", "run", "-n", str(self._cores)]
         elif self._cores > 1:
             raise ValueError(
-                "backend should be None, slurm or flux, not {}".format(self._backend)
+                f"backend should be None, slurm or flux, not {self._backend}"
             )
         else:
             command_prepend = []

@@ -1,6 +1,5 @@
 from typing import Optional
 
-
 SLURM_COMMAND = "srun"
 
 
