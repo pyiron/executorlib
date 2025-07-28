@@ -62,13 +62,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: "3.13"
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-mini.yml
     - name: Test
       shell: bash -l {0}
@@ -83,13 +82,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: '3.13'
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-openmpi.yml
     - name: Setup
       shell: bash -l {0}
@@ -116,13 +114,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: ${{ matrix.environment-file }}
     - name: Test
       shell: bash -l {0}
@@ -149,13 +146,13 @@ jobs:
         run: |
           cp binder/environment.yml environment.yml
           tail --lines=+4 .ci_support/environment-notebooks.yml >> environment.yml
-          echo -e "channels:\n  - conda-forge\n" > .condarc
       - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v3.2.0
         with:
           python-version: "3.12"
           miniforge-version: latest
-          condarc-file: .condarc
+          channels: conda-forge
+          conda-remove-defaults: "true"
           environment-file: environment.yml
       - name: Install
         shell: bash -l {0}
@@ -174,15 +171,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Merge Notebook environment
-        run: |
-          echo -e "channels:\n  - conda-forge\n" > .condarc
       - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v3.2.0
         with:
           python-version: "3.12"
           miniforge-version: latest
-          condarc-file: .condarc
+          channels: conda-forge
+          conda-remove-defaults: "true"
           environment-file: .ci_support/environment-integration.yml
       - name: Install
         shell: bash -l {0}
@@ -205,12 +200,12 @@ jobs:
       run: |
         echo -e '- coverage\n- flux-core =0.59.0'>> .ci_support/environment-mpich.yml
         cat .ci_support/environment-mpich.yml
-        echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: '3.12'
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-mpich.yml
     - name: Test
       shell: bash -l {0}
@@ -236,12 +231,12 @@ jobs:
       run: |
         echo -e '- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0' >> .ci_support/environment-openmpi.yml
         cat .ci_support/environment-openmpi.yml
-        echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: '3.12'
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}
@@ -282,14 +277,12 @@ jobs:
       timeout-minutes: 5
     - name: ubnuntu install
       run: sudo apt install -y mpich
-    - name: Conda config
-      shell: bash -l {0}
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: '3.13'
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-mpich.yml
     - name: Test
       shell: bash -l {0}
@@ -322,14 +315,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      shell: bash -l {0}
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-mpich.yml
     - name: Test
       shell: bash -l {0}
@@ -359,14 +350,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      shell: bash -l {0}
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}
@@ -381,14 +370,12 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      shell: bash -l {0}
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: "3.13"
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-win.yml
     - name: Test
       shell: bash -l {0}
@@ -403,13 +390,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: '3.10'
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
         environment-file: .ci_support/environment-old.yml
     - name: Test
       shell: bash -l {0}
@@ -442,14 +428,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Conda config
-      shell: bash -l {0}
-      run: echo -e "channels:\n  - conda-forge\n" > .condarc
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v3.2.0
       with:
         python-version: "3.13"
         miniforge-version: latest
-        condarc-file: .condarc
+        channels: conda-forge
+        conda-remove-defaults: "true"
     - name: Generate UML diagram
       shell: bash -l {0}
       timeout-minutes: 10
