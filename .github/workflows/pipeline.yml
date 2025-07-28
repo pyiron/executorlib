@@ -62,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: "3.13"
         miniforge-version: latest
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.13'
         miniforge-version: latest
@@ -114,7 +114,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -147,7 +147,7 @@ jobs:
           cp binder/environment.yml environment.yml
           tail --lines=+4 .ci_support/environment-notebooks.yml >> environment.yml
       - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v3.2.0
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.12"
           miniforge-version: latest
@@ -172,7 +172,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v3.2.0
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.12"
           miniforge-version: latest
@@ -200,7 +200,7 @@ jobs:
       run: |
         echo -e '- coverage\n- flux-core =0.59.0'>> .ci_support/environment-mpich.yml
         cat .ci_support/environment-mpich.yml
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.12'
         miniforge-version: latest
@@ -231,7 +231,7 @@ jobs:
       run: |
         echo -e '- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0' >> .ci_support/environment-openmpi.yml
         cat .ci_support/environment-openmpi.yml
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.12'
         miniforge-version: latest
@@ -277,7 +277,7 @@ jobs:
       timeout-minutes: 5
     - name: ubnuntu install
       run: sudo apt install -y mpich
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.13'
         miniforge-version: latest
@@ -315,7 +315,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -350,7 +350,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -370,7 +370,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: "3.13"
         miniforge-version: latest
@@ -390,7 +390,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: '3.10'
         miniforge-version: latest
@@ -428,7 +428,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3.2.0
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         python-version: "3.13"
         miniforge-version: latest
