@@ -97,7 +97,7 @@ def main() -> None:
             and "args" in input_dict
             and "kwargs" in input_dict
         ):
-            memory.update(call_funct(input_dict=input_dict, funct=None))
+            memory.update(call_funct(input_dict=input_dict, funct=None, memory=memory))
 
 
 if __name__ == "__main__":
