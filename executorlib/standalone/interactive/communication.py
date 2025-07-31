@@ -136,6 +136,7 @@ def interface_bootup(
     connections,
     hostname_localhost: Optional[bool] = None,
     log_obj_size: bool = False,
+    worker_id: Optional[int] = None,
 ) -> SocketInterface:
     """
     Start interface for ZMQ communication
@@ -152,6 +153,8 @@ def interface_bootup(
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
         log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
+        worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
+                         distribution.
 
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
@@ -165,6 +168,8 @@ def interface_bootup(
             "--host",
             gethostname(),
         ]
+    if worker_id is not None:
+        command_lst += ["--worker-id", str(worker_id)]
     interface = SocketInterface(
         spawner=connections,
         log_obj_size=log_obj_size,

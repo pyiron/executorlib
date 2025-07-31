@@ -11,6 +11,7 @@ class TestParser(unittest.TestCase):
     def test_command_local(self):
         result_dict = {
             "host": "localhost",
+            "worker_id": 0,
             "zmqport": "22",
         }
         command_lst = [
@@ -35,6 +36,7 @@ class TestParser(unittest.TestCase):
     def test_command_slurm(self):
         result_dict = {
             "host": "127.0.0.1",
+            "worker_id": 0,
             "zmqport": "22",
         }
         command_lst = [
@@ -76,6 +78,7 @@ class TestParser(unittest.TestCase):
     def test_command_slurm_user_command(self):
         result_dict = {
             "host": "127.0.0.1",
+            "worker_id": 0,
             "zmqport": "22",
         }
         command_lst = [

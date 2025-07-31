@@ -65,9 +65,9 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             process=[
                 Thread(
                     target=execute_tasks,
-                    kwargs=executor_kwargs,
+                    kwargs=executor_kwargs | {"worker_id": worker_id},
                 )
-                for _ in range(self._max_workers)
+                for worker_id in range(self._max_workers)
             ],
         )
 
