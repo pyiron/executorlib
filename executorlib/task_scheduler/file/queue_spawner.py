@@ -61,7 +61,7 @@ def execute_with_pysqa(
         else:
             folder = command[-1].split("_i.h5")[0]
             cwd = os.path.join(cache_directory, folder)
-            os.makedirs(cwd, exist_ok=True)
+        os.makedirs(cwd, exist_ok=True)
         submit_kwargs = {
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],
