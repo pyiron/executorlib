@@ -37,5 +37,10 @@ class TestCacheExecutorMPI(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs1.done())
 
+    def test_batched_error(self):
+        with self.assertRaises(NotImplementedError):
+            with FileTaskScheduler() as exe:
+                exe.batched(iterable=[], n=2)
+
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)

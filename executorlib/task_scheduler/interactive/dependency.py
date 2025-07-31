@@ -4,6 +4,7 @@ from threading import Thread
 from time import sleep
 from typing import Any, Callable, Optional
 
+from executorlib.standalone.batched import batched_futures
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
     get_exception_lst,
@@ -153,6 +154,40 @@ class DependencyTaskScheduler(TaskSchedulerBase):
             self._task_hash_dict[task_hash] = task_dict
         return f
 
+    def batched(
+        self,
+        iterable: list[Future],
+        n: int,
+    ) -> list[Future]:
+        """
+        Batch futures from the iterable into tuples of length n. The last batch may be shorter than n.
+
+        Args:
+            iterable (list): list of future objects to batch based on which future objects finish first
+            n (int): batch size
+
+        Returns:
+            list[Future]: list of future objects one for each batch
+        """
+        skip_lst: list[Future] = []
+        future_lst: list[Future] = []
+        for _ in range(len(iterable) // n + (1 if len(iterable) % n > 0 else 0)):
+            f: Future = Future()
+            if self._future_queue is not None:
+                self._future_queue.put(
+                    {
+                        "fn": "batched",
+                        "args": (),
+                        "kwargs": {"lst": iterable, "n": n, "skip_lst": skip_lst},
+                        "future": f,
+                        "resource_dict": {},
+                    }
+                )
+            skip_lst = skip_lst.copy() + [f]  # be careful
+            future_lst.append(f)
+
+        return future_lst
+
     def __exit__(
         self,
         exc_type: Any,
@@ -278,12 +313,26 @@ def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> l
         exception_lst = get_exception_lst(future_lst=task_wait_dict["future_lst"])
         if len(exception_lst) > 0:
             task_wait_dict["future"].set_exception(exception_lst[0])
-        elif all(future.done() for future in task_wait_dict["future_lst"]):
+        elif task_wait_dict["fn"] != "batched" and all(
+            future.done() for future in task_wait_dict["future_lst"]
+        ):
             del task_wait_dict["future_lst"]
             task_wait_dict["args"], task_wait_dict["kwargs"] = update_futures_in_input(
                 args=task_wait_dict["args"], kwargs=task_wait_dict["kwargs"]
             )
             executor_queue.put(task_wait_dict)
+        elif task_wait_dict["fn"] == "batched" and all(
+            future.done() for future in task_wait_dict["kwargs"]["skip_lst"]
+        ):
+            done_lst = batched_futures(
+                lst=task_wait_dict["kwargs"]["lst"],
+                n=task_wait_dict["kwargs"]["n"],
+                skip_lst=[f.result() for f in task_wait_dict["kwargs"]["skip_lst"]],
+            )
+            if len(done_lst) == 0:
+                wait_tmp_lst.append(task_wait_dict)
+            else:
+                task_wait_dict["future"].set_result(done_lst)
         else:
             wait_tmp_lst.append(task_wait_dict)
     return wait_tmp_lst
