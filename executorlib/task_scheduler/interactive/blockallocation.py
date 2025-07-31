@@ -113,16 +113,16 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             fn (Callable): function to submit for execution
             args: arguments for the submitted function
             kwargs: keyword arguments for the submitted function
-            resource_dict (dict): resource dictionary, which defines the resources used for the execution of the
-                                  function. Example resource dictionary: {
-                                      cores: 1,
-                                      threads_per_core: 1,
-                                      gpus_per_worker: 0,
-                                      oversubscribe: False,
-                                      cwd: None,
-                                      executor: None,
-                                      hostname_localhost: False,
-                                  }
+            resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+                              - cores (int): number of MPI cores to be used for each function call
+                              - threads_per_core (int): number of OpenMP threads to be used for each function call
+                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              - cwd (str/None): current working directory where the parallel python task is executed
+                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
+                                                              SLURM only) - default False
+                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
+                                                      by the Python functions submitted to the Executor.
 
         Returns:
             Future: A Future representing the given call.
