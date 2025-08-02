@@ -1,5 +1,5 @@
 import unittest
-from executorlib.task_scheduler.interactive.slurmspawner import generate_slurm_command
+from executorlib.standalone.slurm_command import generate_slurm_command
 
 try:
     from executorlib.standalone.scheduler import pysqa_execute_command
