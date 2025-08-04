@@ -29,7 +29,11 @@ def get_cache_files(cache_directory: str) -> list[str]:
     file_lst = []
     cache_directory_abs = os.path.abspath(cache_directory)
     for dirpath, _, filenames in os.walk(cache_directory_abs):
-        file_lst += [os.path.join(dirpath, f) for f in filenames if f.endswith("_o." + file_extension)]
+        file_lst += [
+            os.path.join(dirpath, f)
+            for f in filenames
+            if f.endswith("_o." + file_extension)
+        ]
     return file_lst
 
 

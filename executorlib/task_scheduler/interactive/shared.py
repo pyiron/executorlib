@@ -4,7 +4,7 @@ import queue
 import time
 from typing import Callable, Optional
 
-from executorlib.standalone.cache import get_cache_files, file_extension
+from executorlib.standalone.cache import file_extension, get_cache_files
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
@@ -139,7 +139,9 @@ def _execute_task_with_cache(
         resource_dict=task_dict.get("resource_dict", {}),
         cache_key=cache_key,
     )
-    file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o." + file_extension))
+    file_name = os.path.abspath(
+        os.path.join(cache_directory, task_key + "_o." + file_extension)
+    )
     if file_name not in get_cache_files(cache_directory=cache_directory):
         f = task_dict.pop("future")
         if f.set_running_or_notify_cancel():

@@ -56,7 +56,9 @@ def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
             file_name=file_name_out + "_r." + file_extension,
             data_dict={"error": output["error"], "runtime": runtime},
         )
-    os.rename(file_name_out + "_r." + file_extension, file_name_out + "_o." + file_extension)
+    os.rename(
+        file_name_out + "_r." + file_extension, file_name_out + "_o." + file_extension
+    )
 
 
 def backend_execute_task_in_file(file_name: str) -> None:

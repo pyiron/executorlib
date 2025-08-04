@@ -106,7 +106,9 @@ def terminate_tasks_in_cache(
     """
     hdf5_file_lst = []
     for root, _, files in os.walk(cache_directory):
-        hdf5_file_lst += [os.path.join(root, f) for f in files if f[-5:] == "_i." + file_extension]
+        hdf5_file_lst += [
+            os.path.join(root, f) for f in files if f[-5:] == "_i." + file_extension
+        ]
 
     for f in hdf5_file_lst:
         queue_id = get_queue_id(f)

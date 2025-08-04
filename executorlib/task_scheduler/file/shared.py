@@ -4,7 +4,7 @@ import queue
 from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
-from executorlib.standalone.cache import get_cache_files, file_extension
+from executorlib.standalone.cache import file_extension, get_cache_files
 from executorlib.standalone.command import get_cache_execute_command
 from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.task_scheduler.file.hdf import get_output
@@ -139,7 +139,9 @@ def execute_tasks_h5(
                 if os.path.join(
                     cache_directory, task_key + "_o." + file_extension
                 ) not in get_cache_files(cache_directory=cache_directory):
-                    file_name = os.path.join(cache_directory, task_key + "_i." + file_extension)
+                    file_name = os.path.join(
+                        cache_directory, task_key + "_i." + file_extension
+                    )
                     if not disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
