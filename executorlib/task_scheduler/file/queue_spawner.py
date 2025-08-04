@@ -3,6 +3,7 @@ from typing import Optional
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.cache import file_extension
 from executorlib.standalone.inputcheck import check_file_exists
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
 from executorlib.task_scheduler.file.hdf import dump, get_queue_id
@@ -59,7 +60,7 @@ def execute_with_pysqa(
         if "cwd" in resource_dict and resource_dict["cwd"] is not None:
             cwd = resource_dict["cwd"]
         else:
-            folder = command[-1].split("_i.h5")[0]
+            folder = command[-1].split("_i." + file_extension)[0]
             cwd = os.path.join(cache_directory, folder)
         os.makedirs(cwd, exist_ok=True)
         submit_kwargs = {
@@ -105,7 +106,7 @@ def terminate_tasks_in_cache(
     """
     hdf5_file_lst = []
     for root, _, files in os.walk(cache_directory):
-        hdf5_file_lst += [os.path.join(root, f) for f in files if f[-5:] == "_i.h5"]
+        hdf5_file_lst += [os.path.join(root, f) for f in files if f[-5:] == "_i." + file_extension]
 
     for f in hdf5_file_lst:
         queue_id = get_queue_id(f)

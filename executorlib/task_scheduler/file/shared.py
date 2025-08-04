@@ -4,7 +4,7 @@ import queue
 from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
-from executorlib.standalone.cache import get_cache_files
+from executorlib.standalone.cache import get_cache_files, file_extension
 from executorlib.standalone.command import get_cache_execute_command
 from executorlib.standalone.serialize import serialize_funct_h5
 from executorlib.task_scheduler.file.hdf import get_output
@@ -137,9 +137,9 @@ def execute_tasks_h5(
             data_dict["error_log_file"] = error_log_file
             if task_key not in memory_dict:
                 if os.path.join(
-                    cache_directory, task_key + "_o.h5"
+                    cache_directory, task_key + "_o." + file_extension
                 ) not in get_cache_files(cache_directory=cache_directory):
-                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
+                    file_name = os.path.join(cache_directory, task_key + "_i." + file_extension)
                     if not disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
@@ -168,7 +168,7 @@ def execute_tasks_h5(
                         cache_directory=cache_directory,
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key + "_o.h5"
+                    cache_directory, task_key + "_o." + file_extension
                 )
                 memory_dict[task_key] = task_dict["future"]
                 cache_dir_dict[task_key] = cache_directory
@@ -200,7 +200,7 @@ def _check_task_output(
         Future: The updated future object.
 
     """
-    file_name = os.path.join(cache_directory, task_key + "_o.h5")
+    file_name = os.path.join(cache_directory, task_key + "_o." + file_extension)
     if not os.path.exists(file_name):
         return future_obj
     exec_flag, no_error_flag, result = get_output(file_name=file_name)

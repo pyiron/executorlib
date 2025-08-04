@@ -2,6 +2,7 @@ import os
 import time
 from typing import Any
 
+from executorlib.standalone.cache import file_extension
 from executorlib.standalone.error import backend_write_error_file
 from executorlib.task_scheduler.file.hdf import dump, load
 from executorlib.task_scheduler.file.shared import FutureItem
@@ -44,18 +45,18 @@ def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
 
     """
     file_name_out = os.path.splitext(file_name)[0][:-2]
-    os.rename(file_name, file_name_out + "_r.h5")
+    os.rename(file_name, file_name_out + "_r." + file_extension)
     if "result" in output:
         dump(
-            file_name=file_name_out + "_r.h5",
+            file_name=file_name_out + "_r." + file_extension,
             data_dict={"output": output["result"], "runtime": runtime},
         )
     else:
         dump(
-            file_name=file_name_out + "_r.h5",
+            file_name=file_name_out + "_r." + file_extension,
             data_dict={"error": output["error"], "runtime": runtime},
         )
-    os.rename(file_name_out + "_r.h5", file_name_out + "_o.h5")
+    os.rename(file_name_out + "_r." + file_extension, file_name_out + "_o." + file_extension)
 
 
 def backend_execute_task_in_file(file_name: str) -> None:
