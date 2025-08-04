@@ -28,7 +28,7 @@ def cloudpickle_register(ind: int = 2):
         pass
 
 
-def serialize_funct_h5(
+def serialize_funct(
     fn: Callable,
     fn_args: Optional[list] = None,
     fn_kwargs: Optional[dict] = None,

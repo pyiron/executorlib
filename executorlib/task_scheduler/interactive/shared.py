@@ -11,7 +11,7 @@ from executorlib.standalone.interactive.communication import (
     interface_bootup,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
-from executorlib.standalone.serialize import serialize_funct_h5
+from executorlib.standalone.serialize import serialize_funct
 
 
 def execute_tasks(
@@ -132,7 +132,7 @@ def _execute_task_with_cache(
     """
     from executorlib.task_scheduler.file.hdf import dump, get_output
 
-    task_key, data_dict = serialize_funct_h5(
+    task_key, data_dict = serialize_funct(
         fn=task_dict["fn"],
         fn_args=task_dict["args"],
         fn_kwargs=task_dict["kwargs"],
