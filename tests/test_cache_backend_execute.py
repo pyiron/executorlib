@@ -7,7 +7,7 @@ import unittest
 try:
     from executorlib.task_scheduler.file.backend import backend_execute_task_in_file
     from executorlib.task_scheduler.file.shared import _check_task_output, FutureItem
-    from executorlib.standalone.hdf import dump, get_runtime
+    from executorlib.standalone.hdf import dump_to_hdf, get_runtime_from_hdf
     from executorlib.standalone.serialize import serialize_funct
 
     skip_h5io_test = False
@@ -37,7 +37,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         file_name = os.path.join(cache_directory, task_key + "_i.h5")
         os.makedirs(cache_directory, exist_ok=True)
-        dump(file_name=file_name, data_dict=data_dict)
+        dump_to_hdf(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
@@ -46,7 +46,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
+            get_runtime_from_hdf(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(
@@ -65,7 +65,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         file_name = os.path.join(cache_directory, task_key + "_i.h5")
         os.makedirs(os.path.join(cache_directory, task_key), exist_ok=True)
-        dump(file_name=file_name, data_dict=data_dict)
+        dump_to_hdf(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
@@ -74,7 +74,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
+            get_runtime_from_hdf(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(
@@ -93,7 +93,7 @@ class TestSharedFunctions(unittest.TestCase):
         )
         file_name = os.path.join(cache_directory, task_key + "_i.h5")
         os.makedirs(cache_directory, exist_ok=True)
-        dump(file_name=file_name, data_dict=data_dict)
+        dump_to_hdf(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
@@ -102,7 +102,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
+            get_runtime_from_hdf(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(
@@ -122,7 +122,7 @@ class TestSharedFunctions(unittest.TestCase):
         file_name = os.path.join(cache_directory, task_key + "_i.h5")
         os.makedirs(cache_directory, exist_ok=True)
         data_dict["error_log_file"] = os.path.join(cache_directory, "error.out")
-        dump(file_name=file_name, data_dict=data_dict)
+        dump_to_hdf(file_name=file_name, data_dict=data_dict)
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
@@ -137,7 +137,7 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertEqual(content[2], "kwargs: {'a': 1}\n")
         self.assertEqual(content[-1], 'ValueError: 1\n')
         self.assertTrue(
-            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
+            get_runtime_from_hdf(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
             > 0.0
         )
         future_file_obj = FutureItem(

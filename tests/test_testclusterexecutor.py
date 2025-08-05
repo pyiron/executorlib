@@ -94,3 +94,43 @@ class TestTestClusterExecutor(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree("rather_this_dir", ignore_errors=True)
+
+
+@unittest.skipIf(
+    skip_h5py_test, "h5py is not installed, so the h5io tests are skipped."
+)
+class TestTestClusterExecutorJSON(unittest.TestCase):
+    def test_cache_dir_json(self):
+        with TestClusterExecutor(cache_directory="not_this_dir", resource_dict={}, file_extension=".json") as exe:
+            future = exe.submit(
+                foo,
+                1,
+                resource_dict={
+                    "cache_directory": "rather_this_dir",
+                    "cache_key": "foo",
+                },
+            )
+            self.assertEqual(future.result(), 2)
+        self.assertFalse(os.path.exists("not_this_dir"))
+        cache_lst = get_cache_data(cache_directory="not_this_dir")
+        self.assertEqual(len(cache_lst), 0)
+        self.assertTrue(os.path.exists("rather_this_dir"))
+        cache_lst = get_cache_data(cache_directory="rather_this_dir")
+        self.assertEqual(len(cache_lst), 1)
+        with TestClusterExecutor(cache_directory="not_this_dir", resource_dict={}, file_extension=".json") as exe:
+            cloudpickle_register(ind=1)
+            future = exe.submit(
+                foo,
+                1,
+                resource_dict={
+                    "cache_directory": "rather_this_dir",
+                    "cache_key": "foo",
+                },
+            )
+            self.assertEqual(future.result(), 2)
+        self.assertFalse(os.path.exists("not_this_dir"))
+        cache_lst = get_cache_data(cache_directory="not_this_dir")
+        self.assertEqual(len(cache_lst), 0)
+        self.assertTrue(os.path.exists("rather_this_dir"))
+        cache_lst = get_cache_data(cache_directory="rather_this_dir")
+        self.assertEqual(len(cache_lst), 1)

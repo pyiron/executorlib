@@ -262,6 +262,7 @@ class TestClusterExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        file_extension: str = ".h5",
     ):
         """
         The executorlib.api.TestClusterExecutor is designed to test the file based communication used in the
@@ -299,6 +300,7 @@ class TestClusterExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            file_extension (str): extension of the file to store the serialized data in - supports ".h5" and ".json"
 
         """
         default_resource_dict: dict = {
@@ -338,6 +340,7 @@ class TestClusterExecutor(BaseExecutor):
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
                     execute_function=execute_in_subprocess,
+                    file_extension=file_extension,
                 )
             )
         else:

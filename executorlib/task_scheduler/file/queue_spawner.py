@@ -3,7 +3,7 @@ from typing import Optional
 
 from pysqa import QueueAdapter
 
-from executorlib.standalone.hdf import dump, get_queue_id
+from executorlib.standalone.hdf import dump_to_hdf, get_queue_id_from_hdf
 from executorlib.standalone.inputcheck import check_file_exists
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
 
@@ -44,14 +44,14 @@ def execute_with_pysqa(
         queue_type=backend,
         execute_command=pysqa_execute_command,
     )
-    queue_id = get_queue_id(file_name=file_name)
+    queue_id = get_queue_id_from_hdf(file_name=file_name)
     if os.path.exists(file_name) and (
         queue_id is None or qa.get_status_of_job(process_id=queue_id) is None
     ):
         os.remove(file_name)
-        dump(file_name=file_name, data_dict=data_dict)
+        dump_to_hdf(file_name=file_name, data_dict=data_dict)
     elif not os.path.exists(file_name):
-        dump(file_name=file_name, data_dict=data_dict)
+        dump_to_hdf(file_name=file_name, data_dict=data_dict)
     check_file_exists(file_name=file_name)
     if queue_id is None or qa.get_status_of_job(process_id=queue_id) is None:
         if resource_dict is None:
@@ -86,7 +86,7 @@ def execute_with_pysqa(
             )
         submit_kwargs.update(resource_dict)
         queue_id = qa.submit_job(**submit_kwargs)
-        dump(file_name=file_name, data_dict={"queue_id": queue_id})
+        dump_to_hdf(file_name=file_name, data_dict={"queue_id": queue_id})
     return queue_id
 
 
@@ -108,7 +108,7 @@ def terminate_tasks_in_cache(
         hdf5_file_lst += [os.path.join(root, f) for f in files if f[-5:] == "_i.h5"]
 
     for f in hdf5_file_lst:
-        queue_id = get_queue_id(f)
+        queue_id = get_queue_id_from_hdf(f)
         if queue_id is not None:
             terminate_with_pysqa(
                 queue_id=queue_id,

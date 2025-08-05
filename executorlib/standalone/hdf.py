@@ -17,7 +17,7 @@ group_dict = {
 }
 
 
-def dump(file_name: Optional[str], data_dict: dict) -> None:
+def dump_to_hdf(file_name: Optional[str], data_dict: dict) -> None:
     """
     Dump data dictionary into HDF5 file
 
@@ -37,7 +37,7 @@ def dump(file_name: Optional[str], data_dict: dict) -> None:
                     )
 
 
-def load(file_name: str) -> dict:
+def load_from_hdf(file_name: str) -> dict:
     """
     Load data dictionary from HDF5 file
 
@@ -68,7 +68,7 @@ def load(file_name: str) -> dict:
         return data_dict
 
 
-def get_output(file_name: str) -> tuple[bool, bool, Any]:
+def get_output_from_hdf(file_name: str) -> tuple[bool, bool, Any]:
     """
     Check if output is available in the HDF5 file
 
@@ -87,7 +87,7 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
             return False, False, None
 
 
-def get_runtime(file_name: str) -> float:
+def get_runtime_from_hdf(file_name: str) -> float:
     """
     Get run time from HDF5 file
 
@@ -104,7 +104,7 @@ def get_runtime(file_name: str) -> float:
             return 0.0
 
 
-def get_queue_id(file_name: Optional[str]) -> Optional[int]:
+def get_queue_id_from_hdf(file_name: Optional[str]) -> Optional[int]:
     """
     Get queuing system id from HDF5 file
 

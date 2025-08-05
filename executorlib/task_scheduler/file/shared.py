@@ -4,8 +4,10 @@ import queue
 from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
+import cloudpickle
+
 from executorlib.standalone.command import get_cache_execute_command
-from executorlib.standalone.hdf import get_cache_files, get_output
+from executorlib.standalone.hdf import get_cache_files, get_output_from_hdf
 from executorlib.standalone.serialize import serialize_funct
 from executorlib.task_scheduler.file.subprocess_spawner import terminate_subprocess
 
@@ -29,7 +31,7 @@ class FutureItem:
             str: The result of the future item.
 
         """
-        exec_flag, no_error_flag, result = get_output(file_name=self._file_name)
+        exec_flag, no_error_flag, result = get_output_from_hdf(file_name=self._file_name)
         if exec_flag and no_error_flag:
             return result
         elif exec_flag:
@@ -45,7 +47,7 @@ class FutureItem:
             bool: True if the future item is done, False otherwise.
 
         """
-        return get_output(file_name=self._file_name)[0]
+        return get_output_from_hdf(file_name=self._file_name)[0]
 
 
 def execute_tasks_h5(
@@ -57,6 +59,7 @@ def execute_tasks_h5(
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
     pmi_mode: Optional[str] = None,
+    file_extension: str = ".h5",
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -72,7 +75,7 @@ def execute_tasks_h5(
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
-
+        file_extension (str): extension of the file to store the serialized data in - supports ".h5" and ".json"
     Returns:
         None
 
@@ -93,6 +96,7 @@ def execute_tasks_h5(
                             task_key=key,
                             future_obj=value,
                             cache_directory=cache_dir_dict[key],
+                            file_extension=file_extension,
                         )
                         for key, value in memory_dict.items()
                         if not value.done()
@@ -136,9 +140,9 @@ def execute_tasks_h5(
             data_dict["error_log_file"] = error_log_file
             if task_key not in memory_dict:
                 if os.path.join(
-                    cache_directory, task_key + "_o.h5"
+                    cache_directory, task_key + "_o" + file_extension
                 ) not in get_cache_files(cache_directory=cache_directory):
-                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
+                    file_name = os.path.join(cache_directory, task_key + "_i" + file_extension)
                     if not disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
@@ -167,7 +171,7 @@ def execute_tasks_h5(
                         cache_directory=cache_directory,
                     )
                 file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key + "_o.h5"
+                    cache_directory, task_key + "_o" + file_extension
                 )
                 memory_dict[task_key] = task_dict["future"]
                 cache_dir_dict[task_key] = cache_directory
@@ -178,6 +182,7 @@ def execute_tasks_h5(
                     task_key=key,
                     future_obj=value,
                     cache_directory=cache_dir_dict[key],
+                    file_extension=file_extension,
                 )
                 for key, value in memory_dict.items()
                 if not value.done()
@@ -185,7 +190,7 @@ def execute_tasks_h5(
 
 
 def _check_task_output(
-    task_key: str, future_obj: Future, cache_directory: str
+    task_key: str, future_obj: Future, cache_directory: str, file_extension: str = ".h5"
 ) -> Future:
     """
     Check the output of a task and set the result of the future object if available.
@@ -194,15 +199,23 @@ def _check_task_output(
         task_key (str): The key of the task.
         future_obj (Future): The future object associated with the task.
         cache_directory (str): The directory where the HDF5 files are stored.
+        file_extension (str): extension of the file to store the serialized data in
 
     Returns:
         Future: The updated future object.
 
     """
-    file_name = os.path.join(cache_directory, task_key + "_o.h5")
+    file_name = os.path.join(cache_directory, task_key + "_o" + file_extension)
     if not os.path.exists(file_name):
         return future_obj
-    exec_flag, no_error_flag, result = get_output(file_name=file_name)
+    if file_extension == ".h5":
+        exec_flag, no_error_flag, result = get_output_from_hdf(file_name=file_name)
+    elif file_extension == ".json":
+        from executorlib.standalone.json import get_output_from_json
+
+        exec_flag, no_error_flag, result = get_output_from_json(file_name=file_name)
+    else:
+        raise ValueError("Unknown file extension!")
     if exec_flag and no_error_flag:
         future_obj.set_result(result)
     elif exec_flag:

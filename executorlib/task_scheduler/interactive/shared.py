@@ -129,7 +129,7 @@ def _execute_task_with_cache(
         cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                   overwritten by setting the cache_key.
     """
-    from executorlib.standalone.hdf import dump, get_cache_files, get_output
+    from executorlib.standalone.hdf import dump_to_hdf, get_cache_files, get_output_from_hdf
 
     task_key, data_dict = serialize_funct(
         fn=task_dict["fn"],
@@ -147,7 +147,7 @@ def _execute_task_with_cache(
                 result = interface.send_and_receive_dict(input_dict=task_dict)
                 data_dict["output"] = result
                 data_dict["runtime"] = time.time() - time_start
-                dump(file_name=file_name, data_dict=data_dict)
+                dump_to_hdf(file_name=file_name, data_dict=data_dict)
                 f.set_result(result)
             except Exception as thread_exception:
                 interface.shutdown(wait=True)
@@ -157,7 +157,7 @@ def _execute_task_with_cache(
             else:
                 _task_done(future_queue=future_queue)
     else:
-        _, _, result = get_output(file_name=file_name)
+        _, _, result = get_output_from_hdf(file_name=file_name)
         future = task_dict["future"]
         future.set_result(result)
         _task_done(future_queue=future_queue)

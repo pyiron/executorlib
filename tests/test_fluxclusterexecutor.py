@@ -11,7 +11,7 @@ from executorlib.standalone.command import get_cache_execute_command
 try:
     import flux.job
     from executorlib import terminate_tasks_in_cache
-    from executorlib.standalone.hdf import dump
+    from executorlib.standalone.hdf import dump_to_hdf
     from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa
     from executorlib.standalone.scheduler import terminate_with_pysqa
 
@@ -97,7 +97,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
                 os.remove(file_path)
                 if ".h5" in file_path:
                     task_key = file_path[:-5] + "_i.h5"
-                    dump(file_name=task_key, data_dict={"a": 1})
+                    dump_to_hdf(file_name=task_key, data_dict={"a": 1})
 
         with FluxClusterExecutor(
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
@@ -114,7 +114,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def test_terminate_tasks_in_cache(self):
         file = os.path.join("executorlib_cache", "test_i.h5")
-        dump(file_name=file, data_dict={"queue_id": 1})
+        dump_to_hdf(file_name=file, data_dict={"queue_id": 1})
         self.assertIsNone(terminate_tasks_in_cache(
             cache_directory="executorlib_cache",
             backend="flux",

@@ -14,7 +14,7 @@ else:
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 try:
-    from executorlib.standalone.hdf import dump
+    from executorlib.standalone.hdf import dump_to_hdf
 
     skip_h5py_test = False
 except ImportError:
@@ -91,7 +91,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
                 os.remove(file_path)
                 if ".h5" in file_path:
                     task_key = file_path[:-5] + "_i.h5"
-                    dump(file_name=task_key, data_dict={"a": 1})
+                    dump_to_hdf(file_name=task_key, data_dict={"a": 1})
 
         with SlurmClusterExecutor(
             resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},

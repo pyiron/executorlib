@@ -3,7 +3,7 @@ import subprocess
 import time
 from typing import Optional
 
-from executorlib.standalone.hdf import dump
+from executorlib.standalone.hdf import dump_to_hdf
 from executorlib.standalone.inputcheck import check_file_exists
 
 
@@ -41,7 +41,15 @@ def execute_in_subprocess(
         task_dependent_lst = []
     if os.path.exists(file_name):
         os.remove(file_name)
-    dump(file_name=file_name, data_dict=data_dict)
+    file_extension = os.path.splitext(file_name)[1]
+    if file_extension == ".h5":
+        dump_to_hdf(file_name=file_name, data_dict=data_dict)
+    elif file_extension == ".json":
+        from executorlib.standalone.json import dump_to_json
+
+        dump_to_json(file_name=file_name, data_dict=data_dict)
+    else:
+        raise ValueError("Unknown file extension!")
     check_file_exists(file_name=file_name)
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
