@@ -129,7 +129,7 @@ def _execute_task_with_cache(
         cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                   overwritten by setting the cache_key.
     """
-    from executorlib.standalone.hdf import dump, get_output, get_cache_files
+    from executorlib.standalone.hdf import dump, get_cache_files, get_output
 
     task_key, data_dict = serialize_funct(
         fn=task_dict["fn"],
