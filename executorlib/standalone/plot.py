@@ -5,7 +5,7 @@ from typing import Optional
 import cloudpickle
 
 
-def generate_nodes_and_edges(
+def generate_nodes_and_edges_for_plotting(
     task_hash_dict: dict, future_hash_inverse_dict: dict
 ) -> tuple[list, list]:
     """
@@ -81,7 +81,7 @@ def generate_nodes_and_edges(
     return node_lst, edge_lst
 
 
-def generate_task_hash(task_dict: dict, future_hash_inverse_dict: dict) -> bytes:
+def generate_task_hash_for_plotting(task_dict: dict, future_hash_inverse_dict: dict) -> bytes:
     """
     Generate a hash for a task dictionary.
 

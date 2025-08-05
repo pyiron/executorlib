@@ -13,8 +13,8 @@ from executorlib.standalone.interactive.arguments import (
 )
 from executorlib.standalone.plot import (
     draw,
-    generate_nodes_and_edges,
-    generate_task_hash,
+    generate_nodes_and_edges_for_plotting,
+    generate_task_hash_for_plotting,
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
 
@@ -144,7 +144,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
                 "future": f,
                 "resource_dict": resource_dict,
             }
-            task_hash = generate_task_hash(
+            task_hash = generate_task_hash_for_plotting(
                 task_dict=task_dict,
                 future_hash_inverse_dict={
                     v: k for k, v in self._future_hash_dict.items()
@@ -205,7 +205,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         """
         super().__exit__(exc_type=exc_type, exc_val=exc_val, exc_tb=exc_tb)  # type: ignore
         if self._generate_dependency_graph:
-            node_lst, edge_lst = generate_nodes_and_edges(
+            node_lst, edge_lst = generate_nodes_and_edges_for_plotting(
                 task_hash_dict=self._task_hash_dict,
                 future_hash_inverse_dict={
                     v: k for k, v in self._future_hash_dict.items()

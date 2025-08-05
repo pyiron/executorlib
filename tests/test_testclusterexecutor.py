@@ -4,7 +4,7 @@ import unittest
 
 from executorlib import get_cache_data
 from executorlib.api import TestClusterExecutor
-from executorlib.standalone.plot import generate_nodes_and_edges
+from executorlib.standalone.plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:
@@ -83,7 +83,7 @@ class TestTestClusterExecutor(unittest.TestCase):
             self.assertTrue(future_2.done())
             self.assertEqual(len(exe._task_scheduler._future_hash_dict), 2)
             self.assertEqual(len(exe._task_scheduler._task_hash_dict), 2)
-            nodes, edges = generate_nodes_and_edges(
+            nodes, edges = generate_nodes_and_edges_for_plotting(
                 task_hash_dict=exe._task_scheduler._task_hash_dict,
                 future_hash_inverse_dict={
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
