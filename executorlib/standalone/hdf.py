@@ -121,24 +121,6 @@ def get_queue_id(file_name: Optional[str]) -> Optional[int]:
     return None
 
 
-def get_content_of_file(file_name: str) -> dict:
-    """
-    Get content of an HDF5 file
-
-    Args:
-        file_name (str): file name
-
-    Returns:
-        dict: Content of HDF5 file
-    """
-    with h5py.File(file_name, "r") as hdf:
-        return {
-            key: cloudpickle.loads(np.void(hdf["/" + key]))
-            for key in group_dict.values()
-            if key in hdf
-        }
-
-
 def get_cache_data(cache_directory: str) -> list[dict]:
     """
     Collect all HDF5 files in the cache directory
@@ -150,7 +132,7 @@ def get_cache_data(cache_directory: str) -> list[dict]:
         list[dict]: List of dictionaries each representing on of the HDF5 files in the cache directory.
     """
     return [
-        get_content_of_file(file_name=file_name) | {"filename": file_name}
+        _get_content_of_file(file_name=file_name) | {"filename": file_name}
         for file_name in get_cache_files(cache_directory=cache_directory)
     ]
 
@@ -170,3 +152,21 @@ def get_cache_files(cache_directory: str) -> list[str]:
     for dirpath, _, filenames in os.walk(cache_directory_abs):
         file_lst += [os.path.join(dirpath, f) for f in filenames if f.endswith("_o.h5")]
     return file_lst
+
+
+def _get_content_of_file(file_name: str) -> dict:
+    """
+    Get content of an HDF5 file
+
+    Args:
+        file_name (str): file name
+
+    Returns:
+        dict: Content of HDF5 file
+    """
+    with h5py.File(file_name, "r") as hdf:
+        return {
+            key: cloudpickle.loads(np.void(hdf["/" + key]))
+            for key in group_dict.values()
+            if key in hdf
+        }
