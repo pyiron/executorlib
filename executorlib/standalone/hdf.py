@@ -5,7 +5,16 @@ import cloudpickle
 import h5py
 import numpy as np
 
-from executorlib.standalone.cache import group_dict
+group_dict = {
+    "fn": "function",
+    "args": "input_args",
+    "kwargs": "input_kwargs",
+    "output": "output",
+    "error": "error",
+    "runtime": "runtime",
+    "queue_id": "queue_id",
+    "error_log_file": "error_log_file",
+}
 
 
 def dump(file_name: Optional[str], data_dict: dict) -> None:
@@ -110,3 +119,54 @@ def get_queue_id(file_name: Optional[str]) -> Optional[int]:
             if "queue_id" in hdf:
                 return cloudpickle.loads(np.void(hdf["/queue_id"]))
     return None
+
+
+def get_cache_data(cache_directory: str) -> list[dict]:
+    """
+    Collect all HDF5 files in the cache directory
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+
+    Returns:
+        list[dict]: List of dictionaries each representing on of the HDF5 files in the cache directory.
+    """
+    return [
+        _get_content_of_file(file_name=file_name) | {"filename": file_name}
+        for file_name in get_cache_files(cache_directory=cache_directory)
+    ]
+
+
+def get_cache_files(cache_directory: str) -> list[str]:
+    """
+    Recursively find all HDF5 files in the cache_directory which contain outputs.
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+
+    Returns:
+        list[str]: List of HDF5 file in the cache directory which contain outputs.
+    """
+    file_lst = []
+    cache_directory_abs = os.path.abspath(cache_directory)
+    for dirpath, _, filenames in os.walk(cache_directory_abs):
+        file_lst += [os.path.join(dirpath, f) for f in filenames if f.endswith("_o.h5")]
+    return file_lst
+
+
+def _get_content_of_file(file_name: str) -> dict:
+    """
+    Get content of an HDF5 file
+
+    Args:
+        file_name (str): file name
+
+    Returns:
+        dict: Content of HDF5 file
+    """
+    with h5py.File(file_name, "r") as hdf:
+        return {
+            key: cloudpickle.loads(np.void(hdf["/" + key]))
+            for key in group_dict.values()
+            if key in hdf
+        }

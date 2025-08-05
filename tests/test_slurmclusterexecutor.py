@@ -14,7 +14,7 @@ else:
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 try:
-    from executorlib.task_scheduler.file.hdf import dump
+    from executorlib.standalone.hdf import dump
 
     skip_h5py_test = False
 except ImportError:
