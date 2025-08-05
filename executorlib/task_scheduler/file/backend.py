@@ -31,7 +31,9 @@ def backend_load_file(file_name: str, load_function: callable = load_from_hdf) -
     return apply_dict
 
 
-def backend_write_file(file_name: str, output: Any, runtime: float, dump_function: callable = dump_to_hdf) -> None:
+def backend_write_file(
+    file_name: str, output: Any, runtime: float, dump_function: callable = dump_to_hdf
+) -> None:
     """
     Write the output to an HDF5 file.
 
@@ -45,7 +47,7 @@ def backend_write_file(file_name: str, output: Any, runtime: float, dump_functio
         None
 
     """
-    file_name_in, file_extension =  os.path.splitext(file_name)
+    file_name_in, file_extension = os.path.splitext(file_name)
     file_name_out = file_name_in[:-2]
     os.rename(file_name, file_name_out + "_r" + file_extension)
     if "result" in output:
@@ -58,7 +60,9 @@ def backend_write_file(file_name: str, output: Any, runtime: float, dump_functio
             file_name=file_name_out + "_r" + file_extension,
             data_dict={"error": output["error"], "runtime": runtime},
         )
-    os.rename(file_name_out + "_r" + file_extension, file_name_out + "_o" + file_extension)
+    os.rename(
+        file_name_out + "_r" + file_extension, file_name_out + "_o" + file_extension
+    )
 
 
 def backend_execute_task_in_file(file_name: str) -> None:

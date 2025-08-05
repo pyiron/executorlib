@@ -4,8 +4,6 @@ import queue
 from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
-import cloudpickle
-
 from executorlib.standalone.command import get_cache_execute_command
 from executorlib.standalone.hdf import get_cache_files, get_output_from_hdf
 from executorlib.standalone.serialize import serialize_funct
@@ -31,7 +29,9 @@ class FutureItem:
             str: The result of the future item.
 
         """
-        exec_flag, no_error_flag, result = get_output_from_hdf(file_name=self._file_name)
+        exec_flag, no_error_flag, result = get_output_from_hdf(
+            file_name=self._file_name
+        )
         if exec_flag and no_error_flag:
             return result
         elif exec_flag:
@@ -142,7 +142,9 @@ def execute_tasks_h5(
                 if os.path.join(
                     cache_directory, task_key + "_o" + file_extension
                 ) not in get_cache_files(cache_directory=cache_directory):
-                    file_name = os.path.join(cache_directory, task_key + "_i" + file_extension)
+                    file_name = os.path.join(
+                        cache_directory, task_key + "_i" + file_extension
+                    )
                     if not disable_dependencies:
                         task_dependent_lst = [
                             process_dict[k] for k in future_wait_key_lst
