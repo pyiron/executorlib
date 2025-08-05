@@ -12,9 +12,9 @@ from executorlib.standalone.interactive.arguments import (
     update_futures_in_input,
 )
 from executorlib.standalone.plot import (
-    plot_dependency_graph,
     generate_nodes_and_edges_for_plotting,
     generate_task_hash_for_plotting,
+    plot_dependency_graph,
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
 

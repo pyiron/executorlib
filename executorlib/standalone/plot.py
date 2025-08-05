@@ -134,7 +134,9 @@ def generate_task_hash_for_plotting(
     )
 
 
-def plot_dependency_graph(node_lst: list, edge_lst: list, filename: Optional[str] = None):
+def plot_dependency_graph(
+    node_lst: list, edge_lst: list, filename: Optional[str] = None
+):
     """
     Draw the graph visualization of nodes and edges.
 
