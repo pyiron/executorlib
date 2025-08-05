@@ -12,7 +12,7 @@ from executorlib.standalone.interactive.arguments import (
     update_futures_in_input,
 )
 from executorlib.standalone.plot import (
-    draw,
+    plot_dependency_graph,
     generate_nodes_and_edges_for_plotting,
     generate_task_hash_for_plotting,
 )
@@ -211,7 +211,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
                     v: k for k, v in self._future_hash_dict.items()
                 },
             )
-            return draw(
+            return plot_dependency_graph(
                 node_lst=node_lst,
                 edge_lst=edge_lst,
                 filename=self._plot_dependency_graph_filename,
