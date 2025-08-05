@@ -3,8 +3,8 @@ import subprocess
 import time
 from typing import Optional
 
-from executorlib.standalone.inputcheck import check_file_exists
 from executorlib.standalone.hdf import dump
+from executorlib.standalone.inputcheck import check_file_exists
 
 
 def execute_in_subprocess(

@@ -13,6 +13,7 @@ pandas.DataFrame.
 """
 from typing import Optional
 
+import executorlib._version
 from executorlib.executor.base import BaseExecutor
 from executorlib.executor.flux import (
     FluxClusterExecutor,
@@ -23,7 +24,6 @@ from executorlib.executor.slurm import (
     SlurmClusterExecutor,
     SlurmJobExecutor,
 )
-import executorlib._version
 
 
 def get_cache_data(cache_directory: str) -> list[dict]:
