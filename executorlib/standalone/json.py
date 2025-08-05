@@ -39,7 +39,9 @@ def load_from_json(file_name: str) -> dict:
         "kwargs": {},
     }
     json_content = _read_json(file_name=file_name)
-    json_content.update({k:v for k, v in default_dict.items() if k not in json_content})
+    json_content.update(
+        {k: v for k, v in default_dict.items() if k not in json_content}
+    )
     if "fn" not in json_content:
         raise TypeError("Function not found in JSON file.")
     return json_content
