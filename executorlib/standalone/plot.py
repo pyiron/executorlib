@@ -134,7 +134,7 @@ def generate_task_hash_for_plotting(
     )
 
 
-def plot_dependency_graph(
+def plot_dependency_graph_function(
     node_lst: list, edge_lst: list, filename: Optional[str] = None
 ):
     """

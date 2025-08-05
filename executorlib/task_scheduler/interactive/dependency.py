@@ -14,7 +14,7 @@ from executorlib.standalone.interactive.arguments import (
 from executorlib.standalone.plot import (
     generate_nodes_and_edges_for_plotting,
     generate_task_hash_for_plotting,
-    plot_dependency_graph,
+    plot_dependency_graph_function,
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
 
@@ -211,7 +211,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
                     v: k for k, v in self._future_hash_dict.items()
                 },
             )
-            return plot_dependency_graph(
+            return plot_dependency_graph_function(
                 node_lst=node_lst,
                 edge_lst=edge_lst,
                 filename=self._plot_dependency_graph_filename,
