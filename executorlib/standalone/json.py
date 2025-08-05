@@ -20,9 +20,7 @@ def dump_to_json(file_name: Optional[str], data_dict: dict) -> None:
             data_dict.update(
                 {k: v for k, v in json_content.items() if k not in data_dict}
             )
-        print("data:", data_dict)
         with open(file_name_abs, "w+") as f:
-            print("json:", jsonpickle.encode(data_dict))
             f.write(jsonpickle.encode(data_dict))
 
 
@@ -41,9 +39,7 @@ def load_from_json(file_name: str) -> dict:
         "kwargs": {},
     }
     json_content = _read_json(file_name=file_name)
-    print("read:", json_content)
     json_content.update({k:v for k, v in default_dict.items() if k not in json_content})
-    print("update:", json_content)
     if "fn" not in json_content:
         raise TypeError("Function not found in JSON file.")
     return json_content
