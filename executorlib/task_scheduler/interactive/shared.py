@@ -4,7 +4,6 @@ import queue
 import time
 from typing import Callable, Optional
 
-from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
@@ -130,7 +129,7 @@ def _execute_task_with_cache(
         cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                   overwritten by setting the cache_key.
     """
-    from executorlib.task_scheduler.file.hdf import dump, get_output
+    from executorlib.standalone.hdf import dump, get_output, get_cache_files
 
     task_key, data_dict = serialize_funct(
         fn=task_dict["fn"],
