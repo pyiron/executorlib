@@ -56,6 +56,8 @@ def execute_in_subprocess(
     if resource_dict is None:
         resource_dict = {}
     cwd = resource_dict.get("cwd", cache_directory)
+    if cwd is not None:
+        os.makedirs(cwd, exist_ok=True)
     return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
 
 

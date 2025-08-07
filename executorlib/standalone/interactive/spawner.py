@@ -1,3 +1,4 @@
+import os
 import subprocess
 from abc import ABC, abstractmethod
 from typing import Optional
@@ -93,6 +94,8 @@ class SubprocessSpawner(BaseSpawner):
         Args:
             command_lst (list[str]): The command list to execute.
         """
+        if self._cwd is not None:
+            os.makedirs(self._cwd, exist_ok=True)
         self._process = subprocess.Popen(
             args=self.generate_command(command_lst=command_lst),
             cwd=self._cwd,
