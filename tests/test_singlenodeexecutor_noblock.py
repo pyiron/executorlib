@@ -1,4 +1,5 @@
 import unittest
+from time import sleep
 
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
@@ -10,6 +11,15 @@ def calc(i):
 
 def resource_dict(resource_dict):
     return resource_dict
+
+
+def get_worker_id(executorlib_worker_id):
+    sleep(0.1)
+    return executorlib_worker_id
+
+
+def init_function():
+    return {"a": 1, "b": 2}
 
 
 class TestExecutorBackend(unittest.TestCase):
@@ -75,3 +85,58 @@ class TestExecutorBackend(unittest.TestCase):
                 block_allocation=True,
             ) as exe:
                 exe.submit(resource_dict, resource_dict={})
+
+
+class TestWorkerID(unittest.TestCase):
+    def test_block_allocation_True(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=True,
+        ) as exe:
+            worker_id = exe.submit(get_worker_id, resource_dict={}).result()
+        self.assertEqual(worker_id, 0)
+
+    def test_block_allocation_True_two_workers(self):
+        with SingleNodeExecutor(
+            max_cores=2,
+            block_allocation=True,
+        ) as exe:
+            f1_worker_id = exe.submit(get_worker_id, resource_dict={})
+            f2_worker_id = exe.submit(get_worker_id, resource_dict={})
+        self.assertEqual(sum([f1_worker_id.result(), f2_worker_id.result()]), 1)
+
+    def test_init_function(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=True,
+            init_function=init_function,
+        ) as exe:
+            worker_id = exe.submit(get_worker_id, resource_dict={}).result()
+        self.assertEqual(worker_id, 0)
+
+    def test_init_function_two_workers(self):
+        with SingleNodeExecutor(
+            max_cores=2,
+            block_allocation=True,
+            init_function=init_function,
+        ) as exe:
+            f1_worker_id = exe.submit(get_worker_id, resource_dict={})
+            f2_worker_id = exe.submit(get_worker_id, resource_dict={})
+        self.assertEqual(sum([f1_worker_id.result(), f2_worker_id.result()]), 1)
+
+    def test_block_allocation_False(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=False,
+        ) as exe:
+            worker_id = exe.submit(get_worker_id, resource_dict={}).result()
+        self.assertEqual(worker_id, 0)
+
+    def test_block_allocation_False_two_workers(self):
+        with SingleNodeExecutor(
+            max_cores=2,
+            block_allocation=False,
+        ) as exe:
+            f1_worker_id = exe.submit(get_worker_id, resource_dict={})
+            f2_worker_id = exe.submit(get_worker_id, resource_dict={})
+        self.assertEqual(sum([f1_worker_id.result(), f2_worker_id.result()]), 0)
