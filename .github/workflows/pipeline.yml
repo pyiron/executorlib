@@ -243,13 +243,13 @@ jobs:
       timeout-minutes: 5
       run: |
         pip install . --no-deps --no-build-isolation
-        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest discover tests
+        coverage run -a
     - name: Test Flux with OpenMPI
       shell: bash -l {0}
       timeout-minutes: 5
       run: >
         flux start
-        coverage run -a --omit="executorlib/_version.py,tests/*" -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
+        coverage run -a -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
         coverage report;
         coverage xml
       env:
