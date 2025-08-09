@@ -122,3 +122,7 @@ packages = [
 [tool.hatch.version]
 source = "vcs"
 path = "executorlib/_version.py"
+
+[tool.coverage.run]
+omit = ["executorlib/_version.py", "tests/*"]
+command_line = "-m unittest discover tests"
