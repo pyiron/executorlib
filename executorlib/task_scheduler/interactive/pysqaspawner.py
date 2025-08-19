@@ -1,9 +1,14 @@
-from typing import Optional
+from time import sleep
+from typing import Callable, Optional
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.inputcheck import validate_number_of_cores
 from executorlib.standalone.interactive.spawner import BaseSpawner
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
+from executorlib.task_scheduler.interactive.blockallocation import (
+    BlockAllocationTaskScheduler,
+)
 
 
 class PysqaSpawner(BaseSpawner):
@@ -11,11 +16,15 @@ class PysqaSpawner(BaseSpawner):
         self,
         cwd: Optional[str] = None,
         cores: int = 1,
-        openmpi_oversubscribe: bool = False,
         threads_per_core: int = 1,
+        gpus_per_core: int = 0,
+        num_nodes: Optional[int] = None,
+        exclusive: bool = False,
+        openmpi_oversubscribe: bool = False,
+        slurm_cmd_args: Optional[list[str]] = None,
+        pmi_mode: Optional[str] = None,
         config_directory: Optional[str] = None,
         backend: Optional[str] = None,
-        submission_kwargs: Optional[dict] = None,
     ):
         """
         Subprocess interface implementation.
@@ -33,9 +42,13 @@ class PysqaSpawner(BaseSpawner):
         )
         self._process: Optional[int] = None
         self._threads_per_core = threads_per_core
+        self._gpus_per_core = gpus_per_core
+        self._num_nodes = num_nodes
+        self._exclusive = exclusive
+        self._slurm_cmd_args = slurm_cmd_args
+        self._pmi_mode = pmi_mode
         self._config_directory = config_directory
         self._backend = backend
-        self._submission_kwargs = submission_kwargs
 
     def bootup(
         self,
@@ -52,12 +65,30 @@ class PysqaSpawner(BaseSpawner):
             queue_type=self._backend,
             execute_command=pysqa_execute_command,
         )
+        if self._gpus_per_core > 0:
+            raise ValueError()
+        if self._num_nodes is not None:
+            raise ValueError()
+        if self._exclusive:
+            raise ValueError()
+        if self._pmi_mode is not None:
+            raise ValueError()
         self._process = qa.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=self._cwd,
             cores=self._cores,
             **self._submission_kwargs,
         )
+        while True:
+            status = qa.get_status_of_job(process_id=self._process)
+            if status in ["running", "pending"]:
+                break
+            elif status is None:
+                raise RuntimeError(
+                    f"Failed to start the process with command: {command_lst}"
+                )
+            else:
+                sleep(1)  # Wait for the process to start
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
@@ -117,3 +148,40 @@ class PysqaSpawner(BaseSpawner):
             ]
         else:
             return False
+
+
+def create_pysqa_block_allocation_scheduler(
+    max_cores: Optional[int] = None,
+    cache_directory: Optional[str] = None,
+    hostname_localhost: Optional[bool] = None,
+    log_obj_size: bool = False,
+    pmi_mode: Optional[str] = None,
+    init_function: Optional[Callable] = None,
+    max_workers: Optional[int] = None,
+    resource_dict: Optional[dict] = None,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+):
+    if backend is None:
+        raise ValueError("Backend must be either 'slurm' or 'flux'.")
+    if resource_dict is None:
+        resource_dict = {}
+    cores_per_worker = resource_dict.get("cores", 1)
+    resource_dict["cache_directory"] = cache_directory
+    resource_dict["hostname_localhost"] = hostname_localhost
+    resource_dict["log_obj_size"] = log_obj_size
+    resource_dict["pmi_mode"] = pmi_mode
+    resource_dict["init_function"] = init_function
+    resource_dict["config_directory"] = pysqa_config_directory
+    resource_dict["backend"] = backend
+    max_workers = validate_number_of_cores(
+        max_cores=max_cores,
+        max_workers=max_workers,
+        cores_per_worker=cores_per_worker,
+        set_local_cores=False,
+    )
+    return BlockAllocationTaskScheduler(
+        max_workers=max_workers,
+        executor_kwargs=resource_dict,
+        spawner=PysqaSpawner,
+    )
