@@ -3,8 +3,8 @@ import subprocess
 import time
 from typing import Optional
 
+from executorlib.standalone.hdf import dump
 from executorlib.standalone.inputcheck import check_file_exists
-from executorlib.task_scheduler.file.hdf import dump
 
 
 def execute_in_subprocess(
@@ -56,6 +56,8 @@ def execute_in_subprocess(
     if resource_dict is None:
         resource_dict = {}
     cwd = resource_dict.get("cwd", cache_directory)
+    if cwd is not None:
+        os.makedirs(cwd, exist_ok=True)
     return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
 
 

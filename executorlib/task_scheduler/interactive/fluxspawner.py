@@ -113,6 +113,7 @@ class FluxPythonSpawner(BaseSpawner):
             jobspec.setattr_shell_option("pmi", self._pmi_mode)
         if self._cwd is not None:
             jobspec.cwd = self._cwd
+            os.makedirs(self._cwd, exist_ok=True)
         if self._flux_log_files and self._cwd is not None:
             jobspec.stderr = os.path.join(self._cwd, "flux.err")
             jobspec.stdout = os.path.join(self._cwd, "flux.out")

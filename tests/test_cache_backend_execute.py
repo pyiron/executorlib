@@ -7,8 +7,8 @@ import unittest
 try:
     from executorlib.task_scheduler.file.backend import backend_execute_task_in_file
     from executorlib.task_scheduler.file.shared import _check_task_output, FutureItem
-    from executorlib.task_scheduler.file.hdf import dump, get_runtime
-    from executorlib.standalone.serialize import serialize_funct_h5
+    from executorlib.standalone.hdf import dump, get_runtime
+    from executorlib.standalone.serialize import serialize_funct
 
     skip_h5io_test = False
 except ImportError:
@@ -30,7 +30,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_mixed(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct_h5(
+        task_key, data_dict = serialize_funct(
             fn=my_funct,
             fn_args=[1],
             fn_kwargs={"b": 2},
@@ -58,7 +58,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_args(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct_h5(
+        task_key, data_dict = serialize_funct(
             fn=my_funct,
             fn_args=[1, 2],
             fn_kwargs=None,
@@ -86,7 +86,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_kwargs(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct_h5(
+        task_key, data_dict = serialize_funct(
             fn=my_funct,
             fn_args=None,
             fn_kwargs={"a": 1, "b": 2},
@@ -114,7 +114,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_error(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct_h5(
+        task_key, data_dict = serialize_funct(
             fn=get_error,
             fn_args=[],
             fn_kwargs={"a": 1},

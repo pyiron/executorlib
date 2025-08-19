@@ -3,9 +3,9 @@ from typing import Optional
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.hdf import dump, get_queue_id
 from executorlib.standalone.inputcheck import check_file_exists
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
-from executorlib.task_scheduler.file.hdf import dump, get_queue_id
 
 
 def execute_with_pysqa(
@@ -61,7 +61,7 @@ def execute_with_pysqa(
         else:
             folder = command[-1].split("_i.h5")[0]
             cwd = os.path.join(cache_directory, folder)
-            os.makedirs(cwd, exist_ok=True)
+        os.makedirs(cwd, exist_ok=True)
         submit_kwargs = {
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],

@@ -10,8 +10,9 @@ from executorlib.standalone.command import get_cache_execute_command
 
 try:
     import flux.job
-    from executorlib.task_scheduler.file.hdf import dump
-    from executorlib.task_scheduler.file.queue_spawner import terminate_tasks_in_cache, execute_with_pysqa
+    from executorlib import terminate_tasks_in_cache
+    from executorlib.standalone.hdf import dump
+    from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa
     from executorlib.standalone.scheduler import terminate_with_pysqa
 
     skip_flux_test = "FLUX_URI" not in os.environ

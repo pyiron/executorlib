@@ -4,14 +4,13 @@ import queue
 import time
 from typing import Callable, Optional
 
-from executorlib.standalone.cache import get_cache_files
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
     interface_bootup,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
-from executorlib.standalone.serialize import serialize_funct_h5
+from executorlib.standalone.serialize import serialize_funct
 
 
 def execute_tasks(
@@ -25,6 +24,7 @@ def execute_tasks(
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
+    worker_id: Optional[int] = None,
     **kwargs,
 ) -> None:
     """
@@ -49,6 +49,8 @@ def execute_tasks(
        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
        error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
                              submitted to the Executor.
+       worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
+                        distribution.
     """
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
@@ -57,6 +59,7 @@ def execute_tasks(
         connections=spawner(cores=cores, **kwargs),
         hostname_localhost=hostname_localhost,
         log_obj_size=log_obj_size,
+        worker_id=worker_id,
     )
     if init_function is not None:
         interface.send_dict(
@@ -130,9 +133,9 @@ def _execute_task_with_cache(
         cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                   overwritten by setting the cache_key.
     """
-    from executorlib.task_scheduler.file.hdf import dump, get_output
+    from executorlib.standalone.hdf import dump, get_cache_files, get_output
 
-    task_key, data_dict = serialize_funct_h5(
+    task_key, data_dict = serialize_funct(
         fn=task_dict["fn"],
         fn_args=task_dict["args"],
         fn_kwargs=task_dict["kwargs"],
