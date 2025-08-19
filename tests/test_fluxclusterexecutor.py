@@ -57,6 +57,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             block_allocation=True,
             cache_directory="executorlib_cache",
             pmi_mode=pmi,
+            max_workers=2,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(mpi_funct, 1)
