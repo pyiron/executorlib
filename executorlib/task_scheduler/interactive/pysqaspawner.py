@@ -1,3 +1,4 @@
+import os
 from time import sleep
 from typing import Callable, Optional
 
@@ -183,7 +184,8 @@ def create_pysqa_block_allocation_scheduler(
     if resource_dict is None:
         resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
-    resource_dict["cache_directory"] = cache_directory
+    resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
+    resource_dict["cache_directory"] = os.path.abspath(cache_directory)
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
     resource_dict["pmi_mode"] = pmi_mode
