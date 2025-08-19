@@ -51,14 +51,16 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(output[3], sys.executable)
         self.assertEqual(output[4].split(os.sep)[-1], "cache_parallel.py")
         self.assertEqual(output[5], file_name)
-        output = get_cache_execute_command(cores=2, file_name=file_name, backend="slurm", pmi_mode="pmi2")
+        output = get_cache_execute_command(cores=2, file_name=file_name, backend="slurm", pmi_mode="pmi2", openmpi_oversubscribe=True, exclusive=True)
         self.assertEqual(output[0], "srun")
         self.assertEqual(output[1], "-n")
         self.assertEqual(output[2], str(2))
         self.assertEqual(output[3], "--mpi=pmi2")
-        self.assertEqual(output[4], sys.executable)
-        self.assertEqual(output[5].split(os.sep)[-1], "cache_parallel.py")
-        self.assertEqual(output[6], file_name)
+        self.assertEqual(output[4], "--oversubscribe")
+        self.assertEqual(output[5], "--exact")
+        self.assertEqual(output[6], sys.executable)
+        self.assertEqual(output[7].split(os.sep)[-1], "cache_parallel.py")
+        self.assertEqual(output[8], file_name)
         output = get_cache_execute_command(cores=2, file_name=file_name, backend="slurm")
         self.assertEqual(output[0], "srun")
         self.assertEqual(output[1], "-n")
@@ -86,3 +88,7 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(output[8], file_name)
         with self.assertRaises(ValueError):
             get_cache_execute_command(cores=2, file_name=file_name, backend="test")
+        with self.assertRaises(ValueError):
+            get_cache_execute_command(cores=2, file_name=file_name, backend="flux", openmpi_oversubscribe=True)
+        with self.assertRaises(ValueError):
+            get_cache_execute_command(cores=2, file_name=file_name, backend="flux", exclusive=True)
