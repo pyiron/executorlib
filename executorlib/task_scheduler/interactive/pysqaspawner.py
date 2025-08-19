@@ -25,6 +25,7 @@ class PysqaSpawner(BaseSpawner):
         pmi_mode: Optional[str] = None,
         config_directory: Optional[str] = None,
         backend: Optional[str] = None,
+        **kwargs,
     ):
         """
         Subprocess interface implementation.
@@ -49,6 +50,7 @@ class PysqaSpawner(BaseSpawner):
         self._pmi_mode = pmi_mode
         self._config_directory = config_directory
         self._backend = backend
+        self._pysqa_submission_kwargs = kwargs
 
     def bootup(
         self,
@@ -69,7 +71,7 @@ class PysqaSpawner(BaseSpawner):
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=self._cwd,
             cores=int(self._cores * self._threads_per_core),
-            **self._slurm_cmd_args,
+            **self._pysqa_submission_kwargs,
         )
         while True:
             status = qa.get_status_of_job(process_id=self._process)
@@ -106,6 +108,8 @@ class PysqaSpawner(BaseSpawner):
                 command_prepend += ["--exact"]
             if self._openmpi_oversubscribe:
                 command_prepend += ["--oversubscribe"]
+            if self._slurm_cmd_args is not None and len(self._slurm_cmd_args) > 0:
+                command_prepend += self._slurm_cmd_args
         elif self._cores > 1 and self._backend == "flux":
             command_prepend = ["flux", "run", "-n", str(self._cores)]
             if self._pmi_mode is not None:
