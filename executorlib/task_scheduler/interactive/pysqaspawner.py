@@ -65,18 +65,10 @@ class PysqaSpawner(BaseSpawner):
             queue_type=self._backend,
             execute_command=pysqa_execute_command,
         )
-        if self._gpus_per_core > 0:
-            raise ValueError()
-        if self._num_nodes is not None:
-            raise ValueError()
-        if self._exclusive:
-            raise ValueError()
-        if self._pmi_mode is not None:
-            raise ValueError()
         self._process = qa.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=self._cwd,
-            cores=self._cores,
+            cores=int(self._cores * self._threads_per_core),
             **self._slurm_cmd_args,
         )
         while True:
@@ -100,12 +92,34 @@ class PysqaSpawner(BaseSpawner):
         Returns:
             list[str]: The generated command list.
         """
-        if self._cores > 1 and self._backend is None:
-            command_prepend = ["mpiexec", "-n", str(self._cores)]
-        elif self._cores > 1 and self._backend == "slurm":
+        if self._cores > 1 and self._backend == "slurm":
             command_prepend = ["srun", "-n", str(self._cores)]
+            if self._pmi_mode is not None:
+                command_prepend += ["--mpi=" + self._pmi_mode]
+            if self._num_nodes is not None:
+                command_prepend_lst += ["-N", str(self._num_nodes)]
+            if self._threads_per_core > 1:
+                command_prepend_lst += ["--cpus-per-task=" + str(self._threads_per_core)]
+            if self._gpus_per_core > 0:
+                command_prepend_lst += ["--gpus-per-task=" + str(self._gpus_per_core)]
+            if self._exclusive:
+                command_prepend_lst += ["--exact"]
+            if self._openmpi_oversubscribe:
+                command_prepend_lst += ["--oversubscribe"]
         elif self._cores > 1 and self._backend == "flux":
             command_prepend = ["flux", "run", "-n", str(self._cores)]
+            if self._pmi_mode is not None:
+                command_prepend += ["-o", "pmi=" + self._pmi_mode]
+            if self._num_nodes is not None:
+                raise ValueError()
+            if self._threads_per_core > 1:
+               raise ValueError()
+            if self._gpus_per_core > 0:
+                raise ValueError()
+            if self._exclusive:
+                raise ValueError()
+            if self._openmpi_oversubscribe:
+                raise ValueError()
         elif self._cores > 1:
             raise ValueError(
                 f"backend should be None, slurm or flux, not {self._backend}"
@@ -162,8 +176,6 @@ def create_pysqa_block_allocation_scheduler(
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
 ):
-    if backend is None:
-        raise ValueError("Backend must be either 'slurm' or 'flux'.")
     if resource_dict is None:
         resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
