@@ -65,9 +65,13 @@ def get_cache_execute_command(
             if pmi_mode is not None:
                 flux_command += ["-o", "pmi=" + pmi_mode]
             if openmpi_oversubscribe:
-                raise ValueError("The option openmpi_oversubscribe is not available with the flux backend.")
+                raise ValueError(
+                    "The option openmpi_oversubscribe is not available with the flux backend."
+                )
             if exclusive:
-                raise ValueError("The option exclusive is not available with the flux backend.")
+                raise ValueError(
+                    "The option exclusive is not available with the flux backend."
+                )
             command_lst = (
                 flux_command
                 + ["-n", str(cores)]
