@@ -166,8 +166,10 @@ class SlurmClusterExecutor(BaseExecutor):
             import pysqa  # noqa
 
             if block_allocation:
-                from executorlib.task_scheduler.interactive.pysqaspawner import create_pysqa_block_allocation_scheduler
-                
+                from executorlib.task_scheduler.interactive.pysqaspawner import (
+                    create_pysqa_block_allocation_scheduler,
+                )
+
                 super().__init__(
                     executor=create_pysqa_block_allocation_scheduler(
                         max_cores=max_cores,
