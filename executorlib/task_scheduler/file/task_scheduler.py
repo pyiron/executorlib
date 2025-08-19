@@ -56,6 +56,8 @@ class FileTaskScheduler(TaskSchedulerBase):
             "cores": 1,
             "cwd": None,
             "cache_directory": "executorlib_cache",
+            "exclusive": False,
+            "openmpi_oversubscribe": False,
         }
         if resource_dict is None:
             resource_dict = {}

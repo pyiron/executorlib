@@ -156,6 +156,10 @@ def execute_tasks_h5(
                             file_name=file_name,
                             cores=task_resource_dict["cores"],
                             backend=backend,
+                            exclusive=task_resource_dict.get("exclusive", False),
+                            openmpi_oversubscribe=task_resource_dict.get(
+                                "openmpi_oversubscribe", False
+                            ),
                             pmi_mode=pmi_mode,
                         ),
                         file_name=file_name,
