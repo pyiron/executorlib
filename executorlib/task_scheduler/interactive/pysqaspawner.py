@@ -97,17 +97,17 @@ class PysqaSpawner(BaseSpawner):
             if self._pmi_mode is not None:
                 command_prepend += ["--mpi=" + self._pmi_mode]
             if self._num_nodes is not None:
-                command_prepend_lst += ["-N", str(self._num_nodes)]
+                command_prepend += ["-N", str(self._num_nodes)]
             if self._threads_per_core > 1:
-                command_prepend_lst += [
+                command_prepend += [
                     "--cpus-per-task=" + str(self._threads_per_core)
                 ]
             if self._gpus_per_core > 0:
-                command_prepend_lst += ["--gpus-per-task=" + str(self._gpus_per_core)]
+                command_prepend += ["--gpus-per-task=" + str(self._gpus_per_core)]
             if self._exclusive:
-                command_prepend_lst += ["--exact"]
+                command_prepend += ["--exact"]
             if self._openmpi_oversubscribe:
-                command_prepend_lst += ["--oversubscribe"]
+                command_prepend += ["--oversubscribe"]
         elif self._cores > 1 and self._backend == "flux":
             command_prepend = ["flux", "run", "-n", str(self._cores)]
             if self._pmi_mode is not None:
