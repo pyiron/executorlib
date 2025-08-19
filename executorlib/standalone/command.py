@@ -21,6 +21,8 @@ def get_cache_execute_command(
     file_name: str,
     cores: int = 1,
     backend: Optional[str] = None,
+    exclusive: bool = False,
+    openmpi_oversubscribe: bool = False,
     pmi_mode: Optional[str] = None,
 ) -> list:
     """
@@ -30,7 +32,9 @@ def get_cache_execute_command(
         file_name (str): The name of the file.
         cores (int, optional): Number of cores used to execute the task. Defaults to 1.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
-        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
+        openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+        pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
 
     Returns:
         list[str]: List of strings containing the python executable path and the backend script to execute
@@ -47,6 +51,10 @@ def get_cache_execute_command(
             command_prepend = ["srun", "-n", str(cores)]
             if pmi_mode is not None:
                 command_prepend += ["--mpi=" + pmi_mode]
+            if openmpi_oversubscribe:
+                command_prepend += ["--oversubscribe"]
+            if exclusive:
+                command_prepend += ["--exact"]
             command_lst = (
                 command_prepend
                 + command_lst
@@ -56,6 +64,10 @@ def get_cache_execute_command(
             flux_command = ["flux", "run"]
             if pmi_mode is not None:
                 flux_command += ["-o", "pmi=" + pmi_mode]
+            if openmpi_oversubscribe:
+                raise ValueError("The option openmpi_oversubscribe is not available with the flux backend.")
+            if exclusive:
+                raise ValueError("The option exclusive is not available with the flux backend.")
             command_lst = (
                 flux_command
                 + ["-n", str(cores)]
