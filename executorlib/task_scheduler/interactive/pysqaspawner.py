@@ -99,9 +99,7 @@ class PysqaSpawner(BaseSpawner):
             if self._num_nodes is not None:
                 command_prepend += ["-N", str(self._num_nodes)]
             if self._threads_per_core > 1:
-                command_prepend += [
-                    "--cpus-per-task=" + str(self._threads_per_core)
-                ]
+                command_prepend += ["--cpus-per-task=" + str(self._threads_per_core)]
             if self._gpus_per_core > 0:
                 command_prepend += ["--gpus-per-task=" + str(self._gpus_per_core)]
             if self._exclusive:
