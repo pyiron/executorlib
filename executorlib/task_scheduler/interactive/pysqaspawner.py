@@ -77,7 +77,7 @@ class PysqaSpawner(BaseSpawner):
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=self._cwd,
             cores=self._cores,
-            **self._submission_kwargs,
+            **self._slurm_cmd_args,
         )
         while True:
             status = qa.get_status_of_job(process_id=self._process)
