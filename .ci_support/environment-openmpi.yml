@@ -6,7 +6,7 @@ dependencies:
 - openmpi
 - cloudpickle =3.1.1
 - mpi4py =4.0.1
-- pyzmq =27.0.1
+- pyzmq =27.0.2
 - h5py =3.14.0
 - networkx =3.4.2
 - pygraphviz =1.14
