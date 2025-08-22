@@ -15,7 +15,7 @@ dependencies:
 - matplotlib =3.10.3
 - networkx =3.4.2
 - pygraphviz =1.14
-- pysqa =0.3.0
+- pysqa =0.3.1
 - ipython =9.0.2
 - atomistics =0.2.5
 - qe =7.4
