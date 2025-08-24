@@ -24,6 +24,11 @@ except ImportError:
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 
+def echo(i):
+    sleep(1)
+    return i
+
+
 def mpi_funct(i):
     from mpi4py import MPI
 
@@ -65,6 +70,25 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
+
+    def test_executor_blockallocation_echo(self):
+        with FluxClusterExecutor(
+            resource_dict={"cores": 1, "cwd": "executorlib_cache"},
+            block_allocation=True,
+            cache_directory="executorlib_cache",
+            pmi_mode=pmi,
+            max_workers=2,
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs1 = exe.submit(echo, 1)
+            fs2 = exe.submit(echo, 2)
+            self.assertFalse(fs1.done())
+            self.assertFalse(fs2.done())
+            self.assertEqual(fs1.result(), 1)
+            self.assertEqual(fs2.result(), 2)
+            self.assertEqual(len(os.listdir("executorlib_cache")), 2)
+            self.assertTrue(fs1.done())
+            self.assertTrue(fs2.done())
 
     def test_executor_no_cwd(self):
         with FluxClusterExecutor(

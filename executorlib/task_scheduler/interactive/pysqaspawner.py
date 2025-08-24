@@ -70,9 +70,13 @@ class PysqaSpawner(BaseSpawner):
             execute_command=pysqa_execute_command,
         )
         hash = hashlib.md5(str(self).encode()).hexdigest()
+        if self._cwd is not None:
+            working_directory = os.path.join(self._cwd, hash)
+        else:
+            working_directory = os.path.abspath(hash)
         self._process = qa.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
-            working_directory=os.path.join(self._cwd, hash),
+            working_directory=working_directory,
             cores=int(self._cores * self._threads_per_core),
             **self._pysqa_submission_kwargs,
         )
@@ -187,7 +191,10 @@ def create_pysqa_block_allocation_scheduler(
         resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
     resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
-    resource_dict["cache_directory"] = os.path.abspath(cache_directory)
+    if cache_directory is not None:
+        resource_dict["cache_directory"] = os.path.abspath(cache_directory)
+    else:
+        resource_dict["cache_directory"] = os.path.abspath(".")
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
     resource_dict["pmi_mode"] = pmi_mode
