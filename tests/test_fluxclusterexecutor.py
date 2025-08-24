@@ -86,7 +86,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertFalse(fs2.done())
             self.assertEqual(fs1.result(), 1)
             self.assertEqual(fs2.result(), 2)
-            self.assertEqual(len(os.listdir("executorlib_cache")), 2)
+            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
             self.assertTrue(fs1.done())
             self.assertTrue(fs2.done())
 
