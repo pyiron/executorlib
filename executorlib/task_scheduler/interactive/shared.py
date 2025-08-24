@@ -68,7 +68,13 @@ def execute_tasks(
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
-            print("before shutdown", interface, interface._process, interface._spawner, interface._spawner._process)
+            print(
+                "before shutdown",
+                interface,
+                interface._process,
+                interface._spawner,
+                interface._spawner._process,
+            )
             interface.shutdown(wait=task_dict["wait"])
             print("before done")
             _task_done(future_queue=future_queue)
