@@ -156,14 +156,19 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
             if isinstance(self._process, list):
+                print(len(self._process), wait)
                 for _ in range(len(self._process)):
                     self._future_queue.put({"shutdown": True, "wait": wait})
+                print("after submission", wait)
                 if wait:
                     for process in self._process:
+                        print("join")
                         process.join()
+                    print("join done")
                     self._future_queue.join()
         self._process = None
         self._future_queue = None
+        print("block shutdown done")
 
     def _set_process(self, process: list[Thread]):  # type: ignore
         """

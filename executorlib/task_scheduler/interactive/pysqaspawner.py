@@ -68,12 +68,14 @@ class PysqaSpawner(BaseSpawner):
             queue_type=self._backend,
             execute_command=pysqa_execute_command,
         )
+        print(self._process, self)
         self._process = qa.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=self._cwd,
             cores=int(self._cores * self._threads_per_core),
             **self._pysqa_submission_kwargs,
         )
+        print(self._process, self)
         while True:
             status = qa.get_status_of_job(process_id=self._process)
             if status in ["running", "pending"]:
@@ -147,6 +149,7 @@ class PysqaSpawner(BaseSpawner):
                 backend=self._backend,
             )
         self._process = None
+        print("terminate done")
 
     def poll(self) -> bool:
         """
@@ -184,12 +187,8 @@ def create_pysqa_block_allocation_scheduler(
     if resource_dict is None:
         resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
-    if "cwd" in resource_dict:
-        resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
-    if cache_directory is not None:
-        resource_dict["cache_directory"] = os.path.abspath(cache_directory)
-    else:
-        resource_dict["cache_directory"] = None
+    resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
+    resource_dict["cache_directory"] = os.path.abspath(cache_directory)
     resource_dict["hostname_localhost"] = hostname_localhost
     resource_dict["log_obj_size"] = log_obj_size
     resource_dict["pmi_mode"] = pmi_mode
