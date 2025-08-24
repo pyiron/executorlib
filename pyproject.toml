@@ -3,7 +3,7 @@ requires = [
     "hatchling==1.27.0",
     "hatch-vcs==0.5.0",
     "cloudpickle==3.1.1",
-    "pyzmq==27.0.1",
+    "pyzmq==27.0.2",
 ]
 build-backend = "hatchling.build"
 
@@ -30,7 +30,7 @@ classifiers = [
 ]
 dependencies = [
     "cloudpickle==3.1.1",
-    "pyzmq==27.0.1",
+    "pyzmq==27.0.2",
 ]
 dynamic = ["version"]
 
@@ -52,12 +52,12 @@ graphnotebook = [
 ]
 mpi = ["mpi4py==4.0.1"]
 cluster = [
-    "pysqa==0.3.0",
+    "pysqa==0.3.1",
     "h5py==3.14.0",
 ]
 all = [
     "mpi4py==4.0.1",
-    "pysqa==0.3.0",
+    "pysqa==0.3.1",
     "h5py==3.14.0",
     "pygraphviz==1.14",
     "networkx==3.4.2",

@@ -6,11 +6,11 @@ dependencies:
 - mpich
 - cloudpickle =3.1.1
 - mpi4py =4.0.1
-- pyzmq =27.0.1
+- pyzmq =27.0.2
 - h5py =3.14.0
 - networkx =3.4.2
 - pygraphviz =1.14
 - ipython =9.0.2
-- pysqa =0.3.0
+- pysqa =0.3.1
 - hatchling =1.27.0
 - hatch-vcs =0.5.0

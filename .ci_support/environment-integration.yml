@@ -7,7 +7,7 @@ dependencies:
 - openmpi
 - cloudpickle =3.1.1
 - mpi4py
-- pyzmq =27.0.1
+- pyzmq =27.0.2
 - flux-core =0.59.0
 - hatchling =1.27.0
 - hatch-vcs =0.5.0
@@ -15,7 +15,7 @@ dependencies:
 - matplotlib =3.10.3
 - networkx =3.4.2
 - pygraphviz =1.14
-- pysqa =0.3.0
+- pysqa =0.3.1
 - ipython =9.0.2
 - atomistics =0.2.5
 - qe =7.4
