@@ -1,4 +1,5 @@
 import os
+import hashlib
 from time import sleep
 from typing import Callable, Optional
 
@@ -68,14 +69,13 @@ class PysqaSpawner(BaseSpawner):
             queue_type=self._backend,
             execute_command=pysqa_execute_command,
         )
-        print(self._process, self)
+        hash = hashlib.md5(str(self).encode()).hexdigest()
         self._process = qa.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
-            working_directory=self._cwd,
+            working_directory=os.path.join(self._cwd, hash),
             cores=int(self._cores * self._threads_per_core),
             **self._pysqa_submission_kwargs,
         )
-        print(self._process, self)
         while True:
             status = qa.get_status_of_job(process_id=self._process)
             if status in ["running", "pending"]:
@@ -149,7 +149,6 @@ class PysqaSpawner(BaseSpawner):
                 backend=self._backend,
             )
         self._process = None
-        print("terminate done")
 
     def poll(self) -> bool:
         """

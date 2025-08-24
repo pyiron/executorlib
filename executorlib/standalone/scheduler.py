@@ -23,7 +23,6 @@ def terminate_with_pysqa(
         queue_type=backend,
         execute_command=pysqa_execute_command,
     )
-    print(qa.get_queue_status())
     status = qa.get_status_of_job(process_id=queue_id)
     if status is not None and status not in ["finished", "error"]:
         with contextlib.suppress(subprocess.CalledProcessError):
@@ -53,7 +52,6 @@ def pysqa_execute_command(
     """
     if shell and isinstance(commands, list):
         commands = " ".join(commands)
-    print(commands, working_directory)
     out = subprocess.check_output(
         commands,
         cwd=working_directory,
