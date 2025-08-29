@@ -20,7 +20,9 @@ class SocketInterface:
         log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
     """
 
-    def __init__(self, spawner=None, log_obj_size: bool = False, time_out_ms: int = 1000):
+    def __init__(
+        self, spawner=None, log_obj_size: bool = False, time_out_ms: int = 1000
+    ):
         """
         Initialize the SocketInterface.
 
@@ -30,7 +32,7 @@ class SocketInterface:
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
         self._poller = zmq.Poller()
-        self._poller.register(self._socket, zmq.POLLIN) 
+        self._poller.register(self._socket, zmq.POLLIN)
         self._process = None
         self._time_out_ms = time_out_ms
         if log_obj_size:
