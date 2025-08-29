@@ -18,17 +18,19 @@ class SocketInterface:
     Args:
         spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
         log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
-        time_out_ms (int): Time out for waiting for a message on socket in milliseconds. 
+        time_out_ms (int): Time out for waiting for a message on socket in milliseconds.
     """
 
-    def __init__(self, spawner=None, log_obj_size: bool = False, time_out_ms: int = 1000):
+    def __init__(
+        self, spawner=None, log_obj_size: bool = False, time_out_ms: int = 1000
+    ):
         """
         Initialize the SocketInterface.
 
         Args:
             spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
             log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
-            time_out_ms (int): Time out for waiting for a message on socket in milliseconds. 
+            time_out_ms (int): Time out for waiting for a message on socket in milliseconds.
         """
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
