@@ -7,7 +7,7 @@ import cloudpickle
 import zmq
 
 
-class ExecutorlibSockerError(RuntimeError):
+class ExecutorlibSocketError(RuntimeError):
     pass
 
 
@@ -67,7 +67,7 @@ class SocketInterface:
         while len(response_lst) == 0:
             response_lst = self._poller.poll(self._time_out_ms)
             if not self._spawner.poll():
-                raise ExecutorlibSockerError()
+                raise ExecutorlibSocketError()
         data = self._socket.recv(zmq.NOBLOCK)
         if self._logger is not None:
             self._logger.warning(
