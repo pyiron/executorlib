@@ -69,25 +69,18 @@ class PysqaSpawner(BaseSpawner):
             queue_type=self._backend,
             execute_command=pysqa_execute_command,
         )
-        hash = hashlib.md5(str(self).encode()).hexdigest()
-        if self._cwd is not None:
-            working_directory = os.path.join(self._cwd, hash)
-        else:
-            working_directory = os.path.abspath(hash)
-        self._process = qa.submit_job(
-            command=" ".join(self.generate_command(command_lst=command_lst)),
-            working_directory=working_directory,
-            cores=int(self._cores * self._threads_per_core),
-            **self._pysqa_submission_kwargs,
-        )
+        job_id = self._start_process_helper(command_lst=command_lst, queue_adapter=qa)
         while True:
-            status = qa.get_status_of_job(process_id=self._process)
+            status = qa.get_status_of_job(process_id=job_id)
             if status == "running":
+                self._process = job_id
                 break
             elif status is None:
                 raise RuntimeError(
                     f"Failed to start the process with command: {command_lst}"
                 )
+            elif status == "error":
+                job_id = self._start_process_helper(command_lst=command_lst, queue_adapter=qa)
             else:
                 sleep(1)  # Wait for the process to start
 
@@ -173,6 +166,19 @@ class PysqaSpawner(BaseSpawner):
             ]
         else:
             return False
+        
+    def _start_process_helper(self, command_lst: str, queue_adapter: QueueAdapter) -> int:
+        hash = hashlib.md5(str(self).encode()).hexdigest()
+        if self._cwd is not None:
+            working_directory = os.path.join(self._cwd, hash)
+        else:
+            working_directory = os.path.abspath(hash)
+        return queue_adapter.submit_job(
+            command=" ".join(self.generate_command(command_lst=command_lst)),
+            working_directory=working_directory,
+            cores=int(self._cores * self._threads_per_core),
+            **self._pysqa_submission_kwargs,
+        )
 
 
 def create_pysqa_block_allocation_scheduler(
