@@ -8,7 +8,7 @@ from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
-    ExecutorlibSockerError,
+    ExecutorlibSocketError,
     SocketInterface,
     interface_bootup,
 )
@@ -110,7 +110,7 @@ def _execute_task_without_cache(
         try:
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
-            if isinstance(thread_exception, ExecutorlibSockerError):
+            if isinstance(thread_exception, ExecutorlibSocketError):
                 _reset_task_dict(
                     future_obj=f, future_queue=future_queue, task_dict=task_dict
                 )
@@ -163,7 +163,7 @@ def _execute_task_with_cache(
                 dump(file_name=file_name, data_dict=data_dict)
                 f.set_result(result)
             except Exception as thread_exception:
-                if isinstance(thread_exception, ExecutorlibSockerError):
+                if isinstance(thread_exception, ExecutorlibSocketError):
                     _reset_task_dict(
                         future_obj=f, future_queue=future_queue, task_dict=task_dict
                     )
