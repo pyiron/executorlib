@@ -80,7 +80,9 @@ class PysqaSpawner(BaseSpawner):
                     f"Failed to start the process with command: {command_lst}"
                 )
             elif status == "error":
-                job_id = self._start_process_helper(command_lst=command_lst, queue_adapter=qa)
+                job_id = self._start_process_helper(
+                    command_lst=command_lst, queue_adapter=qa
+                )
             else:
                 sleep(1)  # Wait for the process to start
 
@@ -166,8 +168,10 @@ class PysqaSpawner(BaseSpawner):
             ]
         else:
             return False
-        
-    def _start_process_helper(self, command_lst: str, queue_adapter: QueueAdapter) -> int:
+
+    def _start_process_helper(
+        self, command_lst: str, queue_adapter: QueueAdapter
+    ) -> int:
         hash = hashlib.md5(str(self).encode()).hexdigest()
         if self._cwd is not None:
             working_directory = os.path.join(self._cwd, hash)
