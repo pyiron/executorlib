@@ -111,7 +111,9 @@ def _execute_task_without_cache(
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             if isinstance(thread_exception, ExecutorlibSockerError):
-                _reset_task_dict(future_obj=f, future_queue=future_queue, task_dict=task_dict)
+                _reset_task_dict(
+                    future_obj=f, future_queue=future_queue, task_dict=task_dict
+                )
                 interface._spawner.bootup(
                     command_lst=interface._command_lst,
                 )
@@ -164,7 +166,9 @@ def _execute_task_with_cache(
                 f.set_result(result)
             except Exception as thread_exception:
                 if isinstance(thread_exception, ExecutorlibSockerError):
-                    _reset_task_dict(future_obj=f, future_queue=future_queue, task_dict=task_dict)
+                    _reset_task_dict(
+                        future_obj=f, future_queue=future_queue, task_dict=task_dict
+                    )
                     interface._spawner.bootup(
                         command_lst=interface._command_lst,
                     )
