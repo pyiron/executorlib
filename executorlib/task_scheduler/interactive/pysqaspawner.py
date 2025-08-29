@@ -170,7 +170,7 @@ class PysqaSpawner(BaseSpawner):
             return False
 
     def _start_process_helper(
-        self, command_lst: str, queue_adapter: QueueAdapter
+        self, command_lst: list[str], queue_adapter: QueueAdapter
     ) -> int:
         hash = hashlib.md5(str(self).encode()).hexdigest()
         if self._cwd is not None:
