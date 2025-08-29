@@ -116,6 +116,14 @@ class SocketInterface:
             command_lst=command_lst,
         )
 
+    def restart(self):
+        """
+        Restart the client process to onnect to the SocketInterface.
+        """
+        self._spawner.bootup(
+            command_lst=self._command_lst,
+        )
+
     def shutdown(self, wait: bool = True):
         """
         Shutdown the SocketInterface and the connected client process.

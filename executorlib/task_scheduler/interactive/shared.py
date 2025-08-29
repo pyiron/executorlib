@@ -114,9 +114,7 @@ def _execute_task_without_cache(
                 _reset_task_dict(
                     future_obj=f, future_queue=future_queue, task_dict=task_dict
                 )
-                interface._spawner.bootup(
-                    command_lst=interface._command_lst,
-                )
+                interface.restart()
             else:
                 interface.shutdown(wait=True)
                 _task_done(future_queue=future_queue)
@@ -169,9 +167,7 @@ def _execute_task_with_cache(
                     _reset_task_dict(
                         future_obj=f, future_queue=future_queue, task_dict=task_dict
                     )
-                    interface._spawner.bootup(
-                        command_lst=interface._command_lst,
-                    )
+                    interface.restart()
                 else:
                     interface.shutdown(wait=True)
                     _task_done(future_queue=future_queue)
