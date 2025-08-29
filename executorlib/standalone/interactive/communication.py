@@ -7,6 +7,10 @@ import cloudpickle
 import zmq
 
 
+class ExecutorlibSockerError(RuntimeError):
+    pass
+
+
 class SocketInterface:
     """
     The SocketInterface is an abstraction layer on top of the zero message queue.
@@ -16,7 +20,7 @@ class SocketInterface:
         log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
     """
 
-    def __init__(self, spawner=None, log_obj_size=False):
+    def __init__(self, spawner=None, log_obj_size: bool = False, time_out_ms: int = 1000):
         """
         Initialize the SocketInterface.
 
@@ -25,12 +29,16 @@ class SocketInterface:
         """
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
+        self._poller = zmq.Poller()
+        self._poller.register(self._socket, zmq.POLLIN) 
         self._process = None
+        self._time_out_ms = time_out_ms
         if log_obj_size:
             self._logger = logging.getLogger("executorlib")
         else:
             self._logger = None
         self._spawner = spawner
+        self._command_lst = []
 
     def send_dict(self, input_dict: dict):
         """
@@ -52,7 +60,12 @@ class SocketInterface:
         Returns:
             dict: dictionary with response received from the connected client
         """
-        data = self._socket.recv()
+        response_lst = []
+        while len(response_lst) == 0:
+            response_lst = self._poller.poll(self._time_out_ms)
+            if not self._spawner.poll():
+                raise ExecutorlibSockerError()
+        data = self._socket.recv(zmq.NOBLOCK)
         if self._logger is not None:
             self._logger.warning(
                 "Received dictionary of size: " + str(sys.getsizeof(data))
@@ -97,6 +110,7 @@ class SocketInterface:
         Args:
             command_lst (list): list of strings to start the client process
         """
+        self._command_lst = command_lst
         self._spawner.bootup(
             command_lst=command_lst,
         )

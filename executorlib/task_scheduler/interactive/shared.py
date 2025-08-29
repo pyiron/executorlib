@@ -3,10 +3,12 @@ import os
 import queue
 import time
 from typing import Callable, Optional
+from concurrent.futures._base import PENDING
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
+    ExecutorlibSockerError,
     interface_bootup,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
@@ -107,9 +109,17 @@ def _execute_task_without_cache(
         try:
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
-            interface.shutdown(wait=True)
-            _task_done(future_queue=future_queue)
-            f.set_exception(exception=thread_exception)
+            if isinstance(thread_exception, ExecutorlibSockerError):
+                f._state = PENDING
+                _task_done(future_queue=future_queue)
+                future_queue.put(task_dict | {"future": f})
+                interface._spawner.bootup(
+                    command_lst=interface._command_lst,
+                )
+            else:
+                interface.shutdown(wait=True)
+                _task_done(future_queue=future_queue)
+                f.set_exception(exception=thread_exception)
         else:
             _task_done(future_queue=future_queue)
 
@@ -154,10 +164,18 @@ def _execute_task_with_cache(
                 dump(file_name=file_name, data_dict=data_dict)
                 f.set_result(result)
             except Exception as thread_exception:
-                interface.shutdown(wait=True)
-                _task_done(future_queue=future_queue)
-                f.set_exception(exception=thread_exception)
-                raise thread_exception
+                if isinstance(thread_exception, ExecutorlibSockerError):
+                    f._state = PENDING
+                    _task_done(future_queue=future_queue)
+                    future_queue.put(task_dict | {"future": f})
+                    interface._spawner.bootup(
+                        command_lst=interface._command_lst,
+                    )
+                else:
+                    interface.shutdown(wait=True)
+                    _task_done(future_queue=future_queue)
+                    f.set_exception(exception=thread_exception)
+                    raise thread_exception
             else:
                 _task_done(future_queue=future_queue)
     else:
