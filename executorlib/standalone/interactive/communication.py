@@ -1,7 +1,7 @@
 import logging
 import sys
 from socket import gethostname
-from typing import Optional
+from typing import Any, Optional
 
 import cloudpickle
 import zmq
@@ -35,12 +35,11 @@ class SocketInterface:
         self._poller.register(self._socket, zmq.POLLIN)
         self._process = None
         self._time_out_ms = time_out_ms
+        self._logger: Optional[logging.Logger] = None
         if log_obj_size:
             self._logger = logging.getLogger("executorlib")
-        else:
-            self._logger = None
         self._spawner = spawner
-        self._command_lst = []
+        self._command_lst: list[str] = []
 
     def send_dict(self, input_dict: dict):
         """
@@ -62,7 +61,7 @@ class SocketInterface:
         Returns:
             dict: dictionary with response received from the connected client
         """
-        response_lst = []
+        response_lst: list[tuple[Any, int]] = []
         while len(response_lst) == 0:
             response_lst = self._poller.poll(self._time_out_ms)
             if not self._spawner.poll():
