@@ -1,10 +1,14 @@
 import logging
 import sys
 from socket import gethostname
-from typing import Optional
+from typing import Any, Optional
 
 import cloudpickle
 import zmq
+
+
+class ExecutorlibSockerError(RuntimeError):
+    pass
 
 
 class SocketInterface:
@@ -14,22 +18,27 @@ class SocketInterface:
     Args:
         spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
         log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
+        time_out_ms (int): Time out for waiting for a message on socket in milliseconds. 
     """
 
-    def __init__(self, spawner=None, log_obj_size=False):
+    def __init__(self, spawner=None, log_obj_size: bool = False, time_out_ms: int = 1000):
         """
         Initialize the SocketInterface.
 
         Args:
             spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
+            log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
+            time_out_ms (int): Time out for waiting for a message on socket in milliseconds. 
         """
         self._context = zmq.Context()
         self._socket = self._context.socket(zmq.PAIR)
+        self._poller = zmq.Poller()
+        self._poller.register(self._socket, zmq.POLLIN)
         self._process = None
+        self._time_out_ms = time_out_ms
+        self._logger: Optional[logging.Logger] = None
         if log_obj_size:
             self._logger = logging.getLogger("executorlib")
-        else:
-            self._logger = None
         self._spawner = spawner
 
     def send_dict(self, input_dict: dict):
@@ -52,7 +61,12 @@ class SocketInterface:
         Returns:
             dict: dictionary with response received from the connected client
         """
-        data = self._socket.recv()
+        response_lst: list[tuple[Any, int]] = []
+        while len(response_lst) == 0:
+            response_lst = self._poller.poll(self._time_out_ms)
+            if not self._spawner.poll():
+                raise ExecutorlibSockerError()
+        data = self._socket.recv(zmq.NOBLOCK)
         if self._logger is not None:
             self._logger.warning(
                 "Received dictionary of size: " + str(sys.getsizeof(data))
