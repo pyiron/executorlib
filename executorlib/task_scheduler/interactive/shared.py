@@ -2,13 +2,13 @@ import contextlib
 import os
 import queue
 import time
-from typing import Callable, Optional
 from concurrent.futures._base import PENDING
+from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
-    SocketInterface,
     ExecutorlibSockerError,
+    SocketInterface,
     interface_bootup,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
