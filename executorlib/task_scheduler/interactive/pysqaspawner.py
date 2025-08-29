@@ -82,7 +82,7 @@ class PysqaSpawner(BaseSpawner):
         )
         while True:
             status = qa.get_status_of_job(process_id=self._process)
-            if status in ["running", "pending"]:
+            if status == "running":
                 break
             elif status is None:
                 raise RuntimeError(
