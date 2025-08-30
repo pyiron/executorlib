@@ -84,7 +84,9 @@ def execute_tasks(
                     task_dict["error_log_file"] = error_log_file
                 if cache_directory is None:
                     result_flag = _execute_task_without_cache(
-                        interface=interface, task_dict=task_dict, future_queue=future_queue
+                        interface=interface,
+                        task_dict=task_dict,
+                        future_queue=future_queue,
                     )
                 else:
                     result_flag = _execute_task_with_cache(
@@ -98,9 +100,8 @@ def execute_tasks(
                     if queue_join_on_shutdown:
                         future_queue.join()
                     break
-    else:
-        if queue_join_on_shutdown:
-            future_queue.join()
+    elif queue_join_on_shutdown:
+        future_queue.join()
 
 
 def _execute_task_without_cache(
