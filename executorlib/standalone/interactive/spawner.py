@@ -1,7 +1,7 @@
 import os
 import subprocess
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Callable, Optional
 
 MPI_COMMAND = "mpiexec"
 
@@ -29,7 +29,7 @@ class BaseSpawner(ABC):
     def bootup(
         self,
         command_lst: list[str],
-        stop_function: Optional[callable] = None,
+        stop_function: Optional[Callable] = None,
     ) -> bool:
         """
         Method to start the interface.
@@ -88,7 +88,7 @@ class SubprocessSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
-        stop_function: Optional[callable] = None,
+        stop_function: Optional[Callable] = None,
     ) -> bool:
         """
         Method to start the subprocess interface.
