@@ -61,11 +61,12 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["queue_join_on_shutdown"] = False
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
+        self._shutdown_flag = False
         self._set_process(
             process=[
                 Thread(
                     target=execute_tasks,
-                    kwargs=executor_kwargs | {"worker_id": worker_id},
+                    kwargs=executor_kwargs | {"worker_id": worker_id, "stop_function": lambda : self._shutdown_flag},
                 )
                 for worker_id in range(self._max_workers)
             ],
@@ -155,6 +156,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         if self._future_queue is not None:
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
+            self._shutdown_flag = True
             if isinstance(self._process, list):
                 for _ in range(len(self._process)):
                     self._future_queue.put({"shutdown": True, "wait": wait})

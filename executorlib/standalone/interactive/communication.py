@@ -43,6 +43,7 @@ class SocketInterface:
             self._logger = logging.getLogger("executorlib")
         self._spawner = spawner
         self._command_lst: list[str] = []
+        self._stop_function: Optional[callable] = None
 
     def send_dict(self, input_dict: dict):
         """
@@ -107,6 +108,7 @@ class SocketInterface:
     def bootup(
         self,
         command_lst: list[str],
+        stop_function: Optional[callable] = None,
     ):
         """
         Boot up the client process to connect to the SocketInterface.
@@ -115,8 +117,10 @@ class SocketInterface:
             command_lst (list): list of strings to start the client process
         """
         self._command_lst = command_lst
+        self._stop_function = stop_function
         self._spawner.bootup(
             command_lst=command_lst,
+            stop_function=stop_function,
         )
 
     def restart(self):
@@ -125,6 +129,7 @@ class SocketInterface:
         """
         self._spawner.bootup(
             command_lst=self._command_lst,
+            stop_function=self._stop_function,
         )
 
     def shutdown(self, wait: bool = True):
@@ -163,6 +168,7 @@ def interface_bootup(
     hostname_localhost: Optional[bool] = None,
     log_obj_size: bool = False,
     worker_id: Optional[int] = None,
+    stop_function: Optional[callable] = None,
 ) -> SocketInterface:
     """
     Start interface for ZMQ communication
@@ -203,7 +209,7 @@ def interface_bootup(
         str(interface.bind_to_random_port()),
     ]
     interface.bootup(
-        command_lst=command_lst,
+        command_lst=command_lst, stop_function=stop_function,
     )
     return interface
 

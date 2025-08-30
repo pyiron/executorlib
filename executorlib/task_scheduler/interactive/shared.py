@@ -28,6 +28,7 @@ def execute_tasks(
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
+    stop_function: Optional[callable] = None,
     **kwargs,
 ) -> None:
     """
@@ -63,7 +64,10 @@ def execute_tasks(
         hostname_localhost=hostname_localhost,
         log_obj_size=log_obj_size,
         worker_id=worker_id,
+        stop_function=stop_function,
     )
+    if interface._spawner._process is None:
+        return
     if init_function is not None:
         interface.send_dict(
             input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}

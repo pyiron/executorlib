@@ -29,6 +29,7 @@ class BaseSpawner(ABC):
     def bootup(
         self,
         command_lst: list[str],
+        stop_function: Optional[callable] = None,
     ):
         """
         Method to start the interface.
@@ -87,6 +88,7 @@ class SubprocessSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
+        stop_function: Optional[callable] = None,
     ):
         """
         Method to start the subprocess interface.
