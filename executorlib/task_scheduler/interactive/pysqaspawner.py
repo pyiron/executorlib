@@ -43,7 +43,6 @@ class PysqaSpawner(BaseSpawner):
             cores=cores,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
-        self._process: Optional[int] = None
         self._threads_per_core = threads_per_core
         self._gpus_per_core = gpus_per_core
         self._num_nodes = num_nodes
@@ -53,6 +52,8 @@ class PysqaSpawner(BaseSpawner):
         self._config_directory = config_directory
         self._backend = backend
         self._pysqa_submission_kwargs = kwargs
+        self._process: Optional[int] = None
+        self._queue_adapter: Optional[QueueAdapter] = None
 
     def bootup(
         self,
@@ -64,25 +65,18 @@ class PysqaSpawner(BaseSpawner):
         Args:
             command_lst (list[str]): The command list to execute.
         """
-        qa = QueueAdapter(
+        self._queue_adapter = QueueAdapter(
             directory=self._config_directory,
             queue_type=self._backend,
             execute_command=pysqa_execute_command,
         )
-        job_id = self._start_process_helper(command_lst=command_lst, queue_adapter=qa)
+        self._process = self._start_process_helper(
+            command_lst=command_lst, 
+            queue_adapter=self._queue_adapter,
+        )
         while True:
-            status = qa.get_status_of_job(process_id=job_id)
-            if status == "running":
-                self._process = job_id
+            if self._check_process_helper(command_lst=command_lst):
                 break
-            elif status is None:
-                raise RuntimeError(
-                    f"Failed to start the process with command: {command_lst}"
-                )
-            elif status == "error":
-                job_id = self._start_process_helper(
-                    command_lst=command_lst, queue_adapter=qa
-                )
             else:
                 sleep(1)  # Wait for the process to start
 
@@ -147,7 +141,7 @@ class PysqaSpawner(BaseSpawner):
                 config_directory=self._config_directory,
                 backend=self._backend,
             )
-        self._process = None
+            self._process = None
 
     def poll(self) -> bool:
         """
@@ -156,16 +150,9 @@ class PysqaSpawner(BaseSpawner):
         Returns:
             bool: True if the interface is running, False otherwise.
         """
-        qa = QueueAdapter(
-            directory=self._config_directory,
-            queue_type=self._backend,
-            execute_command=pysqa_execute_command,
-        )
         if self._process is not None:
-            return qa.get_status_of_job(process_id=self._process) in [
-                "running",
-                "pending",
-            ]
+            status = self._queue_adapter.get_status_of_job(process_id=self._process)
+            return status in ["running", "pending"]
         else:
             return False
 
@@ -183,6 +170,23 @@ class PysqaSpawner(BaseSpawner):
             cores=int(self._cores * self._threads_per_core),
             **self._pysqa_submission_kwargs,
         )
+    
+    def _check_process_helper(self, command_lst: list[str]) -> bool:
+        status = self._queue_adapter.get_status_of_job(process_id=self._process)
+        if status == "running":
+            return True
+        elif status is None:
+            raise RuntimeError(
+                f"Failed to start the process with command: {command_lst}"
+            )
+        elif status == "error":
+            self._process = self._start_process_helper(
+                command_lst=command_lst, queue_adapter=self._queue_adapter
+            )
+        return False
+    
+    def __del__(self):
+        self.shutdown(wait=True)
 
 
 def create_pysqa_block_allocation_scheduler(
