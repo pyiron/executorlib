@@ -150,7 +150,7 @@ class PysqaSpawner(BaseSpawner):
         Returns:
             bool: True if the interface is running, False otherwise.
         """
-        if self._process is not None:
+        if self._process is not None and self._queue_adapter is not None:
             status = self._queue_adapter.get_status_of_job(process_id=self._process)
             return status in ["running", "pending"]
         else:
@@ -172,7 +172,10 @@ class PysqaSpawner(BaseSpawner):
         )
 
     def _check_process_helper(self, command_lst: list[str]) -> bool:
-        status = self._queue_adapter.get_status_of_job(process_id=self._process)
+        if self._queue_adapter is not None:
+            status = self._queue_adapter.get_status_of_job(process_id=self._process)
+        else:
+            status = None
         if status == "running":
             return True
         elif status is None:
