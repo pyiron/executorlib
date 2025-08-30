@@ -1,7 +1,7 @@
 import logging
 import sys
 from socket import gethostname
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import cloudpickle
 import zmq
@@ -42,6 +42,7 @@ class SocketInterface:
         if log_obj_size:
             self._logger = logging.getLogger("executorlib")
         self._spawner = spawner
+        self._stop_function: Optional[Callable] = None
 
     def send_dict(self, input_dict: dict):
         """
@@ -106,6 +107,7 @@ class SocketInterface:
     def bootup(
         self,
         command_lst: list[str],
+        stop_function: Optional[Callable] = None,
     ):
         """
         Boot up the client process to connect to the SocketInterface.
@@ -115,6 +117,7 @@ class SocketInterface:
         """
         self._spawner.bootup(
             command_lst=command_lst,
+            stop_function=stop_function,
         )
 
     def shutdown(self, wait: bool = True):
@@ -153,6 +156,7 @@ def interface_bootup(
     hostname_localhost: Optional[bool] = None,
     log_obj_size: bool = False,
     worker_id: Optional[int] = None,
+    stop_function: Optional[Callable] = None,
 ) -> SocketInterface:
     """
     Start interface for ZMQ communication
@@ -194,6 +198,7 @@ def interface_bootup(
     ]
     interface.bootup(
         command_lst=command_lst,
+        stop_function=stop_function,
     )
     return interface
 

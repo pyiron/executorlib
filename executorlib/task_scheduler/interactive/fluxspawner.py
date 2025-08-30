@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Callable, Optional
 
 import flux
 import flux.job
@@ -75,6 +75,7 @@ class FluxPythonSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
+        stop_function: Optional[Callable] = None,
     ):
         """
         Boot up the client process to connect to the SocketInterface.
