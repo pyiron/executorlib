@@ -74,7 +74,9 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                     kwargs=executor_kwargs
                     | {
                         "worker_id": worker_id,
-                        "stop_function": lambda: _blockallocation_task_schedulder_dict[self_id],
+                        "stop_function": lambda: _blockallocation_task_schedulder_dict[
+                            self_id
+                        ],
                     },
                 )
                 for worker_id in range(self._max_workers)
