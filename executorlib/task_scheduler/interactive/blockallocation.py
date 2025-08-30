@@ -66,7 +66,11 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             process=[
                 Thread(
                     target=execute_tasks,
-                    kwargs=executor_kwargs | {"worker_id": worker_id, "stop_function": lambda : self._shutdown_flag},
+                    kwargs=executor_kwargs
+                    | {
+                        "worker_id": worker_id,
+                        "stop_function": lambda: self._shutdown_flag,
+                    },
                 )
                 for worker_id in range(self._max_workers)
             ],

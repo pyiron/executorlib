@@ -209,7 +209,8 @@ def interface_bootup(
         str(interface.bind_to_random_port()),
     ]
     interface.bootup(
-        command_lst=command_lst, stop_function=stop_function,
+        command_lst=command_lst,
+        stop_function=stop_function,
     )
     return interface
 
