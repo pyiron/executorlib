@@ -71,7 +71,7 @@ class PysqaSpawner(BaseSpawner):
             execute_command=pysqa_execute_command,
         )
         self._process = self._start_process_helper(
-            command_lst=command_lst, 
+            command_lst=command_lst,
             queue_adapter=self._queue_adapter,
         )
         while True:
@@ -170,7 +170,7 @@ class PysqaSpawner(BaseSpawner):
             cores=int(self._cores * self._threads_per_core),
             **self._pysqa_submission_kwargs,
         )
-    
+
     def _check_process_helper(self, command_lst: list[str]) -> bool:
         status = self._queue_adapter.get_status_of_job(process_id=self._process)
         if status == "running":
@@ -184,7 +184,7 @@ class PysqaSpawner(BaseSpawner):
                 command_lst=command_lst, queue_adapter=self._queue_adapter
             )
         return False
-    
+
     def __del__(self):
         self.shutdown(wait=True)
 
