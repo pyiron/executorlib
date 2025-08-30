@@ -61,7 +61,7 @@ def execute_tasks(
         hostname_localhost=hostname_localhost,
         log_obj_size=log_obj_size,
         worker_id=worker_id,
-        stop_function=stop_function
+        stop_function=stop_function,
     )
     if init_function is not None:
         interface.send_dict(
