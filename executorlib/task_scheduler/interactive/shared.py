@@ -82,13 +82,13 @@ def execute_tasks(
         elif "fn" in task_dict and "future" in task_dict:
             if error_log_file is not None:
                 task_dict["error_log_file"] = error_log_file
-            if cache_directory is None:
+            if cache_directory is None and interface is not None:
                 result_flag = _execute_task_without_cache(
                     interface=interface,
                     task_dict=task_dict,
                     future_queue=future_queue,
                 )
-            else:
+            elif interface is not None:
                 result_flag = _execute_task_with_cache(
                     interface=interface,
                     task_dict=task_dict,
@@ -96,6 +96,8 @@ def execute_tasks(
                     cache_directory=cache_directory,
                     cache_key=cache_key,
                 )
+            else:
+                raise ValueError()
             if not result_flag:
                 if queue_join_on_shutdown:
                     future_queue.join()
