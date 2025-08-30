@@ -155,6 +155,9 @@ class SocketInterface:
         return result
 
     def _reset_socket(self):
+        """
+        Reset the socket and context of the SocketInterface instance.
+        """
         if self._socket is not None:
             self._socket.close()
         if self._context is not None:
