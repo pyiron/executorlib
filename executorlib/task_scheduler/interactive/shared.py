@@ -28,7 +28,7 @@ def execute_tasks(
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
-    stop_function: Optional[callable] = None,
+    stop_function: Optional[Callable] = None,
     **kwargs,
 ) -> None:
     """
@@ -96,6 +96,9 @@ def execute_tasks(
                     cache_key=cache_key,
                 )
             if not result_flag:
+                _task_done(future_queue=future_queue)
+                if queue_join_on_shutdown:
+                    future_queue.join()
                 break
 
 
