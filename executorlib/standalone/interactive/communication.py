@@ -136,7 +136,7 @@ class SocketInterface:
         ):
             self._reset_socket()
             return False
-        return True 
+        return True
 
     def shutdown(self, wait: bool = True):
         """
@@ -153,7 +153,7 @@ class SocketInterface:
             self._spawner.shutdown(wait=wait)
         self._reset_socket()
         return result
-    
+
     def _reset_socket(self):
         if self._socket is not None:
             self._socket.close()
