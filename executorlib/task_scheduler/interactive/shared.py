@@ -66,42 +66,40 @@ def execute_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
-    if interface is not None:
-        if init_function is not None:
-            interface.send_dict(
-                input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
-            )
-        while True:
-            task_dict = future_queue.get()
-            if "shutdown" in task_dict and task_dict["shutdown"]:
+    if init_function is not None and interface is not None:
+        interface.send_dict(
+            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+        )
+    while True:
+        task_dict = future_queue.get()
+        if "shutdown" in task_dict and task_dict["shutdown"]:
+            if interface is not None:
                 interface.shutdown(wait=task_dict["wait"])
-                _task_done(future_queue=future_queue)
+            _task_done(future_queue=future_queue)
+            if queue_join_on_shutdown:
+                future_queue.join()
+            break
+        elif "fn" in task_dict and "future" in task_dict:
+            if error_log_file is not None:
+                task_dict["error_log_file"] = error_log_file
+            if cache_directory is None:
+                result_flag = _execute_task_without_cache(
+                    interface=interface,
+                    task_dict=task_dict,
+                    future_queue=future_queue,
+                )
+            else:
+                result_flag = _execute_task_with_cache(
+                    interface=interface,
+                    task_dict=task_dict,
+                    future_queue=future_queue,
+                    cache_directory=cache_directory,
+                    cache_key=cache_key,
+                )
+            if not result_flag:
                 if queue_join_on_shutdown:
                     future_queue.join()
                 break
-            elif "fn" in task_dict and "future" in task_dict:
-                if error_log_file is not None:
-                    task_dict["error_log_file"] = error_log_file
-                if cache_directory is None:
-                    result_flag = _execute_task_without_cache(
-                        interface=interface,
-                        task_dict=task_dict,
-                        future_queue=future_queue,
-                    )
-                else:
-                    result_flag = _execute_task_with_cache(
-                        interface=interface,
-                        task_dict=task_dict,
-                        future_queue=future_queue,
-                        cache_directory=cache_directory,
-                        cache_key=cache_key,
-                    )
-                if not result_flag:
-                    if queue_join_on_shutdown:
-                        future_queue.join()
-                    break
-    elif queue_join_on_shutdown:
-        future_queue.join()
 
 
 def _execute_task_without_cache(
