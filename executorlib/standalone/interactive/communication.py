@@ -130,6 +130,13 @@ class SocketInterface:
                 input_dict={"shutdown": True, "wait": wait}
             )
             self._spawner.shutdown(wait=wait)
+        self._reset_socket()
+        return result
+    
+    def _reset_socket(self):
+        """
+        Reset the socket and context of the SocketInterface instance.
+        """
         if self._socket is not None:
             self._socket.close()
         if self._context is not None:
@@ -137,7 +144,6 @@ class SocketInterface:
         self._process = None
         self._socket = None
         self._context = None
-        return result
 
     def __del__(self):
         """
