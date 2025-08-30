@@ -74,24 +74,48 @@ def execute_tasks(
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
-            if error_log_file is not None:
-                task_dict["error_log_file"] = error_log_file
-            if cache_directory is None:
-                _execute_task_without_cache(
-                    interface=interface, task_dict=task_dict, future_queue=future_queue
-                )
-            else:
-                _execute_task_with_cache(
-                    interface=interface,
-                    task_dict=task_dict,
-                    future_queue=future_queue,
-                    cache_directory=cache_directory,
-                    cache_key=cache_key,
-                )
+            execute_single_task(
+                task_dict=task_dict,
+                interface=interface,
+                cache_directory=cache_directory,
+                cache_key=cache_key,
+                error_log_file=error_log_file,
+                task_done_callable=_task_done, 
+                task_done_callable_kwargs={"future_queue": future_queue},
+            )
+
+
+def execute_single_task(
+    task_dict: dict,
+    interface: SocketInterface,
+    cache_directory: Optional[str] = None,
+    cache_key: Optional[str] = None,
+    error_log_file: Optional[str] = None,
+    task_done_callable: Optional[Callable] = None, 
+    task_done_callable_kwargs: Optional[dict] = None,
+):
+    if error_log_file is not None:
+        task_dict["error_log_file"] = error_log_file
+    if cache_directory is None:
+        _execute_task_without_cache(
+            interface=interface,
+            task_dict=task_dict,
+            task_done_callable=task_done_callable, 
+            task_done_callable_kwargs=task_done_callable_kwargs,
+        )
+    else:
+        _execute_task_with_cache(
+            interface=interface,
+            task_dict=task_dict,
+            cache_directory=cache_directory,
+            cache_key=cache_key,
+            task_done_callable=task_done_callable, 
+            task_done_callable_kwargs=task_done_callable_kwargs,
+        )
 
 
 def _execute_task_without_cache(
-    interface: SocketInterface, task_dict: dict, future_queue: queue.Queue
+    interface: SocketInterface, task_dict: dict, task_done_callable: Optional[Callable] = None, task_done_callable_kwargs: Optional[dict] = None
 ):
     """
     Execute the task in the task_dict by communicating it via the interface.
@@ -108,18 +132,19 @@ def _execute_task_without_cache(
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             interface.shutdown(wait=True)
-            _task_done(future_queue=future_queue)
+            _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
             f.set_exception(exception=thread_exception)
         else:
-            _task_done(future_queue=future_queue)
+            _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
 
 
 def _execute_task_with_cache(
     interface: SocketInterface,
     task_dict: dict,
-    future_queue: queue.Queue,
     cache_directory: str,
     cache_key: Optional[str] = None,
+    task_done_callable: Optional[Callable] = None, 
+    task_done_callable_kwargs: Optional[dict] = None
 ):
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
@@ -155,18 +180,26 @@ def _execute_task_with_cache(
                 f.set_result(result)
             except Exception as thread_exception:
                 interface.shutdown(wait=True)
-                _task_done(future_queue=future_queue)
+                _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
                 f.set_exception(exception=thread_exception)
                 raise thread_exception
             else:
-                _task_done(future_queue=future_queue)
+                _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
     else:
         _, _, result = get_output(file_name=file_name)
         future = task_dict["future"]
         future.set_result(result)
-        _task_done(future_queue=future_queue)
+        _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
 
 
 def _task_done(future_queue: queue.Queue):
     with contextlib.suppress(ValueError):
         future_queue.task_done()
+
+
+def _evaluate_call_back(task_done_callable: Optional[Callable] = None, task_done_callable_kwargs: Optional[dict] = None):
+    if task_done_callable is not None:
+        if task_done_callable_kwargs is not None:
+            task_done_callable(**task_done_callable_kwargs)
+        else:
+            task_done_callable()
