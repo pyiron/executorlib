@@ -30,7 +30,7 @@ class BaseSpawner(ABC):
         self,
         command_lst: list[str],
         stop_function: Optional[callable] = None,
-    ):
+    ) -> bool:
         """
         Method to start the interface.
 
@@ -89,7 +89,7 @@ class SubprocessSpawner(BaseSpawner):
         self,
         command_lst: list[str],
         stop_function: Optional[callable] = None,
-    ):
+    ) -> bool:
         """
         Method to start the subprocess interface.
 
@@ -103,6 +103,7 @@ class SubprocessSpawner(BaseSpawner):
             cwd=self._cwd,
             stdin=subprocess.DEVNULL,
         )
+        return True
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """

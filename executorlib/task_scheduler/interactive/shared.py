@@ -66,7 +66,7 @@ def execute_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
-    if interface._spawner._process is None:
+    if interface is None:
         return
     if init_function is not None:
         interface.send_dict(
@@ -84,22 +84,24 @@ def execute_tasks(
             if error_log_file is not None:
                 task_dict["error_log_file"] = error_log_file
             if cache_directory is None:
-                _execute_task_without_cache(
+                result_flag = _execute_task_without_cache(
                     interface=interface, task_dict=task_dict, future_queue=future_queue
                 )
             else:
-                _execute_task_with_cache(
+                result_flag = _execute_task_with_cache(
                     interface=interface,
                     task_dict=task_dict,
                     future_queue=future_queue,
                     cache_directory=cache_directory,
                     cache_key=cache_key,
                 )
+            if not result_flag:
+                break
 
 
 def _execute_task_without_cache(
     interface: SocketInterface, task_dict: dict, future_queue: queue.Queue
-):
+) -> bool:
     """
     Execute the task in the task_dict by communicating it via the interface.
 
@@ -118,13 +120,14 @@ def _execute_task_without_cache(
                 _reset_task_dict(
                     future_obj=f, future_queue=future_queue, task_dict=task_dict
                 )
-                interface.restart()
+                return interface.restart()
             else:
                 interface.shutdown(wait=True)
                 _task_done(future_queue=future_queue)
                 f.set_exception(exception=thread_exception)
         else:
             _task_done(future_queue=future_queue)
+    return True
 
 
 def _execute_task_with_cache(
@@ -133,7 +136,7 @@ def _execute_task_with_cache(
     future_queue: queue.Queue,
     cache_directory: str,
     cache_key: Optional[str] = None,
-):
+) -> bool:
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
 
@@ -171,7 +174,7 @@ def _execute_task_with_cache(
                     _reset_task_dict(
                         future_obj=f, future_queue=future_queue, task_dict=task_dict
                     )
-                    interface.restart()
+                    return interface.restart()
                 else:
                     interface.shutdown(wait=True)
                     _task_done(future_queue=future_queue)
@@ -184,6 +187,7 @@ def _execute_task_with_cache(
         future = task_dict["future"]
         future.set_result(result)
         _task_done(future_queue=future_queue)
+    return True
 
 
 def _task_done(future_queue: queue.Queue):
