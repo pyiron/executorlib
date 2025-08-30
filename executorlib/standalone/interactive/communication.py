@@ -132,7 +132,7 @@ class SocketInterface:
             self._spawner.shutdown(wait=wait)
         self._reset_socket()
         return result
-    
+
     def _reset_socket(self):
         """
         Reset the socket and context of the SocketInterface instance.
