@@ -67,6 +67,9 @@ def execute_tasks(
         stop_function=stop_function,
     )
     if interface is None:
+        _task_done(future_queue=future_queue)
+        if queue_join_on_shutdown:
+            future_queue.join()
         return
     if init_function is not None:
         interface.send_dict(
