@@ -88,7 +88,7 @@ def execute_tasks(
                     task_dict=task_dict,
                     future_queue=future_queue,
                 )
-            elif interface is not None:
+            elif cache_directory is not None and interface is not None:
                 result_flag = _execute_task_with_cache(
                     interface=interface,
                     task_dict=task_dict,
