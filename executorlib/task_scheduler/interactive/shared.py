@@ -80,7 +80,7 @@ def execute_tasks(
                 cache_directory=cache_directory,
                 cache_key=cache_key,
                 error_log_file=error_log_file,
-                task_done_callable=_task_done, 
+                task_done_callable=_task_done,
                 task_done_callable_kwargs={"future_queue": future_queue},
             )
 
@@ -91,7 +91,7 @@ def execute_single_task(
     cache_directory: Optional[str] = None,
     cache_key: Optional[str] = None,
     error_log_file: Optional[str] = None,
-    task_done_callable: Optional[Callable] = None, 
+    task_done_callable: Optional[Callable] = None,
     task_done_callable_kwargs: Optional[dict] = None,
 ):
     if error_log_file is not None:
@@ -100,7 +100,7 @@ def execute_single_task(
         _execute_task_without_cache(
             interface=interface,
             task_dict=task_dict,
-            task_done_callable=task_done_callable, 
+            task_done_callable=task_done_callable,
             task_done_callable_kwargs=task_done_callable_kwargs,
         )
     else:
@@ -109,13 +109,16 @@ def execute_single_task(
             task_dict=task_dict,
             cache_directory=cache_directory,
             cache_key=cache_key,
-            task_done_callable=task_done_callable, 
+            task_done_callable=task_done_callable,
             task_done_callable_kwargs=task_done_callable_kwargs,
         )
 
 
 def _execute_task_without_cache(
-    interface: SocketInterface, task_dict: dict, task_done_callable: Optional[Callable] = None, task_done_callable_kwargs: Optional[dict] = None
+    interface: SocketInterface,
+    task_dict: dict,
+    task_done_callable: Optional[Callable] = None,
+    task_done_callable_kwargs: Optional[dict] = None,
 ):
     """
     Execute the task in the task_dict by communicating it via the interface.
@@ -132,10 +135,16 @@ def _execute_task_without_cache(
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             interface.shutdown(wait=True)
-            _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
+            _evaluate_call_back(
+                task_done_callable=task_done_callable,
+                task_done_callable_kwargs=task_done_callable_kwargs,
+            )
             f.set_exception(exception=thread_exception)
         else:
-            _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
+            _evaluate_call_back(
+                task_done_callable=task_done_callable,
+                task_done_callable_kwargs=task_done_callable_kwargs,
+            )
 
 
 def _execute_task_with_cache(
@@ -143,8 +152,8 @@ def _execute_task_with_cache(
     task_dict: dict,
     cache_directory: str,
     cache_key: Optional[str] = None,
-    task_done_callable: Optional[Callable] = None, 
-    task_done_callable_kwargs: Optional[dict] = None
+    task_done_callable: Optional[Callable] = None,
+    task_done_callable_kwargs: Optional[dict] = None,
 ):
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
@@ -180,16 +189,25 @@ def _execute_task_with_cache(
                 f.set_result(result)
             except Exception as thread_exception:
                 interface.shutdown(wait=True)
-                _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
+                _evaluate_call_back(
+                    task_done_callable=task_done_callable,
+                    task_done_callable_kwargs=task_done_callable_kwargs,
+                )
                 f.set_exception(exception=thread_exception)
                 raise thread_exception
             else:
-                _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
+                _evaluate_call_back(
+                    task_done_callable=task_done_callable,
+                    task_done_callable_kwargs=task_done_callable_kwargs,
+                )
     else:
         _, _, result = get_output(file_name=file_name)
         future = task_dict["future"]
         future.set_result(result)
-        _evaluate_call_back(task_done_callable=task_done_callable, task_done_callable_kwargs=task_done_callable_kwargs)
+        _evaluate_call_back(
+            task_done_callable=task_done_callable,
+            task_done_callable_kwargs=task_done_callable_kwargs,
+        )
 
 
 def _task_done(future_queue: queue.Queue):
@@ -197,7 +215,10 @@ def _task_done(future_queue: queue.Queue):
         future_queue.task_done()
 
 
-def _evaluate_call_back(task_done_callable: Optional[Callable] = None, task_done_callable_kwargs: Optional[dict] = None):
+def _evaluate_call_back(
+    task_done_callable: Optional[Callable] = None,
+    task_done_callable_kwargs: Optional[dict] = None,
+):
     if task_done_callable is not None:
         if task_done_callable_kwargs is not None:
             task_done_callable(**task_done_callable_kwargs)
