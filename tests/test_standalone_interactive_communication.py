@@ -12,6 +12,7 @@ from executorlib.standalone.interactive.communication import (
     interface_send,
     interface_receive,
     SocketInterface,
+    ExecutorlibSocketError,
 )
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
@@ -113,6 +114,35 @@ class TestInterface(unittest.TestCase):
             interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
         )
         interface.shutdown(wait=True)
+
+    def test_interface_serial_with_stopped_process(self):
+        cloudpickle_register(ind=1)
+        task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
+        interface = SocketInterface(
+            spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
+            log_obj_size=True,
+        )
+        interface.bootup(
+            command_lst=[
+                sys.executable,
+                os.path.abspath(
+                    os.path.join(
+                        __file__,
+                        "..",
+                        "..",
+                        "executorlib",
+                        "backend",
+                        "interactive_serial.py",
+                    )
+                ),
+                "--zmqport",
+                str(interface.bind_to_random_port()),
+            ]
+        )
+        interface.send_dict(input_dict=task_dict)
+        interface._spawner._process.terminate()
+        with self.assertRaises(ExecutorlibSocketError):
+            interface.receive_dict()
 
 
 class TestZMQ(unittest.TestCase):
