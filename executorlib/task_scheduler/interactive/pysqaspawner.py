@@ -58,6 +58,7 @@ class PysqaSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
+        stop_function: Optional[Callable] = None,
     ):
         """
         Method to start the subprocess interface.
@@ -76,7 +77,10 @@ class PysqaSpawner(BaseSpawner):
         )
         while True:
             if self._check_process_helper(command_lst=command_lst):
-                break
+                return True
+            elif stop_function is not None and stop_function():
+                self.shutdown(wait=True)
+                return False
             else:
                 sleep(1)  # Wait for the process to start
 
