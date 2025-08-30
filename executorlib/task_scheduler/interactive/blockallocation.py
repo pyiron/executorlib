@@ -12,7 +12,7 @@ from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.interactive.shared import execute_tasks
 
-_blockallocation_task_schedulder_dict: dict = {}
+_task_schedulder_dict: dict = {}
 
 
 class BlockAllocationTaskScheduler(TaskSchedulerBase):
@@ -65,7 +65,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._max_workers = max_workers
         self_id = id(self)
         self._self_id = self_id
-        _blockallocation_task_schedulder_dict[self._self_id] = False
+        _task_schedulder_dict[self._self_id] = False
         self._set_process(
             process=[
                 Thread(
@@ -73,9 +73,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                     kwargs=executor_kwargs
                     | {
                         "worker_id": worker_id,
-                        "stop_function": lambda: _blockallocation_task_schedulder_dict[
-                            self_id
-                        ],
+                        "stop_function": lambda: _task_schedulder_dict[self_id],
                     },
                 )
                 for worker_id in range(self._max_workers)
