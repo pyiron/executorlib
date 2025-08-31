@@ -234,7 +234,7 @@ def _execute_multiple_tasks(
        worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                         distribution.
     """
-    # The interface becomes None when the job was cancelled before computing resources were allocated. 
+    # The interface becomes None when the job was cancelled before computing resources were allocated.
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
