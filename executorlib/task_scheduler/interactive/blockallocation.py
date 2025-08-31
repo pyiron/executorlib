@@ -240,8 +240,10 @@ def _execute_multiple_tasks(
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
+            f = task_dict.pop("future")
             execute_task_dict(
                 task_dict=task_dict,
+                future_obj=f,
                 interface=interface,
                 cache_directory=cache_directory,
                 cache_key=cache_key,
