@@ -1,7 +1,7 @@
 import logging
 import sys
 from socket import gethostname
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import cloudpickle
 import zmq
@@ -42,6 +42,8 @@ class SocketInterface:
         if log_obj_size:
             self._logger = logging.getLogger("executorlib")
         self._spawner = spawner
+        self._command_lst: list[str] = []
+        self._stop_function: Optional[Callable] = None
 
     def send_dict(self, input_dict: dict):
         """
@@ -85,7 +87,7 @@ class SocketInterface:
 
         Args:
             input_dict (dict): dictionary of commands to be communicated. The key "shutdown" is reserved to stop the
-                connected client from listening.
+                               connected client from listening.
 
         Returns:
             dict: dictionary with response received from the connected client
@@ -106,16 +108,43 @@ class SocketInterface:
     def bootup(
         self,
         command_lst: list[str],
-    ):
+        stop_function: Optional[Callable] = None,
+    ) -> bool:
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
+            stop_function (Callable): Function to stop the interface.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
-        self._spawner.bootup(
+        self._command_lst = command_lst
+        self._stop_function = stop_function
+        if not self._spawner.bootup(
             command_lst=command_lst,
-        )
+            stop_function=stop_function,
+        ):
+            self._reset_socket()
+            return False
+        else:
+            return True
+
+    def restart(self) -> bool:
+        """
+        Restart the client process to connect to the SocketInterface.
+
+        Returns:
+            bool: Whether the interface was successfully started.
+        """
+        if not self._spawner.bootup(
+                command_lst=self._command_lst,
+                stop_function=self._stop_function,
+        ):
+            self._reset_socket()
+            return False
+        return True
 
     def shutdown(self, wait: bool = True):
         """
@@ -159,7 +188,8 @@ def interface_bootup(
     hostname_localhost: Optional[bool] = None,
     log_obj_size: bool = False,
     worker_id: Optional[int] = None,
-) -> SocketInterface:
+    stop_function: Optional[Callable] = None,
+) -> Optional[SocketInterface]:
     """
     Start interface for ZMQ communication
 
@@ -177,6 +207,7 @@ def interface_bootup(
         log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
+        stop_function (Callable): Function to stop the interface.
 
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
@@ -198,10 +229,13 @@ def interface_bootup(
         "--zmqport",
         str(interface.bind_to_random_port()),
     ]
-    interface.bootup(
+    if interface.bootup(
         command_lst=command_lst,
-    )
-    return interface
+        stop_function=stop_function,
+    ):
+        return interface
+    else:
+        return None
 
 
 def interface_connect(host: str, port: str) -> tuple[zmq.Context, zmq.Socket]:

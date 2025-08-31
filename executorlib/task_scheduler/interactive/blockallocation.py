@@ -12,7 +12,9 @@ from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_task_dict, task_done
+from executorlib.task_scheduler.interactive.shared import execute_task_dict, task_done, reset_task_dict
+
+_interrupt_bootup_dict: dict = {}
 
 
 class BlockAllocationTaskScheduler(TaskSchedulerBase):
@@ -63,11 +65,17 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["queue_join_on_shutdown"] = False
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
+        self_id = id(self)
+        self._self_id = self_id
+        _interrupt_bootup_dict[self._self_id] = False
         self._set_process(
             process=[
                 Thread(
                     target=_execute_multiple_tasks,
-                    kwargs=executor_kwargs | {"worker_id": worker_id},
+                    kwargs=executor_kwargs | {
+                        "worker_id": worker_id,
+                        "stop_function": lambda: _interrupt_bootup_dict[self_id],
+                    },
                 )
                 for worker_id in range(self._max_workers)
             ],
@@ -147,22 +155,22 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         methods can be called after this one.
 
         Args:
-            wait: If True then shutdown will not return until all running
-                futures have finished executing and the resources used by the
-                parallel_executors have been reclaimed.
-            cancel_futures: If True then shutdown will cancel all pending
-                futures. Futures that are completed or running will not be
-                cancelled.
+            wait (bool): If True then shutdown will not return until all running futures have finished executing and
+                         the resources used by the parallel_executors have been reclaimed.
+            cancel_futures (bool): If True then shutdown will cancel all pending futures. Futures that are completed or
+                                   running will not be cancelled.
         """
         if self._future_queue is not None:
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
             if isinstance(self._process, list):
+                _interrupt_bootup_dict[self._self_id] = True
                 for _ in range(len(self._process)):
                     self._future_queue.put({"shutdown": True, "wait": wait})
                 if wait:
                     for process in self._process:
                         process.join()
+                    cancel_items_in_queue(que=self._future_queue)
                     self._future_queue.join()
         self._process = None
         self._future_queue = None
@@ -191,32 +199,34 @@ def _execute_multiple_tasks(
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
+    stop_function: Optional[Callable] = None,
     **kwargs,
 ) -> None:
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
 
     Args:
-       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
-       cores (int): defines the total number of MPI ranks to use
-       spawner (BaseSpawner): Spawner to start process on selected compute resources
-       hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
-                                     context of an HPC cluster this essential to be able to communicate to an
-                                     Executor running on a different compute node within the same allocation. And
-                                     in principle any computer should be able to resolve that their own hostname
-                                     points to the same address as localhost. Still MacOS >= 12 seems to disable
-                                     this look up for security reasons. So on MacOS it is required to set this
-                                     option to true
-       init_function (Callable): optional function to preset arguments for functions which are submitted later
-       cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
-       cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
-                                  overwritten by setting the cache_key.
-       queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
-       log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-       error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
-                             submitted to the Executor.
-       worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
-                        distribution.
+        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+        cores (int): defines the total number of MPI ranks to use
+        spawner (BaseSpawner): Spawner to start process on selected compute resources
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
+        init_function (Callable): optional function to preset arguments for functions which are submitted later
+        cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
+        cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
+                                   overwritten by setting the cache_key.
+        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
+                              submitted to the Executor.
+        worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
+                         distribution.
+        stop_function (Callable): Function to stop the interface.
     """
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
@@ -226,22 +236,24 @@ def _execute_multiple_tasks(
         hostname_localhost=hostname_localhost,
         log_obj_size=log_obj_size,
         worker_id=worker_id,
+        stop_function=stop_function,
     )
-    if init_function is not None:
+    if init_function is not None and interface is not None:
         interface.send_dict(
             input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
         )
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
-            interface.shutdown(wait=task_dict["wait"])
+            if interface is not None:
+                interface.shutdown(wait=task_dict["wait"])
             task_done(future_queue=future_queue)
             if queue_join_on_shutdown:
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
-            execute_task_dict(
+            result_flag = execute_task_dict(
                 task_dict=task_dict,
                 future_obj=f,
                 interface=interface,
@@ -249,4 +261,14 @@ def _execute_multiple_tasks(
                 cache_key=cache_key,
                 error_log_file=error_log_file,
             )
-            task_done(future_queue=future_queue)
+            if not result_flag:
+                task_done(future_queue=future_queue)
+                reset_task_dict(
+                    future_obj=f, future_queue=future_queue, task_dict=task_dict
+                )
+                if interface is not None:
+                    interface.restart()
+                else:
+                    break
+            else:
+                task_done(future_queue=future_queue)
