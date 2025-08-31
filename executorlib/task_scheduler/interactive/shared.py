@@ -88,7 +88,15 @@ def execute_multiple_tasks(
                     cache_key=cache_key,
                     error_log_file=error_log_file,
                 )
-                _task_done(future_queue=future_queue)
+                if not result_flag:
+                    _task_done(future_queue=future_queue)
+                    f = task_dict.pop("future")
+                    _reset_task_dict(
+                        future_obj=f, future_queue=future_queue, task_dict=task_dict
+                    )
+                    interface.restart()
+                else:
+                    _task_done(future_queue=future_queue)
             else:
                 raise ValueError()
             if not result_flag:
@@ -198,10 +206,7 @@ def _execute_task_without_cache(interface: SocketInterface, task_dict: dict) -> 
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             if isinstance(thread_exception, ExecutorlibSocketError):
-                _reset_task_dict(
-                    future_obj=f, future_queue=future_queue, task_dict=task_dict
-                )
-                return interface.restart()
+                return False
             else:
                 interface.shutdown(wait=True)
                 f.set_exception(exception=thread_exception)
@@ -247,10 +252,7 @@ def _execute_task_with_cache(
                 f.set_result(result)
             except Exception as thread_exception:
                 if isinstance(thread_exception, ExecutorlibSocketError):
-                    _reset_task_dict(
-                        future_obj=f, future_queue=future_queue, task_dict=task_dict
-                    )
-                    return interface.restart()
+                    return False
                 else:
                     interface.shutdown(wait=True)
                     f.set_exception(exception=thread_exception)
