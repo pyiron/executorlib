@@ -261,7 +261,6 @@ def _execute_multiple_tasks(
                 cache_key=cache_key,
                 error_log_file=error_log_file,
             )
-            task_done(future_queue=future_queue)
             if not result_flag:
                 task_done(future_queue=future_queue)
                 f = task_dict.pop("future")
