@@ -35,22 +35,25 @@ def execute_task_dict(
         error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
                               submitted to the Executor.
     """
-    if error_log_file is not None:
-        task_dict["error_log_file"] = error_log_file
-    if cache_directory is None and interface is not None:
-        return _execute_task_without_cache(
-            interface=interface, task_dict=task_dict, future_obj=future_obj
-        )
-    elif cache_directory is not None and interface is not None:
-        return _execute_task_with_cache(
-            interface=interface,
-            task_dict=task_dict,
-            cache_directory=cache_directory,
-            cache_key=cache_key,
-            future_obj=future_obj,
-        )
+    if not future_obj.done() and future_obj.set_running_or_notify_cancel():
+        if error_log_file is not None:
+            task_dict["error_log_file"] = error_log_file
+        if cache_directory is None and interface is not None:
+            return _execute_task_without_cache(
+                interface=interface, task_dict=task_dict, future_obj=future_obj
+            )
+        elif cache_directory is not None and interface is not None:
+            return _execute_task_with_cache(
+                interface=interface,
+                task_dict=task_dict,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                cache_key=cache_key,
+            )
+        else:
+            return False
     else:
-        return False
+        return True
 
 
 def task_done(future_queue: queue.Queue):
@@ -75,7 +78,7 @@ def reset_task_dict(future_obj: Future, future_queue: queue.Queue, task_dict: di
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
     """
     future_obj._state = PENDING
-    _task_done(future_queue=future_queue)
+    task_done(future_queue=future_queue)
     future_queue.put(task_dict | {"future": future_obj})
 
 
@@ -91,16 +94,14 @@ def _execute_task_without_cache(
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         future_obj (Future): A Future representing the given call.
     """
-    if not future_obj.done() and future_obj.set_running_or_notify_cancel():
-        try:
-            future_obj.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-        except Exception as thread_exception:
-            if isinstance(thread_exception, ExecutorlibSocketError):
-                return False
-            else:
-                interface.shutdown(wait=True)
-                future_obj.set_exception(exception=thread_exception)
-    return True
+    try:
+        future_obj.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+    except Exception as thread_exception:
+        if isinstance(thread_exception, ExecutorlibSocketError):
+            return False
+        else:
+            interface.shutdown(wait=True)
+            future_obj.set_exception(exception=thread_exception)
 
 
 def _execute_task_with_cache(
@@ -133,20 +134,19 @@ def _execute_task_with_cache(
     )
     file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
     if file_name not in get_cache_files(cache_directory=cache_directory):
-        if future_obj.set_running_or_notify_cancel():
-            try:
-                time_start = time.time()
-                result = interface.send_and_receive_dict(input_dict=task_dict)
-                data_dict["output"] = result
-                data_dict["runtime"] = time.time() - time_start
-                dump(file_name=file_name, data_dict=data_dict)
-                future_obj.set_result(result)
-            except Exception as thread_exception:
-                if isinstance(thread_exception, ExecutorlibSocketError):
-                    return False
-                else:
-                    interface.shutdown(wait=True)
-                    future_obj.set_exception(exception=thread_exception)
+        try:
+            time_start = time.time()
+            result = interface.send_and_receive_dict(input_dict=task_dict)
+            data_dict["output"] = result
+            data_dict["runtime"] = time.time() - time_start
+            dump(file_name=file_name, data_dict=data_dict)
+            future_obj.set_result(result)
+        except Exception as thread_exception:
+            if isinstance(thread_exception, ExecutorlibSocketError):
+                return False
+            else:
+                interface.shutdown(wait=True)
+                future_obj.set_exception(exception=thread_exception)
     else:
         _, _, result = get_output(file_name=file_name)
         future_obj.set_result(result)

@@ -208,6 +208,7 @@ def _wrap_execute_task_in_separate_process(
             "future_obj": f,
             "spawner": spawner,
             "hostname_localhost": hostname_localhost,
+            "future_obj": f,
         }
     )
     process = Thread(
