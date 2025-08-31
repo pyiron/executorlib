@@ -170,7 +170,6 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         if self._future_queue is not None:
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
-            self._shutdown_flag = True
             if isinstance(self._process, list):
                 _task_schedulder_dict[self._self_id] = True  # This is a hard shutdown
                 for _ in range(len(self._process)):
