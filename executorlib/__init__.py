@@ -55,7 +55,7 @@ def terminate_tasks_in_cache(
         config_directory (str, optional): path to the config directory.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
-    from executorlib.task_scheduler.file.queue_spawner import terminate_tasks_in_cache
+    from executorlib.task_scheduler.file.spawner_pysqa import terminate_tasks_in_cache
 
     return terminate_tasks_in_cache(
         cache_directory=cache_directory,

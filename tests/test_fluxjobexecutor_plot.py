@@ -10,7 +10,7 @@ from executorlib.standalone.serialize import cloudpickle_register
 try:
     import pygraphviz
     import flux.job
-    from executorlib.task_scheduler.interactive.fluxspawner import FluxPythonSpawner
+    from executorlib.task_scheduler.interactive.spawner_flux import FluxPythonSpawner
 
     skip_graphviz_flux_test = "FLUX_URI" not in os.environ
 except ImportError:

@@ -12,7 +12,7 @@ from executorlib.standalone.serialize import cloudpickle_register
 
 try:
     import flux.job
-    from executorlib.task_scheduler.interactive.fluxspawner import FluxPythonSpawner
+    from executorlib.task_scheduler.interactive.spawner_flux import FluxPythonSpawner
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
