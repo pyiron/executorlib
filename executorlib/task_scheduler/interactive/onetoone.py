@@ -4,7 +4,7 @@ from typing import Optional
 
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
 
 
 class OneProcessTaskScheduler(TaskSchedulerBase):
@@ -215,7 +215,7 @@ def _wrap_execute_task_in_separate_process(
         }
     )
     process = Thread(
-        target=execute_tasks,
+        target=execute_multiple_tasks,
         kwargs=task_kwargs,
     )
     process.start()

@@ -5,7 +5,7 @@ import unittest
 
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
@@ -32,7 +32,7 @@ class SubprocessExecutorTest(unittest.TestCase):
         test_queue.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
         self.assertFalse(f.done())
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=test_queue,
             cores=1,
             openmpi_oversubscribe=False,
@@ -58,7 +58,7 @@ class SubprocessExecutorTest(unittest.TestCase):
         )
         cloudpickle_register(ind=1)
         with self.assertRaises(TypeError):
-            execute_tasks(
+            execute_multiple_tasks(
                 future_queue=test_queue,
                 cores=1,
                 openmpi_oversubscribe=False,
@@ -85,7 +85,7 @@ class SubprocessExecutorTest(unittest.TestCase):
         )
         cloudpickle_register(ind=1)
         with self.assertRaises(FileNotFoundError):
-            execute_tasks(
+            execute_multiple_tasks(
                 future_queue=test_queue,
                 cores=1,
                 openmpi_oversubscribe=False,
