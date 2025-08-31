@@ -80,25 +80,23 @@ def execute_multiple_tasks(
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
-            if interface is not None:
-                result_flag = _execute_task_dict(
-                    task_dict=task_dict,
-                    interface=interface,
-                    cache_directory=cache_directory,
-                    cache_key=cache_key,
-                    error_log_file=error_log_file,
+            result_flag = _execute_task_dict(
+                task_dict=task_dict,
+                interface=interface,
+                cache_directory=cache_directory,
+                cache_key=cache_key,
+                error_log_file=error_log_file,
+            )
+            if not result_flag:
+                _task_done(future_queue=future_queue)
+                f = task_dict.pop("future")
+                _reset_task_dict(
+                    future_obj=f, future_queue=future_queue, task_dict=task_dict
                 )
-                if not result_flag:
-                    _task_done(future_queue=future_queue)
-                    f = task_dict.pop("future")
-                    _reset_task_dict(
-                        future_obj=f, future_queue=future_queue, task_dict=task_dict
-                    )
+                if interface is not None:
                     interface.restart()
-                else:
-                    _task_done(future_queue=future_queue)
             else:
-                raise ValueError()
+                _task_done(future_queue=future_queue)
             if not result_flag:
                 if queue_join_on_shutdown:
                     future_queue.join()
@@ -160,7 +158,7 @@ def execute_single_task(
 
 def _execute_task_dict(
     task_dict: dict,
-    interface: SocketInterface,
+    interface: Optional[SocketInterface] = None,
     cache_directory: Optional[str] = None,
     cache_key: Optional[str] = None,
     error_log_file: Optional[str] = None,
@@ -180,15 +178,17 @@ def _execute_task_dict(
     """
     if error_log_file is not None:
         task_dict["error_log_file"] = error_log_file
-    if cache_directory is None:
+    if cache_directory is None and interface is not None:
         return _execute_task_without_cache(interface=interface, task_dict=task_dict)
-    else:
+    elif cache_directory is not None and interface is not None:
         return _execute_task_with_cache(
             interface=interface,
             task_dict=task_dict,
             cache_directory=cache_directory,
             cache_key=cache_key,
         )
+    else:
+        raise ValueError()
 
 
 def _execute_task_without_cache(interface: SocketInterface, task_dict: dict) -> bool:
