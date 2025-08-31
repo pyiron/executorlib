@@ -102,6 +102,7 @@ def _execute_task_without_cache(
         else:
             interface.shutdown(wait=True)
             future_obj.set_exception(exception=thread_exception)
+    return True
 
 
 def _execute_task_with_cache(
