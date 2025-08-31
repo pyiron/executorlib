@@ -81,7 +81,7 @@ def execute_multiple_tasks(
             break
         elif "fn" in task_dict and "future" in task_dict:
             if interface is not None:
-                result_flag =_execute_task_dict(
+                result_flag = _execute_task_dict(
                     task_dict=task_dict,
                     interface=interface,
                     cache_directory=cache_directory,
