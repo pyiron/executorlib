@@ -152,8 +152,3 @@ def _execute_task_with_cache(
         _, _, result = get_output(file_name=file_name)
         future_obj.set_result(result)
     return True
-
-
-def _task_done(future_queue: queue.Queue):
-    with contextlib.suppress(ValueError):
-        future_queue.task_done()
