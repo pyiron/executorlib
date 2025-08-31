@@ -38,7 +38,9 @@ def execute_task_dict(
     if error_log_file is not None:
         task_dict["error_log_file"] = error_log_file
     if cache_directory is None and interface is not None:
-        return _execute_task_without_cache(interface=interface, task_dict=task_dict, future_obj=future_obj)
+        return _execute_task_without_cache(
+            interface=interface, task_dict=task_dict, future_obj=future_obj
+        )
     elif cache_directory is not None and interface is not None:
         return _execute_task_with_cache(
             interface=interface,
@@ -53,8 +55,8 @@ def execute_task_dict(
 
 def task_done(future_queue: queue.Queue):
     """
-    Mark the current task as done in the current queue. 
-    
+    Mark the current task as done in the current queue.
+
     Args:
         future_queue (queue): Queue of task dictionaries waiting for execution.
     """
@@ -77,7 +79,9 @@ def reset_task_dict(future_obj: Future, future_queue: queue.Queue, task_dict: di
     future_queue.put(task_dict | {"future": future_obj})
 
 
-def _execute_task_without_cache(interface: SocketInterface, task_dict: dict, future_obj: Future) -> bool:
+def _execute_task_without_cache(
+    interface: SocketInterface, task_dict: dict, future_obj: Future
+) -> bool:
     """
     Execute the task in the task_dict by communicating it via the interface.
 
