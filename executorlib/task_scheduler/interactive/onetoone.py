@@ -2,11 +2,11 @@ import queue
 from threading import Thread
 from typing import Optional
 
-from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_task_dict
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.interactive.shared import execute_task_dict
 
 
 class OneProcessTaskScheduler(TaskSchedulerBase):

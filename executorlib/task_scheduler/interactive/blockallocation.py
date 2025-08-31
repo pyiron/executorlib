@@ -8,10 +8,10 @@ from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
+from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.task_scheduler.interactive.shared import execute_task_dict, task_done
 
 
