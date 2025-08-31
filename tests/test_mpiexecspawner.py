@@ -443,7 +443,7 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
@@ -459,7 +459,7 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc_array, "args": (), "kwargs": {"j": 4}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
@@ -535,7 +535,7 @@ class TestFuturePoolCache(unittest.TestCase):
         q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
