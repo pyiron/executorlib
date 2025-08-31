@@ -205,9 +205,9 @@ def _wrap_execute_task_in_separate_process(
     task_kwargs.update(
         {
             "task_dict": task_dict,
-            "future_obj": f,
             "spawner": spawner,
             "hostname_localhost": hostname_localhost,
+            "future_obj": f,
         }
     )
     process = Thread(
