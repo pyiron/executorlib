@@ -6,7 +6,10 @@ from concurrent.futures import Future
 from concurrent.futures._base import PENDING
 from typing import Optional
 
-from executorlib.standalone.interactive.communication import ExecutorlibSocketError, SocketInterface
+from executorlib.standalone.interactive.communication import (
+    ExecutorlibSocketError,
+    SocketInterface,
+)
 from executorlib.standalone.serialize import serialize_funct
 
 
