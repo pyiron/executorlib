@@ -10,7 +10,7 @@ from executorlib.standalone.inputcheck import (
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
 
 _task_schedulder_dict: dict = {}
 
@@ -69,7 +69,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._set_process(
             process=[
                 Thread(
-                    target=execute_tasks,
+                    target=execute_multiple_tasks,
                     kwargs=executor_kwargs
                     | {
                         "worker_id": worker_id,
@@ -99,7 +99,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             elif self._max_workers < max_workers:
                 new_process_lst = [
                     Thread(
-                        target=execute_tasks,
+                        target=execute_multiple_tasks,
                         kwargs=self._process_kwargs,
                     )
                     for _ in range(max_workers - self._max_workers)

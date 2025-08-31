@@ -10,7 +10,7 @@ import numpy as np
 
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
-from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
 from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 from executorlib.standalone.interactive.backend import call_funct
@@ -261,7 +261,7 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
         q.put({"fn": get_global, "args": (), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
@@ -443,13 +443,13 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
+        execute_multiple_tasks(
+            future_queue=q,
+            cores=1,
+            openmpi_oversubscribe=False,
+            spawner=MpiExecSpawner,
+        )
         with self.assertRaises(TypeError):
-            execute_tasks(
-                future_queue=q,
-                cores=1,
-                openmpi_oversubscribe=False,
-                spawner=MpiExecSpawner,
-            )
             f.result()
         q.join()
 
@@ -459,13 +459,13 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc_array, "args": (), "kwargs": {"j": 4}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
+        execute_multiple_tasks(
+            future_queue=q,
+            cores=1,
+            openmpi_oversubscribe=False,
+            spawner=MpiExecSpawner,
+        )
         with self.assertRaises(TypeError):
-            execute_tasks(
-                future_queue=q,
-                cores=1,
-                openmpi_oversubscribe=False,
-                spawner=MpiExecSpawner,
-            )
             f.result()
         q.join()
 
@@ -475,7 +475,7 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc_array, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
@@ -493,7 +493,7 @@ class TestFuturePool(unittest.TestCase):
         q.put({"fn": calc_array, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=q,
             cores=2,
             openmpi_oversubscribe=False,
@@ -516,7 +516,7 @@ class TestFuturePoolCache(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 1}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=q,
             cores=1,
             openmpi_oversubscribe=False,
@@ -533,13 +533,15 @@ class TestFuturePoolCache(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
+        execute_multiple_tasks(
+            future_queue=q,
+            cores=1,
+            openmpi_oversubscribe=False,
+            spawner=MpiExecSpawner,
+            cache_directory="executorlib_cache",
+        )
         with self.assertRaises(TypeError):
-            execute_tasks(
-                future_queue=q,
-                cores=1,
-                openmpi_oversubscribe=False,
-                spawner=MpiExecSpawner,
-                cache_directory="executorlib_cache",
-            )
+            f.result()
         q.join()

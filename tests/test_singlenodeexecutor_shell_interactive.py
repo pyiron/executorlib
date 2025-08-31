@@ -6,7 +6,7 @@ import unittest
 
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.task_scheduler.interactive.shared import execute_tasks
+from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
@@ -88,7 +88,7 @@ class ShellInteractiveExecutorTest(unittest.TestCase):
         cloudpickle_register(ind=1)
         self.assertFalse(future_lines.done())
         self.assertFalse(future_pattern.done())
-        execute_tasks(
+        execute_multiple_tasks(
             future_queue=test_queue,
             cores=1,
             openmpi_oversubscribe=False,
