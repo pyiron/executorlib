@@ -260,8 +260,10 @@ def _execute_multiple_tasks(
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
+            f = task_dict.pop("future")
             result_flag = execute_task_dict(
-                task_dict=task_dict.copy(),  # this copy is expensive and should be fixed
+                future_obj=f,
+                task_dict=task_dict,
                 interface=interface,
                 cache_directory=cache_directory,
                 cache_key=cache_key,
@@ -269,7 +271,6 @@ def _execute_multiple_tasks(
             )
             if not result_flag:
                 task_done(future_queue=future_queue)
-                f = task_dict.pop("future")
                 reset_task_dict(
                     future_obj=f, future_queue=future_queue, task_dict=task_dict
                 )
