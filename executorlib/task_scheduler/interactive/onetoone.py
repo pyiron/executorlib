@@ -204,7 +204,6 @@ def _wrap_execute_task_in_separate_process(
             "task_dict": task_dict,
             "spawner": spawner,
             "hostname_localhost": hostname_localhost,
-            "init_function": None,
         }
     )
     process = Thread(
