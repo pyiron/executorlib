@@ -77,14 +77,11 @@ def execute_multiple_tasks(
             if error_log_file is not None:
                 task_dict["error_log_file"] = error_log_file
             if cache_directory is None:
-                _execute_task_without_cache(
-                    interface=interface, task_dict=task_dict, future_queue=future_queue
-                )
+                _execute_task_without_cache(interface=interface, task_dict=task_dict)
             else:
                 _execute_task_with_cache(
                     interface=interface,
                     task_dict=task_dict,
-                    future_queue=future_queue,
                     cache_directory=cache_directory,
                     cache_key=cache_key,
                 )
@@ -147,8 +144,6 @@ def execute_single_task(
         _execute_task_without_cache(
             interface=interface,
             task_dict=task_dict, 
-            task_done_callable=_task_done,
-            task_done_callable_kwargs={"future_queue": future_queue},
         )
     else:
         _execute_task_with_cache(
@@ -156,17 +151,10 @@ def execute_single_task(
             task_dict=task_dict,
             cache_directory=cache_directory,
             cache_key=cache_key,
-            task_done_callable=_task_done,
-            task_done_callable_kwargs={"future_queue": future_queue},
         )
 
 
-def _execute_task_without_cache(
-    interface: SocketInterface,
-    task_dict: dict,
-    task_done_callable: Optional[Callable] = None,
-    task_done_callable_kwargs: Optional[dict] = None,
-):
+def _execute_task_without_cache(interface: SocketInterface, task_dict: dict):
     """
     Execute the task in the task_dict by communicating it via the interface.
 
@@ -174,7 +162,6 @@ def _execute_task_without_cache(
         interface (SocketInterface): socket interface for zmq communication
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
-        future_queue (Queue): Queue for receiving new tasks.
     """
     f = task_dict.pop("future")
     if not f.done() and f.set_running_or_notify_cancel():
@@ -182,16 +169,7 @@ def _execute_task_without_cache(
             f.set_result(interface.send_and_receive_dict(input_dict=task_dict))
         except Exception as thread_exception:
             interface.shutdown(wait=True)
-            _evaluate_call_back(
-                task_done_callable=task_done_callable,
-                task_done_callable_kwargs=task_done_callable_kwargs,
-            )
             f.set_exception(exception=thread_exception)
-        else:
-            _evaluate_call_back(
-                task_done_callable=task_done_callable,
-                task_done_callable_kwargs=task_done_callable_kwargs,
-            )
 
 
 def _execute_task_with_cache(
@@ -209,7 +187,6 @@ def _execute_task_with_cache(
         interface (SocketInterface): socket interface for zmq communication
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
-        future_queue (Queue): Queue for receiving new tasks.
         cache_directory (str): The directory to store cache files.
         cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                   overwritten by setting the cache_key.
@@ -236,25 +213,11 @@ def _execute_task_with_cache(
                 f.set_result(result)
             except Exception as thread_exception:
                 interface.shutdown(wait=True)
-                _evaluate_call_back(
-                    task_done_callable=task_done_callable,
-                    task_done_callable_kwargs=task_done_callable_kwargs,
-                )
                 f.set_exception(exception=thread_exception)
-                raise thread_exception
-            else:
-                _evaluate_call_back(
-                    task_done_callable=task_done_callable,
-                    task_done_callable_kwargs=task_done_callable_kwargs,
-                )
     else:
         _, _, result = get_output(file_name=file_name)
         future = task_dict["future"]
         future.set_result(result)
-        _evaluate_call_back(
-            task_done_callable=task_done_callable,
-            task_done_callable_kwargs=task_done_callable_kwargs,
-        )
 
 
 def _task_done(future_queue: queue.Queue):
