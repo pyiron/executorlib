@@ -172,12 +172,13 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                 cancel_items_in_queue(que=self._future_queue)
             self._shutdown_flag = True
             if isinstance(self._process, list):
-                _task_schedulder_dict[self._self_id] = True
+                _task_schedulder_dict[self._self_id] = True  # This is a hard shutdown
                 for _ in range(len(self._process)):
                     self._future_queue.put({"shutdown": True, "wait": wait})
                 if wait:
                     for process in self._process:
                         process.join()
+                    cancel_items_in_queue(que=self._future_queue)
                     self._future_queue.join()
         self._process = None
         self._future_queue = None
