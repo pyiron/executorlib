@@ -358,7 +358,7 @@ class FluxClusterExecutor(BaseExecutor):
             import pysqa  # noqa
 
             if block_allocation:
-                from executorlib.task_scheduler.interactive.pysqaspawner import (
+                from executorlib.task_scheduler.interactive.spawner_pysqa import (
                     create_pysqa_block_allocation_scheduler,
                 )
 
