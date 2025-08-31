@@ -76,7 +76,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             process=[
                 Thread(
                     target=_execute_multiple_tasks,
-                    kwargs=executor_kwargs | {
+                    kwargs=executor_kwargs
+                    | {
                         "worker_id": worker_id,
                         "stop_function": lambda: _interrupt_bootup_dict[self_id],
                     },
