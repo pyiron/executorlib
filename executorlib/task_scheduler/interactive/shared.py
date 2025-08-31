@@ -113,7 +113,8 @@ def execute_single_task(
     Execute a single tasks in parallel using the message passing interface (MPI).
 
     Args:
-        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
+                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         cores (int): defines the total number of MPI ranks to use
         spawner (BaseSpawner): Spawner to start process on selected compute resources
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -123,11 +124,9 @@ def execute_single_task(
                                       points to the same address as localhost. Still MacOS >= 12 seems to disable
                                       this look up for security reasons. So on MacOS it is required to set this
                                       option to true
-        init_function (Callable): optional function to preset arguments for functions which are submitted later
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
                                    overwritten by setting the cache_key.
-        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
                               submitted to the Executor.
