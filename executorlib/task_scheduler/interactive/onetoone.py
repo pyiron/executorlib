@@ -1,6 +1,7 @@
 import queue
 from threading import Thread
 from typing import Optional
+from concurrent.futures import Future
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import interface_bootup
@@ -186,6 +187,7 @@ def _wrap_execute_task_in_separate_process(
                              dictionary containing the future objects and the number of cores they require
     """
     resource_dict = task_dict.pop("resource_dict").copy()
+    f = task_dict.pop("future")
     if "cores" not in resource_dict or (
         resource_dict["cores"] == 1 and executor_kwargs["cores"] >= 1
     ):
@@ -197,7 +199,7 @@ def _wrap_execute_task_in_separate_process(
         max_cores=max_cores,
         max_workers=max_workers,
     )
-    active_task_dict[task_dict["future"]] = slots_required
+    active_task_dict[f] = slots_required
     task_kwargs = executor_kwargs.copy()
     task_kwargs.update(resource_dict)
     task_kwargs.update(
@@ -205,6 +207,7 @@ def _wrap_execute_task_in_separate_process(
             "task_dict": task_dict,
             "spawner": spawner,
             "hostname_localhost": hostname_localhost,
+            "future_obj": f,
         }
     )
     process = Thread(
@@ -217,6 +220,7 @@ def _wrap_execute_task_in_separate_process(
 
 def _execute_task_in_thread(
     task_dict: dict,
+    future_obj: Future,
     cores: int = 1,
     spawner: type[BaseSpawner] = MpiExecSpawner,
     hostname_localhost: Optional[bool] = None,
@@ -233,6 +237,7 @@ def _execute_task_in_thread(
     Args:
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
+        future_obj (Future): A Future representing the given call.
         cores (int): defines the total number of MPI ranks to use
         spawner (BaseSpawner): Spawner to start process on selected compute resources
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -253,6 +258,7 @@ def _execute_task_in_thread(
     """
     execute_task_dict(
         task_dict=task_dict,
+        future_obj=future_obj,
         interface=interface_bootup(
             command_lst=get_interactive_execute_command(
                 cores=cores,
