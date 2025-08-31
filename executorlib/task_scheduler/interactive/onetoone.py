@@ -4,7 +4,7 @@ from typing import Optional
 
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
+from executorlib.task_scheduler.interactive.shared import execute_single_task
 
 
 class OneProcessTaskScheduler(TaskSchedulerBase):
@@ -94,7 +94,6 @@ def _execute_task_in_separate_process(
     """
     active_task_dict: dict = {}
     process_lst: list = []
-    qtask_lst: list = []
     if "cores" not in kwargs:
         kwargs["cores"] = 1
     while True:
@@ -106,10 +105,8 @@ def _execute_task_in_separate_process(
             future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
-            qtask: queue.Queue = queue.Queue()
             process, active_task_dict = _wrap_execute_task_in_separate_process(
                 task_dict=task_dict,
-                qtask=qtask,
                 active_task_dict=active_task_dict,
                 spawner=spawner,
                 executor_kwargs=kwargs,
@@ -117,7 +114,6 @@ def _execute_task_in_separate_process(
                 max_workers=max_workers,
                 hostname_localhost=hostname_localhost,
             )
-            qtask_lst.append(qtask)
             process_lst.append(process)
             future_queue.task_done()
 
@@ -158,7 +154,6 @@ def _wait_for_free_slots(
 def _wrap_execute_task_in_separate_process(
     task_dict: dict,
     active_task_dict: dict,
-    qtask: queue.Queue,
     spawner: type[BaseSpawner],
     executor_kwargs: dict,
     max_cores: Optional[int] = None,
@@ -190,8 +185,6 @@ def _wrap_execute_task_in_separate_process(
                              dictionary containing the future objects and the number of cores they require
     """
     resource_dict = task_dict.pop("resource_dict").copy()
-    qtask.put(task_dict)
-    qtask.put({"shutdown": True, "wait": True})
     if "cores" not in resource_dict or (
         resource_dict["cores"] == 1 and executor_kwargs["cores"] >= 1
     ):
@@ -208,14 +201,14 @@ def _wrap_execute_task_in_separate_process(
     task_kwargs.update(resource_dict)
     task_kwargs.update(
         {
-            "future_queue": qtask,
+            "task_dict": task_dict,
             "spawner": spawner,
             "hostname_localhost": hostname_localhost,
             "init_function": None,
         }
     )
     process = Thread(
-        target=execute_multiple_tasks,
+        target=execute_single_task,
         kwargs=task_kwargs,
     )
     process.start()

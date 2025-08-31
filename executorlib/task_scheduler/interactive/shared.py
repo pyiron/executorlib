@@ -141,10 +141,7 @@ def execute_single_task(
     if error_log_file is not None:
         task_dict["error_log_file"] = error_log_file
     if cache_directory is None:
-        _execute_task_without_cache(
-            interface=interface,
-            task_dict=task_dict, 
-        )
+        _execute_task_without_cache(interface=interface, task_dict=task_dict)
     else:
         _execute_task_with_cache(
             interface=interface,
