@@ -3,6 +3,7 @@ from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
 
+from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
@@ -10,7 +11,8 @@ from executorlib.standalone.inputcheck import (
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
+from executorlib.standalone.interactive.communication import interface_bootup
+from executorlib.task_scheduler.interactive.shared import execute_task_dict, task_done
 
 
 class BlockAllocationTaskScheduler(TaskSchedulerBase):
@@ -64,7 +66,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._set_process(
             process=[
                 Thread(
-                    target=execute_multiple_tasks,
+                    target=_execute_multiple_tasks,
                     kwargs=executor_kwargs | {"worker_id": worker_id},
                 )
                 for worker_id in range(self._max_workers)
@@ -90,7 +92,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             elif self._max_workers < max_workers:
                 new_process_lst = [
                     Thread(
-                        target=execute_multiple_tasks,
+                        target=_execute_multiple_tasks,
                         kwargs=self._process_kwargs,
                     )
                     for _ in range(max_workers - self._max_workers)
@@ -175,3 +177,74 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._process = process
         for process_instance in self._process:
             process_instance.start()
+
+
+def _execute_multiple_tasks(
+    future_queue: queue.Queue,
+    cores: int = 1,
+    spawner: type[BaseSpawner] = MpiExecSpawner,
+    hostname_localhost: Optional[bool] = None,
+    init_function: Optional[Callable] = None,
+    cache_directory: Optional[str] = None,
+    cache_key: Optional[str] = None,
+    queue_join_on_shutdown: bool = True,
+    log_obj_size: bool = False,
+    error_log_file: Optional[str] = None,
+    worker_id: Optional[int] = None,
+    **kwargs,
+) -> None:
+    """
+    Execute a single tasks in parallel using the message passing interface (MPI).
+
+    Args:
+       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+       cores (int): defines the total number of MPI ranks to use
+       spawner (BaseSpawner): Spawner to start process on selected compute resources
+       hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                     context of an HPC cluster this essential to be able to communicate to an
+                                     Executor running on a different compute node within the same allocation. And
+                                     in principle any computer should be able to resolve that their own hostname
+                                     points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                     this look up for security reasons. So on MacOS it is required to set this
+                                     option to true
+       init_function (Callable): optional function to preset arguments for functions which are submitted later
+       cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
+       cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
+                                  overwritten by setting the cache_key.
+       queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
+       log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+       error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
+                             submitted to the Executor.
+       worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
+                        distribution.
+    """
+    interface = interface_bootup(
+        command_lst=get_interactive_execute_command(
+            cores=cores,
+        ),
+        connections=spawner(cores=cores, **kwargs),
+        hostname_localhost=hostname_localhost,
+        log_obj_size=log_obj_size,
+        worker_id=worker_id,
+    )
+    if init_function is not None:
+        interface.send_dict(
+            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+        )
+    while True:
+        task_dict = future_queue.get()
+        if "shutdown" in task_dict and task_dict["shutdown"]:
+            interface.shutdown(wait=task_dict["wait"])
+            task_done(future_queue=future_queue)
+            if queue_join_on_shutdown:
+                future_queue.join()
+            break
+        elif "fn" in task_dict and "future" in task_dict:
+            execute_task_dict(
+                task_dict=task_dict,
+                interface=interface,
+                cache_directory=cache_directory,
+                cache_key=cache_key,
+                error_log_file=error_log_file,
+            )
+            task_done(future_queue=future_queue)

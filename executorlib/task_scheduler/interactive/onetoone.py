@@ -2,9 +2,11 @@ import queue
 from threading import Thread
 from typing import Optional
 
-from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_single_task
+from executorlib.task_scheduler.interactive.shared import execute_task_dict
+from executorlib.standalone.command import get_interactive_execute_command
+from executorlib.standalone.interactive.communication import interface_bootup
+from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 
 
 class OneProcessTaskScheduler(TaskSchedulerBase):
@@ -60,13 +62,13 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
         self._process_kwargs = executor_kwargs
         self._set_process(
             Thread(
-                target=_execute_task_in_separate_process,
+                target=_execute_single_task,
                 kwargs=executor_kwargs,
             )
         )
 
 
-def _execute_task_in_separate_process(
+def _execute_single_task(
     future_queue: queue.Queue,
     spawner: type[BaseSpawner] = MpiExecSpawner,
     max_cores: Optional[int] = None,
@@ -166,7 +168,6 @@ def _wrap_execute_task_in_separate_process(
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         active_task_dict (dict): Dictionary containing the future objects and the number of cores they require
-        qtask (queue.Queue): Queue to communicate with the thread linked to the process executing the python function
         spawner (BaseSpawner): Interface to start process on selected compute resources
         executor_kwargs (dict): keyword parameters used to initialize the Executor
         max_cores (int): defines the number cores which can be used in parallel
@@ -207,8 +208,61 @@ def _wrap_execute_task_in_separate_process(
         }
     )
     process = Thread(
-        target=execute_single_task,
+        target=_execute_task_in_thread,
         kwargs=task_kwargs,
     )
     process.start()
     return process, active_task_dict
+
+
+def _execute_task_in_thread(
+    task_dict: dict,
+    cores: int = 1,
+    spawner: type[BaseSpawner] = MpiExecSpawner,
+    hostname_localhost: Optional[bool] = None,
+    cache_directory: Optional[str] = None,
+    cache_key: Optional[str] = None,
+    log_obj_size: bool = False,
+    error_log_file: Optional[str] = None,
+    worker_id: Optional[int] = None,
+    **kwargs,
+) -> None:
+    """
+    Execute a single tasks in parallel using the message passing interface (MPI).
+
+    Args:
+        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
+                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
+        cores (int): defines the total number of MPI ranks to use
+        spawner (BaseSpawner): Spawner to start process on selected compute resources
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
+        cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
+        cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
+                                   overwritten by setting the cache_key.
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
+                              submitted to the Executor.
+        worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
+                         distribution.
+    """
+    execute_task_dict(
+        task_dict=task_dict,
+        interface=interface_bootup(
+            command_lst=get_interactive_execute_command(
+                cores=cores,
+            ),
+            connections=spawner(cores=cores, **kwargs),
+            hostname_localhost=hostname_localhost,
+            log_obj_size=log_obj_size,
+            worker_id=worker_id,
+        ),
+        cache_directory=cache_directory,
+        cache_key=cache_key,
+        error_log_file=error_log_file,
+    )
