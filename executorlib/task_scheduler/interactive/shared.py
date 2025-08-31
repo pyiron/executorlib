@@ -146,7 +146,6 @@ def _execute_task_with_cache(
             except Exception as thread_exception:
                 interface.shutdown(wait=True)
                 f.set_exception(exception=thread_exception)
-                raise thread_exception
     else:
         _, _, result = get_output(file_name=file_name)
         future = task_dict["future"]

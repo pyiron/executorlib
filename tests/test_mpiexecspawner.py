@@ -533,13 +533,15 @@ class TestFuturePoolCache(unittest.TestCase):
         f = Future()
         q = Queue()
         q.put({"fn": calc_array, "args": (), "kwargs": {}, "future": f})
+        q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
+        execute_tasks(
+            future_queue=q,
+            cores=1,
+            openmpi_oversubscribe=False,
+            spawner=MpiExecSpawner,
+            cache_directory="executorlib_cache",
+        )
         with self.assertRaises(TypeError):
-            execute_tasks(
-                future_queue=q,
-                cores=1,
-                openmpi_oversubscribe=False,
-                spawner=MpiExecSpawner,
-                cache_directory="executorlib_cache",
-            )
+            f.result()
         q.join()
