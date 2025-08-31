@@ -234,6 +234,7 @@ def _execute_multiple_tasks(
        worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                         distribution.
     """
+    # The interface becomes None when the job was cancelled before computing resources were allocated. 
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
@@ -259,7 +260,7 @@ def _execute_multiple_tasks(
             break
         elif "fn" in task_dict and "future" in task_dict:
             result_flag = execute_task_dict(
-                task_dict=task_dict,
+                task_dict=task_dict.copy(),  # this copy is expensive and should be fixed
                 interface=interface,
                 cache_directory=cache_directory,
                 cache_key=cache_key,
@@ -273,5 +274,7 @@ def _execute_multiple_tasks(
                 )
                 if interface is not None:
                     interface.restart()
+                else:
+                    break
             else:
                 task_done(future_queue=future_queue)

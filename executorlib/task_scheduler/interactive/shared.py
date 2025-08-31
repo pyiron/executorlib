@@ -45,7 +45,7 @@ def execute_task_dict(
             cache_key=cache_key,
         )
     else:
-        raise ValueError()
+        return False
 
 
 def task_done(future_queue: queue.Queue):
