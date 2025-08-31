@@ -85,6 +85,7 @@ def execute_multiple_tasks(
                     cache_directory=cache_directory,
                     cache_key=cache_key,
                 )
+            _task_done(future_queue=future_queue)
 
 
 def execute_single_task(
@@ -174,8 +175,6 @@ def _execute_task_with_cache(
     task_dict: dict,
     cache_directory: str,
     cache_key: Optional[str] = None,
-    task_done_callable: Optional[Callable] = None,
-    task_done_callable_kwargs: Optional[dict] = None,
 ):
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
@@ -220,14 +219,3 @@ def _execute_task_with_cache(
 def _task_done(future_queue: queue.Queue):
     with contextlib.suppress(ValueError):
         future_queue.task_done()
-
-
-def _evaluate_call_back(
-    task_done_callable: Optional[Callable] = None,
-    task_done_callable_kwargs: Optional[dict] = None,
-):
-    if task_done_callable is not None:
-        if task_done_callable_kwargs is not None:
-            task_done_callable(**task_done_callable_kwargs)
-        else:
-            task_done_callable()
