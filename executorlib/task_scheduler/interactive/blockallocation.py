@@ -31,7 +31,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.blockallocation import BlockAllocationTaskScheduler
+        >>> from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI

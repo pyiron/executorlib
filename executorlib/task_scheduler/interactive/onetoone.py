@@ -25,7 +25,7 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
     Examples:
 
         >>> import numpy as np
-        >>> from executorlib.interactive.onetoone import OneProcessTaskScheduler
+        >>> from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
         >>>
         >>> def calc(i, j, k):
         >>>     from mpi4py import MPI
