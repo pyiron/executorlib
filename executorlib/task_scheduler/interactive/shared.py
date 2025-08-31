@@ -2,8 +2,8 @@ import contextlib
 import os
 import queue
 import time
-from typing import Optional
 from concurrent.futures import Future
+from typing import Optional
 
 from executorlib.standalone.interactive.communication import SocketInterface
 from executorlib.standalone.serialize import serialize_funct

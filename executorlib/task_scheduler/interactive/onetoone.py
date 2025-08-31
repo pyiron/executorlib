@@ -1,7 +1,7 @@
 import queue
+from concurrent.futures import Future
 from threading import Thread
 from typing import Optional
-from concurrent.futures import Future
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import interface_bootup
