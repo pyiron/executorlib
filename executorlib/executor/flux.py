@@ -458,7 +458,7 @@ def create_flux_executor(
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
     """
-    from executorlib.task_scheduler.interactive.fluxspawner import (
+    from executorlib.task_scheduler.interactive.spawner_flux import (
         FluxPythonSpawner,
         validate_max_workers,
     )

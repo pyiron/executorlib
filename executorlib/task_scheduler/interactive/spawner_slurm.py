@@ -2,7 +2,7 @@ import os
 from typing import Optional
 
 from executorlib.standalone.interactive.spawner import SubprocessSpawner
-from executorlib.standalone.slurm_command import generate_slurm_command
+from executorlib.standalone.command import generate_slurm_command
 
 
 def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):

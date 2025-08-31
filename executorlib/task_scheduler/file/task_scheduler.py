@@ -11,14 +11,14 @@ from executorlib.standalone.inputcheck import (
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
-from executorlib.task_scheduler.file.subprocess_spawner import (
+from executorlib.task_scheduler.file.spawner_subprocess import (
     execute_in_subprocess,
     terminate_subprocess,
 )
 
 try:
     from executorlib.standalone.scheduler import terminate_with_pysqa
-    from executorlib.task_scheduler.file.queue_spawner import execute_with_pysqa
+    from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = execute_in_subprocess  # type: ignore

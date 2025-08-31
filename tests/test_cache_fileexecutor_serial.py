@@ -7,7 +7,7 @@ from threading import Thread
 from time import sleep
 
 try:
-    from executorlib.task_scheduler.file.subprocess_spawner import (
+    from executorlib.task_scheduler.file.spawner_subprocess import (
         execute_in_subprocess,
         terminate_subprocess,
     )

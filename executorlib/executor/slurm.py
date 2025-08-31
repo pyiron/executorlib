@@ -13,7 +13,7 @@ from executorlib.task_scheduler.interactive.blockallocation import (
 )
 from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
-from executorlib.task_scheduler.interactive.slurmspawner import (
+from executorlib.task_scheduler.interactive.spawner_slurm import (
     SrunSpawner,
     validate_max_workers,
 )
