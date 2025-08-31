@@ -77,9 +77,7 @@ def execute_tasks(
             if error_log_file is not None:
                 task_dict["error_log_file"] = error_log_file
             if cache_directory is None:
-                _execute_task_without_cache(
-                    interface=interface, task_dict=task_dict
-                )
+                _execute_task_without_cache(interface=interface, task_dict=task_dict)
             else:
                 _execute_task_with_cache(
                     interface=interface,
@@ -90,9 +88,7 @@ def execute_tasks(
             _task_done(future_queue=future_queue)
 
 
-def _execute_task_without_cache(
-    interface: SocketInterface, task_dict: dict
-):
+def _execute_task_without_cache(interface: SocketInterface, task_dict: dict):
     """
     Execute the task in the task_dict by communicating it via the interface.
 
