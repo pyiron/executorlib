@@ -18,7 +18,7 @@ from executorlib.task_scheduler.interactive.shared import (
     task_done,
 )
 
-_interrupt_interface_bootup_dict: dict = {}
+_interrupt_bootup_dict: dict = {}
 
 
 class BlockAllocationTaskScheduler(TaskSchedulerBase):
@@ -71,17 +71,14 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._max_workers = max_workers
         self_id = id(self)
         self._self_id = self_id
-        _interrupt_interface_bootup_dict[self._self_id] = False
+        _interrupt_bootup_dict[self._self_id] = False
         self._set_process(
             process=[
                 Thread(
                     target=_execute_multiple_tasks,
-                    kwargs=executor_kwargs
-                    | {
+                    kwargs=executor_kwargs | {
                         "worker_id": worker_id,
-                        "stop_function": lambda: _interrupt_interface_bootup_dict[
-                            self_id
-                        ],
+                        "stop_function": lambda: _interrupt_bootup_dict[self_id],
                     },
                 )
                 for worker_id in range(self._max_workers)
@@ -173,7 +170,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
             if isinstance(self._process, list):
-                _interrupt_interface_bootup_dict[self._self_id] = True
+                _interrupt_bootup_dict[self._self_id] = True
                 for _ in range(len(self._process)):
                     self._future_queue.put({"shutdown": True, "wait": wait})
                 if wait:
