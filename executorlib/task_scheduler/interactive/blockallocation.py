@@ -12,7 +12,11 @@ from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_task_dict, task_done, reset_task_dict
+from executorlib.task_scheduler.interactive.shared import (
+    execute_task_dict,
+    reset_task_dict,
+    task_done,
+)
 
 _interrupt_bootup_dict: dict = {}
 
@@ -72,7 +76,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             process=[
                 Thread(
                     target=_execute_multiple_tasks,
-                    kwargs=executor_kwargs | {
+                    kwargs=executor_kwargs
+                    | {
                         "worker_id": worker_id,
                         "stop_function": lambda: _interrupt_bootup_dict[self_id],
                     },

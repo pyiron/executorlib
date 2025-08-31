@@ -139,8 +139,8 @@ class SocketInterface:
             bool: Whether the interface was successfully started.
         """
         if not self._spawner.bootup(
-                command_lst=self._command_lst,
-                stop_function=self._stop_function,
+            command_lst=self._command_lst,
+            stop_function=self._stop_function,
         ):
             self._reset_socket()
             return False
