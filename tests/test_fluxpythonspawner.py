@@ -5,8 +5,7 @@ import unittest
 
 import numpy as np
 
-from executorlib.task_scheduler.interactive.shared import execute_multiple_tasks
-from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler
+from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler, _execute_multiple_tasks
 from executorlib.standalone.serialize import cloudpickle_register
 
 
@@ -112,7 +111,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_multiple_tasks(
+        _execute_multiple_tasks(
             future_queue=q,
             cores=1,
             flux_executor=self.flux_executor,
@@ -127,7 +126,7 @@ class TestFlux(unittest.TestCase):
         q.put({"fn": calc, "args": (), "kwargs": {"i": 2}, "future": f})
         q.put({"shutdown": True, "wait": True})
         cloudpickle_register(ind=1)
-        execute_multiple_tasks(
+        _execute_multiple_tasks(
             future_queue=q,
             cores=1,
             threads_per_core=1,
