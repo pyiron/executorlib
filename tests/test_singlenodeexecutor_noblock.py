@@ -151,18 +151,18 @@ class TestWorkerID(unittest.TestCase):
 class TestFunctionCrashes(unittest.TestCase):
     def test_single_node_executor(self):
         with self.assertRaises(ExecutorlibSocketError):
-            with SingleNodeExecutor() as exe:
+            with SingleNodeExecutor(max_workers=2) as exe:
                 f = exe.submit(exit_funct)
                 print(f.result())
 
     def test_single_node_executor_block_allocation(self):
         with self.assertRaises(ExecutorlibSocketError):
-            with SingleNodeExecutor(block_allocation=True) as exe:
+            with SingleNodeExecutor(max_workers=2, block_allocation=True) as exe:
                 f = exe.submit(exit_funct)
                 print(f.result())
 
     def test_single_node_executor_init_function(self):
         with self.assertRaises(ExecutorlibSocketError):
-            with SingleNodeExecutor(init_function=exit_funct, block_allocation=True) as exe:
+            with SingleNodeExecutor(max_workers=2, init_function=exit_funct, block_allocation=True) as exe:
                 f = exe.submit(sum, [1, 1])
                 print(f.result())
