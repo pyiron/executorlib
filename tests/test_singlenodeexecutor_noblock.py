@@ -3,6 +3,7 @@ from time import sleep
 
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
+from executorlib.standalone.interactive.communication import ExecutorlibSocketError
 
 
 def calc(i):
@@ -20,6 +21,11 @@ def get_worker_id(executorlib_worker_id):
 
 def init_function():
     return {"a": 1, "b": 2}
+
+
+def exit_funct():
+    import sys
+    sys.exit()
 
 
 class TestExecutorBackend(unittest.TestCase):
@@ -140,3 +146,23 @@ class TestWorkerID(unittest.TestCase):
             f1_worker_id = exe.submit(get_worker_id, resource_dict={})
             f2_worker_id = exe.submit(get_worker_id, resource_dict={})
         self.assertEqual(sum([f1_worker_id.result(), f2_worker_id.result()]), 0)
+
+
+class TestFunctionCrashes(unittest.TestCase):
+    def test_single_node_executor(self):
+        with self.assertRaises(ExecutorlibSocketError):
+            with SingleNodeExecutor() as exe:
+                f = exe.submit(exit_funct)
+                print(f.result())
+
+    def test_single_node_executor_block_allocation(self):
+        with self.assertRaises(ExecutorlibSocketError):
+            with SingleNodeExecutor(block_allocation=True) as exe:
+                f = exe.submit(exit_funct)
+                print(f.result())
+
+    def test_single_node_executor_init_function(self):
+        with self.assertRaises(ExecutorlibSocketError):
+            with SingleNodeExecutor(init_function=exit_funct, block_allocation=True) as exe:
+                f = exe.submit(sum, [1, 1])
+                print(f.result())
