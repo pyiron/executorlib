@@ -81,19 +81,19 @@ def _execute_single_task(
     Execute a single tasks in parallel using the message passing interface (MPI).
 
     Args:
-       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
-       spawner (BaseSpawner): Interface to start process on selected compute resources
-       max_cores (int): defines the number cores which can be used in parallel
-       max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
-                          cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
-                          recommended, as computers have a limited number of compute cores.
-       hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
-                                     context of an HPC cluster this essential to be able to communicate to an
-                                     Executor running on a different compute node within the same allocation. And
-                                     in principle any computer should be able to resolve that their own hostname
-                                     points to the same address as localhost. Still MacOS >= 12 seems to disable
-                                     this look up for security reasons. So on MacOS it is required to set this
-                                     option to true
+        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+        spawner (BaseSpawner): Interface to start process on selected compute resources
+        max_cores (int): defines the number cores which can be used in parallel
+        max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
+                           cores which can be used in parallel - just like the max_cores parameter. Using max_cores is
+                           recommended, as computers have a limited number of compute cores.
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
     """
     active_task_dict: dict = {}
     process_lst: list = []
@@ -230,7 +230,7 @@ def _execute_task_in_thread(
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
     **kwargs,
-) -> None:
+) -> bool:
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
 
@@ -255,8 +255,11 @@ def _execute_task_in_thread(
                               submitted to the Executor.
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
+
+    Returns:
+        bool: True if the task was submitted successfully, False otherwise.
     """
-    execute_task_dict(
+    return execute_task_dict(
         task_dict=task_dict,
         future_obj=future_obj,
         interface=interface_bootup(

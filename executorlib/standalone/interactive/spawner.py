@@ -1,7 +1,7 @@
 import os
 import subprocess
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Callable, Optional
 
 MPI_COMMAND = "mpiexec"
 
@@ -29,12 +29,17 @@ class BaseSpawner(ABC):
     def bootup(
         self,
         command_lst: list[str],
-    ):
+        stop_function: Optional[Callable] = None,
+    ) -> bool:
         """
         Method to start the interface.
 
         Args:
             command_lst (list[str]): The command list to execute.
+            stop_function (Callable): Function to stop the interface.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
         raise NotImplementedError
 
@@ -87,12 +92,17 @@ class SubprocessSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
-    ):
+        stop_function: Optional[Callable] = None,
+    ) -> bool:
         """
         Method to start the subprocess interface.
 
         Args:
             command_lst (list[str]): The command list to execute.
+            stop_function (Callable): Function to stop the interface.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
         if self._cwd is not None:
             os.makedirs(self._cwd, exist_ok=True)
@@ -101,6 +111,7 @@ class SubprocessSpawner(BaseSpawner):
             cwd=self._cwd,
             stdin=subprocess.DEVNULL,
         )
+        return self.poll()
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
