@@ -12,7 +12,13 @@ from executorlib.standalone.interactive.communication import interface_bootup
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.task_scheduler.interactive.shared import execute_task_dict, task_done
+from executorlib.task_scheduler.interactive.shared import (
+    execute_task_dict,
+    reset_task_dict,
+    task_done,
+)
+
+_interrupt_bootup_dict: dict = {}
 
 
 class BlockAllocationTaskScheduler(TaskSchedulerBase):
@@ -63,11 +69,18 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["queue_join_on_shutdown"] = False
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
+        self_id = id(self)
+        self._self_id = self_id
+        _interrupt_bootup_dict[self._self_id] = False
         self._set_process(
             process=[
                 Thread(
                     target=_execute_multiple_tasks,
-                    kwargs=executor_kwargs | {"worker_id": worker_id},
+                    kwargs=executor_kwargs
+                    | {
+                        "worker_id": worker_id,
+                        "stop_function": lambda: _interrupt_bootup_dict[self_id],
+                    },
                 )
                 for worker_id in range(self._max_workers)
             ],
@@ -158,11 +171,13 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
             if isinstance(self._process, list):
+                _interrupt_bootup_dict[self._self_id] = True
                 for _ in range(len(self._process)):
                     self._future_queue.put({"shutdown": True, "wait": wait})
                 if wait:
                     for process in self._process:
                         process.join()
+                    cancel_items_in_queue(que=self._future_queue)
                     self._future_queue.join()
         self._process = None
         self._future_queue = None
@@ -191,6 +206,7 @@ def _execute_multiple_tasks(
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
+    stop_function: Optional[Callable] = None,
     **kwargs,
 ) -> None:
     """
@@ -218,6 +234,7 @@ def _execute_multiple_tasks(
        worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                         distribution.
     """
+    # The interface becomes None when the job was cancelled before computing resources were allocated.
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
@@ -226,27 +243,39 @@ def _execute_multiple_tasks(
         hostname_localhost=hostname_localhost,
         log_obj_size=log_obj_size,
         worker_id=worker_id,
+        stop_function=stop_function,
     )
-    if init_function is not None:
+    if init_function is not None and interface is not None:
         interface.send_dict(
             input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
         )
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
-            interface.shutdown(wait=task_dict["wait"])
+            if interface is not None:
+                interface.shutdown(wait=task_dict["wait"])
             task_done(future_queue=future_queue)
             if queue_join_on_shutdown:
                 future_queue.join()
             break
         elif "fn" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
-            execute_task_dict(
-                task_dict=task_dict,
+            result_flag = execute_task_dict(
                 future_obj=f,
+                task_dict=task_dict,
                 interface=interface,
                 cache_directory=cache_directory,
                 cache_key=cache_key,
                 error_log_file=error_log_file,
             )
-            task_done(future_queue=future_queue)
+            if not result_flag:
+                task_done(future_queue=future_queue)
+                reset_task_dict(
+                    future_obj=f, future_queue=future_queue, task_dict=task_dict
+                )
+                if interface is not None:
+                    interface.restart()
+                else:
+                    break
+            else:
+                task_done(future_queue=future_queue)
