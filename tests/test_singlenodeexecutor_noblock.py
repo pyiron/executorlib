@@ -161,7 +161,7 @@ class TestFunctionCrashes(unittest.TestCase):
                 f = exe.submit(exit_funct)
                 print(f.result())
 
-    def test_single_node_executor_block_allocation(self):
+    def test_single_node_executor_enforce_shutdown(self):
         with self.assertRaises(ExecutorlibSocketError):
             with SingleNodeExecutor(max_workers=2, block_allocation=True, enforce_shutdown=True) as exe:
                 f = exe.submit(exit_funct)
