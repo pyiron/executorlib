@@ -59,6 +59,7 @@ class SingleNodeExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        enforce_shutdown (bool): Shutdown workers which have not started yet.
 
     Examples:
         ```
@@ -95,6 +96,7 @@ class SingleNodeExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        enforce_shutdown: bool = False,
     ):
         """
         The executorlib.SingleNodeExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -139,6 +141,7 @@ class SingleNodeExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            enforce_shutdown (bool): Shutdown workers which have not started yet.
 
         """
         default_resource_dict: dict = {
@@ -166,6 +169,7 @@ class SingleNodeExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        enforce_shutdown=enforce_shutdown,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -186,6 +190,7 @@ class SingleNodeExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    enforce_shutdown=enforce_shutdown,
                 )
             )
 
@@ -371,6 +376,7 @@ def create_single_node_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    enforce_shutdown: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a single node executor
@@ -438,6 +444,7 @@ def create_single_node_executor(
             ),
             executor_kwargs=resource_dict,
             spawner=MpiExecSpawner,
+            enforce_shutdown=enforce_shutdown,
         )
     else:
         return OneProcessTaskScheduler(

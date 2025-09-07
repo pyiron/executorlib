@@ -65,6 +65,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         max_workers: int = 1,
         executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
+        enforce_shutdown: bool = False
     ):
         if executor_kwargs is None:
             executor_kwargs = {}
@@ -76,6 +77,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._max_workers = max_workers
         self_id = random.getrandbits(128)
         self._self_id = self_id
+        self._enforce_shutdown = enforce_shutdown
         _interrupt_bootup_dict[self._self_id] = False
         self._set_process(
             process=[
@@ -175,7 +177,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             if cancel_futures:
                 cancel_items_in_queue(que=self._future_queue)
             if isinstance(self._process, list):
-                _interrupt_bootup_dict[self._self_id] = True
+                if self._enforce_shutdown:
+                    _interrupt_bootup_dict[self._self_id] = True
                 for _ in range(len(self._process)):
                     self._future_queue.put({"shutdown": True, "wait": wait})
                 if wait:

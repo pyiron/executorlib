@@ -255,6 +255,7 @@ class SlurmJobExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        enforce_shutdown (bool): Shutdown workers which have not started yet.
 
     Examples:
         ```
@@ -292,6 +293,7 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        enforce_shutdown: bool = False,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -340,6 +342,7 @@ class SlurmJobExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            enforce_shutdown (bool): Shutdown workers which have not started yet.
 
         """
         default_resource_dict: dict = {
@@ -368,6 +371,7 @@ class SlurmJobExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        enforce_shutdown=enforce_shutdown,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -389,6 +393,7 @@ class SlurmJobExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    enforce_shutdown=enforce_shutdown,
                 )
             )
 
@@ -403,6 +408,7 @@ def create_slurm_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    enforce_shutdown: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -442,6 +448,7 @@ def create_slurm_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        enforce_shutdown (bool): Shutdown workers which have not started yet.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -471,6 +478,7 @@ def create_slurm_executor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=SrunSpawner,
+            enforce_shutdown=enforce_shutdown,
         )
     else:
         return OneProcessTaskScheduler(
