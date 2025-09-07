@@ -28,7 +28,7 @@ def calc(i):
 
 
 def stop_function():
-    return False
+    return True
 
 
 class TestInterface(unittest.TestCase):

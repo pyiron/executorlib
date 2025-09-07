@@ -38,7 +38,7 @@ def set_global():
 
 
 def stop_function():
-    return False
+    return True
 
 
 @unittest.skipIf(
