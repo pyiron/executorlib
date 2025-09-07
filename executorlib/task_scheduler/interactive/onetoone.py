@@ -4,7 +4,10 @@ from threading import Thread
 from typing import Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
-from executorlib.standalone.interactive.communication import interface_bootup
+from executorlib.standalone.interactive.communication import (
+    ExecutorlibSocketError,
+    interface_bootup,
+)
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.interactive.shared import execute_task_dict
@@ -230,7 +233,7 @@ def _execute_task_in_thread(
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
     **kwargs,
-) -> None:
+):
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
 
@@ -256,7 +259,7 @@ def _execute_task_in_thread(
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
     """
-    execute_task_dict(
+    if not execute_task_dict(
         task_dict=task_dict,
         future_obj=future_obj,
         interface=interface_bootup(
@@ -271,4 +274,7 @@ def _execute_task_in_thread(
         cache_directory=cache_directory,
         cache_key=cache_key,
         error_log_file=error_log_file,
-    )
+    ):
+        future_obj.set_exception(
+            ExecutorlibSocketError("SocketInterface crashed during execution.")
+        )

@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Callable, Optional
 
 import flux
 import flux.job
@@ -75,12 +75,14 @@ class FluxPythonSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
+        stop_function: Optional[Callable] = None,
     ) -> bool:
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list[str]): List of strings to start the client process.
+            stop_function (Callable): Function to stop the interface.
 
         Raises:
             ValueError: If oversubscribing is not supported for the Flux adapter or if conda environments are not supported.
