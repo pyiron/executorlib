@@ -50,7 +50,8 @@ class SocketInterface:
     def status(self) -> bool:
         return self._booted_sucessfully
 
-    def overwrite_status(self, status: bool):
+    @status.setter
+    def status(self, status: bool):
         self._booted_sucessfully = status
 
     def send_dict(self, input_dict: dict):

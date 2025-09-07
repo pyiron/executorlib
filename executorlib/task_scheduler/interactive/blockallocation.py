@@ -249,28 +249,25 @@ def _execute_multiple_tasks(
     )
     interface_initialization_exception = _set_init_function(
         interface=interface,
-        interface_bootup_flag=interface.status,
         init_function=init_function,
     )
     restart_counter = 0
     restart_limit = 2
     while True:
         if not interface.status and restart_counter > restart_limit:
-            interface.overwrite_status(status=True)  # no more restarts
+            interface.status = True  # no more restarts
             interface_initialization_exception = ExecutorlibSocketError()
         elif not interface.status:
             interface.bootup()
             interface_initialization_exception = _set_init_function(
                 interface=interface,
-                interface_bootup_flag=interface.status,
                 init_function=init_function,
             )
             restart_counter += 1
         else:  # interface_bootup_flag = True
             task_dict = future_queue.get()
             if "shutdown" in task_dict and task_dict["shutdown"]:
-                if interface is not None:
-                    interface.shutdown(wait=task_dict["wait"])
+                interface.shutdown(wait=task_dict["wait"])
                 task_done(future_queue=future_queue)
                 if queue_join_on_shutdown:
                     future_queue.join()
@@ -281,7 +278,7 @@ def _execute_multiple_tasks(
                     f.set_exception(exception=interface_initialization_exception)
                 else:
                     # The interface failed during the execution
-                    interface_bootup_flag = execute_task_dict(
+                    interface.status = status=execute_task_dict(
                         task_dict=task_dict,
                         future_obj=f,
                         interface=interface,
@@ -289,7 +286,7 @@ def _execute_multiple_tasks(
                         cache_key=cache_key,
                         error_log_file=error_log_file,
                     )
-                    if not interface_bootup_flag:
+                    if not interface.status:
                         reset_task_dict(
                             future_obj=f, future_queue=future_queue, task_dict=task_dict
                         )
@@ -298,11 +295,10 @@ def _execute_multiple_tasks(
 
 def _set_init_function(
     interface: SocketInterface,
-    interface_bootup_flag: bool = True,
     init_function: Optional[Callable] = None,
 ) -> Optional[Exception]:
     interface_initialization_exception = None
-    if init_function is not None and interface_bootup_flag:
+    if init_function is not None and interface.status:
         try:
             _ = interface.send_and_receive_dict(
                 input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
