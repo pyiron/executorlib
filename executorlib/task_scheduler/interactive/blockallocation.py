@@ -65,7 +65,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         max_workers: int = 1,
         executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
-        enforce_shutdown: bool = False
+        enforce_shutdown: bool = False,
     ):
         if executor_kwargs is None:
             executor_kwargs = {}
