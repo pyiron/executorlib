@@ -270,7 +270,8 @@ def _execute_multiple_tasks(
         else:  # interface.status == True
             task_dict = future_queue.get()
             if "shutdown" in task_dict and task_dict["shutdown"]:
-                interface.shutdown(wait=task_dict["wait"])
+                if interface.status:
+                    interface.shutdown(wait=task_dict["wait"])
                 task_done(future_queue=future_queue)
                 if queue_join_on_shutdown:
                     future_queue.join()
