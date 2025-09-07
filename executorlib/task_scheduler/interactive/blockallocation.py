@@ -148,9 +148,9 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         methods can be called after this one.
 
         Args:
-            wait (bool): If True then shutdown will not return until all running futures have finished executing and 
+            wait (bool): If True then shutdown will not return until all running futures have finished executing and
                          the resources used by the parallel_executors have been reclaimed.
-            cancel_futures (bool): If True then shutdown will cancel all pending futures. Futures that are completed or 
+            cancel_futures (bool): If True then shutdown will cancel all pending futures. Futures that are completed or
                                    running will not be cancelled.
         """
         if self._future_queue is not None:
