@@ -19,6 +19,7 @@ from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.interactive.shared import (
     execute_task_dict,
     task_done,
+    reset_task_dict,
 )
 
 _interrupt_bootup_dict: dict = {}
@@ -179,7 +180,6 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                 if wait:
                     for process in self._process:
                         process.join()
-                    cancel_items_in_queue(que=self._future_queue)
                     self._future_queue.join()
         self._process = None
         self._future_queue = None
@@ -247,7 +247,7 @@ def _execute_multiple_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
-    interface_initialization_exception = set_init_function(
+    interface_initialization_exception = _set_init_function(
         interface=interface,
         interface_bootup_flag=interface_bootup_flag,
         init_function=init_function,
@@ -262,7 +262,7 @@ def _execute_multiple_tasks(
             interface_bootup_flag = interface.bootup(
                 stop_function=stop_function,
             )
-            interface_initialization_exception = set_init_function(
+            interface_initialization_exception = _set_init_function(
                 interface=interface,
                 interface_bootup_flag=interface_bootup_flag,
                 init_function=init_function,
@@ -291,10 +291,12 @@ def _execute_multiple_tasks(
                         cache_key=cache_key,
                         error_log_file=error_log_file,
                     )
-                    task_done(future_queue=future_queue)
+                    if not interface_bootup_flag:
+                        reset_task_dict(future_obj=f, future_queue=future_queue, task_dict=task_dict)
+                task_done(future_queue=future_queue)
 
 
-def set_init_function(
+def _set_init_function(
     interface: SocketInterface,
     interface_bootup_flag: bool = True,
     init_function: Optional[Callable] = None,
