@@ -101,6 +101,7 @@ class SubprocessSpawner(BaseSpawner):
             cwd=self._cwd,
             stdin=subprocess.DEVNULL,
         )
+        return self.poll()
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
