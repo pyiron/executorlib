@@ -264,7 +264,7 @@ def _execute_multiple_tasks(
                 init_function=init_function,
             )
             restart_counter += 1
-        else:  # interface_bootup_flag = True
+        else:  # interface.status == True
             task_dict = future_queue.get()
             if "shutdown" in task_dict and task_dict["shutdown"]:
                 interface.shutdown(wait=task_dict["wait"])
