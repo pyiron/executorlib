@@ -237,7 +237,7 @@ def _execute_multiple_tasks(
                          distribution.
         stop_function (Callable): Function to stop the interface.
     """
-    interface, interface_bootup_flag = interface_bootup(
+    interface = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
         ),
@@ -249,19 +249,17 @@ def _execute_multiple_tasks(
     )
     interface_initialization_exception = _set_init_function(
         interface=interface,
-        interface_bootup_flag=interface_bootup_flag,
+        interface_bootup_flag=interface.status,
         init_function=init_function,
     )
     restart_counter = 0
     restart_limit = 2
     while True:
-        if not interface_bootup_flag and restart_counter > restart_limit:
-            interface_bootup_flag = True  # no more restarts
+        if not interface.status and restart_counter > restart_limit:
+            interface.overwrite_status(status=True)  # no more restarts
             interface_initialization_exception = ExecutorlibSocketError()
-        elif not interface_bootup_flag:
-            interface_bootup_flag = interface.bootup(
-                stop_function=stop_function,
-            )
+        elif not interface.status:
+            interface.bootup()
             interface_initialization_exception = _set_init_function(
                 interface=interface,
                 interface_bootup_flag=interface_bootup_flag,

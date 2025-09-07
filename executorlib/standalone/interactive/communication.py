@@ -43,6 +43,15 @@ class SocketInterface:
             self._logger = logging.getLogger("executorlib")
         self._spawner = spawner
         self._command_lst: list[str] = []
+        self._booted_sucessfully: bool = False
+        self._stop_function: Optional[Callable] = None
+
+    @property
+    def status(self) -> bool:
+        return self._booted_sucessfully
+
+    def overwrite_status(self, status: bool):
+        self._booted_sucessfully = status
 
     def send_dict(self, input_dict: dict):
         """
@@ -108,16 +117,13 @@ class SocketInterface:
         self,
         command_lst: Optional[list[str]] = None,
         stop_function: Optional[Callable] = None,
-    ) -> bool:
+    ):
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
             stop_function (Callable): Function to stop the interface.
-
-        Returns:
-            bool: Whether the interface was successfully started.
         """
         if command_lst is None and len(self._command_lst) > 0:
             command_lst = self._command_lst
@@ -125,14 +131,16 @@ class SocketInterface:
             self._command_lst = command_lst
         else:
             raise ValueError()
-        if command_lst is not None and not self._spawner.bootup(
-            command_lst=command_lst,
-            stop_function=stop_function,
+        if stop_function is not None:
+            self._stop_function = stop_function
+        if not self._spawner.bootup(
+            command_lst=self._command_lst,
+            stop_function=self._stop_function,
         ):
             self._reset_socket()
-            return False
+            self._booted_sucessfully = False
         else:
-            return True
+            self._booted_sucessfully = True
 
     def shutdown(self, wait: bool = True):
         """
@@ -217,13 +225,11 @@ def interface_bootup(
         "--zmqport",
         str(interface.bind_to_random_port()),
     ]
-    if interface.bootup(
+    interface.bootup(
         command_lst=command_lst,
         stop_function=stop_function,
-    ):
-        return interface, True
-    else:
-        return interface, False
+    )
+    return interface
 
 
 def interface_connect(host: str, port: str) -> tuple[zmq.Context, zmq.Socket]:

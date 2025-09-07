@@ -41,7 +41,7 @@ class TestInterface(unittest.TestCase):
         interface = SocketInterface(
             spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False)
         )
-        success_flag = interface.bootup(
+        interface.bootup(
             command_lst=[
                 sys.executable,
                 os.path.abspath(
@@ -58,7 +58,7 @@ class TestInterface(unittest.TestCase):
                 str(interface.bind_to_random_port()),
             ]
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertEqual(
             interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
         )
@@ -71,7 +71,7 @@ class TestInterface(unittest.TestCase):
             spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
             log_obj_size=False,
         )
-        success_flag = interface.bootup(
+        interface.bootup(
             command_lst=[
                 sys.executable,
                 os.path.abspath(
@@ -88,7 +88,7 @@ class TestInterface(unittest.TestCase):
                 str(interface.bind_to_random_port()),
             ]
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertEqual(
             interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
         )
@@ -101,7 +101,7 @@ class TestInterface(unittest.TestCase):
             spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
             log_obj_size=True,
         )
-        success_flag = interface.bootup(
+        interface.bootup(
             command_lst=[
                 sys.executable,
                 os.path.abspath(
@@ -118,7 +118,7 @@ class TestInterface(unittest.TestCase):
                 str(interface.bind_to_random_port()),
             ]
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertEqual(
             interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
         )
@@ -130,8 +130,8 @@ class TestInterface(unittest.TestCase):
             spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
             log_obj_size=True,
         )
-        success_flag = interface.bootup(command_lst=["bash", "exit"])
-        self.assertTrue(success_flag)
+        interface.bootup(command_lst=["bash", "exit"])
+        self.assertTrue(interface.status)
         while interface._spawner.poll():
             sleep(0.1)
         self.assertFalse(interface._spawner.poll())
@@ -152,8 +152,8 @@ class TestInterface(unittest.TestCase):
             spawner=BrokenSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
             log_obj_size=True,
         )
-        success_flag = interface.bootup(command_lst=["bash", "exit"])
-        self.assertFalse(success_flag)
+        interface.bootup(command_lst=["bash", "exit"])
+        self.assertFalse(interface.status)
 
     def test_interface_serial_with_stopped_process(self):
         cloudpickle_register(ind=1)
@@ -162,7 +162,7 @@ class TestInterface(unittest.TestCase):
             spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
             log_obj_size=True,
         )
-        success_flag = interface.bootup(
+        interface.bootup(
             command_lst=[
                 sys.executable,
                 os.path.abspath(
@@ -179,7 +179,7 @@ class TestInterface(unittest.TestCase):
                 str(interface.bind_to_random_port()),
             ]
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         interface.send_dict(input_dict=task_dict)
         interface._spawner._process.terminate()
         with self.assertRaises(ExecutorlibSocketError):
