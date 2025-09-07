@@ -5,6 +5,7 @@ import unittest
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import interface_bootup, ExecutorlibSocketError
 from executorlib.standalone.interactive.spawner import SubprocessSpawner
+from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.task_scheduler.interactive.shared import execute_task_dict
 
 try:
@@ -21,8 +22,9 @@ def get_error():
 
 class TestExecuteTaskDictWithoutCache(unittest.TestCase):
     def test_execute_task_sum(self):
+        cloudpickle_register(ind=1)
         f = Future()
-        interface, success_flag = interface_bootup(
+        interface = interface_bootup(
             command_lst=get_interactive_execute_command(
                 cores=1,
             ),
@@ -32,7 +34,7 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
             worker_id=1,
             stop_function=None,
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertFalse(f.done())
         result = execute_task_dict(
             task_dict={"fn": sum, "args": ([1, 2], ), "kwargs": {}},
@@ -47,9 +49,10 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
         self.assertEqual(f.result(), 3)
 
     def test_execute_task_done(self):
+        cloudpickle_register(ind=1)
         f = Future()
         f.set_result(5)
-        interface, success_flag = interface_bootup(
+        interface = interface_bootup(
             command_lst=get_interactive_execute_command(
                 cores=1,
             ),
@@ -59,7 +62,7 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
             worker_id=1,
             stop_function=None,
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertTrue(f.done())
         result = execute_task_dict(
             task_dict={"fn": sum, "args": ([1, 2], ), "kwargs": {}},
@@ -74,8 +77,9 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
         self.assertEqual(f.result(), 5)
 
     def test_execute_task_error(self):
+        cloudpickle_register(ind=1)
         f = Future()
-        interface, success_flag = interface_bootup(
+        interface = interface_bootup(
             command_lst=get_interactive_execute_command(
                 cores=1,
             ),
@@ -85,7 +89,7 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
             worker_id=1,
             stop_function=None,
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertFalse(f.done())
         result = execute_task_dict(
             task_dict={"fn": get_error, "args": (), "kwargs": {}},
@@ -107,8 +111,9 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
         shutil.rmtree("cache_execute_task", ignore_errors=True)
 
     def test_execute_task_sum(self):
+        cloudpickle_register(ind=1)
         f = Future()
-        interface, success_flag = interface_bootup(
+        interface = interface_bootup(
             command_lst=get_interactive_execute_command(
                 cores=1,
             ),
@@ -118,7 +123,7 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
             worker_id=1,
             stop_function=None,
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertFalse(f.done())
         result = execute_task_dict(
             task_dict={"fn": sum, "args": ([1, 2], ), "kwargs": {}},
@@ -133,9 +138,10 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
         self.assertEqual(f.result(), 3)
 
     def test_execute_task_done(self):
+        cloudpickle_register(ind=1)
         f = Future()
         f.set_result(5)
-        interface, success_flag = interface_bootup(
+        interface = interface_bootup(
             command_lst=get_interactive_execute_command(
                 cores=1,
             ),
@@ -145,7 +151,7 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
             worker_id=1,
             stop_function=None,
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertTrue(f.done())
         result = execute_task_dict(
             task_dict={"fn": sum, "args": ([1, 2], ), "kwargs": {}},
@@ -160,8 +166,9 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
         self.assertEqual(f.result(), 5)
 
     def test_execute_task_error(self):
+        cloudpickle_register(ind=1)
         f = Future()
-        interface, success_flag = interface_bootup(
+        interface = interface_bootup(
             command_lst=get_interactive_execute_command(
                 cores=1,
             ),
@@ -171,7 +178,7 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
             worker_id=1,
             stop_function=None,
         )
-        self.assertTrue(success_flag)
+        self.assertTrue(interface.status)
         self.assertFalse(f.done())
         result = execute_task_dict(
             task_dict={"fn": get_error, "args": (), "kwargs": {}},
