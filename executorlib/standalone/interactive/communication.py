@@ -78,7 +78,7 @@ class SocketInterface:
         while len(response_lst) == 0:
             response_lst = self._poller.poll(self._time_out_ms)
             if not self._spawner.poll():
-                raise ExecutorlibSocketError()
+                raise ExecutorlibSocketError("SocketInterface crashed during execution.")
         data = self._socket.recv(zmq.NOBLOCK)
         if self._logger is not None:
             self._logger.warning(
@@ -131,7 +131,7 @@ class SocketInterface:
         if stop_function is not None:
             self._stop_function = stop_function
         if len(self._command_lst) == 0:
-            raise ValueError()
+            raise ValueError("No command defined to boot up SocketInterface.")
         if not self._spawner.bootup(
             command_lst=self._command_lst,
             stop_function=self._stop_function,

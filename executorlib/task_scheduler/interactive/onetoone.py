@@ -275,4 +275,4 @@ def _execute_task_in_thread(
         cache_key=cache_key,
         error_log_file=error_log_file,
     ):
-        future_obj.set_exception(ExecutorlibSocketError())
+        future_obj.set_exception(ExecutorlibSocketError("SocketInterface crashed during execution."))

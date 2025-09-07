@@ -257,7 +257,7 @@ def _execute_multiple_tasks(
     while True:
         if not interface.status and restart_counter > restart_limit:
             interface.status = True  # no more restarts
-            interface_initialization_exception = ExecutorlibSocketError()
+            interface_initialization_exception = ExecutorlibSocketError("SocketInterface crashed during execution.")
         elif not interface.status:
             interface.bootup()
             interface_initialization_exception = _set_init_function(
