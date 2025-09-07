@@ -230,7 +230,7 @@ def _execute_task_in_thread(
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
     **kwargs,
-) -> bool:
+):
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
 
@@ -255,9 +255,6 @@ def _execute_task_in_thread(
                               submitted to the Executor.
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
-
-    Returns:
-        bool: True if the task was submitted successfully, False otherwise.
     """
     if not execute_task_dict(
         task_dict=task_dict,
