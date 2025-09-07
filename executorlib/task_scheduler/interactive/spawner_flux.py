@@ -90,7 +90,7 @@ class FluxPythonSpawner(BaseSpawner):
         Returns:
             bool: Whether the interface was successfully started.
         """
-        if stop_function is not None and not stop_function():
+        if stop_function is not None and stop_function():
             return False
         if self._openmpi_oversubscribe:
             raise ValueError(

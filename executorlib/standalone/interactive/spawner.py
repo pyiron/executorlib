@@ -104,7 +104,7 @@ class SubprocessSpawner(BaseSpawner):
         Returns:
             bool: Whether the interface was successfully started.
         """
-        if stop_function is not None and not stop_function():
+        if stop_function is not None and stop_function():
             return False
         if self._cwd is not None:
             os.makedirs(self._cwd, exist_ok=True)
