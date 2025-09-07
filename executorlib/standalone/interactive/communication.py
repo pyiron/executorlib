@@ -85,7 +85,7 @@ class SocketInterface:
 
         Args:
             input_dict (dict): dictionary of commands to be communicated. The key "shutdown" is reserved to stop the
-                connected client from listening.
+                               connected client from listening.
 
         Returns:
             dict: dictionary with response received from the connected client
