@@ -135,9 +135,9 @@ class TestFluxBackend(unittest.TestCase):
             block_allocation=True,
             flux_log_files=True,
         ) as p:
-            output = p.map(calc, [1, 2, 3])
+            output = list(p.map(calc, [1, 2, 3]))
         self.assertEqual(
-            list(output),
+            output,
             [1, 2, 3],
         )
         self.assertTrue(os.path.exists(file_stdout))
@@ -155,9 +155,9 @@ class TestFluxBackend(unittest.TestCase):
             block_allocation=True,
             flux_log_files=True,
         ) as p:
-            output = p.map(calc, [1, 2, 3])
+            output = list(p.map(calc, [1, 2, 3]))
         self.assertEqual(
-            list(output),
+            output,
             [1, 2, 3],
         )
         self.assertTrue(os.path.exists(file_stdout))
