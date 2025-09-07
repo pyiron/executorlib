@@ -74,7 +74,6 @@ def _execute_task_without_cache(
     try:
         future_obj.set_result(interface.send_and_receive_dict(input_dict=task_dict))
     except Exception as thread_exception:
-        interface.shutdown(wait=True)
         future_obj.set_exception(exception=thread_exception)
 
 
@@ -116,7 +115,6 @@ def _execute_task_with_cache(
             dump(file_name=file_name, data_dict=data_dict)
             future_obj.set_result(result)
         except Exception as thread_exception:
-            interface.shutdown(wait=True)
             future_obj.set_exception(exception=thread_exception)
     else:
         _, _, result = get_output(file_name=file_name)
