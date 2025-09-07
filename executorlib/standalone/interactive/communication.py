@@ -123,7 +123,7 @@ class SocketInterface:
             command_lst = self._command_lst
         else:
             self._command_lst = command_lst
-        if not self._spawner.bootup(
+        if command_lst is not None and not self._spawner.bootup(
             command_lst=command_lst,
             stop_function=stop_function,
         ):
