@@ -262,7 +262,7 @@ def _execute_multiple_tasks(
             interface.bootup()
             interface_initialization_exception = _set_init_function(
                 interface=interface,
-                interface_bootup_flag=interface_bootup_flag,
+                interface_bootup_flag=interface.status,
                 init_function=init_function,
             )
             restart_counter += 1
