@@ -8,7 +8,7 @@ from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-from executorlib.standalone.interactive.communication import interface_bootup
+from executorlib.standalone.interactive.communication import interface_bootup, ExecutorlibSocketError
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
@@ -227,10 +227,14 @@ def _execute_multiple_tasks(
         log_obj_size=log_obj_size,
         worker_id=worker_id,
     )
+    interface_initialization_exception = None
     if init_function is not None:
-        _ = interface.send_and_receive_dict(
-            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
-        )
+        try:
+            _ = interface.send_and_receive_dict(
+                input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+            )
+        except Exception as init_exception:
+            interface_initialization_exception = init_exception
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
@@ -241,12 +245,15 @@ def _execute_multiple_tasks(
             break
         elif "fn" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
-            execute_task_dict(
-                task_dict=task_dict,
-                future_obj=f,
-                interface=interface,
-                cache_directory=cache_directory,
-                cache_key=cache_key,
-                error_log_file=error_log_file,
-            )
+            if interface_initialization_exception is not None:
+                f.set_exception(exception=interface_initialization_exception)
+            else:
+                execute_task_dict(
+                    task_dict=task_dict,
+                    future_obj=f,
+                    interface=interface,
+                    cache_directory=cache_directory,
+                    cache_key=cache_key,
+                    error_log_file=error_log_file,
+                )
             task_done(future_queue=future_queue)
