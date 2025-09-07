@@ -1,4 +1,5 @@
 import queue
+import random
 from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
@@ -73,7 +74,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["queue_join_on_shutdown"] = False
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
-        self_id = id(self)
+        self_id = random.getrandbits(128)
         self._self_id = self_id
         _interrupt_bootup_dict[self._self_id] = False
         self._set_process(
@@ -270,7 +271,8 @@ def _execute_multiple_tasks(
         else:  # interface.status == True
             task_dict = future_queue.get()
             if "shutdown" in task_dict and task_dict["shutdown"]:
-                interface.shutdown(wait=task_dict["wait"])
+                if interface.status:
+                    interface.shutdown(wait=task_dict["wait"])
                 task_done(future_queue=future_queue)
                 if queue_join_on_shutdown:
                     future_queue.join()
