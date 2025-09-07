@@ -27,9 +27,9 @@ def calc(i):
     return np.array(i**2)
 
 
-class BrokenSpawner(MpiExecSpawner):
-    def bootup(self, command_lst: list[str], stop_function: Optional[Callable] = None,):
-        return False
+def stop_function():
+    return False
+
 
 class TestInterface(unittest.TestCase):
     @unittest.skipIf(
@@ -149,10 +149,10 @@ class TestInterface(unittest.TestCase):
     def test_interface_serial_with_broken_spawner(self):
         cloudpickle_register(ind=1)
         interface = SocketInterface(
-            spawner=BrokenSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
+            spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
             log_obj_size=True,
         )
-        interface.bootup(command_lst=["bash", "exit"])
+        interface.bootup(command_lst=["bash", "exit"], stop_function=stop_function)
         self.assertFalse(interface.status)
 
     def test_interface_serial_with_stopped_process(self):

@@ -90,6 +90,8 @@ class FluxPythonSpawner(BaseSpawner):
         Returns:
             bool: Whether the interface was successfully started.
         """
+        if stop_function is not None and not stop_function():
+            return False
         if self._openmpi_oversubscribe:
             raise ValueError(
                 "Oversubscribing is currently not supported for the Flux adapter."

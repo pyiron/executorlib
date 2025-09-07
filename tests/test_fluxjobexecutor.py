@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 
 from executorlib import FluxJobExecutor
+from executorlib.standalone.interactive.communication import SocketInterface
 
 
 try:
@@ -34,6 +35,10 @@ def get_global(memory=None):
 
 def set_global():
     return {"memory": np.array([5])}
+
+
+def stop_function():
+    return False
 
 
 @unittest.skipIf(
@@ -69,6 +74,14 @@ class TestFluxBackend(unittest.TestCase):
             self.assertEqual(fs_2.result(), 2)
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
+
+    def test_interface_serial_with_broken_spawner(self):
+        interface = SocketInterface(
+            spawner=FluxPythonSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
+            log_obj_size=True,
+        )
+        interface.bootup(command_lst=["bash", "exit"], stop_function=stop_function)
+        self.assertFalse(interface.status)
 
     def test_flux_executor_threads(self):
         with FluxJobExecutor(
