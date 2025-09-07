@@ -97,7 +97,23 @@ def main() -> None:
             and "args" in input_dict
             and "kwargs" in input_dict
         ):
-            memory.update(call_funct(input_dict=input_dict, funct=None, memory=memory))
+            try:
+                memory.update(
+                    call_funct(input_dict=input_dict, funct=None, memory=memory)
+                )
+            except Exception as error:
+                if mpi_rank_zero:
+                    interface_send(
+                        socket=socket,
+                        result_dict={"error": error},
+                    )
+                    backend_write_error_file(
+                        error=error,
+                        apply_dict=input_dict,
+                    )
+            else:
+                if mpi_rank_zero:
+                    interface_send(socket=socket, result_dict={"result": True})
 
 
 if __name__ == "__main__":

@@ -129,15 +129,16 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             args: arguments for the submitted function
             kwargs: keyword arguments for the submitted function
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
+                                  - cores (int): number of MPI cores to be used for each function call
+                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  - cwd (str/None): current working directory where the parallel python task is executed
+                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
+                                                                  and SLURM only) - default False
+                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
+                                                           only)
+                                  - error_log_file (str): Name of the error log file to use for storing exceptions
+                                                          raised by the Python functions submitted to the Executor.
 
         Returns:
             Future: A Future representing the given call.
@@ -243,10 +244,14 @@ def _execute_multiple_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
+    interface_initialization_exception = None
     if init_function is not None and interface is not None:
-        interface.send_dict(
-            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
-        )
+        try:
+            _ = interface.send_and_receive_dict(
+                input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+            )
+        except Exception as init_exception:
+            interface_initialization_exception = init_exception
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
@@ -258,22 +263,25 @@ def _execute_multiple_tasks(
             break
         elif "fn" in task_dict and "future" in task_dict:
             f = task_dict.pop("future")
-            result_flag = execute_task_dict(
-                task_dict=task_dict,
-                future_obj=f,
-                interface=interface,
-                cache_directory=cache_directory,
-                cache_key=cache_key,
-                error_log_file=error_log_file,
-            )
-            if not result_flag:
-                task_done(future_queue=future_queue)
-                reset_task_dict(
-                    future_obj=f, future_queue=future_queue, task_dict=task_dict
-                )
-                if interface is not None:
-                    interface.restart()
-                else:
-                    break
+            if interface_initialization_exception is not None:
+                f.set_exception(exception=interface_initialization_exception)
             else:
-                task_done(future_queue=future_queue)
+                result_flag = execute_task_dict(
+                    task_dict=task_dict,
+                    future_obj=f,
+                    interface=interface,
+                    cache_directory=cache_directory,
+                    cache_key=cache_key,
+                    error_log_file=error_log_file,
+                )
+                if not result_flag:
+                    task_done(future_queue=future_queue)
+                    reset_task_dict(
+                        future_obj=f, future_queue=future_queue, task_dict=task_dict
+                    )
+                    if interface is not None:
+                        interface.restart()
+                    else:
+                        break
+                else:
+                    task_done(future_queue=future_queue)
