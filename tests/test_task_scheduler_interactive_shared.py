@@ -1,18 +1,25 @@
 import shutil
 from concurrent.futures import Future
-from unittest import TestCase
+import unittest
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import interface_bootup, ExecutorlibSocketError
 from executorlib.standalone.interactive.spawner import SubprocessSpawner
 from executorlib.task_scheduler.interactive.shared import execute_task_dict
 
+try:
+    import h5py
+
+    skip_h5py_test = False
+except ImportError:
+    skip_h5py_test = True
+
 
 def get_error():
     raise ExecutorlibSocketError()
 
 
-class TestExecuteTaskDictWithoutCache(TestCase):
+class TestExecuteTaskDictWithoutCache(unittest.TestCase):
     def test_execute_task_sum(self):
         f = Future()
         interface, success_flag = interface_bootup(
@@ -92,7 +99,10 @@ class TestExecuteTaskDictWithoutCache(TestCase):
         self.assertFalse(f.done())
 
 
-class TestExecuteTaskDictWithCache(TestCase):
+@unittest.skipIf(
+    skip_h5py_test, "h5py is not installed, so the h5io tests are skipped."
+)
+class TestExecuteTaskDictWithCache(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree("cache_execute_task", ignore_errors=True)
 
