@@ -98,7 +98,9 @@ def main() -> None:
             and "kwargs" in input_dict
         ):
             try:
-                memory.update(call_funct(input_dict=input_dict, funct=None, memory=memory))
+                memory.update(
+                    call_funct(input_dict=input_dict, funct=None, memory=memory)
+                )
             except Exception as error:
                 if mpi_rank_zero:
                     interface_send(

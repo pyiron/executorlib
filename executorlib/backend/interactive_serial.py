@@ -73,7 +73,9 @@ def main(argument_lst: Optional[list[str]] = None):
             and "kwargs" in input_dict
         ):
             try:
-                memory.update(call_funct(input_dict=input_dict, funct=None, memory=memory))
+                memory.update(
+                    call_funct(input_dict=input_dict, funct=None, memory=memory)
+                )
             except Exception as error:
                 interface_send(
                     socket=socket,
