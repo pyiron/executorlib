@@ -8,13 +8,16 @@ from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-from executorlib.standalone.interactive.communication import interface_bootup, SocketInterface, ExecutorlibSocketError
+from executorlib.standalone.interactive.communication import (
+    ExecutorlibSocketError,
+    SocketInterface,
+    interface_bootup,
+)
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.interactive.shared import (
     execute_task_dict,
-    reset_task_dict,
     task_done,
 )
 
@@ -245,8 +248,8 @@ def _execute_multiple_tasks(
         stop_function=stop_function,
     )
     interface_initialization_exception = set_init_function(
-        interface=interface, 
-        interface_bootup_flag=interface_bootup_flag, 
+        interface=interface,
+        interface_bootup_flag=interface_bootup_flag,
         init_function=init_function,
     )
     restart_counter = 0
@@ -260,8 +263,8 @@ def _execute_multiple_tasks(
                 stop_function=stop_function,
             )
             interface_initialization_exception = set_init_function(
-                interface=interface, 
-                interface_bootup_flag=interface_bootup_flag, 
+                interface=interface,
+                interface_bootup_flag=interface_bootup_flag,
                 init_function=init_function,
             )
             restart_counter += 1
@@ -291,7 +294,9 @@ def _execute_multiple_tasks(
                     task_done(future_queue=future_queue)
 
 
-def set_init_function(interface: SocketInterface, interface_bootup_flag: bool, init_function: callable) -> Optional[Exception]:
+def set_init_function(
+    interface: SocketInterface, interface_bootup_flag: bool, init_function: callable
+) -> Optional[Exception]:
     interface_initialization_exception = None
     if init_function is not None and interface_bootup_flag:
         try:
