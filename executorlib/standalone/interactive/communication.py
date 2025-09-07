@@ -123,14 +123,17 @@ class SocketInterface:
             command_lst = self._command_lst
         else:
             self._command_lst = command_lst
-        if command_lst is not None and not self._spawner.bootup(
-            command_lst=command_lst,
-            stop_function=stop_function,
-        ):
-            self._reset_socket()
-            return False
+        if command_lst is not None:
+            if not self._spawner.bootup(
+                command_lst=command_lst,
+                stop_function=stop_function,
+            ):
+                self._reset_socket()
+                return False
+            else:
+                return True
         else:
-            return True
+            return False
 
     def shutdown(self, wait: bool = True):
         """

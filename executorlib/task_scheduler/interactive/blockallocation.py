@@ -295,7 +295,7 @@ def _execute_multiple_tasks(
 
 
 def set_init_function(
-    interface: SocketInterface, interface_bootup_flag: bool, init_function: Callable
+    interface: SocketInterface, interface_bootup_flag: bool = True, init_function: Optional[Callable] = None
 ) -> Optional[Exception]:
     interface_initialization_exception = None
     if init_function is not None and interface_bootup_flag:
