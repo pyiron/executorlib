@@ -15,6 +15,10 @@ def set_global():
     return {"j": 5}
 
 
+def raise_error():
+    raise ValueError("interface error")
+
+
 def submit(socket):
     socket.send(
         cloudpickle.dumps({"init": True, "fn": set_global, "args": (), "kwargs": {}})
@@ -31,6 +35,14 @@ def submit_error(socket):
     socket.send(cloudpickle.dumps({"shutdown": True, "wait": True}))
 
 
+def submit_init_error(socket):
+    socket.send(
+        cloudpickle.dumps({"init": True, "fn": raise_error, "args": (), "kwargs": {}})
+    )
+    socket.send(cloudpickle.dumps({"fn": calc, "args": (), "kwargs": {"i": 2}}))
+    socket.send(cloudpickle.dumps({"shutdown": True, "wait": True}))
+
+
 class TestSerial(unittest.TestCase):
     def test_main_as_thread(self):
         context = zmq.Context()
@@ -39,6 +51,7 @@ class TestSerial(unittest.TestCase):
         t = Thread(target=main, kwargs={"argument_lst": ["--zmqport", str(port)]})
         t.start()
         submit(socket=socket)
+        self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
         self.assertEqual(cloudpickle.loads(socket.recv()), {"result": 7})
         self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
         socket.close()
@@ -51,6 +64,23 @@ class TestSerial(unittest.TestCase):
         t = Thread(target=main, kwargs={"argument_lst": ["--zmqport", str(port)]})
         t.start()
         submit_error(socket=socket)
+        self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
+        self.assertEqual(
+            str(type(cloudpickle.loads(socket.recv())["error"])), "<class 'TypeError'>"
+        )
+        self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
+        socket.close()
+        context.term()
+
+    def test_main_as_thread_init_error(self):
+        context = zmq.Context()
+        socket = context.socket(zmq.PAIR)
+        port = socket.bind_to_random_port("tcp://*")
+        t = Thread(target=main, kwargs={"argument_lst": ["--zmqport", str(port)]})
+        t.start()
+        submit_init_error(socket=socket)
+        self.assertEqual(
+            str(type(cloudpickle.loads(socket.recv())["error"])), "<class 'ValueError'>")
         self.assertEqual(
             str(type(cloudpickle.loads(socket.recv())["error"])), "<class 'TypeError'>"
         )
@@ -65,6 +95,7 @@ class TestSerial(unittest.TestCase):
         t = Thread(target=submit, kwargs={"socket": socket})
         t.start()
         main(argument_lst=["--zmqport", str(port)])
+        self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
         self.assertEqual(cloudpickle.loads(socket.recv()), {"result": 7})
         self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
         socket.close()
@@ -77,6 +108,7 @@ class TestSerial(unittest.TestCase):
         t = Thread(target=submit_error, kwargs={"socket": socket})
         t.start()
         main(argument_lst=["--zmqport", str(port)])
+        self.assertEqual(cloudpickle.loads(socket.recv()), {"result": True})
         self.assertEqual(
             str(type(cloudpickle.loads(socket.recv())["error"])), "<class 'TypeError'>"
         )
