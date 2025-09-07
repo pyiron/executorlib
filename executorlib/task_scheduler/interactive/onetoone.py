@@ -270,7 +270,7 @@ def _execute_task_in_thread(
             hostname_localhost=hostname_localhost,
             log_obj_size=log_obj_size,
             worker_id=worker_id,
-        ),
+        )[0],
         cache_directory=cache_directory,
         cache_key=cache_key,
         error_log_file=error_log_file,

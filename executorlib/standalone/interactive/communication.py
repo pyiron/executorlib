@@ -43,7 +43,6 @@ class SocketInterface:
             self._logger = logging.getLogger("executorlib")
         self._spawner = spawner
         self._command_lst: list[str] = []
-        self._stop_function: Optional[Callable] = None
 
     def send_dict(self, input_dict: dict):
         """
@@ -107,7 +106,7 @@ class SocketInterface:
 
     def bootup(
         self,
-        command_lst: list[str],
+        command_lst: Optional[list[str]] = None,
         stop_function: Optional[Callable] = None,
     ) -> bool:
         """
@@ -120,8 +119,10 @@ class SocketInterface:
         Returns:
             bool: Whether the interface was successfully started.
         """
-        self._command_lst = command_lst
-        self._stop_function = stop_function
+        if command_lst is None and len(self._command_lst) > 0:
+            command_lst = self._command_lst
+        else:
+            self._command_lst = command_lst
         if not self._spawner.bootup(
             command_lst=command_lst,
             stop_function=stop_function,
@@ -130,21 +131,6 @@ class SocketInterface:
             return False
         else:
             return True
-
-    def restart(self) -> bool:
-        """
-        Restart the client process to connect to the SocketInterface.
-
-        Returns:
-            bool: Whether the interface was successfully started.
-        """
-        if not self._spawner.bootup(
-            command_lst=self._command_lst,
-            stop_function=self._stop_function,
-        ):
-            self._reset_socket()
-            return False
-        return True
 
     def shutdown(self, wait: bool = True):
         """
@@ -189,7 +175,7 @@ def interface_bootup(
     log_obj_size: bool = False,
     worker_id: Optional[int] = None,
     stop_function: Optional[Callable] = None,
-) -> Optional[SocketInterface]:
+) -> tuple[SocketInterface, bool]:
     """
     Start interface for ZMQ communication
 
@@ -210,7 +196,7 @@ def interface_bootup(
         stop_function (Callable): Function to stop the interface.
 
     Returns:
-         executorlib.shared.communication.SocketInterface: socket interface for zmq communication
+         executorlib.shared.communication.SocketInterface, bool: socket interface for zmq communication, success flag
     """
     if hostname_localhost is None and sys.platform != "darwin":
         hostname_localhost = False
@@ -233,9 +219,9 @@ def interface_bootup(
         command_lst=command_lst,
         stop_function=stop_function,
     ):
-        return interface
+        return interface, True
     else:
-        return None
+        return interface, False
 
 
 def interface_connect(host: str, port: str) -> tuple[zmq.Context, zmq.Socket]:

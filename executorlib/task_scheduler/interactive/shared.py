@@ -16,7 +16,7 @@ from executorlib.standalone.serialize import serialize_funct
 def execute_task_dict(
     task_dict: dict,
     future_obj: Future,
-    interface: Optional[SocketInterface] = None,
+    interface: SocketInterface,
     cache_directory: Optional[str] = None,
     cache_key: Optional[str] = None,
     error_log_file: Optional[str] = None,

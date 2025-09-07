@@ -8,7 +8,7 @@ from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-from executorlib.standalone.interactive.communication import interface_bootup
+from executorlib.standalone.interactive.communication import interface_bootup, SocketInterface, ExecutorlibSocketError
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
@@ -234,7 +234,7 @@ def _execute_multiple_tasks(
                          distribution.
         stop_function (Callable): Function to stop the interface.
     """
-    interface = interface_bootup(
+    interface, interface_bootup_flag = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
         ),
@@ -244,44 +244,60 @@ def _execute_multiple_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
+    interface_initialization_exception = set_init_function(
+        interface=interface, 
+        interface_bootup_flag=interface_bootup_flag, 
+        init_function=init_function,
+    )
+    restart_counter = 0
+    restart_limit = 2
+    while True:
+        if not interface_bootup_flag and restart_counter > restart_limit:
+            interface_bootup_flag = True  # no more restarts
+            interface_initialization_exception = ExecutorlibSocketError()
+        elif not interface_bootup_flag:
+            interface_bootup_flag = interface.bootup(
+                stop_function=stop_function,
+            )
+            interface_initialization_exception = set_init_function(
+                interface=interface, 
+                interface_bootup_flag=interface_bootup_flag, 
+                init_function=init_function,
+            )
+            restart_counter += 1
+        else:  # interface_bootup_flag = True
+            task_dict = future_queue.get()
+            if "shutdown" in task_dict and task_dict["shutdown"]:
+                if interface is not None:
+                    interface.shutdown(wait=task_dict["wait"])
+                task_done(future_queue=future_queue)
+                if queue_join_on_shutdown:
+                    future_queue.join()
+                break
+            elif "fn" in task_dict and "future" in task_dict:
+                f = task_dict.pop("future")
+                if interface_initialization_exception is not None:
+                    f.set_exception(exception=interface_initialization_exception)
+                else:
+                    # The interface failed during the execution
+                    interface_bootup_flag = execute_task_dict(
+                        task_dict=task_dict,
+                        future_obj=f,
+                        interface=interface,
+                        cache_directory=cache_directory,
+                        cache_key=cache_key,
+                        error_log_file=error_log_file,
+                    )
+                    task_done(future_queue=future_queue)
+
+
+def set_init_function(interface: SocketInterface, interface_bootup_flag: bool, init_function: callable) -> Optional[Exception]:
     interface_initialization_exception = None
-    if init_function is not None and interface is not None:
+    if init_function is not None and interface_bootup_flag:
         try:
             _ = interface.send_and_receive_dict(
                 input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
             )
         except Exception as init_exception:
             interface_initialization_exception = init_exception
-    while True:
-        task_dict = future_queue.get()
-        if "shutdown" in task_dict and task_dict["shutdown"]:
-            if interface is not None:
-                interface.shutdown(wait=task_dict["wait"])
-            task_done(future_queue=future_queue)
-            if queue_join_on_shutdown:
-                future_queue.join()
-            break
-        elif "fn" in task_dict and "future" in task_dict:
-            f = task_dict.pop("future")
-            if interface_initialization_exception is not None:
-                f.set_exception(exception=interface_initialization_exception)
-            else:
-                result_flag = execute_task_dict(
-                    task_dict=task_dict,
-                    future_obj=f,
-                    interface=interface,
-                    cache_directory=cache_directory,
-                    cache_key=cache_key,
-                    error_log_file=error_log_file,
-                )
-                if not result_flag:
-                    task_done(future_queue=future_queue)
-                    reset_task_dict(
-                        future_obj=f, future_queue=future_queue, task_dict=task_dict
-                    )
-                    if interface is not None:
-                        interface.restart()
-                    else:
-                        break
-                else:
-                    task_done(future_queue=future_queue)
+    return interface_initialization_exception
