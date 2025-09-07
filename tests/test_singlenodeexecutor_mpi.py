@@ -119,9 +119,9 @@ class TestWorkingDirectory(unittest.TestCase):
             resource_dict={"cores": 1, "cwd": dirname},
             block_allocation=True,
         ) as p:
-            output = p.map(calc, [1, 2, 3])
+            output = list(p.map(calc, [1, 2, 3]))
         self.assertEqual(
-            list(output),
+            output,
             [1, 2, 3],
         )
 
