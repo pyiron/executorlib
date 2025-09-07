@@ -18,8 +18,8 @@ from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.interactive.shared import (
     execute_task_dict,
-    task_done,
     reset_task_dict,
+    task_done,
 )
 
 _interrupt_bootup_dict: dict = {}
@@ -292,7 +292,9 @@ def _execute_multiple_tasks(
                         error_log_file=error_log_file,
                     )
                     if not interface_bootup_flag:
-                        reset_task_dict(future_obj=f, future_queue=future_queue, task_dict=task_dict)
+                        reset_task_dict(
+                            future_obj=f, future_queue=future_queue, task_dict=task_dict
+                        )
                 task_done(future_queue=future_queue)
 
 
