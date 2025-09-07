@@ -125,14 +125,12 @@ class SocketInterface:
             command_lst (list): list of strings to start the client process
             stop_function (Callable): Function to stop the interface.
         """
-        if command_lst is None and len(self._command_lst) > 0:
-            command_lst = self._command_lst
-        elif command_lst is not None:
+        if command_lst is not None:
             self._command_lst = command_lst
-        else:
-            raise ValueError()
         if stop_function is not None:
             self._stop_function = stop_function
+        if len(self._command_lst) == 0:
+            raise ValueError()
         if not self._spawner.bootup(
             command_lst=self._command_lst,
             stop_function=self._stop_function,
