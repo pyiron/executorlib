@@ -75,14 +75,18 @@ class FluxPythonSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
-    ):
+    ) -> bool:
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list[str]): List of strings to start the client process.
+
         Raises:
             ValueError: If oversubscribing is not supported for the Flux adapter or if conda environments are not supported.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
         if self._openmpi_oversubscribe:
             raise ValueError(
@@ -126,6 +130,7 @@ class FluxPythonSpawner(BaseSpawner):
             )
         else:
             self._future = self._flux_executor.submit(jobspec=jobspec)
+        return self.poll()
 
     def shutdown(self, wait: bool = True):
         """

@@ -106,14 +106,17 @@ class SocketInterface:
     def bootup(
         self,
         command_lst: list[str],
-    ):
+    ) -> bool:
         """
         Boot up the client process to connect to the SocketInterface.
 
         Args:
             command_lst (list): list of strings to start the client process
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
-        self._spawner.bootup(
+        return self._spawner.bootup(
             command_lst=command_lst,
         )
 
