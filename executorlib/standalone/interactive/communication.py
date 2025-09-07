@@ -121,19 +121,18 @@ class SocketInterface:
         """
         if command_lst is None and len(self._command_lst) > 0:
             command_lst = self._command_lst
-        else:
+        elif command_lst is not None:
             self._command_lst = command_lst
-        if command_lst is not None:
-            if not self._spawner.bootup(
-                command_lst=command_lst,
-                stop_function=stop_function,
-            ):
-                self._reset_socket()
-                return False
-            else:
-                return True
         else:
+            raise ValueError()
+        if command_lst is not None and not self._spawner.bootup(
+            command_lst=command_lst,
+            stop_function=stop_function,
+        ):
+            self._reset_socket()
             return False
+        else:
+            return True
 
     def shutdown(self, wait: bool = True):
         """
