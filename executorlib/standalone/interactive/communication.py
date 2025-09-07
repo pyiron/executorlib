@@ -183,7 +183,7 @@ def interface_bootup(
     log_obj_size: bool = False,
     worker_id: Optional[int] = None,
     stop_function: Optional[Callable] = None,
-) -> tuple[SocketInterface, bool]:
+) -> SocketInterface:
     """
     Start interface for ZMQ communication
 
@@ -204,7 +204,7 @@ def interface_bootup(
         stop_function (Callable): Function to stop the interface.
 
     Returns:
-         executorlib.shared.communication.SocketInterface, bool: socket interface for zmq communication, success flag
+         executorlib.shared.communication.SocketInterface: socket interface for zmq communication
     """
     if hostname_localhost is None and sys.platform != "darwin":
         hostname_localhost = False
