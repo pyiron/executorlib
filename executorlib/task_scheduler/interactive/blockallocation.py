@@ -278,7 +278,7 @@ def _execute_multiple_tasks(
                     f.set_exception(exception=interface_initialization_exception)
                 else:
                     # The interface failed during the execution
-                    interface.status = status=execute_task_dict(
+                    interface.status = status = execute_task_dict(
                         task_dict=task_dict,
                         future_obj=f,
                         interface=interface,
