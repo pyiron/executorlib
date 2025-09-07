@@ -78,7 +78,9 @@ class SocketInterface:
         while len(response_lst) == 0:
             response_lst = self._poller.poll(self._time_out_ms)
             if not self._spawner.poll():
-                raise ExecutorlibSocketError("SocketInterface crashed during execution.")
+                raise ExecutorlibSocketError(
+                    "SocketInterface crashed during execution."
+                )
         data = self._socket.recv(zmq.NOBLOCK)
         if self._logger is not None:
             self._logger.warning(
