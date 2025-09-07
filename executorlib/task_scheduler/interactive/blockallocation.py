@@ -209,6 +209,7 @@ def _execute_multiple_tasks(
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
     stop_function: Optional[Callable] = None,
+    restart_limit: int = 0,
     **kwargs,
 ) -> None:
     """
@@ -236,6 +237,7 @@ def _execute_multiple_tasks(
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
         stop_function (Callable): Function to stop the interface.
+        restart_limit (int): The maximum number of restarting worker processes.
     """
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
@@ -252,7 +254,6 @@ def _execute_multiple_tasks(
         init_function=init_function,
     )
     restart_counter = 0
-    restart_limit = 2
     while True:
         if not interface.status and restart_counter > restart_limit:
             interface.status = True  # no more restarts

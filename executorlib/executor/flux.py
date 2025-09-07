@@ -43,6 +43,7 @@ class FluxJobExecutor(BaseExecutor):
                                                   compute notes. Defaults to False.
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
+                              - restart_limit (int): The maximum number of restarting worker processes. Default: 0
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
