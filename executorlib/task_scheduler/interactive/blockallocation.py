@@ -228,9 +228,11 @@ def _execute_multiple_tasks(
         worker_id=worker_id,
     )
     if init_function is not None:
-        interface.send_dict(
+        result = interface.send_and_receive_dict(
             input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
         )
+        if "error" in result and result["error"]:
+            raise result["error"]
     while True:
         task_dict = future_queue.get()
         if "shutdown" in task_dict and task_dict["shutdown"]:
