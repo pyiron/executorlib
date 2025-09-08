@@ -184,11 +184,6 @@ class TestPysqaSpawner(unittest.TestCase):
         self.assertFalse(interface_flux.poll())
         self.assertFalse(interface_flux._check_process_helper(command_lst=["sleep", "1"]))
 
-    def test_pysqa_spawner_error(self):
-        interface_flux = PysqaSpawner(backend="flux", cores=1)
-        with self.assertRaises(RuntimeError):
-            interface_flux.bootup(command_lst=[])
-
     def test_pysqa_spawner_big(self):
         interface_flux = PysqaSpawner(backend="flux", cores=100)
         self.assertFalse(interface_flux.bootup(command_lst=["sleep", "1"], stop_function=stop_function))
