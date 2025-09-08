@@ -14,6 +14,7 @@ try:
     from executorlib.standalone.hdf import dump
     from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
     from executorlib.standalone.scheduler import terminate_with_pysqa
+    from executorlib.task_scheduler.interactive.spawner_pysqa import PysqaSpawner
 
     skip_flux_test = "FLUX_URI" not in os.environ
     pmi = os.environ.get("EXECUTORLIB_PMIX", None)
@@ -35,6 +36,10 @@ def mpi_funct(i):
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
+
+
+def stop_function():
+    return True
 
 
 @unittest.skipIf(
@@ -161,3 +166,17 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
+
+
+@unittest.skipIf(
+    skip_flux_test,
+    "flux is not installed, so the flux tests are skipped.",
+)
+class TestPysqaSpawner(unittest.TestCase):
+    def test_pysqa_spawner_sleep(self):
+        interface_flux = PysqaSpawner(backend="flux", cores=1)
+        self.assertTrue(interface_flux.bootup(command_lst=["sleep", "1"]))
+
+    def test_pysqa_spawner_stop_function(self):
+        interface_flux = PysqaSpawner(backend="flux", cores=1)
+        self.assertFalse(interface_flux.bootup(command_lst=["exit"], stop_function=stop_function))
