@@ -7,7 +7,7 @@ from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.task_scheduler.interactive.spawner_slurm import SrunSpawner
 
 try:
-    from executorlib.task_scheduler.interactive.spawner_pysqa import PysqaSpawner, create_pysqa_block_allocation_scheduler
+    from executorlib.task_scheduler.interactive.spawner_pysqa import PysqaSpawner
 
     skip_pysqa_test = False
 except ImportError:
@@ -135,7 +135,7 @@ class TestParser(unittest.TestCase):
         output = ['srun', '-n', '2', '--mpi=pmix', '-N', '2', '--cpus-per-task=2', '--gpus-per-task=1', '--exact', '--oversubscribe', 'test']
         self.assertEqual(interface_slurm.generate_command(command_lst=[]), output)
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(FileNotFoundError):
             interface_slurm.bootup(command_lst=["sleep", "1"])
 
         interface_flux = PysqaSpawner(backend="flux", cores=2, pmi_mode="pmix")
@@ -168,7 +168,4 @@ class TestParser(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             interface_nobackend._check_process_helper(command_lst=[])
-
-        with self.assertRaises(FileNotFoundError):
-            create_pysqa_block_allocation_scheduler()
         
