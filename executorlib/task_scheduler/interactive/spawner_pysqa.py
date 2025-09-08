@@ -223,7 +223,8 @@ def create_pysqa_block_allocation_scheduler(
     if resource_dict is None:
         resource_dict = {}
     cores_per_worker = resource_dict.get("cores", 1)
-    resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
+    if "cwd" in resource_dict and resource_dict["cwd"] is not None:
+        resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
     if cache_directory is not None:
         resource_dict["cache_directory"] = os.path.abspath(cache_directory)
     else:
