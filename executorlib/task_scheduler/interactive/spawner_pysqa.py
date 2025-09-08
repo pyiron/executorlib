@@ -38,7 +38,7 @@ class PysqaSpawner(BaseSpawner):
             threads_per_core (int): The number of threads per core. Defaults to 1.
             gpus_per_core (int): number of GPUs per worker - defaults to 0
             num_nodes (int, optional): The number of compute nodes to use for executing the task.  Defaults to None.
-            exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults 
+            exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults
                               to False.
             openmpi_oversubscribe (bool): Whether to oversubscribe the cores. Defaults to False.
             slurm_cmd_args (list, optional): Additional command line arguments for the srun call (SLURM only)
