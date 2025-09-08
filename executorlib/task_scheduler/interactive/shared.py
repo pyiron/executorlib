@@ -16,7 +16,7 @@ from executorlib.standalone.serialize import serialize_funct
 def execute_task_dict(
     task_dict: dict,
     future_obj: Future,
-    interface: Optional[SocketInterface] = None,
+    interface: SocketInterface,
     cache_directory: Optional[str] = None,
     cache_key: Optional[str] = None,
     error_log_file: Optional[str] = None,
@@ -34,24 +34,25 @@ def execute_task_dict(
                                   overwritten by setting the cache_key.
         error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
                               submitted to the Executor.
+
+    Returns:
+        bool: True if the task was submitted successfully, False otherwise.
     """
     if not future_obj.done() and future_obj.set_running_or_notify_cancel():
         if error_log_file is not None:
             task_dict["error_log_file"] = error_log_file
-        if cache_directory is None and interface is not None:
+        if cache_directory is None:
             return _execute_task_without_cache(
                 interface=interface, task_dict=task_dict, future_obj=future_obj
             )
-        elif cache_directory is not None and interface is not None:
+        else:
             return _execute_task_with_cache(
                 interface=interface,
                 task_dict=task_dict,
-                future_obj=future_obj,
                 cache_directory=cache_directory,
                 cache_key=cache_key,
+                future_obj=future_obj,
             )
-        else:
-            return False
     else:
         return True
 
@@ -76,6 +77,9 @@ def reset_task_dict(future_obj: Future, future_queue: queue.Queue, task_dict: di
         future_queue (queue): Queue of task dictionaries waiting for execution.
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
+
+    Returns:
+        bool: True if the task was submitted successfully, False otherwise.
     """
     future_obj._state = PENDING
     task_done(future_queue=future_queue)
@@ -93,6 +97,9 @@ def _execute_task_without_cache(
         task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
                           {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
         future_obj (Future): A Future representing the given call.
+
+    Returns:
+        bool: True if the task was submitted successfully, False otherwise.
     """
     try:
         future_obj.set_result(interface.send_and_receive_dict(input_dict=task_dict))
@@ -100,7 +107,6 @@ def _execute_task_without_cache(
         if isinstance(thread_exception, ExecutorlibSocketError):
             return False
         else:
-            interface.shutdown(wait=True)
             future_obj.set_exception(exception=thread_exception)
     return True
 
@@ -146,7 +152,6 @@ def _execute_task_with_cache(
             if isinstance(thread_exception, ExecutorlibSocketError):
                 return False
             else:
-                interface.shutdown(wait=True)
                 future_obj.set_exception(exception=thread_exception)
     else:
         _, _, result = get_output(file_name=file_name)

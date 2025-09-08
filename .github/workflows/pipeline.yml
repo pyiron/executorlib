@@ -274,7 +274,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: koesterlab/setup-slurm-action@v1
-      timeout-minutes: 5
+      timeout-minutes: 10
     - name: ubnuntu install
       run: sudo apt install -y mpich
     - uses: conda-incubator/setup-miniconda@v3

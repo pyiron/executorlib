@@ -1,4 +1,5 @@
 import queue
+import random
 from concurrent.futures import Future
 from threading import Thread
 from typing import Callable, Optional
@@ -8,7 +9,11 @@ from executorlib.standalone.inputcheck import (
     check_resource_dict,
     check_resource_dict_is_empty,
 )
-from executorlib.standalone.interactive.communication import interface_bootup
+from executorlib.standalone.interactive.communication import (
+    ExecutorlibSocketError,
+    SocketInterface,
+    interface_bootup,
+)
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase
@@ -69,7 +74,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["queue_join_on_shutdown"] = False
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
-        self_id = id(self)
+        self_id = random.getrandbits(128)
         self._self_id = self_id
         _interrupt_bootup_dict[self._self_id] = False
         self._set_process(
@@ -129,15 +134,16 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             args: arguments for the submitted function
             kwargs: keyword arguments for the submitted function
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
+                                  - cores (int): number of MPI cores to be used for each function call
+                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  - cwd (str/None): current working directory where the parallel python task is executed
+                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
+                                                                  and SLURM only) - default False
+                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
+                                                           only)
+                                  - error_log_file (str): Name of the error log file to use for storing exceptions
+                                                          raised by the Python functions submitted to the Executor.
 
         Returns:
             Future: A Future representing the given call.
@@ -160,12 +166,10 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         methods can be called after this one.
 
         Args:
-            wait: If True then shutdown will not return until all running
-                futures have finished executing and the resources used by the
-                parallel_executors have been reclaimed.
-            cancel_futures: If True then shutdown will cancel all pending
-                futures. Futures that are completed or running will not be
-                cancelled.
+            wait (bool): If True then shutdown will not return until all running futures have finished executing and
+                         the resources used by the parallel_executors have been reclaimed.
+            cancel_futures (bool): If True then shutdown will cancel all pending futures. Futures that are completed or
+                                   running will not be cancelled.
         """
         if self._future_queue is not None:
             if cancel_futures:
@@ -177,7 +181,6 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                 if wait:
                     for process in self._process:
                         process.join()
-                    cancel_items_in_queue(que=self._future_queue)
                     self._future_queue.join()
         self._process = None
         self._future_queue = None
@@ -207,34 +210,36 @@ def _execute_multiple_tasks(
     error_log_file: Optional[str] = None,
     worker_id: Optional[int] = None,
     stop_function: Optional[Callable] = None,
+    restart_limit: int = 0,
     **kwargs,
 ) -> None:
     """
     Execute a single tasks in parallel using the message passing interface (MPI).
 
     Args:
-       future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
-       cores (int): defines the total number of MPI ranks to use
-       spawner (BaseSpawner): Spawner to start process on selected compute resources
-       hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
-                                     context of an HPC cluster this essential to be able to communicate to an
-                                     Executor running on a different compute node within the same allocation. And
-                                     in principle any computer should be able to resolve that their own hostname
-                                     points to the same address as localhost. Still MacOS >= 12 seems to disable
-                                     this look up for security reasons. So on MacOS it is required to set this
-                                     option to true
-       init_function (Callable): optional function to preset arguments for functions which are submitted later
-       cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
-       cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
-                                  overwritten by setting the cache_key.
-       queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
-       log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-       error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
-                             submitted to the Executor.
-       worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
-                        distribution.
+        future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+        cores (int): defines the total number of MPI ranks to use
+        spawner (BaseSpawner): Spawner to start process on selected compute resources
+        hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
+                                      context of an HPC cluster this essential to be able to communicate to an
+                                      Executor running on a different compute node within the same allocation. And
+                                      in principle any computer should be able to resolve that their own hostname
+                                      points to the same address as localhost. Still MacOS >= 12 seems to disable
+                                      this look up for security reasons. So on MacOS it is required to set this
+                                      option to true
+        init_function (Callable): optional function to preset arguments for functions which are submitted later
+        cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
+        cache_key (str, optional): By default the cache_key is generated based on the function hash, this can be
+                                   overwritten by setting the cache_key.
+        queue_join_on_shutdown (bool): Join communication queue when thread is closed. Defaults to True.
+        log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        error_log_file (str): Name of the error log file to use for storing exceptions raised by the Python functions
+                              submitted to the Executor.
+        worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
+                         distribution.
+        stop_function (Callable): Function to stop the interface.
+        restart_limit (int): The maximum number of restarting worker processes.
     """
-    # The interface becomes None when the job was cancelled before computing resources were allocated.
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
@@ -245,37 +250,64 @@ def _execute_multiple_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
-    if init_function is not None and interface is not None:
-        interface.send_dict(
-            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
-        )
+    interface_initialization_exception = _set_init_function(
+        interface=interface,
+        init_function=init_function,
+    )
+    restart_counter = 0
     while True:
-        task_dict = future_queue.get()
-        if "shutdown" in task_dict and task_dict["shutdown"]:
-            if interface is not None:
-                interface.shutdown(wait=task_dict["wait"])
-            task_done(future_queue=future_queue)
-            if queue_join_on_shutdown:
-                future_queue.join()
-            break
-        elif "fn" in task_dict and "future" in task_dict:
-            f = task_dict.pop("future")
-            result_flag = execute_task_dict(
-                future_obj=f,
-                task_dict=task_dict,
-                interface=interface,
-                cache_directory=cache_directory,
-                cache_key=cache_key,
-                error_log_file=error_log_file,
+        if not interface.status and restart_counter > restart_limit:
+            interface.status = True  # no more restarts
+            interface_initialization_exception = ExecutorlibSocketError(
+                "SocketInterface crashed during execution."
             )
-            if not result_flag:
+        elif not interface.status:
+            interface.bootup()
+            interface_initialization_exception = _set_init_function(
+                interface=interface,
+                init_function=init_function,
+            )
+            restart_counter += 1
+        else:  # interface.status == True
+            task_dict = future_queue.get()
+            if "shutdown" in task_dict and task_dict["shutdown"]:
+                if interface.status:
+                    interface.shutdown(wait=task_dict["wait"])
                 task_done(future_queue=future_queue)
-                reset_task_dict(
-                    future_obj=f, future_queue=future_queue, task_dict=task_dict
-                )
-                if interface is not None:
-                    interface.restart()
+                if queue_join_on_shutdown:
+                    future_queue.join()
+                break
+            elif "fn" in task_dict and "future" in task_dict:
+                f = task_dict.pop("future")
+                if interface_initialization_exception is not None:
+                    f.set_exception(exception=interface_initialization_exception)
                 else:
-                    break
-            else:
+                    # The interface failed during the execution
+                    interface.status = execute_task_dict(
+                        task_dict=task_dict,
+                        future_obj=f,
+                        interface=interface,
+                        cache_directory=cache_directory,
+                        cache_key=cache_key,
+                        error_log_file=error_log_file,
+                    )
+                    if not interface.status:
+                        reset_task_dict(
+                            future_obj=f, future_queue=future_queue, task_dict=task_dict
+                        )
                 task_done(future_queue=future_queue)
+
+
+def _set_init_function(
+    interface: SocketInterface,
+    init_function: Optional[Callable] = None,
+) -> Optional[Exception]:
+    interface_initialization_exception = None
+    if init_function is not None and interface.status:
+        try:
+            _ = interface.send_and_receive_dict(
+                input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+            )
+        except Exception as init_exception:
+            interface_initialization_exception = init_exception
+    return interface_initialization_exception

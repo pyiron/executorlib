@@ -82,8 +82,13 @@ class FluxPythonSpawner(BaseSpawner):
 
         Args:
             command_lst (list[str]): List of strings to start the client process.
+            stop_function (Callable): Function to stop the interface.
+
         Raises:
             ValueError: If oversubscribing is not supported for the Flux adapter or if conda environments are not supported.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
         if self._openmpi_oversubscribe:
             raise ValueError(
@@ -127,7 +132,7 @@ class FluxPythonSpawner(BaseSpawner):
             )
         else:
             self._future = self._flux_executor.submit(jobspec=jobspec)
-        return True
+        return self.poll()
 
     def shutdown(self, wait: bool = True):
         """

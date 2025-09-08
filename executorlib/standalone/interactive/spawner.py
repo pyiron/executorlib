@@ -36,6 +36,10 @@ class BaseSpawner(ABC):
 
         Args:
             command_lst (list[str]): The command list to execute.
+            stop_function (Callable): Function to stop the interface.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
         raise NotImplementedError
 
@@ -95,6 +99,10 @@ class SubprocessSpawner(BaseSpawner):
 
         Args:
             command_lst (list[str]): The command list to execute.
+            stop_function (Callable): Function to stop the interface.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
         if self._cwd is not None:
             os.makedirs(self._cwd, exist_ok=True)
@@ -103,7 +111,7 @@ class SubprocessSpawner(BaseSpawner):
             cwd=self._cwd,
             stdin=subprocess.DEVNULL,
         )
-        return True
+        return self.poll()
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """

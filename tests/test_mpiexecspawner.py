@@ -323,8 +323,8 @@ class TestFuturePool(unittest.TestCase):
             executor_kwargs={"cores": 1},
             spawner=MpiExecSpawner,
         ) as p:
-            output = p.map(calc_array, [1, 2, 3])
-        self.assertEqual(list(output), [np.array(1), np.array(4), np.array(9)])
+            output = list(p.map(calc_array, [1, 2, 3]))
+        self.assertEqual(output, [np.array(1), np.array(4), np.array(9)])
 
     def test_executor_exception(self):
         with self.assertRaises(RuntimeError):
@@ -430,9 +430,9 @@ class TestFuturePool(unittest.TestCase):
             executor_kwargs={"cores": 2},
             spawner=MpiExecSpawner,
         ) as p:
-            output = p.map(mpi_funct, [1, 2, 3])
+            output = list(p.map(mpi_funct, [1, 2, 3]))
         self.assertEqual(
-            list(output),
+            output,
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
 
