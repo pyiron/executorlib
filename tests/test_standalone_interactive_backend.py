@@ -166,6 +166,9 @@ class TestParser(unittest.TestCase):
         with self.assertRaises(ValueError):
             interface_nobackend.generate_command(command_lst=[])
 
+        with self.assertRaises(RuntimeError):
+            interface_nobackend._check_process_helper(command_lst=[])
+
         with self.assertRaises(FileNotFoundError):
             create_pysqa_block_allocation_scheduler()
         
