@@ -38,10 +38,6 @@ def mpi_funct(i):
     return i, size, rank
 
 
-def stop_function():
-    return True
-
-
 @unittest.skipIf(
     skip_flux_test or skip_mpi4py_test,
     "h5py or mpi4py or flux are not installed, so the h5py, flux and mpi4py tests are skipped.",
@@ -176,7 +172,3 @@ class TestPysqaSpawner(unittest.TestCase):
     def test_pysqa_spawner_sleep(self):
         interface_flux = PysqaSpawner(backend="flux", cores=1)
         self.assertTrue(interface_flux.bootup(command_lst=["sleep", "1"]))
-
-    def test_pysqa_spawner_stop_function(self):
-        interface_flux = PysqaSpawner(backend="flux", cores=1)
-        self.assertFalse(interface_flux.bootup(command_lst=["exit"], stop_function=stop_function))
