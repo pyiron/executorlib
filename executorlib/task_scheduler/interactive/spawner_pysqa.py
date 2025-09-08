@@ -34,9 +34,17 @@ class PysqaSpawner(BaseSpawner):
 
         Args:
             cwd (str, optional): The current working directory. Defaults to None.
-            cores (int, optional): The number of cores to use. Defaults to 1.
-            threads_per_core (int, optional): The number of threads per core. Defaults to 1.
-            openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+            cores (int): The number of cores to use. Defaults to 1.
+            threads_per_core (int): The number of threads per core. Defaults to 1.
+            gpus_per_core (int): number of GPUs per worker - defaults to 0
+            num_nodes (int, optional): The number of compute nodes to use for executing the task.  Defaults to None.
+            exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults 
+                              to False.
+            openmpi_oversubscribe (bool): Whether to oversubscribe the cores. Defaults to False.
+            slurm_cmd_args (list, optional): Additional command line arguments for the srun call (SLURM only)
+            pmi_mode (str, optional): PMI interface to use (OpenMPI v5 requires pmix) default is None
+            config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
+            backend (str): name of the backend used to spawn tasks.
         """
         super().__init__(
             cwd=cwd,
@@ -65,6 +73,10 @@ class PysqaSpawner(BaseSpawner):
 
         Args:
             command_lst (list[str]): The command list to execute.
+            stop_function (Callable): Function to stop the interface.
+
+        Returns:
+            bool: Whether the interface was successfully started.
         """
         self._queue_adapter = QueueAdapter(
             directory=self._config_directory,
