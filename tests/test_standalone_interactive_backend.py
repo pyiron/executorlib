@@ -7,7 +7,7 @@ from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.task_scheduler.interactive.spawner_slurm import SrunSpawner
 
 try:
-    from executorlib.task_scheduler.interactive.spawner_pysqa import PysqaSpawner
+    from executorlib.task_scheduler.interactive.spawner_pysqa import PysqaSpawner, create_pysqa_block_allocation_scheduler
 
     skip_pysqa_test = False
 except ImportError:
@@ -168,4 +168,9 @@ class TestParser(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             interface_nobackend._check_process_helper(command_lst=[])
-        
+
+        with self.assertRaises(KeyError):
+            create_pysqa_block_allocation_scheduler()
+
+        with self.assertRaises(ValueError):
+            create_pysqa_block_allocation_scheduler(resource_dict={"cwd": "."})
