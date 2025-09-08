@@ -20,6 +20,13 @@ try:
 except ImportError:
     skip_h5py_test = True
 
+try:
+    import pysqa
+
+    skip_pysqa_test = False
+except ImportError:
+    skip_pysqa_test = True
+
 submission_template = """\
 #!/bin/bash
 #SBATCH --output=time.out
@@ -108,3 +115,13 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
+
+
+@unittest.skipIf(skip_pysqa_test, "pysqa is not installed, so the pysqa tests are skipped.")
+class TestSlurmClusterInit(unittest.TestCase):
+    def test_slurm_cluster_block_allocation(self):
+        with self.assertRaises(ValueError):
+            SlurmClusterExecutor(block_allocation=True)
+
+    def test_slurm_cluster_file(self):
+        self.assertTrue(SlurmClusterExecutor(block_allocation=False))

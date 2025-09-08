@@ -358,28 +358,48 @@ class FluxClusterExecutor(BaseExecutor):
         if not plot_dependency_graph:
             import pysqa  # noqa
 
-            from executorlib.task_scheduler.file.task_scheduler import (
-                create_file_executor,
-            )
-
-            super().__init__(
-                executor=create_file_executor(
-                    max_workers=max_workers,
-                    backend="flux",
-                    max_cores=max_cores,
-                    cache_directory=cache_directory,
-                    resource_dict=resource_dict,
-                    flux_executor=None,
-                    pmi_mode=pmi_mode,
-                    flux_executor_nesting=False,
-                    flux_log_files=False,
-                    pysqa_config_directory=pysqa_config_directory,
-                    hostname_localhost=hostname_localhost,
-                    block_allocation=block_allocation,
-                    init_function=init_function,
-                    disable_dependencies=disable_dependencies,
+            if block_allocation:
+                from executorlib.task_scheduler.interactive.spawner_pysqa import (
+                    create_pysqa_block_allocation_scheduler,
                 )
-            )
+
+                super().__init__(
+                    executor=create_pysqa_block_allocation_scheduler(
+                        max_cores=max_cores,
+                        cache_directory=cache_directory,
+                        hostname_localhost=hostname_localhost,
+                        log_obj_size=log_obj_size,
+                        pmi_mode=pmi_mode,
+                        init_function=init_function,
+                        max_workers=max_workers,
+                        resource_dict=resource_dict,
+                        pysqa_config_directory=pysqa_config_directory,
+                        backend="flux",
+                    )
+                )
+            else:
+                from executorlib.task_scheduler.file.task_scheduler import (
+                    create_file_executor,
+                )
+
+                super().__init__(
+                    executor=create_file_executor(
+                        max_workers=max_workers,
+                        backend="flux",
+                        max_cores=max_cores,
+                        cache_directory=cache_directory,
+                        resource_dict=resource_dict,
+                        flux_executor=None,
+                        pmi_mode=pmi_mode,
+                        flux_executor_nesting=False,
+                        flux_log_files=False,
+                        pysqa_config_directory=pysqa_config_directory,
+                        hostname_localhost=hostname_localhost,
+                        block_allocation=block_allocation,
+                        init_function=init_function,
+                        disable_dependencies=disable_dependencies,
+                    )
+                )
         else:
             super().__init__(
                 executor=DependencyTaskScheduler(

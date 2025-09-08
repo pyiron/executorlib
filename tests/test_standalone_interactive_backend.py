@@ -6,6 +6,13 @@ from executorlib.standalone.interactive.backend import parse_arguments
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 from executorlib.task_scheduler.interactive.spawner_slurm import SrunSpawner
 
+try:
+    from executorlib.task_scheduler.interactive.spawner_pysqa import PysqaSpawner, create_pysqa_block_allocation_scheduler
+
+    skip_pysqa_test = False
+except ImportError:
+    skip_pysqa_test = True
+
 
 class TestParser(unittest.TestCase):
     def test_command_local(self):
@@ -121,3 +128,49 @@ class TestParser(unittest.TestCase):
             ),
         )
         self.assertEqual(result_dict, parse_arguments(command_lst))
+
+    @unittest.skipIf(skip_pysqa_test, "pysqa is not installed, so the pysqa tests are skipped.")
+    def test_command_pysqa(self):
+        interface_slurm = PysqaSpawner(backend="slurm", cores=2, pmi_mode="pmix", num_nodes=2, threads_per_core=2, gpus_per_core=1, exclusive=True, openmpi_oversubscribe=True, slurm_cmd_args=["test"])
+        output = ['srun', '-n', '2', '--mpi=pmix', '-N', '2', '--cpus-per-task=2', '--gpus-per-task=1', '--exact', '--oversubscribe', 'test']
+        self.assertEqual(interface_slurm.generate_command(command_lst=[]), output)
+
+        with self.assertRaises(FileNotFoundError):
+            interface_slurm.bootup(command_lst=["sleep", "1"])
+
+        interface_flux = PysqaSpawner(backend="flux", cores=2, pmi_mode="pmix")
+        output = ['flux', 'run', '-n', '2', '-o', 'pmi=pmix']
+        self.assertEqual(interface_flux.generate_command(command_lst=[]), output)
+
+        interface_flux = PysqaSpawner(backend="flux", cores=2, pmi_mode="pmix", num_nodes=2)
+        with self.assertRaises(ValueError):
+            interface_flux.generate_command(command_lst=[])
+
+        interface_flux = PysqaSpawner(backend="flux", cores=2, pmi_mode="pmix", threads_per_core=2)
+        with self.assertRaises(ValueError):
+            interface_flux.generate_command(command_lst=[])
+
+        interface_flux = PysqaSpawner(backend="flux", cores=2, pmi_mode="pmix", gpus_per_core=1)
+        with self.assertRaises(ValueError):
+            interface_flux.generate_command(command_lst=[])
+
+        interface_flux = PysqaSpawner(backend="flux", cores=2, pmi_mode="pmix", exclusive=True)
+        with self.assertRaises(ValueError):
+            interface_flux.generate_command(command_lst=[])
+
+        interface_flux = PysqaSpawner(backend="flux", cores=2, pmi_mode="pmix", openmpi_oversubscribe=True)
+        with self.assertRaises(ValueError):
+            interface_flux.generate_command(command_lst=[])
+
+        interface_nobackend = PysqaSpawner(cores=2)
+        with self.assertRaises(ValueError):
+            interface_nobackend.generate_command(command_lst=[])
+
+        with self.assertRaises(RuntimeError):
+            interface_nobackend._check_process_helper(command_lst=[])
+
+        with self.assertRaises(ValueError):
+            create_pysqa_block_allocation_scheduler()
+
+        with self.assertRaises(ValueError):
+            create_pysqa_block_allocation_scheduler(resource_dict={"cwd": "."})
