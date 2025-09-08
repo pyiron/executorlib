@@ -119,6 +119,9 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
 @unittest.skipIf(skip_pysqa_test, "pysqa is not installed, so the pysqa tests are skipped.")
 class TestSlurmClusterInit(unittest.TestCase):
-    def test_slurm_cluster_init(self):
+    def test_slurm_cluster_block_allocation(self):
         with self.assertRaises(ValueError):
             SlurmClusterExecutor(block_allocation=True)
+
+    def test_slurm_cluster_file(self):
+        self.assertTrue(SlurmClusterExecutor(block_allocation=False))
