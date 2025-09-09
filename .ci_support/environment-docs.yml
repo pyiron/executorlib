@@ -1,18 +1,18 @@
 channels:
 - conda-forge
 dependencies:
+- flux-core
 - hatchling
 - hatch-vcs
-- nbsphinx
-- sphinx
-- sphinx_rtd_theme
 - myst-parser
+- nbsphinx
 - numpy
 - openmpi
+- sphinx
+- sphinx_rtd_theme
 - cloudpickle =3.1.1
-- mpi4py =4.0.1
-- pyzmq =27.0.2
-- flux-core
-- jupyter-book =1.0.0
 - h5py =3.14.0
+- jupyter-book =1.0.0
+- mpi4py =4.0.1
 - python =3.12
+- pyzmq =27.1.0
