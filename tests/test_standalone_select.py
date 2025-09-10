@@ -2,7 +2,7 @@ import unittest
 from concurrent.futures import Future
 from executorlib import SingleNodeExecutor, split_future, get_item_from_future
 from executorlib.api import cloudpickle_register
-from executorlib.standalone.split import FutureSelector
+from executorlib.standalone.select import FutureSelector
 
 
 def function_returns_tuple(i):
