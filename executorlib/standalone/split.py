@@ -40,8 +40,29 @@ class SplitFuture(Future):
 
 
 def split_future(future: Future, n: int) -> list[SplitFuture]:
+    """
+    Split a concurrent.futures.Future object which returns a tuple or list as result into individual future objects
+
+    Args:
+        future (Future): future object which returns a tuple or list as result
+        n: number of elements expected in the future object
+
+    Returns:
+        list: List of future objects
+    """
     return [SplitFuture(future=future, selector=i) for i in range(n)]
 
 
 def get_item_from_future(future: Future, key: str) -> SplitFuture:
+    """
+    Get item from concurrent.futures.Future object which returns a dictionary as result by the corresponding dictionary
+    key.
+
+    Args:
+        future (Future): future object which returns a dictionary as result
+        key (str): dictionary key to get item from dictionary
+
+    Returns:
+        SplitFuture: Future object which returns the value corresponding to the key
+    """
     return SplitFuture(future=future, selector=key)
