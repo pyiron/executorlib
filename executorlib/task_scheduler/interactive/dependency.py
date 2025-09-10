@@ -5,6 +5,7 @@ from time import sleep
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.batched import batched_futures
+from executorlib.standalone.select import FutureSelector
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
     get_exception_lst,
@@ -146,9 +147,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
             }
             task_hash = generate_task_hash_for_plotting(
                 task_dict=task_dict,
-                future_hash_inverse_dict={
-                    v: k for k, v in self._future_hash_dict.items()
-                },
+                future_hash_dict=self._future_hash_dict,
             )
             self._future_hash_dict[task_hash] = f
             self._task_hash_dict[task_hash] = task_dict

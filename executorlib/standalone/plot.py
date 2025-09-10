@@ -92,14 +92,14 @@ def generate_nodes_and_edges_for_plotting(
 
 
 def generate_task_hash_for_plotting(
-    task_dict: dict, future_hash_inverse_dict: dict
+    task_dict: dict, future_hash_dict: dict
 ) -> bytes:
     """
     Generate a hash for a task dictionary.
 
     Args:
         task_dict (dict): Dictionary containing task information.
-        future_hash_inverse_dict (dict): Dictionary mapping future hash to future object.
+        future_hash_dict (dict): Dictionary mapping future hash to future object.
 
     Returns:
         bytes: Hash generated for the task dictionary.
@@ -117,7 +117,32 @@ def generate_task_hash_for_plotting(
             The hash representation of the argument.
         """
         if isinstance(arg, FutureSelector):
-            return future_hash_inverse_dict[arg._future]
+            if arg not in future_hash_inverse_dict:
+                if isinstance(arg._selector, str):
+                    hash = cloudpickle.dumps(
+                        {
+                            "fn": "get_item_from_future",
+                            "args": (),
+                            "kwargs": {
+                                "future": future_hash_inverse_dict[arg._future],
+                                "selector": arg._selector,
+                            },
+                        }
+                    )
+                else:
+                    hash = cloudpickle.dumps(
+                        {
+                            "fn": "split_future",
+                            "args": (),
+                            "kwargs": {
+                                "future": future_hash_inverse_dict[arg._future],
+                                "selector": arg._selector,
+                            },
+                        }
+                    )
+                future_hash_dict[hash] = arg
+                future_hash_inverse_dict[arg] = hash
+            return future_hash_inverse_dict[arg]
         elif isinstance(arg, Future):
             return future_hash_inverse_dict[arg]
         elif isinstance(arg, list):
@@ -133,6 +158,7 @@ def generate_task_hash_for_plotting(
         else:
             return arg
 
+    future_hash_inverse_dict = {v:k for k, v in future_hash_dict.items()}
     args_for_hash = [
         convert_arg(arg=arg, future_hash_inverse_dict=future_hash_inverse_dict)
         for arg in task_dict["args"]
