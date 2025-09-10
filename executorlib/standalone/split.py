@@ -23,19 +23,19 @@ class SplitFuture(Future):
     def add_done_callback(self, fn) -> None:
         return self._future.add_done_callback(fn=fn)
 
-    def result(self, timeout: Optional[int] = None) -> Any:
+    def result(self, timeout: Optional[float] = None) -> Any:
         return self._future.result(timeout=timeout)[self._selector]
 
-    def exception(self, timeout: Optional[int] = None) -> BaseException:
+    def exception(self, timeout: Optional[float] = None) -> BaseException:
         return self._future.exception(timeout=timeout)
 
     def set_running_or_notify_cancel(self) -> bool:
         return self._future.set_running_or_notify_cancel()
 
-    def set_result(self, result) -> None:
+    def set_result(self, result: Any) -> None:
         return self._future.set_result(result=result)
 
-    def set_exception(self, exception) -> None:
+    def set_exception(self, exception: BaseException) -> None:
         return self._future.set_exception(exception=exception)
 
 
