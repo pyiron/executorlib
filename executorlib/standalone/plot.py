@@ -4,6 +4,8 @@ from typing import Optional
 
 import cloudpickle
 
+from executorlib.standalone.split import SplitFuture
+
 
 def generate_nodes_and_edges_for_plotting(
     task_hash_dict: dict, future_hash_inverse_dict: dict
@@ -31,7 +33,15 @@ def generate_nodes_and_edges_for_plotting(
             link_to: ID of the node to link the element to.
             label (str, optional): Label for the edge. Defaults to "".
         """
-        if isinstance(arg, Future):
+        if isinstance(arg, SplitFuture):
+            edge_lst.append(
+                {
+                    "start": hash_id_dict[future_hash_inverse_dict[arg._future]],
+                    "end": link_to,
+                    "label": label + str(arg._selector),
+                }
+            )
+        elif isinstance(arg, Future):
             edge_lst.append(
                 {
                     "start": hash_id_dict[future_hash_inverse_dict[arg]],
@@ -106,7 +116,9 @@ def generate_task_hash_for_plotting(
         Returns:
             The hash representation of the argument.
         """
-        if isinstance(arg, Future):
+        if isinstance(arg, SplitFuture):
+            return future_hash_inverse_dict[arg._future]
+        elif isinstance(arg, Future):
             return future_hash_inverse_dict[arg]
         elif isinstance(arg, list):
             return [
