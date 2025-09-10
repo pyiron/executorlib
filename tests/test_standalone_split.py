@@ -1,7 +1,7 @@
 import unittest
 from concurrent.futures import Future
-from executorlib import SingleNodeExecutor
-from executorlib.api import cloudpickle_register, split_tuple, get_item_from_future
+from executorlib import SingleNodeExecutor, split_future, get_item_from_future
+from executorlib.api import cloudpickle_register
 from executorlib.standalone.split import SplitFuture
 
 
@@ -26,7 +26,7 @@ class TestSplitFuture(unittest.TestCase):
         with SingleNodeExecutor() as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(function_returns_tuple, 15)
-            f1, f2, f3 = split_tuple(future=future, n=3)
+            f1, f2, f3 = split_future(future=future, n=3)
             self.assertEqual(f1.result(), "a")
             self.assertEqual(f2.result(), "b")
             self.assertEqual(f3.result(), 15)
@@ -52,7 +52,7 @@ class TestSplitFuture(unittest.TestCase):
         with SingleNodeExecutor() as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(function_with_exception, 15)
-            f1, f2, f3 = split_tuple(future=future, n=3)
+            f1, f2, f3 = split_future(future=future, n=3)
             with self.assertRaises(RuntimeError):
                 f3.result()
 

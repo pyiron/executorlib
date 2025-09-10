@@ -39,7 +39,7 @@ class SplitFuture(Future):
         return self._future.set_exception(exception=exception)
 
 
-def split_tuple(future: Future, n: int) -> list[SplitFuture]:
+def split_future(future: Future, n: int) -> list[SplitFuture]:
     return [SplitFuture(future=future, selector=i) for i in range(n)]
 
 

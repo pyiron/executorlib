@@ -25,6 +25,7 @@ from executorlib.executor.slurm import (
     SlurmClusterExecutor,
     SlurmJobExecutor,
 )
+from executorlib.standalone.split import split_future, get_item_from_future
 
 
 def get_cache_data(cache_directory: str) -> list[dict]:
@@ -66,6 +67,8 @@ def terminate_tasks_in_cache(
 
 __all__: list[str] = [
     "get_cache_data",
+    "get_item_from_future",
+    "split_future",
     "terminate_tasks_in_cache",
     "BaseExecutor",
     "FluxJobExecutor",
