@@ -4,7 +4,7 @@ from typing import Optional
 
 import cloudpickle
 
-from executorlib.standalone.split import FutureSelector
+from executorlib.standalone.select import FutureSelector
 
 
 def generate_nodes_and_edges_for_plotting(
