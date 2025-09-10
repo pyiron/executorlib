@@ -146,9 +146,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
             }
             task_hash = generate_task_hash_for_plotting(
                 task_dict=task_dict,
-                future_hash_inverse_dict={
-                    v: k for k, v in self._future_hash_dict.items()
-                },
+                future_hash_dict=self._future_hash_dict,
             )
             self._future_hash_dict[task_hash] = f
             self._task_hash_dict[task_hash] = task_dict
