@@ -9,7 +9,7 @@ from executorlib import (
     split_future,
     get_item_from_future,
 )
-from executorlib.standalone.plot import generate_nodes_and_edges_for_plotting
+from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
 

@@ -3,7 +3,7 @@ import unittest
 from time import sleep
 
 from executorlib import FluxJobExecutor, FluxClusterExecutor
-from executorlib.standalone.plot import generate_nodes_and_edges_for_plotting
+from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
 
