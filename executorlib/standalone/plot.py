@@ -82,14 +82,14 @@ def generate_nodes_and_edges_for_plotting(
 
 
 def generate_task_hash_for_plotting(
-    task_dict: dict, future_hash_inverse_dict: dict
+    task_dict: dict, future_hash_dict: dict
 ) -> bytes:
     """
     Generate a hash for a task dictionary.
 
     Args:
         task_dict (dict): Dictionary containing task information.
-        future_hash_inverse_dict (dict): Dictionary mapping future hash to future object.
+        future_hash_dict (dict): Dictionary mapping future hash to future object.
 
     Returns:
         bytes: Hash generated for the task dictionary.
@@ -121,12 +121,13 @@ def generate_task_hash_for_plotting(
         else:
             return arg
 
+    future_hash_inverted_dict = {v:k for k, v in future_hash_dict.items()}
     args_for_hash = [
-        convert_arg(arg=arg, future_hash_inverse_dict=future_hash_inverse_dict)
+        convert_arg(arg=arg, future_hash_inverse_dict=future_hash_inverted_dict)
         for arg in task_dict["args"]
     ]
     kwargs_for_hash = {
-        k: convert_arg(arg=v, future_hash_inverse_dict=future_hash_inverse_dict)
+        k: convert_arg(arg=v, future_hash_inverse_dict=future_hash_inverted_dict)
         for k, v in task_dict["kwargs"].items()
     }
     return cloudpickle.dumps(
