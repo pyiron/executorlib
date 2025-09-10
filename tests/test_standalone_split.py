@@ -1,8 +1,8 @@
 import unittest
 from concurrent.futures import Future
 from executorlib import SingleNodeExecutor
-from executorlib.api import cloudpickle_register
-from executorlib.standalone.split import split, SplitFuture
+from executorlib.api import cloudpickle_register, split
+from executorlib.standalone.split import SplitFuture
 
 
 def function_with_multiple_outputs(i):
