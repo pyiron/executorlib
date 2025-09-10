@@ -25,7 +25,7 @@ from executorlib.executor.slurm import (
     SlurmClusterExecutor,
     SlurmJobExecutor,
 )
-from executorlib.standalone.split import split_future, get_item_from_future
+from executorlib.standalone.split import get_item_from_future, split_future
 
 
 def get_cache_data(cache_directory: str) -> list[dict]:
