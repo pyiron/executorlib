@@ -37,7 +37,7 @@ class TestSplitFuture(unittest.TestCase):
     def test_integration_return_dict(self):
         with SingleNodeExecutor() as exe:
             cloudpickle_register(ind=1)
-            future = exe.submit(function_returns_tuple, 15)
+            future = exe.submit(function_returns_dict, 15)
             f1 = get_item_from_future(future=future, key="a")
             f2 = get_item_from_future(future=future, key="b")
             f3 = get_item_from_future(future=future, key="c")
