@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 
 class SplitFuture(Future):
-    def __init__(self, future: Future, selector: int):
+    def __init__(self, future: Future, selector: int | str):
         super().__init__()
         self._future = future
         self._selector = selector

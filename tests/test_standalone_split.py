@@ -5,8 +5,12 @@ from executorlib.api import cloudpickle_register, split
 from executorlib.standalone.split import SplitFuture
 
 
-def function_with_multiple_outputs(i):
+def function_returns_tuple(i):
     return "a", "b", i
+
+
+def function_returns_dict(i):
+    return {"a": 1, "b": 2, "c": i}
 
 
 def function_with_exception(i):
@@ -18,10 +22,10 @@ def callback(future):
 
 
 class TestSplitFuture(unittest.TestCase):
-    def test_integration_base(self):
+    def test_integration_return_tuple(self):
         with SingleNodeExecutor() as exe:
             cloudpickle_register(ind=1)
-            future = exe.submit(function_with_multiple_outputs, 15)
+            future = exe.submit(function_returns_tuple, 15)
             f1, f2, f3 = split(future=future, n=3)
             self.assertEqual(f1.result(), "a")
             self.assertEqual(f2.result(), "b")
