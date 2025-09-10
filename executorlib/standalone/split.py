@@ -26,7 +26,7 @@ class SplitFuture(Future):
     def result(self, timeout: Optional[float] = None) -> Any:
         return self._future.result(timeout=timeout)[self._selector]
 
-    def exception(self, timeout: Optional[float] = None) -> BaseException:
+    def exception(self, timeout: Optional[float] = None) -> Optional[BaseException]:
         return self._future.exception(timeout=timeout)
 
     def set_running_or_notify_cancel(self) -> bool:
@@ -35,7 +35,7 @@ class SplitFuture(Future):
     def set_result(self, result: Any) -> None:
         return self._future.set_result(result=result)
 
-    def set_exception(self, exception: BaseException) -> None:
+    def set_exception(self, exception: Optional[BaseException]) -> None:
         return self._future.set_exception(exception=exception)
 
 
