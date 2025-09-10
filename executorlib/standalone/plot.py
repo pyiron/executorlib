@@ -156,13 +156,13 @@ def generate_task_hash_for_plotting(task_dict: dict, future_hash_dict: dict) -> 
         else:
             return arg
 
-    future_hash_inverse_dict = {v: k for k, v in future_hash_dict.items()}
+    future_hash_inverted_dict = {v: k for k, v in future_hash_dict.items()}
     args_for_hash = [
-        convert_arg(arg=arg, future_hash_inverse_dict=future_hash_inverse_dict)
+        convert_arg(arg=arg, future_hash_inverse_dict=future_hash_inverted_dict)
         for arg in task_dict["args"]
     ]
     kwargs_for_hash = {
-        k: convert_arg(arg=v, future_hash_inverse_dict=future_hash_inverse_dict)
+        k: convert_arg(arg=v, future_hash_inverse_dict=future_hash_inverted_dict)
         for k, v in task_dict["kwargs"].items()
     }
     return cloudpickle.dumps(
