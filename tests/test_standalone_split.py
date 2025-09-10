@@ -1,7 +1,7 @@
 import unittest
 from concurrent.futures import Future
 from executorlib import SingleNodeExecutor
-from executorlib.api import cloudpickle_register, split
+from executorlib.api import cloudpickle_register, split_tuple, get_item_from_future
 from executorlib.standalone.split import SplitFuture
 
 
@@ -26,9 +26,23 @@ class TestSplitFuture(unittest.TestCase):
         with SingleNodeExecutor() as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(function_returns_tuple, 15)
-            f1, f2, f3 = split(future=future, n=3)
+            f1, f2, f3 = split_tuple(future=future, n=3)
             self.assertEqual(f1.result(), "a")
             self.assertEqual(f2.result(), "b")
+            self.assertEqual(f3.result(), 15)
+            self.assertTrue(f1.done())
+            self.assertTrue(f2.done())
+            self.assertTrue(f3.done())
+
+    def test_integration_return_dict(self):
+        with SingleNodeExecutor() as exe:
+            cloudpickle_register(ind=1)
+            future = exe.submit(function_returns_tuple, 15)
+            f1 = get_item_from_future(future=future, key="a")
+            f2 = get_item_from_future(future=future, key="b")
+            f3 = get_item_from_future(future=future, key="c")
+            self.assertEqual(f1.result(), 1)
+            self.assertEqual(f2.result(), 2)
             self.assertEqual(f3.result(), 15)
             self.assertTrue(f1.done())
             self.assertTrue(f2.done())
@@ -38,7 +52,7 @@ class TestSplitFuture(unittest.TestCase):
         with SingleNodeExecutor() as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(function_with_exception, 15)
-            f1, f2, f3 = split(future=future, n=3)
+            f1, f2, f3 = split_tuple(future=future, n=3)
             with self.assertRaises(RuntimeError):
                 f3.result()
 
