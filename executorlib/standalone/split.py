@@ -2,7 +2,7 @@ from concurrent.futures import Future
 from typing import Any, Optional
 
 
-class SplitFuture(Future):
+class FutureSelector(Future):
     def __init__(self, future: Future, selector: int | str):
         super().__init__()
         self._future = future
@@ -43,7 +43,7 @@ class SplitFuture(Future):
         return self._future.set_exception(exception=exception)
 
 
-def split_future(future: Future, n: int) -> list[SplitFuture]:
+def split_future(future: Future, n: int) -> list[FutureSelector]:
     """
     Split a concurrent.futures.Future object which returns a tuple or list as result into individual future objects
 
@@ -54,10 +54,10 @@ def split_future(future: Future, n: int) -> list[SplitFuture]:
     Returns:
         list: List of future objects
     """
-    return [SplitFuture(future=future, selector=i) for i in range(n)]
+    return [FutureSelector(future=future, selector=i) for i in range(n)]
 
 
-def get_item_from_future(future: Future, key: str) -> SplitFuture:
+def get_item_from_future(future: Future, key: str) -> FutureSelector:
     """
     Get item from concurrent.futures.Future object which returns a dictionary as result by the corresponding dictionary
     key.
@@ -67,6 +67,6 @@ def get_item_from_future(future: Future, key: str) -> SplitFuture:
         key (str): dictionary key to get item from dictionary
 
     Returns:
-        SplitFuture: Future object which returns the value corresponding to the key
+        FutureSelector: Future object which returns the value corresponding to the key
     """
-    return SplitFuture(future=future, selector=key)
+    return FutureSelector(future=future, selector=key)
