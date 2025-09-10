@@ -5,7 +5,6 @@ from time import sleep
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.batched import batched_futures
-from executorlib.standalone.select import FutureSelector
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
     get_exception_lst,
