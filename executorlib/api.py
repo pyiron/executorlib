@@ -18,7 +18,7 @@ from executorlib.standalone.interactive.communication import (
 from executorlib.standalone.interactive.spawner import MpiExecSpawner, SubprocessSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
-from executorlib.standalone.split import split_tuple, get_item_from_future
+from executorlib.standalone.split import get_item_from_future, split_tuple
 
 __all__: list[str] = [
     "TestClusterExecutor",
