@@ -24,7 +24,11 @@ class SplitFuture(Future):
         return self._future.add_done_callback(fn=fn)
 
     def result(self, timeout: Optional[float] = None) -> Any:
-        return self._future.result(timeout=timeout)[self._selector]
+        result = self._future.result(timeout=timeout)
+        if result is not None:
+            return result[self._selector]
+        else:
+            return None
 
     def exception(self, timeout: Optional[float] = None) -> Optional[BaseException]:
         return self._future.exception(timeout=timeout)
