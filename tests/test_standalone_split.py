@@ -13,6 +13,10 @@ def function_with_exception(i):
     raise RuntimeError()
 
 
+def callback(future):
+    print("callback:", future.result())
+
+
 class TestSplitFuture(unittest.TestCase):
     def test_integration_base(self):
         with SingleNodeExecutor() as exe:
@@ -37,6 +41,7 @@ class TestSplitFuture(unittest.TestCase):
     def test_split_future_object(self):
         f1 = Future()
         fs1 = SplitFuture(future=f1, selector=1)
+        fs1.add_done_callback(callback)
         fs1.set_running_or_notify_cancel()
         self.assertTrue(fs1.running())
         fs1.set_result([1, 2])
@@ -48,5 +53,6 @@ class TestSplitFuture(unittest.TestCase):
         f3 = Future()
         fs3 = SplitFuture(future=f3, selector=1)
         fs3.set_exception(RuntimeError())
+        self.assertEqual(type(fs3.exception()), RuntimeError)
         with self.assertRaises(RuntimeError):
             fs3.result()
