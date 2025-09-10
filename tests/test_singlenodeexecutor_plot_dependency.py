@@ -304,6 +304,10 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
             self.assertEqual(len(edges), 22)
 
 
+@unittest.skipIf(
+    skip_graphviz_test,
+    "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
+)
 class TestSelectExecutorPlot(unittest.TestCase):
     def test_split_future(self):
         with SingleNodeExecutor(plot_dependency_graph=True) as exe:
