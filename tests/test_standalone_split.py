@@ -1,7 +1,8 @@
 import unittest
+from concurrent.futures import Future
 from executorlib import SingleNodeExecutor
 from executorlib.api import cloudpickle_register
-from executorlib.standalone.split import split
+from executorlib.standalone.split import split, SplitFuture
 
 
 def function_with_multiple_outputs(i):
@@ -32,3 +33,20 @@ class TestSplitFuture(unittest.TestCase):
             f1, f2, f3 = split(future=future, n=3)
             with self.assertRaises(RuntimeError):
                 f3.result()
+
+    def test_split_future_object(self):
+        f1 = Future()
+        fs1 = SplitFuture(future=f1, selector=1)
+        fs1.set_running_or_notify_cancel()
+        self.assertTrue(fs1.running())
+        fs1.set_result([1, 2])
+        self.assertEqual(fs1.result(), 2)
+        f2 = Future()
+        fs2 = SplitFuture(future=f2, selector=1)
+        fs2.cancel()
+        self.assertTrue(fs2.cancelled())
+        f3 = Future()
+        fs3 = SplitFuture(future=f3, selector=1)
+        fs3.set_exception(RuntimeError())
+        with self.assertRaises(RuntimeError):
+            fs3.result()
