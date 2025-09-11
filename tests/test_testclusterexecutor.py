@@ -4,7 +4,7 @@ import unittest
 
 from executorlib import get_cache_data
 from executorlib.api import TestClusterExecutor
-from executorlib.standalone.plot import generate_nodes_and_edges_for_plotting
+from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:

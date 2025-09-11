@@ -4,6 +4,8 @@ from typing import Optional
 
 import cloudpickle
 
+from executorlib.standalone.select import FutureSelector
+
 
 def generate_nodes_and_edges_for_plotting(
     task_hash_dict: dict, future_hash_inverse_dict: dict
@@ -31,7 +33,15 @@ def generate_nodes_and_edges_for_plotting(
             link_to: ID of the node to link the element to.
             label (str, optional): Label for the edge. Defaults to "".
         """
-        if isinstance(arg, Future):
+        if isinstance(arg, FutureSelector):
+            edge_lst.append(
+                {
+                    "start": hash_id_dict[future_hash_inverse_dict[arg._future]],
+                    "end": link_to,
+                    "label": label + str(arg._selector),
+                }
+            )
+        elif isinstance(arg, Future):
             edge_lst.append(
                 {
                     "start": hash_id_dict[future_hash_inverse_dict[arg]],
@@ -104,7 +114,24 @@ def generate_task_hash_for_plotting(task_dict: dict, future_hash_dict: dict) -> 
         Returns:
             The hash representation of the argument.
         """
-        if isinstance(arg, Future):
+        if isinstance(arg, FutureSelector):
+            if arg not in future_hash_inverse_dict:
+                obj_dict = {
+                    "args": (),
+                    "kwargs": {
+                        "future": future_hash_inverse_dict[arg._future],
+                        "selector": arg._selector,
+                    },
+                }
+                if isinstance(arg._selector, str):
+                    obj_dict["fn"] = "get_item_from_future"
+                else:
+                    obj_dict["fn"] = "split_future"
+                arg_hash = cloudpickle.dumps(obj_dict)
+                future_hash_dict[arg_hash] = arg
+                future_hash_inverse_dict[arg] = arg_hash
+            return future_hash_inverse_dict[arg]
+        elif isinstance(arg, Future):
             return future_hash_inverse_dict[arg]
         elif isinstance(arg, list):
             return [

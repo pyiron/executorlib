@@ -11,12 +11,12 @@ from executorlib.standalone.interactive.arguments import (
     get_future_objects_from_input,
     update_futures_in_input,
 )
-from executorlib.standalone.plot import (
+from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.interactive.dependency_plot import (
     generate_nodes_and_edges_for_plotting,
     generate_task_hash_for_plotting,
     plot_dependency_graph_function,
 )
-from executorlib.task_scheduler.base import TaskSchedulerBase
 
 
 class DependencyTaskScheduler(TaskSchedulerBase):

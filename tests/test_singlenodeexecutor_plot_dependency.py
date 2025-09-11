@@ -6,8 +6,10 @@ from executorlib import (
     SingleNodeExecutor,
     SlurmJobExecutor,
     SlurmClusterExecutor,
+    split_future,
+    get_item_from_future,
 )
-from executorlib.standalone.plot import generate_nodes_and_edges_for_plotting
+from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
 
@@ -42,6 +44,17 @@ def merge(lst):
 def return_input_dict(input_dict):
     return input_dict
 
+
+def get_tuple(i):
+    return 1, 2, i
+
+
+def get_dict(i):
+    return {"a": 1, "b": i}
+
+
+def echo(i):
+    return i
 
 @unittest.skipIf(
     skip_graphviz_test,
@@ -289,3 +302,28 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
             )
             self.assertEqual(len(nodes), 19)
             self.assertEqual(len(edges), 22)
+
+
+@unittest.skipIf(
+    skip_graphviz_test,
+    "graphviz is not installed, so the plot_dependency_graph tests are skipped.",
+)
+class TestSelectExecutorPlot(unittest.TestCase):
+    def test_split_future(self):
+        with SingleNodeExecutor(plot_dependency_graph=True) as exe:
+            f = exe.submit(get_tuple, 5)
+            f1, f2, f3 = split_future(future=f, n=3)
+            f12 = exe.submit(echo, f1)
+            f22 = exe.submit(echo, f2)
+            f32 = exe.submit(echo, f3)
+            self.assertIsNone(f12.result())
+            self.assertIsNone(f22.result())
+            self.assertIsNone(f32.result())
+
+    def test_get_item_from_future(self):
+        with SingleNodeExecutor(plot_dependency_graph=True) as exe:
+            f = exe.submit(get_dict, 5)
+            f1 = exe.submit(echo, get_item_from_future(future=f, key="a"))
+            f2 = exe.submit(echo, get_item_from_future(future=f, key="b"))
+            self.assertIsNone(f1.result())
+            self.assertIsNone(f2.result())
