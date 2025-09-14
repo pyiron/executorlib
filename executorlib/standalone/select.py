@@ -4,24 +4,18 @@ from typing import Any, Optional
 
 class FutureSelector(Future):
     def __init__(self, future: Future, selector: int | str):
-        super().__init__()
         self._future = future
         self._selector = selector
+        super().__init__()
 
-    def cancel(self) -> bool:
-        return self._future.cancel()
+    def __getattr__(self, attr: str) -> Any:
+        return getattr(self._future, attr)
 
-    def cancelled(self) -> bool:
-        return self._future.cancelled()
-
-    def running(self) -> bool:
-        return self._future.running()
-
-    def done(self) -> bool:
-        return self._future.done()
-
-    def add_done_callback(self, fn) -> None:
-        return self._future.add_done_callback(fn=fn)
+    def __setattr__(self, name: str, value: Any):
+        if name in ["_future", "_selector"]:
+            super().__setattr__(name, value)
+        else:
+            setattr(self._future, name, value)
 
     def result(self, timeout: Optional[float] = None) -> Any:
         result = self._future.result(timeout=timeout)
@@ -29,18 +23,6 @@ class FutureSelector(Future):
             return result[self._selector]
         else:
             return None
-
-    def exception(self, timeout: Optional[float] = None) -> Optional[BaseException]:
-        return self._future.exception(timeout=timeout)
-
-    def set_running_or_notify_cancel(self) -> bool:
-        return self._future.set_running_or_notify_cancel()
-
-    def set_result(self, result: Any) -> None:
-        return self._future.set_result(result=result)
-
-    def set_exception(self, exception: Optional[BaseException]) -> None:
-        return self._future.set_exception(exception=exception)
 
 
 def split_future(future: Future, n: int) -> list[FutureSelector]:
