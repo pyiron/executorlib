@@ -8,11 +8,8 @@ class FutureSelector(Future):
         self._selector = selector
         super().__init__()
 
-    def __getattr__(self, attr: str):
-        if attr in ["_future", "_selector"]:
-            return super().__getattribute__(attr)
-        else:
-            return getattr(self._future, attr)
+    def __getattr__(self, attr: str) -> Any:
+        return getattr(self._future, attr)
 
     def __setattr__(self, name: str, value: Any):
         if name in ["_future", "_selector"]:
