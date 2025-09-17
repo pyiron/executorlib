@@ -346,6 +346,7 @@ def _update_waiting_task(
             wait_tmp_lst.append(task_wait_dict)
     if debug:
         warnings.warn(
-            f"{len(wait_tmp_lst)} tasks are still waiting for dependencies, previously {len(wait_lst)}"
+            f"{len(wait_tmp_lst)} tasks are still waiting for dependencies, previously {len(wait_lst)}",
+            stacklevel=2,
         )
     return wait_tmp_lst
