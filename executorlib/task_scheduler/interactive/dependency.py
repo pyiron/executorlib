@@ -291,7 +291,9 @@ def _execute_tasks_with_dependencies(
             number_waiting = len(wait_lst)
             # Check functions in the wait list and execute them if all future objects are now ready
             wait_lst = _update_waiting_task(
-                wait_lst=wait_lst, executor_queue=executor_queue, debug=debug,
+                wait_lst=wait_lst,
+                executor_queue=executor_queue,
+                debug=debug,
             )
             # if no job is ready, sleep for a moment
             if len(wait_lst) == number_waiting:
@@ -301,7 +303,9 @@ def _execute_tasks_with_dependencies(
             sleep(refresh_rate)
 
 
-def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue, debug: bool = False) -> list:
+def _update_waiting_task(
+    wait_lst: list[dict], executor_queue: queue.Queue, debug: bool = False
+) -> list:
     """
     Submit the waiting tasks, which future inputs have been completed, to the executor
 
@@ -341,5 +345,7 @@ def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue, debu
         else:
             wait_tmp_lst.append(task_wait_dict)
     if debug:
-        warnings.warn(f"{len(wait_tmp_lst)} tasks are still waiting for dependencies, previously {len(wait_lst)}")
+        warnings.warn(
+            f"{len(wait_tmp_lst)} tasks are still waiting for dependencies, previously {len(wait_lst)}"
+        )
     return wait_tmp_lst
