@@ -29,7 +29,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         refresh_rate (float, optional): The refresh rate for updating the executor queue. Defaults to 0.01.
         plot_dependency_graph (bool, optional): Whether to generate and plot the dependency graph. Defaults to False.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
-        debug (bool, optional): Enable debug mode which provides additional information on the execution.
+        enable_debug_mode (bool, optional): Enable debug mode which provides additional information on the execution.
 
     Attributes:
         _future_hash_dict (Dict[str, Future]): A dictionary mapping task hash to future object.
@@ -46,7 +46,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
-        debug: bool = False,
+        enable_debug_mode: bool = False,
     ) -> None:
         super().__init__(max_cores=max_cores)
         self._process_kwargs = {
@@ -54,7 +54,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
             "executor_queue": executor._future_queue,
             "executor": executor,
             "refresh_rate": refresh_rate,
-            "debug": debug,
+            "enable_debug_mode": enable_debug_mode,
         }
         self._set_process(
             Thread(
@@ -227,7 +227,7 @@ def _execute_tasks_with_dependencies(
     executor_queue: queue.Queue,
     executor: TaskSchedulerBase,
     refresh_rate: float = 0.01,
-    debug: bool = False,
+    enable_debug_mode: bool = False,
 ):
     """
     Resolve the dependencies of multiple tasks, by analysing which task requires concurrent.future.Futures objects from
@@ -238,7 +238,7 @@ def _execute_tasks_with_dependencies(
         executor_queue (Queue): Queue for the internal executor.
         executor (TaskSchedulerBase): Executor to execute the tasks with after the dependencies are resolved.
         refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
-        debug (bool, optional): Enable debug mode which provides additional information on the execution.
+        enable_debug_mode (bool, optional): Enable debug mode which provides additional information on the execution.
     """
     wait_lst = []
     while True:
@@ -293,7 +293,7 @@ def _execute_tasks_with_dependencies(
             wait_lst = _update_waiting_task(
                 wait_lst=wait_lst,
                 executor_queue=executor_queue,
-                debug=debug,
+                enable_debug_mode=enable_debug_mode,
             )
             # if no job is ready, sleep for a moment
             if len(wait_lst) == number_waiting:
@@ -304,7 +304,7 @@ def _execute_tasks_with_dependencies(
 
 
 def _update_waiting_task(
-    wait_lst: list[dict], executor_queue: queue.Queue, debug: bool = False
+    wait_lst: list[dict], executor_queue: queue.Queue, enable_debug_mode: bool = False
 ) -> list:
     """
     Submit the waiting tasks, which future inputs have been completed, to the executor
@@ -312,7 +312,7 @@ def _update_waiting_task(
     Args:
         wait_lst (list): List of waiting tasks
         executor_queue (Queue): Queue of the internal executor
-        debug (bool, optional): Enable debug mode which provides additional information on the execution.
+        enable_debug_mode (bool, optional): Enable debug mode which provides additional information on the execution.
 
     Returns:
         list: list tasks which future inputs have not been completed
@@ -344,7 +344,7 @@ def _update_waiting_task(
                 task_wait_dict["future"].set_result(done_lst)
         else:
             wait_tmp_lst.append(task_wait_dict)
-    if debug:
+    if enable_debug_mode:
         warnings.warn(
             f"{len(wait_tmp_lst)} tasks are still waiting for dependencies, previously {len(wait_lst)}",
             stacklevel=2,
