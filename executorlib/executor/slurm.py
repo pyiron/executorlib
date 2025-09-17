@@ -276,6 +276,7 @@ class SlurmJobExecutor(BaseExecutor):
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        enable_debug_mode (bool): Enable debug mode which provides additional information on the execution.
 
     Examples:
         ```
@@ -313,6 +314,7 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        enable_debug_mode: bool = False,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -361,6 +363,7 @@ class SlurmJobExecutor(BaseExecutor):
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            enable_debug_mode (bool): Enable debug mode which provides additional information on the execution.
 
         """
         default_resource_dict: dict = {
@@ -394,6 +397,7 @@ class SlurmJobExecutor(BaseExecutor):
                     refresh_rate=refresh_rate,
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
+                    enable_debug_mode=enable_debug_mode,
                 )
             )
         else:
