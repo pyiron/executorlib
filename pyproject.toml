@@ -50,13 +50,13 @@ graphnotebook = [
     "networkx==3.4.2",
     "ipython==9.0.2",
 ]
-mpi = ["mpi4py==4.0.1"]
+mpi = ["mpi4py==4.1.0"]
 cluster = [
     "pysqa==0.3.2",
     "h5py==3.14.0",
 ]
 all = [
-    "mpi4py==4.0.1",
+    "mpi4py==4.1.0",
     "pysqa==0.3.2",
     "h5py==3.14.0",
     "pygraphviz==1.14",

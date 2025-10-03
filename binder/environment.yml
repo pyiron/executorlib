@@ -5,14 +5,14 @@ dependencies:
 - numpy
 - openmpi
 - cloudpickle =3.1.1
-- flux-core =0.59.0
+- flux-core =0.64.0
 - flux-pmix =0.5.0
 - hatchling =1.27.0
 - hatch-vcs =0.5.0
 - h5py =3.12.1
 - ipython =9.0.2
 - matplotlib =3.10.0
-- mpi4py =4.0.1
+- mpi4py =4.1.0
 - networkx =3.4.2
 - pygraphviz =1.14
 - pysqa =0.3.2
