@@ -12,7 +12,7 @@ dependencies:
 - h5py =3.12.1
 - ipython =9.0.2
 - matplotlib =3.10.0
-- mpi4py =4.0.1
+- mpi4py =4.1.0
 - networkx =3.4.2
 - pygraphviz =1.14
 - pysqa =0.3.2
