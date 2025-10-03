@@ -7,7 +7,7 @@ dependencies:
 - numpy
 - openmpi
 - papermill
-- atomistics =0.2.5
+- atomistics =0.3.0
 - cloudpickle =3.1.1
 - flux-core =0.64.0
 - gpaw =25.7.0
