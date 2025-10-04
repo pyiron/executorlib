@@ -186,6 +186,7 @@ jobs:
         shell: bash -l {0}
         timeout-minutes: 20
         run: |
+          ls /home/runner/miniconda3/envs/test/lib/python3.12/site-packages/gpaw
           cp .ci_support/mpi4pywrapper.py /home/runner/miniconda3/envs/test/lib/python3.12/site-packages/gpaw
           flux start flux resource list
           flux start papermill notebooks/5-1-gpaw.ipynb notebooks/5-1-gpaw-out.ipynb -k python3
