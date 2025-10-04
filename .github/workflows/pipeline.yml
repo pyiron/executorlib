@@ -179,14 +179,11 @@ jobs:
           channels: conda-forge
           conda-remove-defaults: "true"
           environment-file: .ci_support/environment-integration.yml
-      - name: Install
-        shell: bash -l {0}
-        run: pip install . --no-deps --no-build-isolation
       - name: Notebooks
         shell: bash -l {0}
         timeout-minutes: 20
         run: |
-          ls /home/runner/miniconda3/envs/test/lib/python3.12/site-packages/gpaw
+          pip install . --no-deps --no-build-isolation
           cp .ci_support/mpi4pywrapper.py /home/runner/miniconda3/envs/test/lib/python3.12/site-packages/gpaw
           flux start flux resource list
           flux start papermill notebooks/5-1-gpaw.ipynb notebooks/5-1-gpaw-out.ipynb -k python3
