@@ -40,7 +40,7 @@ Documentation = "https://executorlib.readthedocs.io"
 Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
-cache = ["h5py==3.14.0"]
+cache = ["h5py==3.15.0"]
 graph = [
     "pygraphviz==1.14",
     "networkx==3.4.2",
@@ -53,12 +53,12 @@ graphnotebook = [
 mpi = ["mpi4py==4.1.1"]
 cluster = [
     "pysqa==0.3.2",
-    "h5py==3.14.0",
+    "h5py==3.15.0",
 ]
 all = [
     "mpi4py==4.1.1",
     "pysqa==0.3.2",
-    "h5py==3.14.0",
+    "h5py==3.15.0",
     "pygraphviz==1.14",
     "networkx==3.4.2",
     "ipython==9.0.2",
