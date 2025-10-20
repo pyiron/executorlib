@@ -101,8 +101,23 @@ ignore = [
     "PLR0912",
 ]
 
+[tool.hatch.build]
+include = [
+    "src/executorlib"
+]
+
 [tool.hatch.build.hooks.vcs]
 version-file = "src/executorlib/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/executorlib"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/executorlib"
+]
 
 [tool.hatch.version]
 source = "vcs"
