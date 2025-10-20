@@ -29,7 +29,7 @@ jobs:
       uses: psf/black@stable
       with:
         options: ""
-        src: "./${{ github.event.repository.name }}"
+        src: "./src/${{ github.event.repository.name }}"
     - name: commit
       run: |
         git config --local user.email "pyiron@mpie.de"
@@ -55,7 +55,7 @@ jobs:
       - name: Install mypy
         run: pip install mypy
       - name: Test
-        run: mypy --ignore-missing-imports ${{ github.event.repository.name }}
+        run: mypy --ignore-missing-imports src/${{ github.event.repository.name }}
 
   minimal:
     needs: [black]
