@@ -40,7 +40,7 @@ Documentation = "https://executorlib.readthedocs.io"
 Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
-cache = ["h5py==3.14.0"]
+cache = ["h5py==3.15.0"]
 graph = [
     "pygraphviz==1.14",
     "networkx==3.4.2",
@@ -50,15 +50,15 @@ graphnotebook = [
     "networkx==3.4.2",
     "ipython==9.0.2",
 ]
-mpi = ["mpi4py==4.0.1"]
+mpi = ["mpi4py==4.1.1"]
 cluster = [
-    "pysqa==0.3.1",
-    "h5py==3.14.0",
+    "pysqa==0.3.2",
+    "h5py==3.15.0",
 ]
 all = [
-    "mpi4py==4.0.1",
-    "pysqa==0.3.1",
-    "h5py==3.14.0",
+    "mpi4py==4.1.1",
+    "pysqa==0.3.2",
+    "h5py==3.15.0",
     "pygraphviz==1.14",
     "networkx==3.4.2",
     "ipython==9.0.2",
@@ -103,26 +103,26 @@ ignore = [
 
 [tool.hatch.build]
 include = [
-    "executorlib"
+    "src/executorlib"
 ]
 
 [tool.hatch.build.hooks.vcs]
-version-file = "executorlib/_version.py"
+version-file = "src/executorlib/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "executorlib"
+    "src/executorlib"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "executorlib"
+    "src/executorlib"
 ]
 
 [tool.hatch.version]
 source = "vcs"
-path = "executorlib/_version.py"
+path = "src/executorlib/_version.py"
 
 [tool.coverage.run]
-omit = ["executorlib/_version.py", "tests/*"]
+source = ["executorlib"]
 command_line = "-m unittest discover tests"

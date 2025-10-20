@@ -13,7 +13,7 @@ jobs:
     - uses: psf/black@stable
       with:
         options: "--check --diff"
-        src: ./${{ github.event.repository.name }}
+        src: ./src/${{ github.event.repository.name }}
 
   black_fix:  # in most cases pre-commit is faster
     needs: [black]
@@ -29,7 +29,7 @@ jobs:
       uses: psf/black@stable
       with:
         options: ""
-        src: "./${{ github.event.repository.name }}"
+        src: "./src/${{ github.event.repository.name }}"
     - name: commit
       run: |
         git config --local user.email "pyiron@mpie.de"
@@ -55,7 +55,7 @@ jobs:
       - name: Install mypy
         run: pip install mypy
       - name: Test
-        run: mypy --ignore-missing-imports ${{ github.event.repository.name }}
+        run: mypy --ignore-missing-imports src/${{ github.event.repository.name }}
 
   minimal:
     needs: [black]
@@ -198,7 +198,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        echo -e '- coverage\n- flux-core =0.59.0'>> .ci_support/environment-mpich.yml
+        echo -e '- coverage\n- flux-core =0.79.0'>> .ci_support/environment-mpich.yml
         cat .ci_support/environment-mpich.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
@@ -229,7 +229,7 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        echo -e '- coverage\n- flux-core =0.59.0\n- flux-pmix=0.5.0' >> .ci_support/environment-openmpi.yml
+        echo -e '- coverage\n- flux-core =0.79.0\n- flux-pmix=0.6.0' >> .ci_support/environment-openmpi.yml
         cat .ci_support/environment-openmpi.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
@@ -451,7 +451,7 @@ jobs:
       timeout-minutes: 10
       run: |
         conda install -y pylint graphviz
-        pyreverse -o png -p ./${{ github.event.repository.name }} ./${{ github.event.repository.name }}
+        pyreverse -o png -p ./src/${{ github.event.repository.name }} ./src/${{ github.event.repository.name }}
         zip -m uml.zip *.png
     - uses: actions/upload-artifact@v4
       with:

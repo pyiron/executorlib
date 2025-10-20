@@ -1,3 +1,4 @@
+import contextlib
 import os
 from typing import Callable, Optional
 
@@ -147,7 +148,8 @@ class FluxPythonSpawner(BaseSpawner):
             # The flux future objects are not instantly updated,
             # still showing running after cancel was called,
             # so we wait until the execution is completed.
-            self._future.result()
+            with contextlib.suppress(flux.job.event.JobException):
+                self._future.result()
 
     def poll(self):
         """
