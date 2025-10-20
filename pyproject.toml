@@ -103,26 +103,26 @@ ignore = [
 
 [tool.hatch.build]
 include = [
-    "executorlib"
+    "src/executorlib"
 ]
 
 [tool.hatch.build.hooks.vcs]
-version-file = "executorlib/_version.py"
+version-file = "src/executorlib/_version.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
-    "executorlib"
+    "src/executorlib"
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = [
-    "executorlib"
+    "src/executorlib"
 ]
 
 [tool.hatch.version]
 source = "vcs"
-path = "executorlib/_version.py"
+path = "src/executorlib/_version.py"
 
 [tool.coverage.run]
-omit = ["executorlib/_version.py", "tests/*"]
+source = ["executorlib"]
 command_line = "-m unittest discover tests"
