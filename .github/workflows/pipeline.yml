@@ -13,7 +13,7 @@ jobs:
     - uses: psf/black@stable
       with:
         options: "--check --diff"
-        src: ./${{ github.event.repository.name }}
+        src: ./src/${{ github.event.repository.name }}
 
   black_fix:  # in most cases pre-commit is faster
     needs: [black]
