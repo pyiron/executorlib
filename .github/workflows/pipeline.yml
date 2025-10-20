@@ -451,7 +451,7 @@ jobs:
       timeout-minutes: 10
       run: |
         conda install -y pylint graphviz
-        pyreverse -o png -p ./src/${{ github.event.repository.name }} ./${{ github.event.repository.name }}
+        pyreverse -o png -p ./src/${{ github.event.repository.name }} ./src/${{ github.event.repository.name }}
         zip -m uml.zip *.png
     - uses: actions/upload-artifact@v4
       with:
