@@ -110,5 +110,4 @@ path = "src/executorlib/_version.py"
 
 [tool.coverage.run]
 source = ["executorlib"]
-omit = ["executorlib/_version.py", "tests/*"]
 command_line = "-m unittest discover tests"
