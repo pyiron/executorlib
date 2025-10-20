@@ -31,7 +31,7 @@ jobs:
       run: |
         cp .ci_support/environment-old.yml environment.yml
         python .ci_support/release.py; cat pyproject.toml
-        git update-index --assume-unchanged pyproject.toml executorlib/_version.py
+        git update-index --assume-unchanged pyproject.toml src/executorlib/_version.py
         hatchling build -t sdist -t wheel
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
