@@ -17,6 +17,6 @@ dependencies:
 - matplotlib =3.10.6
 - networkx =3.4.2
 - pygraphviz =1.14
-- pysqa =0.3.2
+- pysqa =0.3.3
 - pyzmq =27.1.0
 - qe =7.5
