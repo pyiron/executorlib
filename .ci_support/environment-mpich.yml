@@ -12,5 +12,5 @@ dependencies:
 - mpi4py =4.1.1
 - networkx =3.4.2
 - pygraphviz =1.14
-- pysqa =0.3.2
+- pysqa =0.3.3
 - pyzmq =27.1.0
