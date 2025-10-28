@@ -105,7 +105,7 @@ class BaseExecutor(FutureExecutor, ABC):
                 *([fn] + list(args)), resource_dict=resource_dict, **kwargs
             )
         else:
-            raise RuntimeError('cannot schedule new futures after shutdown')
+            raise RuntimeError("cannot schedule new futures after shutdown")
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """
