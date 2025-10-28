@@ -21,6 +21,7 @@ class BaseExecutor(FutureExecutor, ABC):
 
     def __init__(self, executor: TaskSchedulerBase):
         self._task_scheduler = executor
+        self._is_active = True
 
     @property
     def max_workers(self) -> Optional[int]:
@@ -99,9 +100,12 @@ class BaseExecutor(FutureExecutor, ABC):
         Returns:
             Future: A Future representing the given call.
         """
-        return self._task_scheduler.submit(
-            *([fn] + list(args)), resource_dict=resource_dict, **kwargs
-        )
+        if self._is_active:
+            return self._task_scheduler.submit(
+                *([fn] + list(args)), resource_dict=resource_dict, **kwargs
+            )
+        else:
+            raise RuntimeError("cannot schedule new futures after shutdown")
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """
@@ -119,6 +123,7 @@ class BaseExecutor(FutureExecutor, ABC):
                 cancelled.
         """
         self._task_scheduler.shutdown(wait=wait, cancel_futures=cancel_futures)
+        self._is_active = False
 
     def __len__(self) -> int:
         """
@@ -143,3 +148,4 @@ class BaseExecutor(FutureExecutor, ABC):
         Exit method called when exiting the context manager.
         """
         self._task_scheduler.__exit__(*args, **kwargs)
+        self._is_active = False
