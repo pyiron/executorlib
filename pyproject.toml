@@ -40,7 +40,7 @@ Documentation = "https://executorlib.readthedocs.io"
 Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
-cache = ["h5py==3.15.0"]
+cache = ["h5py==3.15.1"]
 graph = [
     "pygraphviz==1.14",
     "networkx==3.4.2",
