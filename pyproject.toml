@@ -53,12 +53,12 @@ graphnotebook = [
 mpi = ["mpi4py==4.1.1"]
 cluster = [
     "pysqa==0.3.3",
-    "h5py==3.15.0",
+    "h5py==3.15.1",
 ]
 all = [
     "mpi4py==4.1.1",
     "pysqa==0.3.3",
-    "h5py==3.15.0",
+    "h5py==3.15.1",
     "pygraphviz==1.14",
     "networkx==3.4.2",
     "ipython==9.0.2",
