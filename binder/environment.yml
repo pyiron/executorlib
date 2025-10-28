@@ -9,7 +9,7 @@ dependencies:
 - flux-pmix =0.6.0
 - hatchling =1.27.0
 - hatch-vcs =0.5.0
-- h5py =3.15.0
+- h5py =3.15.1
 - ipython =9.0.2
 - matplotlib =3.10.0
 - mpi4py =4.1.1
