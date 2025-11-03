@@ -4,7 +4,7 @@ dependencies:
 - python
 - numpy =2.3.3
 - openmpi
-- cloudpickle =3.1.1
+- cloudpickle =3.1.2
 - flux-core =0.79.0
 - flux-pmix =0.6.0
 - hatchling =1.27.0
