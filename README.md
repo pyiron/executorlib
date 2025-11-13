@@ -134,6 +134,7 @@ as hierarchical job scheduler within the allocations.
   * [Basic Functionality](https://executorlib.readthedocs.io/en/latest/1-single-node.html#basic-functionality)
   * [Parallel Functions](https://executorlib.readthedocs.io/en/latest/1-single-node.html#parallel-functions)
   * [Performance Optimization](https://executorlib.readthedocs.io/en/latest/1-single-node.html#performance-optimization)
+  * [Advanced Scheduling](https://executorlib.readthedocs.io/en/latest/1-single-node.html#advanced-scheduling)
   * [Testing and Debugging](https://executorlib.readthedocs.io/en/latest/1-single-node.html#testing-and-debugging)
 * [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html)
   * [SLURM](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#slurm)
