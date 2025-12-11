@@ -18,4 +18,4 @@ class TestSerialization(unittest.TestCase):
         fn = _get_function_name(fn=MyClass())
         self.assertEqual(fn, "MyClass")
         fn = _get_function_name(fn=None)
-        self.assertEqual(fn, "fn")
+        self.assertEqual(fn, "None")

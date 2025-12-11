@@ -104,7 +104,5 @@ def _get_hash(binary: bytes) -> str:
 def _get_function_name(fn: Callable) -> str:
     if hasattr(fn, "__name__"):
         return fn.__name__
-    elif hasattr(fn, "__str__"):
-        return fn.__str__().split()[0].split(".")[-1]
     else:
-        return "fn"
+        return str(fn).split()[0].split(".")[-1]
