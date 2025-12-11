@@ -50,7 +50,7 @@ class TestCacheFunctions(unittest.TestCase):
         cache_lst = get_cache_data(cache_directory=cache_directory)
         self.assertEqual(sum([c["output"] for c in cache_lst]), sum(result_lst))
         self.assertEqual(
-            sum([sum(c["input_args"][0]) for c in cache_lst]), sum(result_lst)
+            sum([sum([c["input_kwargs"]["a"], c["input_kwargs"]["b"]]) for c in cache_lst]), sum(result_lst)
         )
 
     def test_cache_key(self):
