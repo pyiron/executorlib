@@ -43,6 +43,7 @@ class TestCacheFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("executorlib_cache")
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             self.assertTrue(exe)
+            cloudpickle_register(ind=1)
             add_instance = AddClass()
             future_lst = [exe.submit(add_instance, a=i, b=i) for i in range(1, 4)]
             result_lst = [f.result() for f in future_lst]
