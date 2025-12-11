@@ -17,6 +17,11 @@ def get_error(a):
     raise ValueError(a)
 
 
+class AddClass:
+    def __call__(self, a, b):
+        return a+b
+
+
 @unittest.skipIf(
     skip_h5py_test, "h5py is not installed, so the h5io tests are skipped."
 )
@@ -26,6 +31,20 @@ class TestCacheFunctions(unittest.TestCase):
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
             self.assertTrue(exe)
             future_lst = [exe.submit(sum, [i, i]) for i in range(1, 4)]
+            result_lst = [f.result() for f in future_lst]
+
+        cache_lst = get_cache_data(cache_directory=cache_directory)
+        self.assertEqual(sum([c["output"] for c in cache_lst]), sum(result_lst))
+        self.assertEqual(
+            sum([sum(c["input_args"][0]) for c in cache_lst]), sum(result_lst)
+        )
+
+    def test_cache_data_class(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        with SingleNodeExecutor(cache_directory=cache_directory) as exe:
+            self.assertTrue(exe)
+            add_instance = AddClass()
+            future_lst = [exe.submit(add_instance, a=i, b=i) for i in range(1, 4)]
             result_lst = [f.result() for f in future_lst]
 
         cache_lst = get_cache_data(cache_directory=cache_directory)
