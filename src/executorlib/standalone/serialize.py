@@ -105,4 +105,4 @@ def _get_function_name(fn: Callable) -> str:
     if hasattr(fn, "__name__"):
         return fn.__name__
     else:
-        return str(fn.__class__).split("'")[-2]
+        return str(fn.__class__).split("'")[-2].split(".")[-1]
