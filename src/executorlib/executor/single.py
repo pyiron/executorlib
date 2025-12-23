@@ -461,4 +461,7 @@ def _executor_self_test(exe):
         raise TimeoutError(
             'Plase try "hostname_localhost=True" in the initialization of the SingleNodeExecutor(hostname_localhost=True).'
         )
+    else:
+        exe._future_hash_dict = {}
+        exe._task_hash_dict = {}
     return True
