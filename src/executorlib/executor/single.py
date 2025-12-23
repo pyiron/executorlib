@@ -458,5 +458,7 @@ def _executor_self_test(exe):
         counter += 1
     if not f.done():
         exe.shutdown(wait=False, cancel_futures=False)
-        raise TimeoutError("Plase try \"hostname_localhost=True\" in the initialization of the SingleNodeExecutor(hostname_localhost=True).")
+        raise TimeoutError(
+            'Plase try "hostname_localhost=True" in the initialization of the SingleNodeExecutor(hostname_localhost=True).'
+        )
     return True
