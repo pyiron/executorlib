@@ -20,7 +20,10 @@ class FutureSelector(Future):
     def result(self, timeout: Optional[float] = None) -> Any:
         result = self._future.result(timeout=timeout)
         if result is not None:
-            return result[self._selector]
+            if self._selector in result:
+                return result[self._selector]
+            else:
+                raise KeyError(str(self._selector) + " of type " + str(type(self._selector)) + " is not in " + str(result) + " of type " + str(type(result)))
         else:
             return None
 
