@@ -20,7 +20,9 @@ class FutureSelector(Future):
     def result(self, timeout: Optional[float] = None) -> Any:
         result = self._future.result(timeout=timeout)
         if result is not None:
-            if (isinstance(self._selector, int) and isinstance(result, (tuple, list))) or self._selector in result:
+            if (
+                isinstance(self._selector, int) and isinstance(result, (tuple, list))
+            ) or self._selector in result:
                 return result[self._selector]
             else:
                 raise KeyError(
