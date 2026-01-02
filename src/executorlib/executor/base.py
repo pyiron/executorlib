@@ -109,7 +109,7 @@ class BaseExecutor(FutureExecutor, ABC):
 
     def map(
         self,
-        fn: callable,
+        fn: Callable,
         *iterables,
         timeout: Optional[float] = None,
         chunksize: int = 1,
