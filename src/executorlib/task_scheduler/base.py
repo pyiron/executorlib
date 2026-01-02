@@ -174,7 +174,7 @@ class TaskSchedulerBase(FutureExecutor):
         if isinstance(iterables, (list, tuple)) and any(
             isinstance(i, Future) for i in iterables
         ):
-            iterables = (i.result() if isinstance(i, Future) else i for i in iterables)
+            iterables = tuple(i.result() if isinstance(i, Future) else i for i in iterables)
 
         return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)
 
