@@ -172,9 +172,9 @@ class TaskSchedulerBase(FutureExecutor):
             Exception: If fn(*args) raises for any values.
         """
         if isinstance(iterables, (list, tuple)) and any(
-            [isinstance(i, Future) for i in iterables]
+            isinstance(i, Future) for i in iterables
         ):
-            iterables = [i.result() if isinstance(i, Future) else i for i in iterables]
+            iterables = (i.result() if isinstance(i, Future) else i for i in iterables)
 
         return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)
 
