@@ -143,7 +143,13 @@ class TaskSchedulerBase(FutureExecutor):
             )
         return f
 
-    def map(self, fn: callable, *iterables, timeout: Optional[float] = None, chunksize: int = 1):
+    def map(
+        self,
+        fn: callable,
+        *iterables,
+        timeout: Optional[float] = None,
+        chunksize: int = 1,
+    ):
         """Returns an iterator equivalent to map(fn, iter).
 
         Args:
@@ -165,7 +171,9 @@ class TaskSchedulerBase(FutureExecutor):
                 before the given timeout.
             Exception: If fn(*args) raises for any values.
         """
-        if isinstance(iterables, (list, tuple)) and any([isinstance(i, Future) for i in iterables]):
+        if isinstance(iterables, (list, tuple)) and any(
+            [isinstance(i, Future) for i in iterables]
+        ):
             iterables = [i.result() if isinstance(i, Future) else i for i in iterables]
 
         return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)

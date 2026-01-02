@@ -107,7 +107,13 @@ class BaseExecutor(FutureExecutor, ABC):
         else:
             raise RuntimeError("cannot schedule new futures after shutdown")
 
-    def map(self, fn: callable, *iterables, timeout: Optional[float] = None, chunksize: int = 1):
+    def map(
+        self,
+        fn: callable,
+        *iterables,
+        timeout: Optional[float] = None,
+        chunksize: int = 1,
+    ):
         """Returns an iterator equivalent to map(fn, iter).
 
         Args:
@@ -131,8 +137,8 @@ class BaseExecutor(FutureExecutor, ABC):
         """
         if self._is_active:
             return self._task_scheduler.map(
-                *([fn] + list(iterables)), 
-                timeout=timeout, 
+                *([fn] + list(iterables)),
+                timeout=timeout,
                 chunksize=chunksize,
             )
         else:
