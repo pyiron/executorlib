@@ -1,8 +1,7 @@
 channels:
 - conda-forge
 dependencies:
-- h5py =3.15.1
-- hdf5 =*=mpi*
+- h5py =3.15.1=mpi*
 - jupyter
 - mpi4py =4.1.1
 - numpy =2.3.3
