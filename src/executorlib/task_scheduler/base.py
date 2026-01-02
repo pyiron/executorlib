@@ -143,6 +143,33 @@ class TaskSchedulerBase(FutureExecutor):
             )
         return f
 
+    def map(self, fn: callable, *iterables, timeout: Optional[float] = None, chunksize: int = 1):
+        """Returns an iterator equivalent to map(fn, iter).
+
+        Args:
+            fn: A callable that will take as many arguments as there are
+                passed iterables.
+            timeout: The maximum number of seconds to wait. If None, then there
+                is no limit on the wait time.
+            chunksize: The size of the chunks the iterable will be broken into
+                before being passed to a child process. This argument is only
+                used by ProcessPoolExecutor; it is ignored by
+                ThreadPoolExecutor.
+
+        Returns:
+            An iterator equivalent to: map(func, *iterables) but the calls may
+            be evaluated out-of-order.
+
+        Raises:
+            TimeoutError: If the entire result iterator could not be generated
+                before the given timeout.
+            Exception: If fn(*args) raises for any values.
+        """
+        if isinstance(iterables, (list, tuple)) and any([isinstance(i, Future) for i in iterables]):
+            iterables = [i.result() if isinstance(i, Future) else i for i in iterables]
+
+        return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)
+
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """
         Clean-up the resources associated with the Executor.
