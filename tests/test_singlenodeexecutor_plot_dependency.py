@@ -80,7 +80,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 5)
+            self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
 
     def test_executor_dependency_plot_filename(self):
@@ -141,7 +141,7 @@ class TestLocalExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(nodes), 14)
             self.assertEqual(len(edges), 22)
 
     def test_future_input_dict(self):
@@ -186,7 +186,7 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 5)
+            self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
 
     def test_many_to_one_plot(self):
@@ -231,7 +231,7 @@ class TestSlurmAllocationExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(nodes), 14)
             self.assertEqual(len(edges), 22)
 
 
@@ -257,7 +257,7 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 5)
+            self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
 
     def test_many_to_one_plot(self):
@@ -300,7 +300,7 @@ class TestSlurmSubmissionExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(nodes), 14)
             self.assertEqual(len(edges), 22)
 
 
