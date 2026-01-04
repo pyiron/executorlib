@@ -125,6 +125,21 @@ class TestWorkingDirectory(unittest.TestCase):
             [1, 2, 3],
         )
 
+    def test_map_futures(self):
+        dirname = os.path.abspath(os.path.dirname(__file__))
+        os.makedirs(dirname, exist_ok=True)
+        with SingleNodeExecutor(
+            max_cores=1,
+            resource_dict={"cores": 1, "cwd": dirname},
+            block_allocation=True,
+        ) as p:
+            calc_lst = p.submit(calc, [1, 2, 3])
+            output = list(p.map(calc, calc_lst))
+        self.assertEqual(
+            output,
+            [1, 2, 3],
+        )
+
 
 class TestSLURMExecutor(unittest.TestCase):
     def test_validate_max_workers(self):
