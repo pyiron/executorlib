@@ -166,3 +166,12 @@ class TestFunctionCrashes(unittest.TestCase):
             with SingleNodeExecutor(max_workers=2, init_function=exit_funct, block_allocation=True) as exe:
                 f = exe.submit(sum, [1, 1])
                 print(f.result())
+
+    def test_single_node_executor_exit(self):
+        exe = SingleNodeExecutor(max_workers=2)
+        self.assertEqual(exe.submit(sum, [1,2,3]).result(), 6)
+        exe.shutdown()
+        with self.assertRaises(RuntimeError):
+            exe.submit(sum, [1, 2, 3])
+        with self.assertRaises(RuntimeError):
+            exe.map(calc, [1, 2, 3])

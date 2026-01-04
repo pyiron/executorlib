@@ -1,8 +1,8 @@
 [build-system]
 requires = [
-    "hatchling==1.27.0",
+    "hatchling==1.28.0",
     "hatch-vcs==0.5.0",
-    "cloudpickle==3.1.1",
+    "cloudpickle==3.1.2",
     "pyzmq==27.1.0",
 ]
 build-backend = "hatchling.build"
@@ -30,7 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "cloudpickle==3.1.1",
+    "cloudpickle==3.1.2",
     "pyzmq==27.1.0",
 ]
 dynamic = ["version"]
@@ -41,7 +41,7 @@ Documentation = "https://executorlib.readthedocs.io"
 Repository = "https://github.com/pyiron/executorlib"
 
 [project.optional-dependencies]
-cache = ["h5py==3.15.0"]
+cache = ["h5py==3.15.1"]
 graph = [
     "pygraphviz==1.14",
     "networkx==3.4.2",
@@ -53,13 +53,13 @@ graphnotebook = [
 ]
 mpi = ["mpi4py==4.1.1"]
 cluster = [
-    "pysqa==0.3.2",
-    "h5py==3.15.0",
+    "pysqa==0.3.3",
+    "h5py==3.15.1",
 ]
 all = [
     "mpi4py==4.1.1",
-    "pysqa==0.3.2",
-    "h5py==3.15.0",
+    "pysqa==0.3.3",
+    "h5py==3.15.1",
     "pygraphviz==1.14",
     "networkx==3.4.2",
     "ipython==9.0.2",

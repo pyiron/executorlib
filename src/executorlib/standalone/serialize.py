@@ -75,7 +75,7 @@ def serialize_funct(
                 "kwargs": fn_kwargs,
             }
         )
-        task_key = fn.__name__ + _get_hash(binary=binary_all)
+        task_key = _get_function_name(fn=fn) + _get_hash(binary=binary_all)
     data = {
         "fn": fn,
         "args": fn_args,
@@ -99,3 +99,10 @@ def _get_hash(binary: bytes) -> str:
     # Remove specification of jupyter kernel from hash to be deterministic
     binary_no_ipykernel = re.sub(b"(?<=/ipykernel_)(.*)(?=/)", b"", binary)
     return str(hashlib.md5(binary_no_ipykernel).hexdigest())
+
+
+def _get_function_name(fn: Callable) -> str:
+    if hasattr(fn, "__name__"):
+        return fn.__name__
+    else:
+        return str(fn.__class__).split("'")[-2].split(".")[-1]

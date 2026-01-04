@@ -1,22 +1,23 @@
 channels:
 - conda-forge
 dependencies:
-- h5py =3.15.0
+- h5py =3.15.1
 - jupyter
 - mpi4py =4.1.1
 - numpy =2.3.3
 - openmpi
 - papermill
-- atomistics =0.3.0
-- cloudpickle =3.1.1
-- flux-core =0.64.0
+- atomistics =0.3.4
+- cloudpickle =3.1.2
+- flux-core =0.81.0
+- flux-pmix =0.6.0
 - gpaw =25.7.0
-- hatchling =1.27.0
+- hatchling =1.28.0
 - hatch-vcs =0.5.0
 - ipython =9.0.2
 - matplotlib =3.10.6
 - networkx =3.4.2
 - pygraphviz =1.14
-- pysqa =0.3.2
+- pysqa =0.3.3
 - pyzmq =27.1.0
 - qe =7.5

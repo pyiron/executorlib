@@ -21,6 +21,7 @@ class BaseExecutor(FutureExecutor, ABC):
 
     def __init__(self, executor: TaskSchedulerBase):
         self._task_scheduler = executor
+        self._is_active = True
 
     @property
     def max_workers(self) -> Optional[int]:
@@ -99,9 +100,49 @@ class BaseExecutor(FutureExecutor, ABC):
         Returns:
             Future: A Future representing the given call.
         """
-        return self._task_scheduler.submit(
-            *([fn] + list(args)), resource_dict=resource_dict, **kwargs
-        )
+        if self._is_active:
+            return self._task_scheduler.submit(
+                *([fn] + list(args)), resource_dict=resource_dict, **kwargs
+            )
+        else:
+            raise RuntimeError("cannot schedule new futures after shutdown")
+
+    def map(
+        self,
+        fn: Callable,
+        *iterables,
+        timeout: Optional[float] = None,
+        chunksize: int = 1,
+    ):
+        """Returns an iterator equivalent to map(fn, iter).
+
+        Args:
+            fn: A callable that will take as many arguments as there are
+                passed iterables.
+            timeout: The maximum number of seconds to wait. If None, then there
+                is no limit on the wait time.
+            chunksize: The size of the chunks the iterable will be broken into
+                before being passed to a child process. This argument is only
+                used by ProcessPoolExecutor; it is ignored by
+                ThreadPoolExecutor.
+
+        Returns:
+            An iterator equivalent to: map(func, *iterables) but the calls may
+            be evaluated out-of-order.
+
+        Raises:
+            TimeoutError: If the entire result iterator could not be generated
+                before the given timeout.
+            Exception: If fn(*args) raises for any values.
+        """
+        if self._is_active:
+            return self._task_scheduler.map(
+                *([fn] + list(iterables)),
+                timeout=timeout,
+                chunksize=chunksize,
+            )
+        else:
+            raise RuntimeError("cannot schedule new futures after shutdown")
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """
@@ -119,6 +160,7 @@ class BaseExecutor(FutureExecutor, ABC):
                 cancelled.
         """
         self._task_scheduler.shutdown(wait=wait, cancel_futures=cancel_futures)
+        self._is_active = False
 
     def __len__(self) -> int:
         """
@@ -143,3 +185,4 @@ class BaseExecutor(FutureExecutor, ABC):
         Exit method called when exiting the context manager.
         """
         self._task_scheduler.__exit__(*args, **kwargs)
+        self._is_active = False

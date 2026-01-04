@@ -198,11 +198,11 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        echo -e '- coverage\n- flux-core =0.79.0'>> .ci_support/environment-mpich.yml
+        echo -e '- coverage\n- flux-core =0.81.0'>> .ci_support/environment-mpich.yml
         cat .ci_support/environment-mpich.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.12'
+        python-version: '3.13'
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
@@ -229,11 +229,11 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        echo -e '- coverage\n- flux-core =0.79.0\n- flux-pmix=0.6.0' >> .ci_support/environment-openmpi.yml
+        echo -e '- coverage\n- flux-core =0.81.0\n- flux-pmix=0.6.0' >> .ci_support/environment-openmpi.yml
         cat .ci_support/environment-openmpi.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.12'
+        python-version: '3.13'
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
