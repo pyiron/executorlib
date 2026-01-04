@@ -61,7 +61,7 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 5)
+            self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
 
     def test_many_to_one_plot(self):
@@ -106,7 +106,7 @@ class TestFluxAllocationExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(nodes), 14)
             self.assertEqual(len(edges), 22)
 
 
@@ -132,7 +132,7 @@ class TestFluxSubmissionExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 5)
+            self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
 
     def test_many_to_one_plot(self):
@@ -175,5 +175,5 @@ class TestFluxSubmissionExecutorWithDependencies(unittest.TestCase):
                     v: k for k, v in exe._task_scheduler._future_hash_dict.items()
                 },
             )
-            self.assertEqual(len(nodes), 19)
+            self.assertEqual(len(nodes), 14)
             self.assertEqual(len(edges), 22)
