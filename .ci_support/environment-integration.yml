@@ -5,11 +5,12 @@ dependencies:
 - jupyter
 - mpi4py =4.1.1
 - numpy =2.3.3
-- openmpi =5.0.8=h*
+- openmpi
 - papermill
 - atomistics =0.3.4
 - cloudpickle =3.1.2
 - flux-core =0.81.0
+- flux-pmix=0.6.0
 - gpaw =25.7.0
 - hatchling =1.27.0
 - hatch-vcs =0.5.0
