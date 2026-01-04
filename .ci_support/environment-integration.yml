@@ -1,11 +1,11 @@
 channels:
 - conda-forge
 dependencies:
-- h5py =3.15.0
+- h5py =3.15.1
 - jupyter
 - mpi4py =4.1.1
 - numpy =2.3.3
-- openmpi
+- openmpi =5.0.8=h*
 - papermill
 - atomistics =0.3.4
 - cloudpickle =3.1.2
