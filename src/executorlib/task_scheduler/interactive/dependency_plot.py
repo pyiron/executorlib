@@ -1,3 +1,4 @@
+import inspect
 import os.path
 from concurrent.futures import Future
 from typing import Optional
@@ -24,6 +25,12 @@ def generate_nodes_and_edges_for_plotting(
     edge_lst: list = []
     hash_id_dict: dict = {}
 
+    def extend_args(funct_dict):
+        sig = inspect.signature(funct_dict["fn"])
+        args = sig.bind(*funct_dict["args"], **funct_dict["kwargs"])
+        funct_dict["signature"] = args.arguments
+        return funct_dict
+
     def add_element(arg, link_to, label=""):
         """
         Add element to the node and edge lists.
@@ -39,6 +46,8 @@ def generate_nodes_and_edges_for_plotting(
                     "start": hash_id_dict[future_hash_inverse_dict[arg._future]],
                     "end": link_to,
                     "label": label + str(arg._selector),
+                    "end_label": label,
+                    "start_label": str(arg._selector),
                 }
             )
         elif isinstance(arg, Future):
@@ -53,39 +62,71 @@ def generate_nodes_and_edges_for_plotting(
             lst_no_future = [a if not isinstance(a, Future) else "$" for a in arg]
             node_id = len(node_lst)
             node_lst.append(
-                {"name": str(lst_no_future), "id": node_id, "shape": "circle"}
+                {
+                    "name": str(lst_no_future),
+                    "value": "python_workflow_definition.shared.get_list",
+                    "id": node_id,
+                    "type": "function",
+                    "shape": "box",
+                }
             )
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for i, a in enumerate(arg):
                 if isinstance(a, Future):
-                    add_element(arg=a, link_to=node_id, label="ind: " + str(i))
+                    add_element(arg=a, link_to=node_id, label=str(i))
         elif isinstance(arg, dict) and any(isinstance(a, Future) for a in arg.values()):
             dict_no_future = {
                 kt: vt if not isinstance(vt, Future) else "$" for kt, vt in arg.items()
             }
             node_id = len(node_lst)
             node_lst.append(
-                {"name": str(dict_no_future), "id": node_id, "shape": "circle"}
+                {
+                    "name": str(dict_no_future),
+                    "value": "python_workflow_definition.shared.get_dict",
+                    "id": node_id,
+                    "type": "function",
+                    "shape": "box",
+                }
             )
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for kt, vt in arg.items():
-                if isinstance(vt, Future):
-                    add_element(arg=vt, link_to=node_id, label="key: " + kt)
+                add_element(arg=vt, link_to=node_id, label=kt)
         else:
-            node_id = len(node_lst)
-            node_lst.append({"name": str(arg), "id": node_id, "shape": "circle"})
+            value_dict = {
+                str(n["value"]): n["id"] for n in node_lst if n["type"] == "input"
+            }
+            if str(arg) not in value_dict:
+                node_id = len(node_lst)
+                node_lst.append(
+                    {
+                        "name": label,
+                        "value": arg,
+                        "id": node_id,
+                        "type": "input",
+                        "shape": "circle",
+                    }
+                )
+            else:
+                node_id = value_dict[str(arg)]
             edge_lst.append({"start": node_id, "end": link_to, "label": label})
 
-    for k, v in task_hash_dict.items():
+    task_hash_modified_dict = {
+        k: extend_args(funct_dict=v) for k, v in task_hash_dict.items()
+    }
+
+    for k, v in task_hash_modified_dict.items():
         hash_id_dict[k] = len(node_lst)
         node_lst.append(
-            {"name": v["fn"].__name__, "id": hash_id_dict[k], "shape": "box"}
+            {
+                "name": v["fn"].__name__,
+                "type": "function",
+                "value": v["fn"].__module__ + "." + v["fn"].__name__,
+                "id": hash_id_dict[k],
+                "shape": "box",
+            }
         )
-    for k, task_dict in task_hash_dict.items():
-        for arg in task_dict["args"]:
-            add_element(arg=arg, link_to=hash_id_dict[k], label="")
-
-        for kw, v in task_dict["kwargs"].items():
+    for k, task_dict in task_hash_modified_dict.items():
+        for kw, v in task_dict["signature"].items():
             add_element(arg=v, link_to=hash_id_dict[k], label=str(kw))
 
     return node_lst, edge_lst
@@ -175,7 +216,10 @@ def plot_dependency_graph_function(
 
     graph = nx.DiGraph()
     for node in node_lst:
-        graph.add_node(node["id"], label=node["name"], shape=node["shape"])
+        if node["type"] == "input":
+            graph.add_node(node["id"], label=str(node["value"]), shape=node["shape"])
+        else:
+            graph.add_node(node["id"], label=str(node["name"]), shape=node["shape"])
     for edge in edge_lst:
         graph.add_edge(edge["start"], edge["end"], label=edge["label"])
     if filename is not None:
