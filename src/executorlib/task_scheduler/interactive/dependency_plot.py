@@ -70,13 +70,7 @@ def generate_nodes_and_edges_for_plotting(
                     "shape": "box",
                 }
             )
-            edge_lst.append(
-                {
-                    "start": node_id,
-                    "end": link_to,
-                    "label": label,
-                }
-            )
+            edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for i, a in enumerate(arg):
                 if isinstance(a, Future):
                     add_element(arg=a, link_to=node_id, label=str(i))
@@ -94,13 +88,7 @@ def generate_nodes_and_edges_for_plotting(
                     "shape": "box",
                 }
             )
-            edge_lst.append(
-                {
-                    "start": node_id,
-                    "end": link_to,
-                    "label": label,
-                }
-            )
+            edge_lst.append({"start": node_id, "end": link_to, "label": label})
             for kt, vt in arg.items():
                 add_element(arg=vt, link_to=node_id, label=kt)
         else:
@@ -120,13 +108,7 @@ def generate_nodes_and_edges_for_plotting(
                 )
             else:
                 node_id = value_dict[str(arg)]
-            edge_lst.append(
-                {
-                    "start": node_id,
-                    "end": link_to,
-                    "label": label,
-                }
-            )
+            edge_lst.append({"start": node_id, "end": link_to, "label": label})
 
     task_hash_modified_dict = {
         k: extend_args(funct_dict=v) for k, v in task_hash_dict.items()
