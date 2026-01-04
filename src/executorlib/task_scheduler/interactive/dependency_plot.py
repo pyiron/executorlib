@@ -1,9 +1,11 @@
 import inspect
+import json
 import os.path
 from concurrent.futures import Future
 from typing import Optional
 
 import cloudpickle
+import numpy as np
 
 from executorlib.standalone.select import FutureSelector
 
@@ -230,3 +232,44 @@ def plot_dependency_graph_function(
         from IPython.display import SVG, display  # noqa
 
         display(SVG(nx.nx_agraph.to_agraph(graph).draw(prog="dot", format="svg")))
+
+
+def export_dependency_graph_function(node_lst: list, edge_lst: list, file_name: str = "workflow.json"):
+    """
+    Export the graph visualization of nodes and edges as a JSON dictionary.
+
+    Args:
+        node_lst (list): List of nodes.
+        edge_lst (list): List of edges.
+        file_name (str): Name of the file to store the exported graph in.
+    """
+    pwd_nodes_lst = []
+    for n in node_lst:
+        if n["type"] == "function":
+            pwd_nodes_lst.append({"id": n["id"], "type": n["type"], "value": n["value"]})
+        elif n["type"] == "input" and isinstance(n["value"], np.ndarray):
+            pwd_nodes_lst.append({"id": n["id"], "type": n["type"], "value": n["value"].tolist(), "name": n["name"]})
+        else:
+            pwd_nodes_lst.append({"id": n["id"], "type": n["type"], "value": n["value"], "name": n["name"]})
+
+    final_node = {"id": len(pwd_nodes_lst), "type": "output", "name": "result"}
+    pwd_nodes_lst.append(final_node)
+    pwd_edges_lst = [
+        {"target": e["end"], "targetPort": e["label"], "source": e["start"], "sourcePort": None}
+        if 'start_label' not in e else
+        {"target": e["end"], "targetPort": e["end_label"], "source": e["start"], "sourcePort": e["start_label"]}
+        for e in edge_lst
+    ]
+    pwd_edges_lst.append({
+        "target": final_node["id"], 
+        "targetPort": None, 
+        "source": max([e["target"] for e in pwd_edges_lst]), 
+        "sourcePort": None
+    })
+    pwd_dict = {
+        "version": "0.1.0",
+        "nodes": pwd_nodes_lst,
+        "edges": pwd_edges_lst,
+    }
+    with open(file_name, "w") as f:
+        json.dump(pwd_dict, f, indent=4)
