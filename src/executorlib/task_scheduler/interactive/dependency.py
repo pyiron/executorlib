@@ -67,7 +67,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         self._export_workflow_filename = export_workflow_filename
         if (
             plot_dependency_graph_filename is None
-            and export_workflow_filename is not None
+            and export_workflow_filename is None
         ):
             self._generate_dependency_graph = plot_dependency_graph
         else:
