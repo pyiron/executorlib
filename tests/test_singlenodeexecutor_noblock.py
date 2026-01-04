@@ -173,3 +173,5 @@ class TestFunctionCrashes(unittest.TestCase):
         exe.shutdown()
         with self.assertRaises(RuntimeError):
             exe.submit(sum, [1, 2, 3])
+        with self.assertRaises(RuntimeError):
+            exe.map(calc, [1, 2, 3])
