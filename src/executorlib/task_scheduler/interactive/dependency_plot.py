@@ -273,19 +273,21 @@ def export_dependency_graph_function(
     final_node = {"id": len(pwd_nodes_lst), "type": "output", "name": "result"}
     pwd_nodes_lst.append(final_node)
     pwd_edges_lst = [
-        {
-            "target": e["end"],
-            "targetPort": e["label"],
-            "source": e["start"],
-            "sourcePort": None,
-        }
-        if "start_label" not in e
-        else {
-            "target": e["end"],
-            "targetPort": e["end_label"],
-            "source": e["start"],
-            "sourcePort": e["start_label"],
-        }
+        (
+            {
+                "target": e["end"],
+                "targetPort": e["label"],
+                "source": e["start"],
+                "sourcePort": None,
+            }
+            if "start_label" not in e
+            else {
+                "target": e["end"],
+                "targetPort": e["end_label"],
+                "source": e["start"],
+                "sourcePort": e["start_label"],
+            }
+        )
         for e in edge_lst
     ]
     pwd_edges_lst.append(
