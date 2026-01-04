@@ -1,5 +1,5 @@
-import os.path
 import inspect
+import os.path
 from concurrent.futures import Future
 from typing import Optional
 
@@ -63,17 +63,17 @@ def generate_nodes_and_edges_for_plotting(
             node_id = len(node_lst)
             node_lst.append(
                 {
-                    "name": str(lst_no_future), 
-                    "value": "python_workflow_definition.shared.get_list", 
-                    "id": node_id, 
-                    "type": "function", 
+                    "name": str(lst_no_future),
+                    "value": "python_workflow_definition.shared.get_list",
+                    "id": node_id,
+                    "type": "function",
                     "shape": "box",
                 }
             )
             edge_lst.append(
                 {
-                    "start": node_id, 
-                    "end": link_to, 
+                    "start": node_id,
+                    "end": link_to,
                     "label": label,
                 }
             )
@@ -87,58 +87,59 @@ def generate_nodes_and_edges_for_plotting(
             node_id = len(node_lst)
             node_lst.append(
                 {
-                    "name": str(dict_no_future), 
-                    "value": "python_workflow_definition.shared.get_dict", 
-                    "id": node_id, 
+                    "name": str(dict_no_future),
+                    "value": "python_workflow_definition.shared.get_dict",
+                    "id": node_id,
                     "type": "function",
                     "shape": "box",
                 }
             )
             edge_lst.append(
                 {
-                    "start": node_id, 
-                    "end": link_to, 
+                    "start": node_id,
+                    "end": link_to,
                     "label": label,
                 }
             )
             for kt, vt in arg.items():
                 add_element(arg=vt, link_to=node_id, label=kt)
         else:
-            value_dict = {str(n["value"]): n["id"] for n in node_lst if n["type"]=="input"}
+            value_dict = {
+                str(n["value"]): n["id"] for n in node_lst if n["type"] == "input"
+            }
             if str(arg) not in value_dict:
                 node_id = len(node_lst)
                 node_lst.append(
                     {
                         "name": label,
-                        "value": arg, 
-                        "id": node_id, 
-                        "type": "input", 
-                        "shape": "circle"
+                        "value": arg,
+                        "id": node_id,
+                        "type": "input",
+                        "shape": "circle",
                     }
                 )
             else:
                 node_id = value_dict[str(arg)]
             edge_lst.append(
                 {
-                    "start": node_id, 
-                    "end": link_to, 
-                    "label": label,   
+                    "start": node_id,
+                    "end": link_to,
+                    "label": label,
                 }
             )
 
     task_hash_modified_dict = {
-        k: extend_args(funct_dict=v)
-        for k, v in task_hash_dict.items()
+        k: extend_args(funct_dict=v) for k, v in task_hash_dict.items()
     }
 
     for k, v in task_hash_modified_dict.items():
         hash_id_dict[k] = len(node_lst)
         node_lst.append(
             {
-                "name": v["fn"].__name__, 
-                "type": "function", 
-                "value": v["fn"].__module__ + "." + v["fn"].__name__, 
-                "id": hash_id_dict[k], 
+                "name": v["fn"].__name__,
+                "type": "function",
+                "value": v["fn"].__module__ + "." + v["fn"].__name__,
+                "id": hash_id_dict[k],
                 "shape": "box",
             }
         )
