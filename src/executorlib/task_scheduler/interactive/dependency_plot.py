@@ -216,7 +216,10 @@ def plot_dependency_graph_function(
 
     graph = nx.DiGraph()
     for node in node_lst:
-        graph.add_node(node["id"], label=str(node["name"]), shape=node["shape"])
+        if node["type"] == "input":
+            graph.add_node(node["id"], label=str(node["value"]), shape=node["shape"])
+        else:
+            graph.add_node(node["id"], label=str(node["name"]), shape=node["shape"])
     for edge in edge_lst:
         graph.add_edge(edge["start"], edge["end"], label=edge["label"])
     if filename is not None:
