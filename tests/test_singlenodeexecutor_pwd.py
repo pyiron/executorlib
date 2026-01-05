@@ -43,5 +43,5 @@ class TestPythonWorkflowDefinition(unittest.TestCase):
         with open("workflow.json", "r") as f:
             content = json.load(f)
 
-        self.assertEqual(len(content["nodes"]), 3)
-        self.assertEqual(len(content["edges"]), 2)
+        self.assertEqual(len(content["nodes"]), 4)
+        self.assertEqual(len(content["edges"]), 3)
