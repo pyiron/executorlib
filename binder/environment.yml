@@ -13,7 +13,7 @@ dependencies:
 - ipython =9.9.0
 - matplotlib =3.10.0
 - mpi4py =4.1.1
-- networkx =3.4.2
+- networkx =3.6.1
 - pygraphviz =1.14
 - pysqa =0.3.3
 - pyzmq =27.1.0
