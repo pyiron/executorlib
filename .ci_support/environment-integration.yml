@@ -14,7 +14,7 @@ dependencies:
 - gpaw =25.7.0
 - hatchling =1.28.0
 - hatch-vcs =0.5.0
-- ipython =9.0.2
+- ipython =9.9.0
 - matplotlib =3.10.6
 - networkx =3.4.2
 - pygraphviz =1.14
