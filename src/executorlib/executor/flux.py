@@ -65,6 +65,7 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
     Examples:
@@ -105,6 +106,7 @@ class FluxJobExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
     ):
         """
@@ -152,6 +154,7 @@ class FluxJobExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
         """
@@ -189,6 +192,7 @@ class FluxJobExecutor(BaseExecutor):
                     refresh_rate=refresh_rate,
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
+                    export_workflow_filename=export_workflow_filename,
                 )
             )
         else:
@@ -255,6 +259,7 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
     Examples:
@@ -293,6 +298,7 @@ class FluxClusterExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
     ):
         """
@@ -338,6 +344,7 @@ class FluxClusterExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
 
         """
@@ -420,6 +427,7 @@ class FluxClusterExecutor(BaseExecutor):
                     refresh_rate=refresh_rate,
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
+                    export_workflow_filename=export_workflow_filename,
                 )
             )
 

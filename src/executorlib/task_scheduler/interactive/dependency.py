@@ -13,6 +13,7 @@ from executorlib.standalone.interactive.arguments import (
 )
 from executorlib.task_scheduler.base import TaskSchedulerBase
 from executorlib.task_scheduler.interactive.dependency_plot import (
+    export_dependency_graph_function,
     generate_nodes_and_edges_for_plotting,
     generate_task_hash_for_plotting,
     plot_dependency_graph_function,
@@ -28,6 +29,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         refresh_rate (float, optional): The refresh rate for updating the executor queue. Defaults to 0.01.
         plot_dependency_graph (bool, optional): Whether to generate and plot the dependency graph. Defaults to False.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        export_workflow_filename (str): Name of the file to store the exported workflow graph in.
 
     Attributes:
         _future_hash_dict (Dict[str, Future]): A dictionary mapping task hash to future object.
@@ -44,6 +46,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        export_workflow_filename: Optional[str] = None,
     ) -> None:
         super().__init__(max_cores=max_cores)
         self._process_kwargs = {
@@ -61,7 +64,8 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         self._future_hash_dict: dict = {}
         self._task_hash_dict: dict = {}
         self._plot_dependency_graph_filename = plot_dependency_graph_filename
-        if plot_dependency_graph_filename is None:
+        self._export_workflow_filename = export_workflow_filename
+        if plot_dependency_graph_filename is None and export_workflow_filename is None:
             self._generate_dependency_graph = plot_dependency_graph
         else:
             self._generate_dependency_graph = True
@@ -209,11 +213,18 @@ class DependencyTaskScheduler(TaskSchedulerBase):
                     v: k for k, v in self._future_hash_dict.items()
                 },
             )
-            return plot_dependency_graph_function(
-                node_lst=node_lst,
-                edge_lst=edge_lst,
-                filename=self._plot_dependency_graph_filename,
-            )
+            if self._export_workflow_filename is not None:
+                return export_dependency_graph_function(
+                    node_lst=node_lst,
+                    edge_lst=edge_lst,
+                    file_name=self._export_workflow_filename,
+                )
+            else:
+                return plot_dependency_graph_function(
+                    node_lst=node_lst,
+                    edge_lst=edge_lst,
+                    filename=self._plot_dependency_graph_filename,
+                )
         else:
             return None
 
