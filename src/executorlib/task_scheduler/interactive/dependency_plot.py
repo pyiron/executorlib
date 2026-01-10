@@ -5,7 +5,6 @@ from concurrent.futures import Future
 from typing import Optional
 
 import cloudpickle
-import numpy as np
 
 from executorlib.standalone.select import FutureSelector
 
@@ -245,6 +244,8 @@ def export_dependency_graph_function(
         edge_lst (list): List of edges.
         file_name (str): Name of the file to store the exported graph in.
     """
+    import numpy as np
+
     pwd_nodes_lst = []
     for n in node_lst:
         if n["type"] == "function":
