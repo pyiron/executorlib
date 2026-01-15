@@ -63,7 +63,9 @@ def load(file_name: str) -> dict:
         else:
             data_dict["kwargs"] = {}
         if "resource_dict" in hdf:
-            data_dict["resource_dict"] = cloudpickle.loads(np.void(hdf["/resource_dict"]))
+            data_dict["resource_dict"] = cloudpickle.loads(
+                np.void(hdf["/resource_dict"])
+            )
         else:
             data_dict["resource_dict"] = {}
         if "error_log_file" in hdf:
