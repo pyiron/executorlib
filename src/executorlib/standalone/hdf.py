@@ -11,6 +11,7 @@ group_dict = {
     "kwargs": "input_kwargs",
     "output": "output",
     "error": "error",
+    "resource_dict": "resource_dict",
     "runtime": "runtime",
     "queue_id": "queue_id",
     "error_log_file": "error_log_file",
@@ -61,6 +62,10 @@ def load(file_name: str) -> dict:
             data_dict["kwargs"] = cloudpickle.loads(np.void(hdf["/input_kwargs"]))
         else:
             data_dict["kwargs"] = {}
+        if "resource_dict" in hdf:
+            data_dict["resource_dict"] = cloudpickle.loads(np.void(hdf["/resource_dict"]))
+        else:
+            data_dict["resource_dict"] = {}
         if "error_log_file" in hdf:
             data_dict["error_log_file"] = cloudpickle.loads(
                 np.void(hdf["/error_log_file"])
