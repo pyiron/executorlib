@@ -45,15 +45,13 @@ def execute_with_pysqa(
         execute_command=pysqa_execute_command,
     )
     queue_id = get_queue_id(file_name=file_name)
-    store_dict = data_dict.copy()
-    store_dict["resource_dict"] = resource_dict if resource_dict is not None else {}
     if os.path.exists(file_name) and (
         queue_id is None or qa.get_status_of_job(process_id=queue_id) is None
     ):
         os.remove(file_name)
-        dump(file_name=file_name, data_dict=store_dict)
+        dump(file_name=file_name, data_dict=data_dict)
     elif not os.path.exists(file_name):
-        dump(file_name=file_name, data_dict=store_dict)
+        dump(file_name=file_name, data_dict=data_dict)
     check_file_exists(file_name=file_name)
     if queue_id is None or qa.get_status_of_job(process_id=queue_id) is None:
         if resource_dict is None:

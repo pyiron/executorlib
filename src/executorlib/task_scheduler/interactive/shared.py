@@ -144,11 +144,9 @@ def _execute_task_with_cache(
         try:
             time_start = time.time()
             result = interface.send_and_receive_dict(input_dict=task_dict)
-            store_dict = data_dict.copy()
-            store_dict["output"] = result
-            store_dict["runtime"] = time.time() - time_start
-            store_dict["resource_dict"] = task_dict.get("resource_dict", {})
-            dump(file_name=file_name, data_dict=store_dict)
+            data_dict["output"] = result
+            data_dict["runtime"] = time.time() - time_start
+            dump(file_name=file_name, data_dict=data_dict)
             future_obj.set_result(result)
         except Exception as thread_exception:
             if isinstance(thread_exception, ExecutorlibSocketError):

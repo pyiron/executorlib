@@ -41,9 +41,7 @@ def execute_in_subprocess(
         task_dependent_lst = []
     if os.path.exists(file_name):
         os.remove(file_name)
-    store_dict = data_dict.copy()
-    store_dict["resource_dict"] = resource_dict if resource_dict is not None else {}
-    dump(file_name=file_name, data_dict=store_dict)
+    dump(file_name=file_name, data_dict=data_dict)
     check_file_exists(file_name=file_name)
     while len(task_dependent_lst) > 0:
         task_dependent_lst = [
