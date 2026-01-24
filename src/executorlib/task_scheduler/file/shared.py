@@ -271,8 +271,8 @@ def _convert_args_and_kwargs(
 def _check_timeout(timeout_dict: dict, memory_dict: dict) -> None:
     if (
         len(timeout_dict) > 0
-        and all([time() > timeout for timeout in timeout_dict.values()])
-        and all([key in timeout_dict for key in memory_dict])
+        and all(time() > timeout for timeout in timeout_dict.values())
+        and all(key in timeout_dict for key in memory_dict)
     ):
         for key in memory_dict:
             if key in timeout_dict:
