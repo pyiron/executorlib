@@ -31,6 +31,11 @@ def get_error(a):
     raise ValueError(a)
 
 
+def reply(i):
+    sleep(1)
+    return i
+
+
 @unittest.skipIf(
     skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
 )
@@ -56,6 +61,13 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertFalse(fs2.done())
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
+
+    def test_executor_timeout(self):
+        with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
+            fs1 = exe.submit(reply, 2, resource_dict={"timeout": 0.01})
+            with self.assertRaises(TimeoutError):
+                fs1.result()
+        self.assertTrue(fs1.done())
 
     def test_create_file_executor_error(self):
         with self.assertRaises(TypeError):

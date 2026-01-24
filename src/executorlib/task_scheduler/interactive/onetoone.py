@@ -190,6 +190,8 @@ def _wrap_execute_task_in_separate_process(
                              dictionary containing the future objects and the number of cores they require
     """
     resource_dict = task_dict.pop("resource_dict").copy()
+    if "timeout" in resource_dict:
+        task_dict["timeout"] = resource_dict.pop("timeout")
     f = task_dict.pop("future")
     if "cores" not in resource_dict or (
         resource_dict["cores"] == 1 and executor_kwargs["cores"] >= 1

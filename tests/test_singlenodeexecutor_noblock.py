@@ -10,6 +10,11 @@ def calc(i):
     return i
 
 
+def reply(i):
+    sleep(1)
+    return i
+
+
 def resource_dict(resource_dict):
     return resource_dict
 
@@ -70,6 +75,17 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
+    def test_time_out(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=False,
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs_1 = exe.submit(reply, 1, resource_dict={"timeout": 0.01})
+            with self.assertRaises(TimeoutError):
+                fs_1.result()
+            self.assertTrue(fs_1.done())
+
     def test_errors(self):
         with self.assertRaises(TypeError):
             SingleNodeExecutor(
@@ -119,6 +135,18 @@ class TestWorkerID(unittest.TestCase):
         ) as exe:
             worker_id = exe.submit(get_worker_id, resource_dict={}).result()
         self.assertEqual(worker_id, 0)
+
+    def test_time_out(self):
+        with SingleNodeExecutor(
+            max_cores=1,
+            block_allocation=True,
+            resource_dict={"timeout": 0.01},
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs_1 = exe.submit(reply, 1)
+            with self.assertRaises(TimeoutError):
+                fs_1.result()
+            self.assertTrue(fs_1.done())
 
     def test_init_function_two_workers(self):
         with SingleNodeExecutor(

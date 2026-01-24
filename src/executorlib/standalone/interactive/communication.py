@@ -1,6 +1,7 @@
 import logging
 import sys
 from socket import gethostname
+from time import time
 from typing import Any, Callable, Optional
 
 import cloudpickle
@@ -67,20 +68,27 @@ class SocketInterface:
             self._logger.warning("Send dictionary of size: " + str(sys.getsizeof(data)))
         self._socket.send(data)
 
-    def receive_dict(self) -> dict:
+    def receive_dict(self, timeout: Optional[int] = None) -> dict:
         """
         Receive a dictionary from a connected client process.
+
+        Args:
+            timeout (int, optional): Time out for waiting for a message on socket in seconds. If None is provided, the
+                                      default time out set during initialization is used.
 
         Returns:
             dict: dictionary with response received from the connected client
         """
         response_lst: list[tuple[Any, int]] = []
+        time_start = time()
         while len(response_lst) == 0:
             response_lst = self._poller.poll(self._time_out_ms)
             if not self._spawner.poll():
                 raise ExecutorlibSocketError(
                     "SocketInterface crashed during execution."
                 )
+            if timeout is not None and (time() - time_start) > timeout:
+                raise TimeoutError("SocketInterface reached timeout.")
         data = self._socket.recv(zmq.NOBLOCK)
         if self._logger is not None:
             self._logger.warning(
@@ -92,19 +100,23 @@ class SocketInterface:
         else:
             raise output["error"]
 
-    def send_and_receive_dict(self, input_dict: dict) -> dict:
+    def send_and_receive_dict(
+        self, input_dict: dict, timeout: Optional[int] = None
+    ) -> dict:
         """
         Combine both the send_dict() and receive_dict() function in a single call.
 
         Args:
             input_dict (dict): dictionary of commands to be communicated. The key "shutdown" is reserved to stop the
                                connected client from listening.
+            timeout (int, optional): Time out for waiting for a message on socket in seconds. If None is provided, the
+                                      default time out set during initialization is used.
 
         Returns:
             dict: dictionary with response received from the connected client
         """
         self.send_dict(input_dict=input_dict)
-        return self.receive_dict()
+        return self.receive_dict(timeout=timeout)
 
     def bind_to_random_port(self) -> int:
         """

@@ -72,6 +72,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
+        timeout = executor_kwargs.pop("timeout", None)
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
         self_id = random.getrandbits(128)
@@ -85,6 +86,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                     | {
                         "worker_id": worker_id,
                         "stop_function": lambda: _interrupt_bootup_dict[self_id],
+                        "timeout": timeout,
                     },
                 )
                 for worker_id in range(self._max_workers)
@@ -211,6 +213,7 @@ def _execute_multiple_tasks(
     worker_id: Optional[int] = None,
     stop_function: Optional[Callable] = None,
     restart_limit: int = 0,
+    timeout: Optional[int] = None,
     **kwargs,
 ) -> None:
     """
@@ -239,6 +242,8 @@ def _execute_multiple_tasks(
                          distribution.
         stop_function (Callable): Function to stop the interface.
         restart_limit (int): The maximum number of restarting worker processes.
+        timeout (int, optional): Time out for waiting for a message on socket in seconds. If None is provided, the
+                                 default time out set during initialization is used.
     """
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
@@ -283,6 +288,8 @@ def _execute_multiple_tasks(
                     f.set_exception(exception=interface_initialization_exception)
                 else:
                     # The interface failed during the execution
+                    if timeout is not None:
+                        task_dict["timeout"] = timeout
                     interface.status = execute_task_dict(
                         task_dict=task_dict,
                         future_obj=f,

@@ -77,6 +77,18 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
+    def test_pympiexecutor_timeout(self):
+        with BlockAllocationTaskScheduler(
+            max_workers=2,
+            executor_kwargs={"timeout": 0.01},
+            spawner=MpiExecSpawner,
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs_1 = exe.submit(sleep_one, 1)
+            with self.assertRaises(TimeoutError):
+                fs_1.result()
+            self.assertTrue(fs_1.done())
+
     def test_max_workers(self):
         with BlockAllocationTaskScheduler(
             max_workers=2,

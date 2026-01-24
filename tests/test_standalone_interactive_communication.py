@@ -27,9 +27,15 @@ def calc(i):
     return np.array(i**2)
 
 
+def reply(i):
+    sleep(1)
+    return i
+
+
 class BrokenSpawner(MpiExecSpawner):
     def bootup(self, command_lst: list[str], stop_function: Optional[Callable] = None,):
         return False
+
 
 class TestInterface(unittest.TestCase):
     @unittest.skipIf(
@@ -94,6 +100,36 @@ class TestInterface(unittest.TestCase):
         self.assertEqual(
             interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
         )
+        interface.shutdown(wait=True)
+
+    def test_interface_serial_with_timeout(self):
+        cloudpickle_register(ind=1)
+        task_dict = {"fn": calc, "args": (), "kwargs": {"i": 2}}
+        interface = SocketInterface(
+            spawner=MpiExecSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
+            log_obj_size=False,
+        )
+        interface.bootup(
+            command_lst=[
+                sys.executable,
+                os.path.abspath(
+                    os.path.join(
+                        __file__,
+                        "..",
+                        "..",
+                        "src",
+                        "executorlib",
+                        "backend",
+                        "interactive_serial.py",
+                    )
+                ),
+                "--zmqport",
+                str(interface.bind_to_random_port()),
+            ]
+        )
+        self.assertTrue(interface.status)
+        with self.assertRaises(TimeoutError):
+            interface.send_and_receive_dict(input_dict=task_dict, timeout=0.01)
         interface.shutdown(wait=True)
 
     def test_interface_serial_with_debug(self):

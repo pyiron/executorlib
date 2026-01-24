@@ -2,6 +2,7 @@ import contextlib
 import os
 import queue
 from concurrent.futures import Future
+from time import time
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_cache_execute_command
@@ -81,6 +82,7 @@ def execute_tasks_h5(
     process_dict: dict = {}
     cache_dir_dict: dict = {}
     file_name_dict: dict = {}
+    timeout_dict: dict = {}
     while True:
         task_dict = None
         with contextlib.suppress(queue.Empty):
@@ -97,6 +99,7 @@ def execute_tasks_h5(
                         for key, value in memory_dict.items()
                         if not value.done()
                     }
+                    _check_timeout(timeout_dict=timeout_dict, memory_dict=memory_dict)
             if (
                 terminate_function is not None
                 and terminate_function == terminate_subprocess
@@ -126,6 +129,7 @@ def execute_tasks_h5(
             cache_key = task_resource_dict.pop("cache_key", None)
             cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
             error_log_file = task_resource_dict.pop("error_log_file", None)
+            timeout = task_resource_dict.pop("timeout", None)
             task_key, data_dict = serialize_funct(
                 fn=task_dict["fn"],
                 fn_args=task_args,
@@ -170,6 +174,8 @@ def execute_tasks_h5(
                         backend=backend,
                         cache_directory=cache_directory,
                     )
+                    if timeout is not None:
+                        timeout_dict[task_key] = time() + timeout
                 file_name_dict[task_key] = os.path.join(
                     cache_directory, task_key + "_o.h5"
                 )
@@ -186,6 +192,7 @@ def execute_tasks_h5(
                 for key, value in memory_dict.items()
                 if not value.done()
             }
+            _check_timeout(timeout_dict=timeout_dict, memory_dict=memory_dict)
 
 
 def _check_task_output(
@@ -259,3 +266,16 @@ def _convert_args_and_kwargs(
         else:
             task_kwargs[key] = arg
     return task_args, task_kwargs, future_wait_key_lst
+
+
+def _check_timeout(timeout_dict: dict, memory_dict: dict) -> None:
+    if (
+        len(timeout_dict) > 0
+        and all([time() > timeout for timeout in timeout_dict.values()])
+        and all([key in timeout_dict for key in memory_dict])
+    ):
+        for key in memory_dict.keys():
+            if key in timeout_dict:
+                memory_dict[key].set_exception(
+                    TimeoutError("Task execution exceeded the specified timeout.")
+                )

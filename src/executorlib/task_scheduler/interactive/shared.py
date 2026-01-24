@@ -102,7 +102,12 @@ def _execute_task_without_cache(
         bool: True if the task was submitted successfully, False otherwise.
     """
     try:
-        future_obj.set_result(interface.send_and_receive_dict(input_dict=task_dict))
+        future_obj.set_result(
+            interface.send_and_receive_dict(
+                input_dict=task_dict,
+                timeout=_get_timeout_from_task_dict(task_dict=task_dict),
+            )
+        )
     except Exception as thread_exception:
         if isinstance(thread_exception, ExecutorlibSocketError):
             return False
@@ -143,7 +148,10 @@ def _execute_task_with_cache(
     if file_name not in get_cache_files(cache_directory=cache_directory):
         try:
             time_start = time.time()
-            result = interface.send_and_receive_dict(input_dict=task_dict)
+            result = interface.send_and_receive_dict(
+                input_dict=task_dict,
+                timeout=_get_timeout_from_task_dict(task_dict=task_dict),
+            )
             data_dict["output"] = result
             data_dict["runtime"] = time.time() - time_start
             dump(file_name=file_name, data_dict=data_dict)
@@ -157,3 +165,20 @@ def _execute_task_with_cache(
         _, _, result = get_output(file_name=file_name)
         future_obj.set_result(result)
     return True
+
+
+def _get_timeout_from_task_dict(task_dict: dict) -> Optional[int]:
+    """
+    Extract timeout value from the task_dict if present.
+
+    Args:
+        task_dict (dict): task submitted to the executor as dictionary. This dictionary has the following keys
+                          {"fn": Callable, "args": (), "kwargs": {}, "resource_dict": {}}
+
+    Returns:
+        Optional[int]: timeout value if present in the resource_dict, None otherwise.
+    """
+    if "timeout" in task_dict:
+        return task_dict.pop("timeout")
+    else:
+        return None
