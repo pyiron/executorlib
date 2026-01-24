@@ -274,8 +274,8 @@ def _check_timeout(timeout_dict: dict, memory_dict: dict) -> None:
         and all(time() > timeout for timeout in timeout_dict.values())
         and all(key in timeout_dict for key in memory_dict)
     ):
-        for key in memory_dict:
+        for key, future in memory_dict.items():
             if key in timeout_dict:
-                memory_dict[key].set_exception(
+                future.set_exception(
                     TimeoutError("Task execution exceeded the specified timeout.")
                 )
