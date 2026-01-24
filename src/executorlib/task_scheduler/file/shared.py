@@ -126,8 +126,8 @@ def execute_tasks_h5(
             task_resource_dict.update(
                 {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
             )
-            cache_key, cache_directory, error_log_file, timeout = _get_resource_parameters(
-                task_resource_dict=task_resource_dict
+            cache_key, cache_directory, error_log_file, timeout = (
+                _get_resource_parameters(task_resource_dict=task_resource_dict)
             )
             task_key, data_dict = serialize_funct(
                 fn=task_dict["fn"],
@@ -280,7 +280,9 @@ def _check_timeout(timeout_dict: dict, memory_dict: dict) -> None:
                 )
 
 
-def _get_resource_parameters(task_resource_dict: dict) -> tuple[Optional[str], str, Optional[str], Optional[int]]:
+def _get_resource_parameters(
+    task_resource_dict: dict,
+) -> tuple[Optional[str], str, Optional[str], Optional[int]]:
     cache_key = task_resource_dict.pop("cache_key", None)
     cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
     error_log_file = task_resource_dict.pop("error_log_file", None)
