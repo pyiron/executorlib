@@ -104,15 +104,17 @@ def execute_tasks_h5(
                 terminate_function is not None
                 and terminate_function == terminate_subprocess
             ):
-                for task in process_dict.values():
-                    terminate_function(task=task)
+                for task_key, task in process_dict.items():
+                    if task_key not in timeout_dict:
+                        terminate_function(task=task)
             elif terminate_function is not None:
-                for queue_id in process_dict.values():
-                    terminate_function(
-                        queue_id=queue_id,
-                        config_directory=pysqa_config_directory,
-                        backend=backend,
-                    )
+                for task_key, queue_id in process_dict.items():
+                    if task_key not in timeout_dict:
+                        terminate_function(
+                            queue_id=queue_id,
+                            config_directory=pysqa_config_directory,
+                            backend=backend,
+                        )
             future_queue.task_done()
             future_queue.join()
             break
