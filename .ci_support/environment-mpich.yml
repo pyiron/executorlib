@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - python
-- numpy =2.3.3
+- numpy =2.4.1
 - mpich
 - cloudpickle =3.1.2
 - h5py =3.15.1
@@ -12,5 +12,5 @@ dependencies:
 - mpi4py =4.1.1
 - networkx =3.6.1
 - pygraphviz =1.14
-- pysqa =0.3.3
+- pysqa =0.3.4
 - pyzmq =27.1.0
