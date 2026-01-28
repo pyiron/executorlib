@@ -1,3 +1,4 @@
+from time import sleep
 from typing import Callable, Optional, Union
 
 from executorlib.executor.base import BaseExecutor
@@ -192,6 +193,7 @@ class SingleNodeExecutor(BaseExecutor):
                     log_obj_size=log_obj_size,
                 )
             )
+        _executor_self_test(exe=self._task_scheduler)
 
 
 class TestClusterExecutor(BaseExecutor):
@@ -454,3 +456,20 @@ def create_single_node_executor(
             executor_kwargs=resource_dict,
             spawner=MpiExecSpawner,
         )
+
+
+def _executor_self_test(exe):
+    f = exe.submit(sum, [1, 1])
+    counter = 0
+    while not f.done() and counter < 10:
+        sleep(0.1)
+        counter += 1
+    if not f.done():
+        exe.shutdown(wait=False, cancel_futures=False)
+        raise TimeoutError(
+            'Plase try "hostname_localhost=True" in the initialization of the SingleNodeExecutor(hostname_localhost=True).'
+        )
+    else:
+        exe._future_hash_dict = {}
+        exe._task_hash_dict = {}
+    return True
