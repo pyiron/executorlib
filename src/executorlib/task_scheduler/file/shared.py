@@ -57,6 +57,7 @@ def execute_tasks_h5(
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
     pmi_mode: Optional[str] = None,
+    cancel_futures_on_shutdown: bool = True,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -72,6 +73,8 @@ def execute_tasks_h5(
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on 
+                                           shutdown.
 
     Returns:
         None
@@ -97,7 +100,7 @@ def execute_tasks_h5(
                         for key, value in memory_dict.items()
                         if not value.done()
                     }
-            if task_dict["cancel_futures"]:
+            if task_dict["cancel_futures"] and cancel_futures_on_shutdown:
                 if (
                     terminate_function is not None
                     and terminate_function == terminate_subprocess

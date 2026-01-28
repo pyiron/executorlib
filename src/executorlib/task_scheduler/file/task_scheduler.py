@@ -35,6 +35,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         backend: Optional[str] = None,
         disable_dependencies: bool = False,
         pmi_mode: Optional[str] = None,
+        cancel_futures_on_shutdown: bool = True,
     ):
         """
         Initialize the FileExecutor.
@@ -50,6 +51,8 @@ class FileTaskScheduler(TaskSchedulerBase):
             backend (str, optional): name of the backend used to spawn tasks.
             disable_dependencies (boolean): Disable resolving future objects during the submission.
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+                                               on shutdown.
         """
         super().__init__(max_cores=None)
         default_resource_dict = {
@@ -73,6 +76,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             "backend": backend,
             "disable_dependencies": disable_dependencies,
             "pmi_mode": pmi_mode,
+            "cancel_futures_on_shutdown": cancel_futures_on_shutdown,
         }
         self._set_process(
             Thread(
@@ -98,6 +102,7 @@ def create_file_executor(
     init_function: Optional[Callable] = None,
     disable_dependencies: bool = False,
     execute_function: Callable = execute_with_pysqa,
+    cancel_futures_on_shutdown: bool = True,
 ):
     if block_allocation:
         raise ValueError(
@@ -128,4 +133,5 @@ def create_file_executor(
         execute_function=execute_function,
         terminate_function=terminate_function,
         pmi_mode=pmi_mode,
+        cancel_futures_on_shutdown=cancel_futures_on_shutdown,
     )
