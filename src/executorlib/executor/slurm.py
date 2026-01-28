@@ -176,9 +176,6 @@ class SlurmClusterExecutor(BaseExecutor):
             import pysqa  # noqa
 
             if block_allocation:
-                check_cancel_futures_on_shutdown(
-                    cancel_futures_on_shutdown=cancel_futures_on_shutdown
-                )
                 from executorlib.task_scheduler.interactive.spawner_pysqa import (
                     create_pysqa_block_allocation_scheduler,
                 )
