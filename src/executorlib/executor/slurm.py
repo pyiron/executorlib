@@ -2,6 +2,7 @@ from typing import Callable, Optional, Union
 
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
+    check_cancel_futures_on_shutdown,
     check_init_function,
     check_log_obj_size,
     check_plot_dependency_graph,
@@ -65,6 +66,8 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
+                                           shutdown.
 
     Examples:
         ```
@@ -104,6 +107,7 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        cancel_futures_on_shutdown: bool = False,
     ):
         """
         The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -150,6 +154,8 @@ class SlurmClusterExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+                                               on shutdown.
 
         """
         default_resource_dict: dict = {
@@ -170,6 +176,7 @@ class SlurmClusterExecutor(BaseExecutor):
             import pysqa  # noqa
 
             if block_allocation:
+                check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
                 from executorlib.task_scheduler.interactive.spawner_pysqa import (
                     create_pysqa_block_allocation_scheduler,
                 )
@@ -210,6 +217,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         disable_dependencies=disable_dependencies,
+                        cancel_futures_on_shutdown=cancel_futures_on_shutdown,
                     )
                 )
         else:
@@ -281,6 +289,8 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on 
+                                           shutdown.
 
     Examples:
         ```
@@ -319,6 +329,7 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        cancel_futures_on_shutdown: bool = False,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -368,6 +379,8 @@ class SlurmJobExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+                                               on shutdown.
 
         """
         default_resource_dict: dict = {
@@ -396,6 +409,7 @@ class SlurmJobExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        cancel_futures_on_shutdown=cancel_futures_on_shutdown,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -418,6 +432,7 @@ class SlurmJobExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    cancel_futures_on_shutdown=cancel_futures_on_shutdown
                 )
             )
 
@@ -432,6 +447,7 @@ def create_slurm_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    cancel_futures_on_shutdown: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -471,6 +487,8 @@ def create_slurm_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
+                                           shutdown.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -483,6 +501,7 @@ def create_slurm_executor(
     resource_dict["log_obj_size"] = log_obj_size
     resource_dict["pmi_mode"] = pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
     if block_allocation:
         resource_dict["init_function"] = init_function
         max_workers = validate_number_of_cores(

@@ -2,6 +2,7 @@ from typing import Callable, Optional, Union
 
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
+    check_cancel_futures_on_shutdown,
     check_command_line_argument_lst,
     check_gpus_per_worker,
     check_init_function,
@@ -60,6 +61,8 @@ class SingleNodeExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
+                                           shutdown.
 
     Examples:
         ```
@@ -97,6 +100,7 @@ class SingleNodeExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        cancel_futures_on_shutdown: bool = False,
     ):
         """
         The executorlib.SingleNodeExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -142,6 +146,8 @@ class SingleNodeExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+                                               on shutdown.
 
         """
         default_resource_dict: dict = {
@@ -169,6 +175,7 @@ class SingleNodeExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        cancel_futures_on_shutdown=cancel_futures_on_shutdown,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -190,6 +197,7 @@ class SingleNodeExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    cancel_futures_on_shutdown=cancel_futures_on_shutdown,
                 )
             )
 
@@ -232,6 +240,8 @@ class TestClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
+                                           shutdown.
 
     Examples:
         ```
@@ -269,6 +279,7 @@ class TestClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        cancel_futures_on_shutdown: bool = True,
     ):
         """
         The executorlib.api.TestClusterExecutor is designed to test the file based communication used in the
@@ -307,6 +318,8 @@ class TestClusterExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+                                               on shutdown.
 
         """
         default_resource_dict: dict = {
@@ -346,6 +359,7 @@ class TestClusterExecutor(BaseExecutor):
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
                     execute_function=execute_in_subprocess,
+                    cancel_futures_on_shutdown=cancel_futures_on_shutdown,
                 )
             )
         else:
@@ -379,6 +393,7 @@ def create_single_node_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    cancel_futures_on_shutdown: bool = False,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a single node executor
@@ -413,6 +428,8 @@ def create_single_node_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
+                                           shutdown.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -429,6 +446,7 @@ def create_single_node_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
+    check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
     if "threads_per_core" in resource_dict:
         del resource_dict["threads_per_core"]
     if "gpus_per_core" in resource_dict:
