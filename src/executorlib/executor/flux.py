@@ -68,7 +68,7 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on 
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
                                            shutdown.
 
     Examples:
@@ -160,7 +160,7 @@ class FluxJobExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                                on shutdown.
 
         """
@@ -269,7 +269,7 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                            on shutdown.
 
     Examples:
@@ -357,7 +357,7 @@ class FluxClusterExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                                on shutdown.
 
         """
@@ -379,7 +379,9 @@ class FluxClusterExecutor(BaseExecutor):
             import pysqa  # noqa
 
             if block_allocation:
-                check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
+                check_cancel_futures_on_shutdown(
+                    cancel_futures_on_shutdown=cancel_futures_on_shutdown
+                )
                 from executorlib.task_scheduler.interactive.spawner_pysqa import (
                     create_pysqa_block_allocation_scheduler,
                 )
@@ -499,7 +501,7 @@ def create_flux_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on 
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
                                            shutdown.
 
     Returns:
@@ -522,7 +524,9 @@ def create_flux_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
-    check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
+    check_cancel_futures_on_shutdown(
+        cancel_futures_on_shutdown=cancel_futures_on_shutdown
+    )
     if "openmpi_oversubscribe" in resource_dict:
         del resource_dict["openmpi_oversubscribe"]
     if "slurm_cmd_args" in resource_dict:

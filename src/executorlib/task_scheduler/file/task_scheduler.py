@@ -51,7 +51,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             backend (str, optional): name of the backend used to spawn tasks.
             disable_dependencies (boolean): Disable resolving future objects during the submission.
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                                on shutdown.
         """
         super().__init__(max_cores=None)

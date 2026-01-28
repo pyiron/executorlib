@@ -198,7 +198,9 @@ class TaskSchedulerBase(FutureExecutor):
         if cancel_futures and self._future_queue is not None:
             cancel_items_in_queue(que=self._future_queue)
         if self._process is not None and self._future_queue is not None:
-            self._future_queue.put({"shutdown": True, "wait": wait, "cancel_futures": cancel_futures})
+            self._future_queue.put(
+                {"shutdown": True, "wait": wait, "cancel_futures": cancel_futures}
+            )
             if wait and isinstance(self._process, Thread):
                 self._process.join()
                 self._future_queue.join()

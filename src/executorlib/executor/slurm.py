@@ -154,7 +154,7 @@ class SlurmClusterExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                                on shutdown.
 
         """
@@ -176,7 +176,9 @@ class SlurmClusterExecutor(BaseExecutor):
             import pysqa  # noqa
 
             if block_allocation:
-                check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
+                check_cancel_futures_on_shutdown(
+                    cancel_futures_on_shutdown=cancel_futures_on_shutdown
+                )
                 from executorlib.task_scheduler.interactive.spawner_pysqa import (
                     create_pysqa_block_allocation_scheduler,
                 )
@@ -289,7 +291,7 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on 
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
                                            shutdown.
 
     Examples:
@@ -379,7 +381,7 @@ class SlurmJobExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                                on shutdown.
 
         """
@@ -432,7 +434,7 @@ class SlurmJobExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
-                    cancel_futures_on_shutdown=cancel_futures_on_shutdown
+                    cancel_futures_on_shutdown=cancel_futures_on_shutdown,
                 )
             )
 
@@ -501,7 +503,9 @@ def create_slurm_executor(
     resource_dict["log_obj_size"] = log_obj_size
     resource_dict["pmi_mode"] = pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
+    check_cancel_futures_on_shutdown(
+        cancel_futures_on_shutdown=cancel_futures_on_shutdown
+    )
     if block_allocation:
         resource_dict["init_function"] = init_function
         max_workers = validate_number_of_cores(

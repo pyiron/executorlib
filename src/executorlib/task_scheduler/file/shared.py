@@ -73,7 +73,7 @@ def execute_tasks_h5(
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on 
+        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
                                            shutdown.
 
     Returns:

@@ -146,7 +146,7 @@ class SingleNodeExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                                on shutdown.
 
         """
@@ -318,7 +318,7 @@ class TestClusterExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes 
+            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
                                                on shutdown.
 
         """
@@ -446,7 +446,9 @@ def create_single_node_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
-    check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=cancel_futures_on_shutdown)
+    check_cancel_futures_on_shutdown(
+        cancel_futures_on_shutdown=cancel_futures_on_shutdown
+    )
     if "threads_per_core" in resource_dict:
         del resource_dict["threads_per_core"]
     if "gpus_per_core" in resource_dict:
