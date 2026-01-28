@@ -100,7 +100,7 @@ def execute_tasks_h5(
                         for key, value in memory_dict.items()
                         if not value.done()
                     }
-            if task_dict["cancel_futures"] and cancel_futures_on_shutdown:
+            if task_dict["cancel_futures"] or cancel_futures_on_shutdown:
                 if (
                     terminate_function is not None
                     and terminate_function == terminate_subprocess
