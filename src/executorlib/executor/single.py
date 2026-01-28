@@ -279,7 +279,7 @@ class TestClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        cancel_futures_on_shutdown: bool = True,
+        cancel_futures_on_shutdown: bool = False,
     ):
         """
         The executorlib.api.TestClusterExecutor is designed to test the file based communication used in the

@@ -35,7 +35,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         backend: Optional[str] = None,
         disable_dependencies: bool = False,
         pmi_mode: Optional[str] = None,
-        cancel_futures_on_shutdown: bool = True,
+        cancel_futures_on_shutdown: bool = False,
     ):
         """
         Initialize the FileExecutor.

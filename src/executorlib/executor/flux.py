@@ -310,7 +310,7 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        cancel_futures_on_shutdown: bool = True,
+        cancel_futures_on_shutdown: bool = False,
     ):
         """
         The executorlib.FluxClusterExecutor leverages either the message passing interface (MPI), the SLURM workload

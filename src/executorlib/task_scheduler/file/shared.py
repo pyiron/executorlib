@@ -57,7 +57,7 @@ def execute_tasks_h5(
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
     pmi_mode: Optional[str] = None,
-    cancel_futures_on_shutdown: bool = True,
+    cancel_futures_on_shutdown: bool = False,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -89,7 +89,7 @@ def execute_tasks_h5(
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if task_dict["wait"]:
+            if task_dict["wait"] and not cancel_futures_on_shutdown:
                 while len(memory_dict) > 0:
                     memory_dict = {
                         key: _check_task_output(
@@ -100,7 +100,7 @@ def execute_tasks_h5(
                         for key, value in memory_dict.items()
                         if not value.done()
                     }
-            if task_dict["cancel_futures"] or cancel_futures_on_shutdown:
+            if not task_dict["cancel_futures"] and not cancel_futures_on_shutdown:
                 if (
                     terminate_function is not None
                     and terminate_function == terminate_subprocess
@@ -114,6 +114,19 @@ def execute_tasks_h5(
                             config_directory=pysqa_config_directory,
                             backend=backend,
                         )
+            else:
+                memory_dict = {
+                    key: _check_task_output(
+                        task_key=key,
+                        future_obj=value,
+                        cache_directory=cache_dir_dict[key],
+                    )
+                    for key, value in memory_dict.items()
+                    if not value.done()
+                }
+                for value in memory_dict.values():
+                    if not value.done():
+                        value.cancel()
             future_queue.task_done()
             future_queue.join()
             break
