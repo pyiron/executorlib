@@ -50,6 +50,7 @@ class TestInterface(unittest.TestCase):
                         "..",
                         "..",
                         "..",
+                        "..",
                         "src",
                         "executorlib",
                         "backend",
