@@ -46,7 +46,8 @@ class TestInterface(unittest.TestCase):
                 sys.executable,
                 os.path.abspath(
                     os.path.join(
-                        __file__,
+                        os.path.dirname(__file__),
+                        "..",
                         "..",
                         "..",
                         "src",
@@ -77,7 +78,8 @@ class TestInterface(unittest.TestCase):
                 sys.executable,
                 os.path.abspath(
                     os.path.join(
-                        __file__,
+                        os.path.dirname(__file__),
+                        "..",
                         "..",
                         "..",
                         "src",
@@ -108,7 +110,8 @@ class TestInterface(unittest.TestCase):
                 sys.executable,
                 os.path.abspath(
                     os.path.join(
-                        __file__,
+                        os.path.dirname(__file__),
+                        "..",
                         "..",
                         "..",
                         "src",
@@ -170,7 +173,8 @@ class TestInterface(unittest.TestCase):
                 sys.executable,
                 os.path.abspath(
                     os.path.join(
-                        __file__,
+                        os.path.dirname(__file__),
+                        "..",
                         "..",
                         "..",
                         "src",
