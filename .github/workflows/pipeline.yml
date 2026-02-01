@@ -218,7 +218,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        python -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
+        python -m unittest tests/task_scheduler/interactive/test_spawner_flux.py tests/executor/test_flux_job_plot.py tests/executor/test_flux_job.py tests/executor/test_flux_cluster.py;
 
   unittest_flux_openmpi:
     needs: [black]
@@ -249,7 +249,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        coverage run -a -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
+        coverage run -a -m unittest tests/task_scheduler/interactive/test_spawner_flux.py tests/executor/test_flux_job_plot.py tests/executor/test_flux_job.py tests/executor/test_flux_cluster.py;
         coverage report;
         coverage xml
       env:
@@ -292,8 +292,8 @@ jobs:
         cd tests
         sinfo -o "%n %e %m %a %c %C"
         srun --mpi=list
-        python -m unittest test_slurmjobexecutor.py
-        python -m unittest test_slurmclusterexecutor.py
+        python -m unittest executor/test_slurm_job.py
+        python -m unittest tests/executor/test_slurm_cluster.py
 
   unittest_mpich:
     needs: [black]
