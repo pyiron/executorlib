@@ -82,6 +82,7 @@ class TestInterface(unittest.TestCase):
                         "..",
                         "..",
                         "..",
+                        "..",
                         "src",
                         "executorlib",
                         "backend",
@@ -111,6 +112,7 @@ class TestInterface(unittest.TestCase):
                 os.path.abspath(
                     os.path.join(
                         os.path.dirname(__file__),
+                        "..",
                         "..",
                         "..",
                         "..",
@@ -174,6 +176,7 @@ class TestInterface(unittest.TestCase):
                 os.path.abspath(
                     os.path.join(
                         os.path.dirname(__file__),
+                        "..",
                         "..",
                         "..",
                         "..",

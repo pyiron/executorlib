@@ -10,7 +10,7 @@ from executorlib.task_scheduler.interactive.blockallocation import _execute_mult
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
 
-executable_path = os.path.join(os.path.dirname(__file__), "..", "executables", "count.py")
+executable_path = os.path.join(os.path.dirname(__file__), "..", "..", "static", "count.py")
 
 
 def init_process():
