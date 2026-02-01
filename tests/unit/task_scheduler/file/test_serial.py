@@ -74,7 +74,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 fs.result()
 
     def test_executor_working_directory(self):
-        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "executables")
+        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
             resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
@@ -82,7 +82,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertEqual(fs1.result(), os.listdir(cwd))
 
     def test_executor_error(self):
-        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "executables")
+        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
             resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
@@ -92,7 +92,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(len(os.listdir(cwd)), 1)
 
     def test_executor_error_file(self):
-        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "executables")
+        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
             resource_dict={"cwd": cwd, "error_log_file": "error.out"},
             execute_function=execute_in_subprocess
