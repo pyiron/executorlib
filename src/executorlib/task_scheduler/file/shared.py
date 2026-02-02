@@ -57,7 +57,7 @@ def execute_tasks_h5(
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
     pmi_mode: Optional[str] = None,
-    cancel_futures_on_shutdown: bool = False,
+    wait: bool = True,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -73,8 +73,7 @@ def execute_tasks_h5(
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
-                                           shutdown.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Returns:
         None
@@ -89,7 +88,7 @@ def execute_tasks_h5(
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if task_dict["wait"] and not cancel_futures_on_shutdown:
+            if task_dict["wait"] and wait:
                 while len(memory_dict) > 0:
                     memory_dict = {
                         key: _check_task_output(
@@ -100,7 +99,7 @@ def execute_tasks_h5(
                         for key, value in memory_dict.items()
                         if not value.done()
                     }
-            if not task_dict["cancel_futures"] and not cancel_futures_on_shutdown:
+            if not task_dict["cancel_futures"] and wait:
                 if (
                     terminate_function is not None
                     and terminate_function == terminate_subprocess

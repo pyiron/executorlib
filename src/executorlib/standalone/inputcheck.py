@@ -17,15 +17,15 @@ def check_oversubscribe(oversubscribe: bool) -> None:
         )
 
 
-def check_cancel_futures_on_shutdown(
-    cancel_futures_on_shutdown: bool,
+def check_wait_on_shutdown(
+    wait_on_shutdown: bool,
 ) -> None:
     """
-    Check if cancel_futures_on_shutdown is True and raise a ValueError if it is.
+    Check if wait_on_shutdown is False and raise a ValueError if it is.
     """
-    if cancel_futures_on_shutdown:
+    if not wait_on_shutdown:
         raise ValueError(
-            "The cancel_futures_on_shutdown parameter is only supported for the executorlib.FluxClusterExecutor and executorlib.SlurmClusterExecutor."
+            "The wait_on_shutdown parameter is only supported for the executorlib.FluxClusterExecutor and executorlib.SlurmClusterExecutor."
         )
 
 

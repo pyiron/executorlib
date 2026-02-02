@@ -1,7 +1,7 @@
 import unittest
 
 from executorlib.standalone.inputcheck import (
-    check_cancel_futures_on_shutdown,
+    check_wait_on_shutdown,
     check_command_line_argument_lst,
     check_gpus_per_worker,
     check_oversubscribe,
@@ -25,9 +25,9 @@ from executorlib.standalone.inputcheck import (
 
 
 class TestInputCheck(unittest.TestCase):
-    def test_check_cancel_futures_on_shutdown(self):
+    def test_check_wait_on_shutdown(self):
         with self.assertRaises(ValueError):
-            check_cancel_futures_on_shutdown(cancel_futures_on_shutdown=True)
+            check_wait_on_shutdown(wait_on_shutdown=False)
     
     def test_check_command_line_argument_lst(self):
         with self.assertRaises(ValueError):

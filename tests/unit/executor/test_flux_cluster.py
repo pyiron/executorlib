@@ -101,7 +101,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             block_allocation=False,
             cache_directory="executorlib_cache",
             pmi_mode=pmi,
-            cancel_futures_on_shutdown=True,
+            wait=False,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(echo, 1)
@@ -113,7 +113,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             block_allocation=False,
             cache_directory="executorlib_cache",
             pmi_mode=pmi,
-            cancel_futures_on_shutdown=True,
+            wait=False,
         ) as exe:
             cloudpickle_register(ind=1)
             fs1 = exe.submit(echo, 1)
