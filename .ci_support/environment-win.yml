@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - python
-- numpy =2.4.1
+- numpy =2.4.2
 - msmpi
 - cloudpickle =3.1.2
 - h5py =3.15.1
