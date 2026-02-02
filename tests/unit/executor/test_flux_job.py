@@ -111,7 +111,7 @@ class TestFluxBackend(unittest.TestCase):
         )
 
     def test_output_files_cwd(self):
-        dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
         os.makedirs(dirname, exist_ok=True)
         file_stdout = os.path.join(dirname, "flux.out")
         file_stderr = os.path.join(dirname, "flux.err")
