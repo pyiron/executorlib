@@ -17,6 +17,18 @@ def check_oversubscribe(oversubscribe: bool) -> None:
         )
 
 
+def check_wait_on_shutdown(
+    wait_on_shutdown: bool,
+) -> None:
+    """
+    Check if wait_on_shutdown is False and raise a ValueError if it is.
+    """
+    if not wait_on_shutdown:
+        raise ValueError(
+            "The wait_on_shutdown parameter is only supported for the executorlib.FluxClusterExecutor and executorlib.SlurmClusterExecutor."
+        )
+
+
 def check_command_line_argument_lst(command_line_argument_lst: list[str]) -> None:
     """
     Check if command_line_argument_lst is not empty and raise a ValueError if it is.

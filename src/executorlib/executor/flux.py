@@ -9,6 +9,7 @@ from executorlib.standalone.inputcheck import (
     check_plot_dependency_graph,
     check_pmi,
     check_refresh_rate,
+    check_wait_on_shutdown,
     validate_number_of_cores,
 )
 from executorlib.task_scheduler.interactive.blockallocation import (
@@ -67,6 +68,7 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Examples:
         ```
@@ -108,6 +110,7 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        wait: bool = True,
     ):
         """
         The executorlib.FluxJobExecutor leverages either the message passing interface (MPI), the SLURM workload manager
@@ -156,6 +159,7 @@ class FluxJobExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
         """
         default_resource_dict: dict = {
@@ -187,6 +191,7 @@ class FluxJobExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        wait=wait,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -212,6 +217,7 @@ class FluxJobExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    wait=wait,
                 )
             )
 
@@ -261,6 +267,7 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Examples:
         ```
@@ -300,6 +307,7 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        wait: bool = True,
     ):
         """
         The executorlib.FluxClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -346,6 +354,7 @@ class FluxClusterExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
         """
         default_resource_dict: dict = {
@@ -405,6 +414,7 @@ class FluxClusterExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         disable_dependencies=disable_dependencies,
+                        wait=wait,
                     )
                 )
         else:
@@ -445,6 +455,7 @@ def create_flux_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    wait: bool = True,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a flux executor
@@ -483,6 +494,7 @@ def create_flux_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -504,6 +516,7 @@ def create_flux_executor(
     check_command_line_argument_lst(
         command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
     )
+    check_wait_on_shutdown(wait_on_shutdown=wait)
     if "openmpi_oversubscribe" in resource_dict:
         del resource_dict["openmpi_oversubscribe"]
     if "slurm_cmd_args" in resource_dict:
