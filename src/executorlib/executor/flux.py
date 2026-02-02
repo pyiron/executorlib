@@ -68,8 +68,7 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes on
-                                           shutdown.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Examples:
         ```
@@ -111,7 +110,7 @@ class FluxJobExecutor(BaseExecutor):
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
-        cancel_futures_on_shutdown: bool = False,
+        wait: bool = True,
     ):
         """
         The executorlib.FluxJobExecutor leverages either the message passing interface (MPI), the SLURM workload manager
@@ -160,8 +159,7 @@ class FluxJobExecutor(BaseExecutor):
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-            cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
-                                               on shutdown.
+            wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
         """
         default_resource_dict: dict = {
@@ -193,7 +191,7 @@ class FluxJobExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
-                        cancel_futures_on_shutdown=cancel_futures_on_shutdown,
+                        wait=wait,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -219,7 +217,7 @@ class FluxJobExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
-                    cancel_futures_on_shutdown=cancel_futures_on_shutdown,
+                    wait=wait,
                 )
             )
 
@@ -269,8 +267,7 @@ class FluxClusterExecutor(BaseExecutor):
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
-        cancel_futures_on_shutdown (bool): Whether to cancel pending futures and the corresponding Python processes
-                                           on shutdown.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Examples:
         ```
