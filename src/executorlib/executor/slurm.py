@@ -2,11 +2,11 @@ from typing import Callable, Optional, Union
 
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
-    check_wait_on_shutdown,
     check_init_function,
     check_log_obj_size,
     check_plot_dependency_graph,
     check_refresh_rate,
+    check_wait_on_shutdown,
     validate_number_of_cores,
 )
 from executorlib.task_scheduler.interactive.blockallocation import (
