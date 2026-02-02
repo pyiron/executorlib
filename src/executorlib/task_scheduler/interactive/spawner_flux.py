@@ -31,6 +31,7 @@ class FluxPythonSpawner(BaseSpawner):
         threads_per_core (int, optional): The number of threads per base. Defaults to 1.
         gpus_per_core (int, optional): The number of GPUs per base. Defaults to 0.
         num_nodes (int, optional): The number of compute nodes to use for executing the task. Defaults to None.
+        worker_id (int): The worker ID. Defaults to 0.
         exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to
                           False.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
@@ -49,6 +50,7 @@ class FluxPythonSpawner(BaseSpawner):
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
         num_nodes: Optional[int] = None,
+        worker_id: int = 0,
         exclusive: bool = False,
         priority: Optional[int] = None,
         openmpi_oversubscribe: bool = False,
@@ -60,6 +62,7 @@ class FluxPythonSpawner(BaseSpawner):
         super().__init__(
             cwd=cwd,
             cores=cores,
+            worker_id=worker_id,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._threads_per_core = threads_per_core
@@ -121,12 +124,13 @@ class FluxPythonSpawner(BaseSpawner):
         if self._cwd is not None:
             jobspec.cwd = self._cwd
             os.makedirs(self._cwd, exist_ok=True)
+        file_prefix = "flux_" + str(self._worker_id)
         if self._flux_log_files and self._cwd is not None:
-            jobspec.stderr = os.path.join(self._cwd, "flux.err")
-            jobspec.stdout = os.path.join(self._cwd, "flux.out")
+            jobspec.stderr = os.path.join(self._cwd, file_prefix + ".err")
+            jobspec.stdout = os.path.join(self._cwd, file_prefix + ".out")
         elif self._flux_log_files:
-            jobspec.stderr = os.path.abspath("flux.err")
-            jobspec.stdout = os.path.abspath("flux.out")
+            jobspec.stderr = os.path.abspath(file_prefix + ".err")
+            jobspec.stdout = os.path.abspath(file_prefix + ".out")
         if self._priority is not None:
             self._future = self._flux_executor.submit(
                 jobspec=jobspec, urgency=self._priority

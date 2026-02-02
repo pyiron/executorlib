@@ -11,6 +11,7 @@ class BaseSpawner(ABC):
         self,
         cwd: Optional[str] = None,
         cores: int = 1,
+        worker_id: int = 0,
         openmpi_oversubscribe: bool = False,
     ):
         """
@@ -20,9 +21,11 @@ class BaseSpawner(ABC):
             cwd (str): The current working directory.
             cores (int, optional): The number of cores to use. Defaults to 1.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+            worker_id (int): The worker ID. Defaults to 0.
         """
         self._cwd = cwd
         self._cores = cores
+        self._worker_id = worker_id
         self._openmpi_oversubscribe = openmpi_oversubscribe
 
     @abstractmethod
@@ -69,6 +72,7 @@ class SubprocessSpawner(BaseSpawner):
         self,
         cwd: Optional[str] = None,
         cores: int = 1,
+        worker_id: int = 0,
         openmpi_oversubscribe: bool = False,
         threads_per_core: int = 1,
     ):
@@ -79,11 +83,13 @@ class SubprocessSpawner(BaseSpawner):
             cwd (str, optional): The current working directory. Defaults to None.
             cores (int, optional): The number of cores to use. Defaults to 1.
             threads_per_core (int, optional): The number of threads per core. Defaults to 1.
+            worker_id (int): The worker ID. Defaults to 0.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         """
         super().__init__(
             cwd=cwd,
             cores=cores,
+            worker_id=worker_id,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._process: Optional[subprocess.Popen] = None
