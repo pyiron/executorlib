@@ -208,7 +208,7 @@ def _execute_multiple_tasks(
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
-    worker_id: Optional[int] = None,
+    worker_id: int = 0,
     stop_function: Optional[Callable] = None,
     restart_limit: int = 0,
     **kwargs,
