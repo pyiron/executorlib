@@ -2,12 +2,12 @@ from typing import Callable, Optional, Union
 
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
-    check_wait_on_shutdown,
     check_command_line_argument_lst,
     check_gpus_per_worker,
     check_init_function,
     check_plot_dependency_graph,
     check_refresh_rate,
+    check_wait_on_shutdown,
     validate_number_of_cores,
 )
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
