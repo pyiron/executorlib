@@ -317,22 +317,22 @@ def _short_object_name(node):
     if isinstance(node, tuple):
         short_name = str(tuple(_short_object_name(node=el) for el in node))
     elif isinstance(node, list):
-        short_name =str([_short_object_name(node=el) for el in node])
+        short_name = str([_short_object_name(node=el) for el in node])
     elif isinstance(node, dict):
-        short_name =str(
+        short_name = str(
             {
                 _short_object_name(node=key): _short_object_name(node=value)
                 for key, value in node.items()
             }
         )
     elif "object at" in node_value_str:
-        short_name =node_value_str[1:-1].split()[0] + "()"
+        short_name = node_value_str[1:-1].split()[0] + "()"
     elif "<function" in node_value_str:
-        short_name =node_value_str.split()[1] + "()"
+        short_name = node_value_str.split()[1] + "()"
     elif "(" in node_value_str and ")" in node_value_str:
-        short_name =node_value_str.split("(")[0] + "()"
+        short_name = node_value_str.split("(")[0] + "()"
     elif len(node_value_str) > 20:
-        short_name =node_value_str[:21] + "..."
+        short_name = node_value_str[:21] + "..."
     else:
-        short_name =node_value_str
+        short_name = node_value_str
     return short_name
