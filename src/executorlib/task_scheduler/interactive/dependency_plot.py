@@ -218,7 +218,7 @@ def plot_dependency_graph_function(
     graph = nx.DiGraph()
     for node in node_lst:
         if node["type"] == "input":
-            graph.add_node(node["id"], label=str(node["value"]), shape=node["shape"])
+            graph.add_node(node["id"], label=_short_object_name(node=node["value"]), shape=node["shape"])
         else:
             graph.add_node(node["id"], label=str(node["name"]), shape=node["shape"])
     for edge in edge_lst:
@@ -306,3 +306,24 @@ def export_dependency_graph_function(
     }
     with open(file_name, "w") as f:
         json.dump(pwd_dict, f, indent=4)
+
+
+def _short_object_name(node):
+    if isinstance(node, tuple):
+        return str(tuple(_short_object_name(node=el) for el in node))
+    elif isinstance(node, list):
+        return str([_short_object_name(node=el) for el in node])
+    elif isinstance(node, dict):
+        return str({_short_object_name(node=key): _short_object_name(node=value) for key, value in node.items()})
+    else:
+        node_value_str = str(node)
+        if "object at" in node_value_str:
+            return node_value_str[1:-1].split()[0] + "()"
+        elif "<function" in node_value_str:
+            return node_value_str.split()[1] + "()"
+        elif "(" in node_value_str and ")" in node_value_str:
+            return node_value_str.split("(")[0] + "()"
+        elif len(node_value_str) > 20:
+            return node_value_str[:21] + "..."
+        else:
+            return node_value_str
