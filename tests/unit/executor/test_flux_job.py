@@ -113,8 +113,8 @@ class TestFluxBackend(unittest.TestCase):
     def test_output_files_cwd(self):
         dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
         os.makedirs(dirname, exist_ok=True)
-        file_stdout = os.path.join(dirname, "flux0.out")
-        file_stderr = os.path.join(dirname, "flux0.err")
+        file_stdout = os.path.join(dirname, "flux_0.out")
+        file_stderr = os.path.join(dirname, "flux_0.err")
         with FluxJobExecutor(
             max_cores=1,
             resource_dict={"cores": 1, "cwd": dirname},
@@ -133,8 +133,8 @@ class TestFluxBackend(unittest.TestCase):
         os.remove(file_stderr)
 
     def test_output_files_abs(self):
-        file_stdout = os.path.abspath("flux0.out")
-        file_stderr = os.path.abspath("flux0.err")
+        file_stdout = os.path.abspath("flux_0.out")
+        file_stderr = os.path.abspath("flux_0.err")
         with FluxJobExecutor(
             max_cores=1,
             resource_dict={"cores": 1},
