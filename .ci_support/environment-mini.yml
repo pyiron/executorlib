@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - python
-- numpy =2.3.3
+- numpy =2.4.2
 - cloudpickle =3.1.0
 - hatchling =1.28.0
 - hatch-vcs =0.5.0

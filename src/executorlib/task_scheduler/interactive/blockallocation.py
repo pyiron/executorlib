@@ -208,7 +208,7 @@ def _execute_multiple_tasks(
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
     error_log_file: Optional[str] = None,
-    worker_id: Optional[int] = None,
+    worker_id: int = 0,
     stop_function: Optional[Callable] = None,
     restart_limit: int = 0,
     **kwargs,
@@ -244,7 +244,7 @@ def _execute_multiple_tasks(
         command_lst=get_interactive_execute_command(
             cores=cores,
         ),
-        connections=spawner(cores=cores, **kwargs),
+        connections=spawner(cores=cores, worker_id=worker_id, **kwargs),
         hostname_localhost=hostname_localhost,
         log_obj_size=log_obj_size,
         worker_id=worker_id,

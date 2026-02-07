@@ -6,6 +6,7 @@ from executorlib.standalone.inputcheck import (
     check_log_obj_size,
     check_plot_dependency_graph,
     check_refresh_rate,
+    check_wait_on_shutdown,
     validate_number_of_cores,
 )
 from executorlib.task_scheduler.interactive.blockallocation import (
@@ -63,7 +64,9 @@ class SlurmClusterExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Examples:
         ```
@@ -101,7 +104,9 @@ class SlurmClusterExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        wait: bool = True,
     ):
         """
         The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -146,7 +151,9 @@ class SlurmClusterExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
         """
         default_resource_dict: dict = {
@@ -207,6 +214,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         disable_dependencies=disable_dependencies,
+                        wait=wait,
                     )
                 )
         else:
@@ -225,6 +233,7 @@ class SlurmClusterExecutor(BaseExecutor):
                     refresh_rate=refresh_rate,
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
+                    export_workflow_filename=export_workflow_filename,
                 )
             )
 
@@ -275,7 +284,9 @@ class SlurmJobExecutor(BaseExecutor):
         plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                       debugging purposes and to get an overview of the specified dependencies.
         plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+        export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Examples:
         ```
@@ -312,7 +323,9 @@ class SlurmJobExecutor(BaseExecutor):
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
+        export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
+        wait: bool = True,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -360,7 +373,9 @@ class SlurmJobExecutor(BaseExecutor):
             plot_dependency_graph (bool): Plot the dependencies of multiple future objects without executing them. For
                                           debugging purposes and to get an overview of the specified dependencies.
             plot_dependency_graph_filename (str): Name of the file to store the plotted graph in.
+            export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+            wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
         """
         default_resource_dict: dict = {
@@ -389,11 +404,13 @@ class SlurmJobExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        wait=wait,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
+                    export_workflow_filename=export_workflow_filename,
                 )
             )
         else:
@@ -410,6 +427,7 @@ class SlurmJobExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
+                    wait=wait,
                 )
             )
 
@@ -424,6 +442,7 @@ def create_slurm_executor(
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
+    wait: bool = True,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -463,6 +482,7 @@ def create_slurm_executor(
                                     of the individual function.
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
+        wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -475,6 +495,7 @@ def create_slurm_executor(
     resource_dict["log_obj_size"] = log_obj_size
     resource_dict["pmi_mode"] = pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    check_wait_on_shutdown(wait_on_shutdown=wait)
     if block_allocation:
         resource_dict["init_function"] = init_function
         max_workers = validate_number_of_cores(

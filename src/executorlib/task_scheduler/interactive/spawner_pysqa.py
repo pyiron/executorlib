@@ -21,6 +21,7 @@ class PysqaSpawner(BaseSpawner):
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
         num_nodes: Optional[int] = None,
+        worker_id: int = 0,
         exclusive: bool = False,
         openmpi_oversubscribe: bool = False,
         slurm_cmd_args: Optional[list[str]] = None,
@@ -38,6 +39,7 @@ class PysqaSpawner(BaseSpawner):
             threads_per_core (int): The number of threads per core. Defaults to 1.
             gpus_per_core (int): number of GPUs per worker - defaults to 0
             num_nodes (int, optional): The number of compute nodes to use for executing the task.  Defaults to None.
+            worker_id (int): The worker ID. Defaults to 0.
             exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults
                               to False.
             openmpi_oversubscribe (bool): Whether to oversubscribe the cores. Defaults to False.
@@ -49,6 +51,7 @@ class PysqaSpawner(BaseSpawner):
         super().__init__(
             cwd=cwd,
             cores=cores,
+            worker_id=worker_id,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._threads_per_core = threads_per_core

@@ -4,7 +4,7 @@ dependencies:
 - h5py =3.15.1
 - jupyter
 - mpi4py =4.1.1
-- numpy =2.3.3
+- numpy =2.3.5
 - openmpi
 - papermill
 - atomistics =0.3.4
@@ -14,10 +14,10 @@ dependencies:
 - gpaw =25.7.0
 - hatchling =1.28.0
 - hatch-vcs =0.5.0
-- ipython =9.0.2
-- matplotlib =3.10.6
-- networkx =3.4.2
+- ipython =9.9.0
+- matplotlib =3.10.8
+- networkx =3.6.1
 - pygraphviz =1.14
-- pysqa =0.3.3
+- pysqa =0.3.4
 - pyzmq =27.1.0
 - qe =7.5

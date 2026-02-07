@@ -74,7 +74,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 fs.result()
 
     def test_executor_working_directory(self):
-        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
             resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
@@ -82,7 +82,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertEqual(fs1.result(), os.listdir(cwd))
 
     def test_executor_error(self):
-        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
             resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
@@ -92,9 +92,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(len(os.listdir(cwd)), 1)
 
     def test_executor_error_file(self):
-        cwd = os.path.join(os.path.dirname(__file__), "executables")
+        cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
-            resource_dict={"cwd": cwd, "error_log_file": "error.out"}, 
+            resource_dict={"cwd": cwd, "error_log_file": "error.out"},
             execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(get_error, a=1)
@@ -224,8 +224,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertIsNone(terminate_subprocess(task=process))
 
     def test_execute_in_subprocess_errors(self):
-        file_name = os.path.abspath(os.path.join(__file__, "..", "executorlib_cache", "test.h5"))
-        os.makedirs(os.path.dirname(file_name))
+        file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), "executorlib_cache", "test.h5"))
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
         with open(file_name, "w") as f:
             f.write("test")
         with self.assertRaises(ValueError):
