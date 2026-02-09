@@ -278,8 +278,8 @@ def _refresh_memory_dict(memory_dict: dict, cache_dir_dict: dict) -> dict:
 
 
 def _cancel_processes(
-    terminate_function: Callable,
     process_dict: dict,
+    terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
 ):
@@ -287,8 +287,8 @@ def _cancel_processes(
     Cancel processes
 
     Args:
-        terminate_function (callable): The function to terminate the tasks.
         process_dict (dict): dictionary with task keys and process reference.
+        terminate_function (callable): The function to terminate the tasks.
         pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
         backend (str): name of the backend used to spawn tasks.
     """
