@@ -90,15 +90,10 @@ def execute_tasks_h5(
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
             if task_dict["wait"] and wait:
                 while len(memory_dict) > 0:
-                    memory_dict = {
-                        key: _check_task_output(
-                            task_key=key,
-                            future_obj=value,
-                            cache_directory=cache_dir_dict[key],
-                        )
-                        for key, value in memory_dict.items()
-                        if not value.done()
-                    }
+                    memory_dict = _refresh_memory_dict(
+                        memory_dict=memory_dict, 
+                        cache_dir_dict=cache_dir_dict,
+                    )
             if not task_dict["cancel_futures"] and wait:
                 if (
                     terminate_function is not None
@@ -114,15 +109,10 @@ def execute_tasks_h5(
                             backend=backend,
                         )
             else:
-                memory_dict = {
-                    key: _check_task_output(
-                        task_key=key,
-                        future_obj=value,
-                        cache_directory=cache_dir_dict[key],
-                    )
-                    for key, value in memory_dict.items()
-                    if not value.done()
-                }
+                memory_dict = _refresh_memory_dict(
+                    memory_dict=memory_dict, 
+                    cache_dir_dict=cache_dir_dict,
+                )
                 for value in memory_dict.values():
                     if not value.done():
                         value.cancel()
@@ -193,15 +183,10 @@ def execute_tasks_h5(
                 cache_dir_dict[task_key] = cache_directory
             future_queue.task_done()
         else:
-            memory_dict = {
-                key: _check_task_output(
-                    task_key=key,
-                    future_obj=value,
-                    cache_directory=cache_dir_dict[key],
-                )
-                for key, value in memory_dict.items()
-                if not value.done()
-            }
+            memory_dict = _refresh_memory_dict(
+                memory_dict=memory_dict, 
+                cache_dir_dict=cache_dir_dict,
+            )
 
 
 def _check_task_output(
@@ -275,3 +260,15 @@ def _convert_args_and_kwargs(
         else:
             task_kwargs[key] = arg
     return task_args, task_kwargs, future_wait_key_lst
+
+
+def _refresh_memory_dict(memory_dict: dict, cache_dir_dict: dict) -> dict:
+    return {
+        key: _check_task_output(
+            task_key=key,
+            future_obj=value,
+            cache_directory=cache_dir_dict[key],
+        )
+        for key, value in memory_dict.items()
+        if not value.done()
+    }
