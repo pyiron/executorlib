@@ -268,7 +268,7 @@ def _convert_args_and_kwargs(
 
 
 def _refresh_memory_dict(
-    memory_dict: dict, 
+    memory_dict: dict,
     cache_dir_dict: dict,
     process_dict: dict,
     terminate_function: Optional[Callable] = None,
@@ -290,14 +290,10 @@ def _refresh_memory_dict(
         dict: Updated memory dictionary
     """
     cancelled_lst = [
-        key for key, value in memory_dict.items() 
-        if value.done() and value.cancelled()
+        key for key, value in memory_dict.items() if value.done() and value.cancelled()
     ]
     _cancel_processes(
-        process_dict={
-            k:v for k, v in process_dict.items() 
-            if k in cancelled_lst
-        },
+        process_dict={k: v for k, v in process_dict.items() if k in cancelled_lst},
         terminate_function=terminate_function,
         pysqa_config_directory=pysqa_config_directory,
         backend=backend,
