@@ -95,19 +95,12 @@ def execute_tasks_h5(
                         cache_dir_dict=cache_dir_dict,
                     )
             if not task_dict["cancel_futures"] and wait:
-                if (
-                    terminate_function is not None
-                    and terminate_function == terminate_subprocess
-                ):
-                    for task in process_dict.values():
-                        terminate_function(task=task)
-                elif terminate_function is not None:
-                    for queue_id in process_dict.values():
-                        terminate_function(
-                            queue_id=queue_id,
-                            config_directory=pysqa_config_directory,
-                            backend=backend,
-                        )
+                _cancel_processes(
+                    terminate_function=terminate_function, 
+                    process_dict=process_dict, 
+                    pysqa_config_directory=pysqa_config_directory, 
+                    backend=backend,
+                )
             else:
                 memory_dict = _refresh_memory_dict(
                     memory_dict=memory_dict, 
@@ -263,6 +256,16 @@ def _convert_args_and_kwargs(
 
 
 def _refresh_memory_dict(memory_dict: dict, cache_dir_dict: dict) -> dict:
+    """
+    Refresh memory dictionary 
+    
+    Args:
+        memory_dict (dict): dictionary with task keys and future objects
+        cache_dir_dict (dict): dictionary with task keys and cache directories
+
+    Returns:
+        dict: Updated memory dictionary
+    """
     return {
         key: _check_task_output(
             task_key=key,
@@ -272,3 +275,33 @@ def _refresh_memory_dict(memory_dict: dict, cache_dir_dict: dict) -> dict:
         for key, value in memory_dict.items()
         if not value.done()
     }
+
+
+def _cancel_processes(
+    terminate_function: callable, 
+    process_dict: dict, 
+    pysqa_config_directory: str, 
+    backend: str
+):
+    """
+    Cancel processes
+    
+    Args:
+        terminate_function (callable): The function to terminate the tasks.
+        process_dict (dict): dictionary with task keys and process reference.
+        pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
+        backend (str): name of the backend used to spawn tasks.
+    """
+    if (
+        terminate_function is not None
+        and terminate_function == terminate_subprocess
+    ):
+        for task in process_dict.values():
+            terminate_function(task=task)
+    elif terminate_function is not None:
+        for queue_id in process_dict.values():
+            terminate_function(
+                queue_id=queue_id,
+                config_directory=pysqa_config_directory,
+                backend=backend,
+            )
