@@ -278,10 +278,10 @@ def _refresh_memory_dict(memory_dict: dict, cache_dir_dict: dict) -> dict:
 
 
 def _cancel_processes(
-    terminate_function: callable,
+    terminate_function: Callable,
     process_dict: dict,
-    pysqa_config_directory: str,
-    backend: str,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
 ):
     """
     Cancel processes
@@ -295,7 +295,7 @@ def _cancel_processes(
     if terminate_function is not None and terminate_function == terminate_subprocess:
         for task in process_dict.values():
             terminate_function(task=task)
-    elif terminate_function is not None:
+    elif terminate_function is not None and backend is not None and pysqa_config_directory is not None:
         for queue_id in process_dict.values():
             terminate_function(
                 queue_id=queue_id,
