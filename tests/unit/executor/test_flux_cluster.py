@@ -30,6 +30,11 @@ def echo(i):
     return i
 
 
+def long_running_function(i):
+    sleep(10)
+    return i
+
+
 def mpi_funct(i):
     from mpi4py import MPI
 
@@ -62,16 +67,16 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertTrue(fs1.done())
 
     def test_executor_cancel(self):
-        with FluxClusterExecutor(
+        exe = FluxClusterExecutor(
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
             pmi_mode=pmi,
-        ) as exe:
-            cloudpickle_register(ind=1)
-            fs1 = exe.submit(echo, 1)
-            sleep(0.1)
-            fs1.cancel()
+        )
+        cloudpickle_register(ind=1)
+        fs1 = exe.submit(long_running_function, 1)
+        sleep(0.1)
+        exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
         self.assertEqual(len(os.listdir("executorlib_cache")), 4)
