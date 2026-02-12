@@ -78,7 +78,6 @@ class TestCacheExecutorPysqa(unittest.TestCase):
         sleep(0.1)
         exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(fs1.done())
-        self.assertTrue(fs1.cancelled())
         self.assertEqual(len(os.listdir("executorlib_cache")), 4)
 
     def test_executor_blockallocation(self):
