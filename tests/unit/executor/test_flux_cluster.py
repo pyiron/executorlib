@@ -69,8 +69,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             pmi_mode=pmi,
         )
         cloudpickle_register(ind=1)
-        fs1 = exe.submit(mpi_funct, 1)
-        sleep(0.2)
+        fs1 = exe.submit(echo, 1)
         exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
