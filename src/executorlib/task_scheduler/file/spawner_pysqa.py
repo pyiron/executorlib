@@ -3,6 +3,7 @@ from typing import Optional
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.command import set_current_directory_in_environment
 from executorlib.standalone.hdf import dump, get_queue_id
 from executorlib.standalone.inputcheck import check_file_exists
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
@@ -85,6 +86,7 @@ def execute_with_pysqa(
                 os.path.dirname(os.path.abspath(cwd))
             )
         submit_kwargs.update(resource_dict)
+        set_current_directory_in_environment()
         queue_id = qa.submit_job(**submit_kwargs)
         dump(file_name=file_name, data_dict={"queue_id": queue_id})
     return queue_id
