@@ -77,6 +77,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
         fs1 = exe.submit(long_running_function, 1)
         sleep(0.1)
         exe.shutdown(wait=False, cancel_futures=True)
+        sleep(0.1)
         self.assertTrue(fs1.done())
         self.assertEqual(len(os.listdir("executorlib_cache")), 4)
 
