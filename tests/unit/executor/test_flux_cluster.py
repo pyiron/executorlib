@@ -71,7 +71,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
         cloudpickle_register(ind=1)
         fs1 = exe.submit(mpi_funct, 1)
         sleep(0.2)
-        exe.shutdown(wait=False, cancel_futures=True)
+        exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
         self.assertEqual(len(os.listdir("executorlib_cache")), 4)
