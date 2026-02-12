@@ -80,7 +80,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
         exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
-        self.assertEqual(len(os.listdir("executorlib_cache")), 5)
+        self.assertEqual(len(os.listdir("executorlib_cache")), 4)
 
     def test_executor_blockallocation(self):
         with FluxClusterExecutor(
