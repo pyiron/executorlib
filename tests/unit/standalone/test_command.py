@@ -3,9 +3,8 @@ import importlib.util
 import sys
 import unittest
 from executorlib.standalone.command import (
-    get_cache_execute_command, 
-    get_interactive_execute_command, 
-    set_current_directory_in_environment,
+    get_cache_execute_command,
+    get_interactive_execute_command,
 )
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
@@ -95,18 +94,3 @@ class TestCommands(unittest.TestCase):
             get_cache_execute_command(cores=2, file_name=file_name, backend="flux", openmpi_oversubscribe=True)
         with self.assertRaises(ValueError):
             get_cache_execute_command(cores=2, file_name=file_name, backend="flux", exclusive=True)
-
-    def test_set_current_directory_in_environment(self):
-        env = os.environ
-        if "PYTHONPATH" in env:
-            python_path = env["PYTHONPATH"]
-            del env["PYTHONPATH"]
-        else:
-            python_path = None
-        self.assertFalse("PYTHONPATH" in env)
-        set_current_directory_in_environment()
-        self.assertTrue("PYTHONPATH" in env)
-        self.assertEqual(env["PYTHONPATH"], os.getcwd())
-        env["PYTHONPATH"] = "/my/special/path"
-        set_current_directory_in_environment()
-        self.assertEqual(env["PYTHONPATH"], os.getcwd() + ":/my/special/path")
