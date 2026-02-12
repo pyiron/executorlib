@@ -53,11 +53,13 @@ def execute_in_subprocess(
         )
     if backend is not None:
         raise ValueError("backend parameter is not supported for subprocess spawner.")
-    cwd = _get_working_directory(cache_directory=cache_directory, resource_dict=resource_dict)
+    cwd = _get_working_directory(
+        cache_directory=cache_directory, resource_dict=resource_dict
+    )
     return subprocess.Popen(
-        command, 
-        universal_newlines=True, 
-        cwd=cwd, 
+        command,
+        universal_newlines=True,
+        cwd=cwd,
         env=_get_environment(cwd=cwd),
     )
 
@@ -79,14 +81,19 @@ def _get_environment(cwd: Optional[str] = None):
     if cwd is not None:
         os.makedirs(cwd, exist_ok=True)
         current_path = os.getcwd()
-        if "PYTHONPATH" in environment and current_path not in environment["PYTHONPATH"]:
+        if (
+            "PYTHONPATH" in environment
+            and current_path not in environment["PYTHONPATH"]
+        ):
             environment["PYTHONPATH"] = os.getcwd() + ":" + environment["PYTHONPATH"]
         elif "PYTHONPATH" not in environment:
             environment["PYTHONPATH"] = os.getcwd()
     return environment
 
 
-def _get_working_directory(cache_directory: Optional[str] = None, resource_dict: Optional[dict] = None):
+def _get_working_directory(
+    cache_directory: Optional[str] = None, resource_dict: Optional[dict] = None
+):
     if resource_dict is None:
         resource_dict = {}
     if "cwd" in resource_dict and resource_dict["cwd"] is not None:
