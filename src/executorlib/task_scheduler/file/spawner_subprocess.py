@@ -54,7 +54,9 @@ def execute_in_subprocess(
         )
     if backend is not None:
         raise ValueError("backend parameter is not supported for subprocess spawner.")
-    cwd = _get_working_directory(cache_directory=cache_directory, resource_dict=resource_dict)
+    cwd = _get_working_directory(
+        cache_directory=cache_directory, resource_dict=resource_dict
+    )
     if cwd is not None:
         os.makedirs(cwd, exist_ok=True)
     set_current_directory_in_environment()
@@ -73,7 +75,9 @@ def terminate_subprocess(task):
         time.sleep(0.1)
 
 
-def _get_working_directory(cache_directory: Optional[str] = None, resource_dict: Optional[dict] = None):
+def _get_working_directory(
+    cache_directory: Optional[str] = None, resource_dict: Optional[dict] = None
+):
     if resource_dict is None:
         resource_dict = {}
     if "cwd" in resource_dict and resource_dict["cwd"] is not None:
