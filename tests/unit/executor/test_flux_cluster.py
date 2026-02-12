@@ -62,16 +62,16 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertTrue(fs1.done())
 
     def test_executor_cancel(self):
-        exe = FluxClusterExecutor(
+        with FluxClusterExecutor(
             resource_dict={"cores": 2, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
             pmi_mode=pmi,
-        )
-        cloudpickle_register(ind=1)
-        fs1 = exe.submit(echo, 1)
-        sleep(0.2)
-        exe.shutdown(wait=True, cancel_futures=True)
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs1 = exe.submit(echo, 1)
+            sleep(0.1)
+            fs1.cancel()
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
         self.assertEqual(len(os.listdir("executorlib_cache")), 4)
