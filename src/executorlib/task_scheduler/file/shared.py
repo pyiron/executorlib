@@ -295,10 +295,7 @@ def _cancel_processes(
     if terminate_function is not None and terminate_function == terminate_subprocess:
         for task in process_dict.values():
             terminate_function(task=task)
-    elif (
-        terminate_function is not None
-        and backend is not None
-    ):
+    elif terminate_function is not None and backend is not None:
         for queue_id in process_dict.values():
             terminate_function(
                 queue_id=queue_id,
