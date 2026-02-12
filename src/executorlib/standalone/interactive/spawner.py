@@ -112,6 +112,7 @@ class SubprocessSpawner(BaseSpawner):
         """
         if self._cwd is not None:
             os.makedirs(self._cwd, exist_ok=True)
+        set_current_directory_in_environment()
         self._process = subprocess.Popen(
             args=self.generate_command(command_lst=command_lst),
             cwd=self._cwd,
@@ -195,3 +196,15 @@ def generate_mpiexec_command(
         if openmpi_oversubscribe:
             command_prepend_lst += ["--oversubscribe"]
         return command_prepend_lst
+
+
+def set_current_directory_in_environment():
+    """
+    Add the current directory to the PYTHONPATH to be able to access local Python modules.
+    """
+    environment = os.environ
+    current_path = os.getcwd()
+    if "PYTHONPATH" in environment and current_path not in environment["PYTHONPATH"]:
+        environment["PYTHONPATH"] = os.getcwd() + ":" + environment["PYTHONPATH"]
+    elif "PYTHONPATH" not in environment:
+        environment["PYTHONPATH"] = os.getcwd()

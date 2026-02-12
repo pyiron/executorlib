@@ -5,7 +5,7 @@ from typing import Callable, Optional
 import flux
 import flux.job
 
-from executorlib.standalone.interactive.spawner import BaseSpawner
+from executorlib.standalone.interactive.spawner import BaseSpawner, set_current_directory_in_environment
 
 
 def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):
@@ -118,6 +118,7 @@ class FluxPythonSpawner(BaseSpawner):
                 num_nodes=self._num_nodes,
                 exclusive=self._exclusive,
             )
+        set_current_directory_in_environment()
         jobspec.environment = dict(os.environ)
         if self._pmi_mode is not None:
             jobspec.setattr_shell_option("pmi", self._pmi_mode)

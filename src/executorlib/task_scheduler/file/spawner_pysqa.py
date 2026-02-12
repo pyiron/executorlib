@@ -3,9 +3,9 @@ from typing import Optional
 
 from pysqa import QueueAdapter
 
-from executorlib.standalone.command import set_current_directory_in_environment
 from executorlib.standalone.hdf import dump, get_queue_id
 from executorlib.standalone.inputcheck import check_file_exists
+from executorlib.standalone.interactive.spawner import set_current_directory_in_environment
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
 
 

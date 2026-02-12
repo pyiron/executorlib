@@ -6,7 +6,7 @@ from typing import Callable, Optional
 from pysqa import QueueAdapter
 
 from executorlib.standalone.inputcheck import validate_number_of_cores
-from executorlib.standalone.interactive.spawner import BaseSpawner
+from executorlib.standalone.interactive.spawner import BaseSpawner, set_current_directory_in_environment
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
 from executorlib.task_scheduler.interactive.blockallocation import (
     BlockAllocationTaskScheduler,
@@ -183,6 +183,7 @@ class PysqaSpawner(BaseSpawner):
             working_directory = os.path.join(self._cwd, hash)
         else:
             working_directory = os.path.abspath(hash)
+        set_current_directory_in_environment()
         return queue_adapter.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=working_directory,
