@@ -298,7 +298,6 @@ def _cancel_processes(
     elif (
         terminate_function is not None
         and backend is not None
-        and pysqa_config_directory is not None
     ):
         for queue_id in process_dict.values():
             terminate_function(
