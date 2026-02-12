@@ -70,6 +70,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
         )
         cloudpickle_register(ind=1)
         fs1 = exe.submit(echo, 1)
+        sleep(0.2)
         exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(fs1.done())
         self.assertTrue(fs1.cancelled())
