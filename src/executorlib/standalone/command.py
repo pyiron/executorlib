@@ -162,3 +162,15 @@ def generate_slurm_command(
     if slurm_cmd_args is not None and len(slurm_cmd_args) > 0:
         command_prepend_lst += slurm_cmd_args
     return command_prepend_lst
+
+
+def set_current_directory_in_environment():
+    """
+    Add the current directory to the PYTHONPATH to be able to access local Python modules.
+    """
+    environment = os.environ
+    current_path = os.getcwd()
+    if "PYTHONPATH" in environment and current_path not in environment["PYTHONPATH"]:
+        environment["PYTHONPATH"] = os.getcwd() + ":" + environment["PYTHONPATH"]
+    elif "PYTHONPATH" not in environment:
+        environment["PYTHONPATH"] = os.getcwd()
