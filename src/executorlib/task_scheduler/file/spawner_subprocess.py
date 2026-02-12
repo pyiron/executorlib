@@ -5,7 +5,9 @@ from typing import Optional
 
 from executorlib.standalone.hdf import dump
 from executorlib.standalone.inputcheck import check_file_exists
-from executorlib.standalone.interactive.spawner import set_current_directory_in_environment
+from executorlib.standalone.interactive.spawner import (
+    set_current_directory_in_environment,
+)
 
 
 def execute_in_subprocess(

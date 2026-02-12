@@ -5,7 +5,10 @@ from typing import Callable, Optional
 import flux
 import flux.job
 
-from executorlib.standalone.interactive.spawner import BaseSpawner, set_current_directory_in_environment
+from executorlib.standalone.interactive.spawner import (
+    BaseSpawner,
+    set_current_directory_in_environment,
+)
 
 
 def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):
