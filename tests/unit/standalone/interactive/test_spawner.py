@@ -3,13 +3,14 @@ import importlib.util
 from queue import Queue
 from time import sleep
 import shutil
+import os
 from sys import platform
 import unittest
 
 import numpy as np
 
 from executorlib.task_scheduler.base import TaskSchedulerBase
-from executorlib.standalone.interactive.spawner import MpiExecSpawner
+from executorlib.standalone.interactive.spawner import MpiExecSpawner, set_current_directory_in_environment
 from executorlib.task_scheduler.interactive.blockallocation import BlockAllocationTaskScheduler, _execute_multiple_tasks
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 from executorlib.standalone.interactive.backend import call_funct
@@ -544,3 +545,22 @@ class TestFuturePoolCache(unittest.TestCase):
         with self.assertRaises(TypeError):
             f.result()
         q.join()
+
+
+class TestEnvManipulation(unittest.TestCase):
+    def test_set_current_directory_in_environment(self):
+        env = os.environ
+        if "PYTHONPATH" in env:
+            python_path = env["PYTHONPATH"]
+            del env["PYTHONPATH"]
+        else:
+            python_path = None
+        self.assertFalse("PYTHONPATH" in env)
+        set_current_directory_in_environment()
+        self.assertTrue("PYTHONPATH" in env)
+        self.assertEqual(env["PYTHONPATH"], os.getcwd())
+        env["PYTHONPATH"] = "/my/special/path"
+        set_current_directory_in_environment()
+        self.assertEqual(env["PYTHONPATH"], os.getcwd() + ":/my/special/path")
+        if python_path is not None:
+            env["PYTHONPATH"] = python_path

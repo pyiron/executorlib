@@ -30,6 +30,11 @@ def echo(i):
     return i
 
 
+def long_running_function(i):
+    sleep(10)
+    return i
+
+
 def mpi_funct(i):
     from mpi4py import MPI
 

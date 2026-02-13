@@ -2,8 +2,10 @@ import os
 import importlib.util
 import sys
 import unittest
-from executorlib.standalone.command import get_cache_execute_command, get_interactive_execute_command
-
+from executorlib.standalone.command import (
+    get_cache_execute_command,
+    get_interactive_execute_command,
+)
 
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
