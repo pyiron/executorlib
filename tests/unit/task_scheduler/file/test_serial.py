@@ -6,6 +6,8 @@ import unittest
 from threading import Thread
 from time import sleep
 
+from executorlib.standalone.select import FutureSelector
+
 try:
     from executorlib.task_scheduler.file.spawner_subprocess import (
         execute_in_subprocess,
@@ -248,6 +250,22 @@ class TestCacheExecutorSerial(unittest.TestCase):
         f1.set_result(1)
         f2 = Future()
         f2.set_result(2)
+        task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
+            task_dict={"fn": 1, "args": (f1,), "kwargs": {"a": f2}},
+            memory_dict={},
+            file_name_dict={},
+        )
+        self.assertEqual(task_args, [1])
+        self.assertEqual(task_kwargs, {"a": 2})
+        self.assertTrue(len(future_wait_key_lst) == 0)
+
+    def test_convert_args_and_kwargs_selector(self):
+        f1 = Future()
+        f1.set_result([1, 2])
+        f2 = Future()
+        f2.set_result({"a": 2})
+        f1 = FutureSelector(future=f1, selector=0)
+        f2 = FutureSelector(future=f2, selector="a")
         task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
             task_dict={"fn": 1, "args": (f1,), "kwargs": {"a": f2}},
             memory_dict={},

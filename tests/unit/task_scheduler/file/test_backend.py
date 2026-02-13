@@ -19,6 +19,14 @@ def my_funct(a, b):
     return a + b
 
 
+def return_dict(a, b):
+    return {"a": a, "b": b}
+
+
+def return_list(a, b):
+    return [a, b]
+
+
 def get_error(a):
     raise ValueError(a)
 
@@ -54,6 +62,64 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
+
+    def test_execute_function_mixed_selector_dict(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, data_dict = serialize_funct(
+            fn=return_dict,
+            fn_args=[1],
+            fn_kwargs={"b": 2},
+        )
+        file_name = os.path.join(cache_directory, task_key + "_i.h5")
+        os.makedirs(cache_directory, exist_ok=True)
+        dump(file_name=file_name, data_dict=data_dict)
+        backend_execute_task_in_file(file_name=file_name)
+        future_obj = Future()
+        _check_task_output(
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+        )
+        self.assertTrue(future_obj.done())
+        self.assertEqual(future_obj.result(), 3)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
+            > 0.0
+        )
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, task_key + "_o.h5"),
+            selector="a",
+        )
+        self.assertTrue(future_file_obj.done())
+        self.assertEqual(future_file_obj.result(), 1)
+
+    def test_execute_function_mixed_selector_list(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, data_dict = serialize_funct(
+            fn=return_list,
+            fn_args=[1],
+            fn_kwargs={"b": 2},
+        )
+        file_name = os.path.join(cache_directory, task_key + "_i.h5")
+        os.makedirs(cache_directory, exist_ok=True)
+        dump(file_name=file_name, data_dict=data_dict)
+        backend_execute_task_in_file(file_name=file_name)
+        future_obj = Future()
+        _check_task_output(
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+        )
+        self.assertTrue(future_obj.done())
+        self.assertEqual(future_obj.result(), 3)
+        self.assertTrue(
+            get_runtime(file_name=os.path.join(cache_directory, task_key + "_o.h5"))
+            > 0.0
+        )
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, task_key + "_o.h5"),
+            selector=1,
+        )
+        self.assertTrue(future_file_obj.done())
+        self.assertEqual(future_file_obj.result(), 2)
 
     def test_execute_function_args(self):
         cache_directory = os.path.abspath("executorlib_cache")
