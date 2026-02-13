@@ -11,7 +11,7 @@ from executorlib.task_scheduler.file.spawner_subprocess import terminate_subproc
 
 
 class FutureItem:
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: str, selector: Optional[int | str] = None):
         """
         Initialize a FutureItem object.
 
@@ -20,6 +20,7 @@ class FutureItem:
 
         """
         self._file_name = file_name
+        self._selector = selector
 
     def result(self) -> Any:
         """
@@ -31,7 +32,10 @@ class FutureItem:
         """
         exec_flag, no_error_flag, result = get_output(file_name=self._file_name)
         if exec_flag and no_error_flag:
-            return result
+            if self._selector is not None:
+                return result[self._selector]
+            else:
+                return result
         elif exec_flag:
             raise result
         else:
@@ -239,29 +243,45 @@ def _convert_args_and_kwargs(
     task_kwargs = {}
     future_wait_key_lst = []
     for arg in task_dict["args"]:
+        selector = None
         if isinstance(arg, Future):
+            if hasattr(arg, "_future") and hasattr(arg, "_selector"):
+                selector = arg._selector
+                future = arg._future
+            else:
+                future = arg
             match_found = False
             for k, v in memory_dict.items():
-                if arg == v:
-                    task_args.append(FutureItem(file_name=file_name_dict[k]))
+                if future == v:
+                    task_args.append(
+                        FutureItem(file_name=file_name_dict[k], selector=selector)
+                    )
                     future_wait_key_lst.append(k)
                     match_found = True
                     break
             if not match_found:
-                task_args.append(arg.result())
+                task_args.append(future.result())
         else:
             task_args.append(arg)
     for key, arg in task_dict["kwargs"].items():
+        selector = None
         if isinstance(arg, Future):
+            if hasattr(arg, "_future") and hasattr(arg, "_selector"):
+                selector = arg._selector
+                future = arg._future
+            else:
+                future = arg
             match_found = False
             for k, v in memory_dict.items():
-                if arg == v:
-                    task_kwargs[key] = FutureItem(file_name=file_name_dict[k])
+                if future == v:
+                    task_kwargs[key] = FutureItem(
+                        file_name=file_name_dict[k], selector=selector
+                    )
                     future_wait_key_lst.append(k)
                     match_found = True
                     break
             if not match_found:
-                task_kwargs[key] = arg.result()
+                task_kwargs[key] = future.result()
         else:
             task_kwargs[key] = arg
     return task_args, task_kwargs, future_wait_key_lst
