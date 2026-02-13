@@ -246,8 +246,8 @@ def _convert_args_and_kwargs(
         selector = None
         if isinstance(arg, Future):
             if hasattr(arg, "_future") and hasattr(arg, "_selector"):
-                selector = getattr(arg, "_selector")
-                arg = getattr(arg, "_future")
+                selector = arg._selector
+                arg = arg._future
             match_found = False
             for k, v in memory_dict.items():
                 if arg == v:
@@ -265,8 +265,8 @@ def _convert_args_and_kwargs(
         selector = None
         if isinstance(arg, Future):
             if hasattr(arg, "_future") and hasattr(arg, "_selector"):
-                selector = getattr(arg, "_selector")
-                arg = getattr(arg, "_future")
+                selector = arg._selector
+                arg = arg._future
             match_found = False
             for k, v in memory_dict.items():
                 if arg == v:
