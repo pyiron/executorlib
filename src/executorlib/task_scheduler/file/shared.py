@@ -246,8 +246,8 @@ def _convert_args_and_kwargs(
         selector = None
         if isinstance(arg, Future):
             if hasattr(arg, "_future") and hasattr(arg, "_selector"):
-                selector = getattr(arg, "_selector")
-                future = getattr(arg, "_future")
+                selector = arg._selector
+                future = arg._future
             else:
                 future = arg
             match_found = False
@@ -267,8 +267,8 @@ def _convert_args_and_kwargs(
         selector = None
         if isinstance(arg, Future):
             if hasattr(arg, "_future") and hasattr(arg, "_selector"):
-                selector = getattr(arg, "_selector")
-                future = getattr(arg, "_future")
+                selector = arg._selector
+                future = arg._future
             else:
                 future = arg
             match_found = False
