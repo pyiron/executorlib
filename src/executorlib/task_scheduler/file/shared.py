@@ -247,10 +247,12 @@ def _convert_args_and_kwargs(
         if isinstance(arg, Future):
             if hasattr(arg, "_future") and hasattr(arg, "_selector"):
                 selector = getattr(arg, "_selector")
-                arg = getattr(arg, "_future")
+                future = getattr(arg, "_future")
+            else:
+                future = arg
             match_found = False
             for k, v in memory_dict.items():
-                if arg == v:
+                if future == v:
                     task_args.append(
                         FutureItem(file_name=file_name_dict[k], selector=selector)
                     )
@@ -258,18 +260,20 @@ def _convert_args_and_kwargs(
                     match_found = True
                     break
             if not match_found:
-                task_args.append(arg.result())
+                task_args.append(future.result())
         else:
-            task_args.append(arg)
+            task_args.append(future)
     for key, arg in task_dict["kwargs"].items():
         selector = None
         if isinstance(arg, Future):
             if hasattr(arg, "_future") and hasattr(arg, "_selector"):
                 selector = getattr(arg, "_selector")
-                arg = getattr(arg, "_future")
+                future = getattr(arg, "_future")
+            else:
+                future = arg
             match_found = False
             for k, v in memory_dict.items():
-                if arg == v:
+                if future == v:
                     task_kwargs[key] = FutureItem(
                         file_name=file_name_dict[k], selector=selector
                     )
@@ -277,9 +281,9 @@ def _convert_args_and_kwargs(
                     match_found = True
                     break
             if not match_found:
-                task_kwargs[key] = arg.result()
+                task_kwargs[key] = future.result()
         else:
-            task_kwargs[key] = arg
+            task_kwargs[key] = future
     return task_args, task_kwargs, future_wait_key_lst
 
 
