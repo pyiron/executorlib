@@ -262,7 +262,7 @@ def _convert_args_and_kwargs(
             if not match_found:
                 task_args.append(future.result())
         else:
-            task_args.append(future)
+            task_args.append(arg)
     for key, arg in task_dict["kwargs"].items():
         selector = None
         if isinstance(arg, Future):
@@ -283,7 +283,7 @@ def _convert_args_and_kwargs(
             if not match_found:
                 task_kwargs[key] = future.result()
         else:
-            task_kwargs[key] = future
+            task_kwargs[key] = arg
     return task_args, task_kwargs, future_wait_key_lst
 
 
