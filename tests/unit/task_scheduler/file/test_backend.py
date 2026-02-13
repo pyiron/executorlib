@@ -92,17 +92,17 @@ class TestSharedFunctions(unittest.TestCase):
             task_key=task_key_2, future_obj=f2, cache_directory=cache_directory
         )
         fs1 = FutureSelector(future=f1, selector="a")
-        fs2 = FutureSelector(future=f2, selector=0)
+        fs2 = FutureSelector(future=f2, selector=1)
         task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
-            task_dict={"fn": 1, "args": (fs1,), "kwargs": {"a": fs2}},
+            task_dict={"fn": 1, "args": (fs1,), "kwargs": {"b": fs2}},
             memory_dict={task_key_1: f1, task_key_2: f2},
             file_name_dict={
-                task_key_1: os.path.join(cache_directory, task_key_1 + "_i.h5"), 
-                task_key_2: os.path.join(cache_directory, task_key_2 + "_i.h5"),
+                task_key_1: os.path.join(cache_directory, task_key_1 + "_o.h5"), 
+                task_key_2: os.path.join(cache_directory, task_key_2 + "_o.h5"),
             },
         )
         self.assertEqual(task_args[0].result(), 1)
-        self.assertEqual(task_kwargs["a"].result(), 2)
+        self.assertEqual(task_kwargs["b"].result(), 2)
         self.assertTrue(len(future_wait_key_lst) == 2)
 
     def test_execute_function_args(self):
