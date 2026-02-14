@@ -130,13 +130,10 @@ def execute_tasks_h5(
                 memory_dict=memory_dict,
                 file_name_dict=file_name_dict,
             )
-            task_resource_dict = task_dict["resource_dict"].copy()
-            task_resource_dict.update(
-                {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
+            task_resource_dict, cache_key, cache_directory, error_log_file = _get_task_input(
+                task_resource_dict=task_dict["resource_dict"].copy(), 
+                resource_dict=resource_dict
             )
-            cache_key = task_resource_dict.pop("cache_key", None)
-            cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
-            error_log_file = task_resource_dict.pop("error_log_file", None)
             task_key, data_dict = serialize_funct(
                 fn=task_dict["fn"],
                 fn_args=task_args,
@@ -358,3 +355,13 @@ def _cancel_processes(
                 config_directory=pysqa_config_directory,
                 backend=backend,
             )
+
+
+def _get_task_input(task_resource_dict: dict, resource_dict: dict) -> tuple[dict, Optional[str], str, Optional[str]]:
+    task_resource_dict.update(
+        {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
+    )
+    cache_key = task_resource_dict.pop("cache_key", None)
+    cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
+    error_log_file = task_resource_dict.pop("error_log_file", None)
+    return task_resource_dict, cache_key, cache_directory, error_log_file
