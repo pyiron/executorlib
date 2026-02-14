@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import Future
 from typing import Any, Optional
 
 import cloudpickle
@@ -159,6 +160,43 @@ def get_cache_files(cache_directory: str) -> list[str]:
     for dirpath, _, filenames in os.walk(cache_directory_abs):
         file_lst += [os.path.join(dirpath, f) for f in filenames if f.endswith("_o.h5")]
     return file_lst
+
+
+def get_future_from_cache(
+    cache_directory: str,
+    cache_key: str,
+) -> Future:
+    """
+    Reload future from HDF5 file in cache directory with the given cache key. The function checks if the output file
+    exists, if not it checks for the input file. If neither of them exist, it raises a FileNotFoundError. If the output
+    file exists, it loads the output and sets it as the result of the future. If only the input file exists, it checks
+    if the execution is finished and if there was an error. If there was no error, it sets the output as the result of
+    the future, otherwise it raises the error.
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+        cache_key (str): The key of the cache file to be reloaded.
+
+    Returns:
+        Future: Future object containing the result of the execution of the python function.
+    """
+    file_name_in = os.path.join(cache_directory, cache_key + "_i.h5")
+    file_name_out = os.path.join(cache_directory, cache_key + "_o.h5")
+    future: Future = Future()
+    if os.path.exists(file_name_out):
+        file_name = file_name_out
+    elif os.path.exists(file_name_in):
+        file_name = file_name_in
+    else:
+        raise FileNotFoundError(
+            f"Neither input nor output file for cache key {cache_key} found in cache directory {cache_directory}."
+        )
+    exec_flag, no_error_flag, result = get_output(file_name=file_name)
+    if exec_flag and no_error_flag:
+        future.set_result(result)
+    elif exec_flag:
+        raise result
+    return future
 
 
 def _get_content_of_file(file_name: str) -> dict:

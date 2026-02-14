@@ -55,6 +55,14 @@ class TestExecutorWithDependencies(unittest.TestCase):
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertEqual(future_2.result(), 4)
 
+    def test_executor_no_wait(self):
+        exe = SingleNodeExecutor(max_cores=1)
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_function, 1, parameter_2=2)
+        future_2 = exe.submit(add_function, 1, parameter_2=future_1)
+        exe.shutdown(wait=False, cancel_futures=False)
+        self.assertEqual(future_2.result(), 4)
+
     def test_batched(self):
         with SingleNodeExecutor() as exe:
             t1 = time()

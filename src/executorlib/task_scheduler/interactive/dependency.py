@@ -245,7 +245,7 @@ def _execute_tasks_with_dependencies(
         executor (TaskSchedulerBase): Executor to execute the tasks with after the dependencies are resolved.
         refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
     """
-    wait_lst = []
+    wait_lst: list = []
     while True:
         try:
             task_dict = future_queue.get_nowait()
@@ -254,6 +254,13 @@ def _execute_tasks_with_dependencies(
         if (  # shutdown the executor
             task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]
         ):
+            while len(wait_lst) > 0:
+                # Check functions in the wait list and execute them if all future objects are now ready
+                wait_lst = _update_waiting_task(
+                    wait_lst=wait_lst,
+                    executor_queue=executor_queue,
+                    refresh_rate=refresh_rate,
+                )
             executor.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
             future_queue.join()
@@ -293,26 +300,27 @@ def _execute_tasks_with_dependencies(
                     wait_lst.append(task_dict)
             future_queue.task_done()
         elif len(wait_lst) > 0:
-            number_waiting = len(wait_lst)
             # Check functions in the wait list and execute them if all future objects are now ready
             wait_lst = _update_waiting_task(
-                wait_lst=wait_lst, executor_queue=executor_queue
+                wait_lst=wait_lst,
+                executor_queue=executor_queue,
+                refresh_rate=refresh_rate,
             )
-            # if no job is ready, sleep for a moment
-            if len(wait_lst) == number_waiting:
-                sleep(refresh_rate)
         else:
             # If there is nothing else to do, sleep for a moment
             sleep(refresh_rate)
 
 
-def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> list:
+def _update_waiting_task(
+    wait_lst: list[dict], executor_queue: queue.Queue, refresh_rate: float = 0.01
+) -> list:
     """
     Submit the waiting tasks, which future inputs have been completed, to the executor
 
     Args:
         wait_lst (list): List of waiting tasks
         executor_queue (Queue): Queue of the internal executor
+        refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
 
     Returns:
         list: list tasks which future inputs have not been completed
@@ -344,4 +352,6 @@ def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue) -> l
                 task_wait_dict["future"].set_result(done_lst)
         else:
             wait_tmp_lst.append(task_wait_dict)
+    if len(wait_lst) == len(wait_tmp_lst):
+        sleep(refresh_rate)
     return wait_tmp_lst
