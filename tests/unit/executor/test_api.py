@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+from time import sleep
 from concurrent.futures import Future
 
 from executorlib import get_cache_data, get_future_from_cache
@@ -26,6 +27,11 @@ def foo(x):
 
 def get_error(i):
     raise ValueError(f"error {i}")
+
+
+def add_with_sleep(parameter_1, parameter_2):
+    sleep(1)
+    return parameter_1 + parameter_2
 
 
 @unittest.skipIf(
@@ -131,6 +137,37 @@ class TestTestClusterExecutor(unittest.TestCase):
             )
             self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
+
+    def test_shutdown_wait_false_cancel_futures_false(self):
+        exe = TestClusterExecutor()
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
+        exe.shutdown(wait=False, cancel_futures=False)
+        self.assertFalse(future_1.done())
+        self.assertFalse(future_1.cancelled())
+        sleep(2)
+        exe = TestClusterExecutor()
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
+        exe.shutdown(wait=False, cancel_futures=False)
+        self.assertTrue(future_1.done())
+        self.assertEqual(future_1.result(), 3)
+
+    def test_shutdown_wait_false_cancel_futures_true(self):
+        exe = TestClusterExecutor()
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
+        exe.shutdown(wait=False, cancel_futures=True)
+        self.assertTrue(future_1.done())
+        self.assertTrue(future_1.cancelled())
+
+    def test_shutdown_wait_true_cancel_futures_true(self):
+        exe = TestClusterExecutor()
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
+        exe.shutdown(wait=True, cancel_futures=True)
+        self.assertTrue(future_1.done())
+        self.assertEqual(future_1.result(), 3)
 
     def tearDown(self):
         shutil.rmtree("rather_this_dir", ignore_errors=True)
