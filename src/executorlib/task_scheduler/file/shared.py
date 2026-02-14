@@ -2,24 +2,27 @@ import contextlib
 import os
 import queue
 from concurrent.futures import Future
+from time import sleep
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_cache_execute_command
-from executorlib.standalone.hdf import get_cache_files, get_output
+from executorlib.standalone.hdf import get_cache_files, get_output, get_queue_id
 from executorlib.standalone.serialize import serialize_funct
 from executorlib.task_scheduler.file.spawner_subprocess import terminate_subprocess
 
 
 class FutureItem:
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: str, selector: Optional[int | str] = None):
         """
         Initialize a FutureItem object.
 
         Args:
             file_name (str): The name of the file.
+            selector (int | str, optional): The selector to select a specific part of the result. Defaults to None.
 
         """
         self._file_name = file_name
+        self._selector = selector
 
     def result(self) -> Any:
         """
@@ -31,7 +34,10 @@ class FutureItem:
         """
         exec_flag, no_error_flag, result = get_output(file_name=self._file_name)
         if exec_flag and no_error_flag:
-            return result
+            if self._selector is not None:
+                return result[self._selector]
+            else:
+                return result
         elif exec_flag:
             raise result
         else:
@@ -58,6 +64,7 @@ def execute_tasks_h5(
     disable_dependencies: bool = False,
     pmi_mode: Optional[str] = None,
     wait: bool = True,
+    refresh_rate: float = 0.01,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -74,6 +81,7 @@ def execute_tasks_h5(
         disable_dependencies (boolean): Disable resolving future objects during the submission.
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
 
     Returns:
         None
@@ -88,27 +96,17 @@ def execute_tasks_h5(
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if task_dict["wait"] and wait:
-                while len(memory_dict) > 0:
-                    memory_dict = _refresh_memory_dict(
-                        memory_dict=memory_dict,
-                        cache_dir_dict=cache_dir_dict,
-                    )
-            if not task_dict["cancel_futures"] and wait:
-                _cancel_processes(
-                    terminate_function=terminate_function,
-                    process_dict=process_dict,
-                    pysqa_config_directory=pysqa_config_directory,
-                    backend=backend,
-                )
-            else:
-                memory_dict = _refresh_memory_dict(
-                    memory_dict=memory_dict,
-                    cache_dir_dict=cache_dir_dict,
-                )
-                for value in memory_dict.values():
-                    if not value.done():
-                        value.cancel()
+            _shutdown_executor(
+                wait=wait and task_dict["wait"],
+                cancel_futures=task_dict.get("cancel_futures", False),
+                memory_dict=memory_dict,
+                process_dict=process_dict,
+                cache_dir_dict=cache_dir_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                refresh_rate=refresh_rate,
+            )
             future_queue.task_done()
             future_queue.join()
             break
@@ -118,13 +116,12 @@ def execute_tasks_h5(
                 memory_dict=memory_dict,
                 file_name_dict=file_name_dict,
             )
-            task_resource_dict = task_dict["resource_dict"].copy()
-            task_resource_dict.update(
-                {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
+            task_resource_dict, cache_key, cache_directory, error_log_file = (
+                _get_task_input(
+                    task_resource_dict=task_dict["resource_dict"].copy(),
+                    resource_dict=resource_dict,
+                )
             )
-            cache_key = task_resource_dict.pop("cache_key", None)
-            cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
-            error_log_file = task_resource_dict.pop("error_log_file", None)
             task_key, data_dict = serialize_funct(
                 fn=task_dict["fn"],
                 fn_args=task_args,
@@ -140,7 +137,9 @@ def execute_tasks_h5(
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     if not disable_dependencies:
                         task_dependent_lst = [
-                            process_dict[k] for k in future_wait_key_lst
+                            process_dict[k]
+                            for k in future_wait_key_lst
+                            if k in process_dict
                         ]
                     else:
                         if len(future_wait_key_lst) > 0:
@@ -169,9 +168,11 @@ def execute_tasks_h5(
                         backend=backend,
                         cache_directory=cache_directory,
                     )
-                file_name_dict[task_key] = os.path.join(
-                    cache_directory, task_key + "_o.h5"
-                )
+                file_name = os.path.join(cache_directory, task_key + "_o.h5")
+                file_name_dict[task_key] = file_name
+                queue_id = get_queue_id(file_name=file_name)
+                if queue_id is not None:
+                    process_dict[task_key] = queue_id
                 memory_dict[task_key] = task_dict["future"]
                 cache_dir_dict[task_key] = cache_directory
             future_queue.task_done()
@@ -179,6 +180,11 @@ def execute_tasks_h5(
             memory_dict = _refresh_memory_dict(
                 memory_dict=memory_dict,
                 cache_dir_dict=cache_dir_dict,
+                process_dict=process_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                refresh_rate=refresh_rate,
             )
 
 
@@ -227,46 +233,84 @@ def _convert_args_and_kwargs(
     task_kwargs = {}
     future_wait_key_lst = []
     for arg in task_dict["args"]:
+        selector = None
         if isinstance(arg, Future):
+            if hasattr(arg, "_future") and hasattr(arg, "_selector"):
+                selector = arg._selector
+                future = arg._future
+            else:
+                future = arg
             match_found = False
             for k, v in memory_dict.items():
-                if arg == v:
-                    task_args.append(FutureItem(file_name=file_name_dict[k]))
+                if future == v:
+                    task_args.append(
+                        FutureItem(file_name=file_name_dict[k], selector=selector)
+                    )
                     future_wait_key_lst.append(k)
                     match_found = True
                     break
             if not match_found:
-                task_args.append(arg.result())
+                task_args.append(future.result())
         else:
             task_args.append(arg)
     for key, arg in task_dict["kwargs"].items():
+        selector = None
         if isinstance(arg, Future):
+            if hasattr(arg, "_future") and hasattr(arg, "_selector"):
+                selector = arg._selector
+                future = arg._future
+            else:
+                future = arg
             match_found = False
             for k, v in memory_dict.items():
-                if arg == v:
-                    task_kwargs[key] = FutureItem(file_name=file_name_dict[k])
+                if future == v:
+                    task_kwargs[key] = FutureItem(
+                        file_name=file_name_dict[k], selector=selector
+                    )
                     future_wait_key_lst.append(k)
                     match_found = True
                     break
             if not match_found:
-                task_kwargs[key] = arg.result()
+                task_kwargs[key] = future.result()
         else:
             task_kwargs[key] = arg
     return task_args, task_kwargs, future_wait_key_lst
 
 
-def _refresh_memory_dict(memory_dict: dict, cache_dir_dict: dict) -> dict:
+def _refresh_memory_dict(
+    memory_dict: dict,
+    cache_dir_dict: dict,
+    process_dict: dict,
+    terminate_function: Optional[Callable] = None,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+    refresh_rate: float = 0.01,
+) -> dict:
     """
     Refresh memory dictionary
 
     Args:
         memory_dict (dict): dictionary with task keys and future objects
         cache_dir_dict (dict): dictionary with task keys and cache directories
+        process_dict (dict): dictionary with task keys and process reference.
+        terminate_function (callable): The function to terminate the tasks.
+        pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
+        backend (str): name of the backend used to spawn tasks.
+        refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
 
     Returns:
         dict: Updated memory dictionary
     """
-    return {
+    cancelled_lst = [
+        key for key, value in memory_dict.items() if value.done() and value.cancelled()
+    ]
+    _cancel_processes(
+        process_dict={k: v for k, v in process_dict.items() if k in cancelled_lst},
+        terminate_function=terminate_function,
+        pysqa_config_directory=pysqa_config_directory,
+        backend=backend,
+    )
+    memory_updated_dict = {
         key: _check_task_output(
             task_key=key,
             future_obj=value,
@@ -275,6 +319,9 @@ def _refresh_memory_dict(memory_dict: dict, cache_dir_dict: dict) -> dict:
         for key, value in memory_dict.items()
         if not value.done()
     }
+    if len(memory_updated_dict) == len(memory_dict):
+        sleep(refresh_rate)
+    return memory_updated_dict
 
 
 def _cancel_processes(
@@ -302,3 +349,80 @@ def _cancel_processes(
                 config_directory=pysqa_config_directory,
                 backend=backend,
             )
+
+
+def _get_task_input(
+    task_resource_dict: dict, resource_dict: dict
+) -> tuple[dict, Optional[str], str, Optional[str]]:
+    task_resource_dict.update(
+        {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
+    )
+    cache_key = task_resource_dict.pop("cache_key", None)
+    cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
+    error_log_file = task_resource_dict.pop("error_log_file", None)
+    return task_resource_dict, cache_key, cache_directory, error_log_file
+
+
+def _cancel_futures(future_dict: dict):
+    for value in future_dict.values():
+        if not value.done():
+            value.cancel()
+
+
+def _shutdown_executor(
+    wait: bool,
+    cancel_futures: bool,
+    memory_dict: dict,
+    process_dict: dict,
+    cache_dir_dict: dict,
+    terminate_function: Optional[Callable] = None,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+    refresh_rate: float = 0.01,
+):
+    if wait and not cancel_futures:
+        while len(memory_dict) > 0:
+            memory_dict = _refresh_memory_dict(
+                memory_dict=memory_dict,
+                cache_dir_dict=cache_dir_dict,
+                process_dict=process_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                refresh_rate=refresh_rate,
+            )
+    elif wait and cancel_futures:
+        for value in memory_dict.values():
+            if not value.done():
+                value.cancel()
+        while len(memory_dict) > 0:
+            memory_dict = _refresh_memory_dict(
+                memory_dict=memory_dict,
+                cache_dir_dict=cache_dir_dict,
+                process_dict=process_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                refresh_rate=refresh_rate,
+            )
+    elif cancel_futures:  # wait is False
+        _cancel_processes(
+            process_dict=process_dict,
+            terminate_function=terminate_function,
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+        )
+        _cancel_futures(future_dict=memory_dict)
+    else:  # wait is False and cancel_futures is False
+        memory_dict = _refresh_memory_dict(
+            memory_dict=memory_dict,
+            cache_dir_dict=cache_dir_dict,
+            process_dict=process_dict,
+            terminate_function=terminate_function,
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+            refresh_rate=refresh_rate,
+        )
+        # The future objects are detached so mark them as cancelled even though the processes are
+        # not terminated. This is to prevent the main process from waiting indefinitely for the results.
+        _cancel_futures(future_dict=memory_dict)

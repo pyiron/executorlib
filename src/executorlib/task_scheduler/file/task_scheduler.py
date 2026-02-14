@@ -36,6 +36,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         disable_dependencies: bool = False,
         pmi_mode: Optional[str] = None,
         wait: bool = True,
+        refresh_rate: float = 0.01,
     ):
         """
         Initialize the FileExecutor.
@@ -52,6 +53,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             disable_dependencies (boolean): Disable resolving future objects during the submission.
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
         """
         super().__init__(max_cores=None)
         default_resource_dict = {
@@ -75,6 +77,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             "backend": backend,
             "disable_dependencies": disable_dependencies,
             "pmi_mode": pmi_mode,
+            "refresh_rate": refresh_rate,
             "wait": wait,
         }
         self._set_process(
@@ -102,6 +105,7 @@ def create_file_executor(
     disable_dependencies: bool = False,
     execute_function: Callable = execute_with_pysqa,
     wait: bool = True,
+    refresh_rate: float = 0.01,
 ):
     if block_allocation:
         raise ValueError(
@@ -133,4 +137,5 @@ def create_file_executor(
         terminate_function=terminate_function,
         pmi_mode=pmi_mode,
         wait=wait,
+        refresh_rate=refresh_rate,
     )

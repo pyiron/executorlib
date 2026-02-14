@@ -356,6 +356,7 @@ class TestClusterExecutor(BaseExecutor):
                     disable_dependencies=disable_dependencies,
                     execute_function=execute_in_subprocess,
                     wait=wait,
+                    refresh_rate=refresh_rate,
                 )
             )
         else:

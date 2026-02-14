@@ -1,14 +1,17 @@
 import os
 import shutil
 import unittest
+from time import sleep
+from concurrent.futures import Future, wait
 
-from executorlib import get_cache_data
+from executorlib import get_cache_data, get_future_from_cache
 from executorlib.api import TestClusterExecutor
 from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:
     import h5py
+    from executorlib.task_scheduler.file.shared import _shutdown_executor
 
     skip_h5py_test = False
 except ImportError:
@@ -21,6 +24,15 @@ def add_function(parameter_1, parameter_2):
 
 def foo(x):
     return x + 1
+
+
+def get_error(i):
+    raise ValueError(f"error {i}")
+
+
+def add_with_sleep(parameter_1, parameter_2):
+    sleep(1)
+    return parameter_1 + parameter_2
 
 
 @unittest.skipIf(
@@ -63,6 +75,41 @@ class TestTestClusterExecutor(unittest.TestCase):
         cache_lst = get_cache_data(cache_directory="rather_this_dir")
         self.assertEqual(len(cache_lst), 1)
 
+    def test_get_future_from_cache(self):
+        with TestClusterExecutor(cache_directory="cache_dir", resource_dict={}) as exe:
+            cloudpickle_register(ind=1)
+            future = exe.submit(
+                foo,
+                1,
+                resource_dict={
+                    "cache_directory": "cache_dir",
+                    "cache_key": "foo",
+                },
+            )
+            future_error = exe.submit(
+                get_error,
+                1,
+                resource_dict={
+                    "cache_directory": "cache_dir",
+                    "cache_key": "error",
+                },
+            )
+            self.assertEqual(future.result(), 2)
+            with self.assertRaises(ValueError):
+                future_error.result()
+        future = get_future_from_cache(
+            cache_directory="cache_dir",
+            cache_key="foo",
+        )
+        self.assertTrue(isinstance(future, Future))
+        self.assertTrue(future.done())
+        self.assertEqual(future.result(), 2)
+        with self.assertRaises(ValueError):
+            get_future_from_cache(
+                cache_directory="cache_dir",
+                cache_key="error",
+            )
+
     def test_empty(self):
         with TestClusterExecutor(cache_directory="rather_this_dir") as exe:
             cloudpickle_register(ind=1)
@@ -92,5 +139,57 @@ class TestTestClusterExecutor(unittest.TestCase):
             self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
 
+    def test_shutdown_wait_false_cancel_futures_false(self):
+        exe = TestClusterExecutor(cache_directory="shutdown_1_dir")
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
+        exe.shutdown(wait=False, cancel_futures=False)
+        self.assertTrue(future_1.done())
+        self.assertTrue(future_1.cancelled())
+        sleep(2)
+        exe = TestClusterExecutor(cache_directory="shutdown_1_dir")
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
+        exe.shutdown(wait=False, cancel_futures=False)
+        self.assertTrue(future_1.done())
+        self.assertEqual(future_1.result(), 3)
+
+    def test_shutdown_wait_false_cancel_futures_true(self):
+        exe = TestClusterExecutor(cache_directory="shutdown_2_dir")
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
+        exe.shutdown(wait=False, cancel_futures=True)
+        self.assertTrue(future_1.done())
+        self.assertTrue(future_1.cancelled())
+
+    def test_shutdown_wait_true_cancel_futures_true(self):
+        exe = TestClusterExecutor(cache_directory="shutdown_3_dir")
+        cloudpickle_register(ind=1)
+        future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
+        future_2 = exe.submit(add_with_sleep, future_1, parameter_2=3)
+        exe.shutdown(wait=True, cancel_futures=True)
+        self.assertTrue(future_1.done())
+        self.assertTrue(future_1.cancelled())
+        self.assertTrue(future_2.done())
+        self.assertTrue(future_2.cancelled())
+
     def tearDown(self):
-        shutil.rmtree("rather_this_dir", ignore_errors=True)
+        for f in ["rather_this_dir", "shutdown_1_dir", "shutdown_2_dir", "shutdown_3_dir", "cache_dir"]:
+            if os.path.exists(f):
+                shutil.rmtree(f, ignore_errors=True)
+
+    def test_shutdown_executor_function(self):
+        memory_dict={"a": Future()}
+        _shutdown_executor(
+            wait=True,
+            cancel_futures=True,
+            memory_dict=memory_dict,
+            process_dict={},
+            cache_dir_dict={"a": "cache_dir"},
+            terminate_function=None,
+            pysqa_config_directory=None,
+            backend=None,
+            refresh_rate=0.01,
+        )
+        self.assertTrue(memory_dict["a"].done())
+        self.assertTrue(memory_dict["a"].cancelled())

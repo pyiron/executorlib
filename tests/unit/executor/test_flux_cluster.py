@@ -10,7 +10,7 @@ from executorlib.standalone.command import get_cache_execute_command
 
 try:
     import flux.job
-    from executorlib import terminate_tasks_in_cache
+    from executorlib import terminate_tasks_in_cache, terminate_task_in_cache
     from executorlib.standalone.hdf import dump
     from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
     from executorlib.standalone.scheduler import terminate_with_pysqa
@@ -194,6 +194,17 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             cache_directory="executorlib_cache",
             backend="flux",
         ))
+
+    def test_terminate_task_in_cache(self):
+        file = os.path.join("executorlib_cache", "test_i.h5")
+        dump(file_name=file, data_dict={"queue_id": 1})
+        self.assertTrue(os.path.exists(file))
+        self.assertIsNone(terminate_task_in_cache(
+            cache_directory="executorlib_cache",
+            cache_key="test",
+            backend="flux"
+        ))
+        self.assertFalse(os.path.exists(file))
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
