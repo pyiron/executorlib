@@ -6,12 +6,12 @@ from concurrent.futures import Future, wait
 
 from executorlib import get_cache_data, get_future_from_cache
 from executorlib.api import TestClusterExecutor
-from executorlib.task_scheduler.file.shared import _shutdown_executor
 from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
 try:
     import h5py
+    from executorlib.task_scheduler.file.shared import _shutdown_executor
 
     skip_h5py_test = False
 except ImportError:
