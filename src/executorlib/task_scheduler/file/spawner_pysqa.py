@@ -119,6 +119,7 @@ def terminate_tasks_in_cache(
                 config_directory=pysqa_config_directory,
                 backend=backend,
             )
+        os.remove(f)
 
 
 def terminate_task_in_cache(
@@ -136,12 +137,12 @@ def terminate_task_in_cache(
         pysqa_config_directory (str, optional): path to the pysqa config directory.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
-    queue_id = get_queue_id(
-        file_name=os.path.join(cache_directory, cache_key + "_i.h5")
-    )
+    file_name = os.path.join(cache_directory, cache_key + "_i.h5")
+    queue_id = get_queue_id(file_name=file_name)
     if queue_id is not None:
         terminate_with_pysqa(
             queue_id=queue_id,
             config_directory=pysqa_config_directory,
             backend=backend,
         )
+    os.remove(file_name)
