@@ -97,14 +97,11 @@ class TestTestClusterExecutor(unittest.TestCase):
         self.assertTrue(isinstance(future, Future))
         self.assertTrue(future.done())
         self.assertEqual(future.result(), 2)
-        future_error = get_future_from_cache(
-            cache_directory="cache_dir",
-            cache_key="error",
-        )
-        self.assertTrue(isinstance(future_error, Future))
-        self.assertTrue(future_error.done())
         with self.assertRaises(ValueError):
-            future_error.result()
+            get_future_from_cache(
+                cache_directory="cache_dir",
+                cache_key="error",
+            )
 
     def test_empty(self):
         with TestClusterExecutor(cache_directory="rather_this_dir") as exe:
