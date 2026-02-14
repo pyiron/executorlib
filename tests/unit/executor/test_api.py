@@ -139,14 +139,14 @@ class TestTestClusterExecutor(unittest.TestCase):
             self.assertEqual(len(edges), 4)
 
     def test_shutdown_wait_false_cancel_futures_false(self):
-        exe = TestClusterExecutor()
+        exe = TestClusterExecutor(cache_directory="shutdown_1_dir")
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
         exe.shutdown(wait=False, cancel_futures=False)
         self.assertTrue(future_1.done())
         self.assertTrue(future_1.cancelled())
         sleep(2)
-        exe = TestClusterExecutor()
+        exe = TestClusterExecutor(cache_directory="shutdown_1_dir")
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
         exe.shutdown(wait=False, cancel_futures=False)
@@ -154,7 +154,7 @@ class TestTestClusterExecutor(unittest.TestCase):
         self.assertEqual(future_1.result(), 3)
 
     def test_shutdown_wait_false_cancel_futures_true(self):
-        exe = TestClusterExecutor()
+        exe = TestClusterExecutor(cache_directory="shutdown_2_dir")
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
         exe.shutdown(wait=False, cancel_futures=True)
@@ -162,7 +162,7 @@ class TestTestClusterExecutor(unittest.TestCase):
         self.assertTrue(future_1.cancelled())
 
     def test_shutdown_wait_true_cancel_futures_true(self):
-        exe = TestClusterExecutor()
+        exe = TestClusterExecutor(cache_directory="shutdown_3_dir")
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
         exe.shutdown(wait=True, cancel_futures=True)
@@ -170,4 +170,6 @@ class TestTestClusterExecutor(unittest.TestCase):
         self.assertTrue(future_1.cancelled())
 
     def tearDown(self):
-        shutil.rmtree("rather_this_dir", ignore_errors=True)
+        for f in ["rather_this_dir", "shutdown_1_dir", "shutdown_2_dir", "shutdown_3_dir", "cache_dir"]:
+            if os.path.exists(f):
+                shutil.rmtree(f, ignore_errors=True)
