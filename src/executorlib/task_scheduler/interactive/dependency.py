@@ -257,7 +257,9 @@ def _execute_tasks_with_dependencies(
             while len(wait_lst) > 0:
                 # Check functions in the wait list and execute them if all future objects are now ready
                 wait_lst = _update_waiting_task(
-                    wait_lst=wait_lst, executor_queue=executor_queue, refresh_rate=refresh_rate
+                    wait_lst=wait_lst,
+                    executor_queue=executor_queue,
+                    refresh_rate=refresh_rate,
                 )
             executor.shutdown(wait=task_dict["wait"])
             future_queue.task_done()
@@ -300,14 +302,18 @@ def _execute_tasks_with_dependencies(
         elif len(wait_lst) > 0:
             # Check functions in the wait list and execute them if all future objects are now ready
             wait_lst = _update_waiting_task(
-                wait_lst=wait_lst, executor_queue=executor_queue, refresh_rate=refresh_rate,
+                wait_lst=wait_lst,
+                executor_queue=executor_queue,
+                refresh_rate=refresh_rate,
             )
         else:
             # If there is nothing else to do, sleep for a moment
             sleep(refresh_rate)
 
 
-def _update_waiting_task(wait_lst: list[dict], executor_queue: queue.Queue, refresh_rate: float = 0.01) -> list:
+def _update_waiting_task(
+    wait_lst: list[dict], executor_queue: queue.Queue, refresh_rate: float = 0.01
+) -> list:
     """
     Submit the waiting tasks, which future inputs have been completed, to the executor
 
