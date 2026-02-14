@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+from concurrent.futures import Future
 
 
 try:
@@ -10,6 +11,7 @@ try:
         get_output,
         get_runtime,
         get_queue_id,
+        get_future_from_cache,
     )
 
     skip_h5py_test = False
@@ -44,6 +46,24 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertFalse(no_error)
         self.assertFalse(flag)
         self.assertIsNone(output)
+
+    def test_get_future_from_file(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_mixed_o.h5")
+        a = 1
+        b = 2
+        dump(
+            file_name=file_name,
+            data_dict={"fn": my_funct, "args": [a], "kwargs": {"b": b}},
+        )
+        future = get_future_from_cache(
+            cache_directory=cache_directory,
+            cache_key="test_mixed",
+        )
+        self.assertTrue(isinstance(future, Future))
+        self.assertTrue(future.done())
+        self.assertEqual(future.result(), 3)
 
     def test_hdf_args(self):
         cache_directory = os.path.abspath("executorlib_cache")
