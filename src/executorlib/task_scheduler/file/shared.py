@@ -2,6 +2,7 @@ import contextlib
 import os
 import queue
 from concurrent.futures import Future
+from time import sleep
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_cache_execute_command
@@ -17,6 +18,7 @@ class FutureItem:
 
         Args:
             file_name (str): The name of the file.
+            selector (int | str, optional): The selector to select a specific part of the result. Defaults to None.
 
         """
         self._file_name = file_name
@@ -62,6 +64,7 @@ def execute_tasks_h5(
     disable_dependencies: bool = False,
     pmi_mode: Optional[str] = None,
     wait: bool = True,
+    refresh_rate: float = 0.01,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -78,6 +81,7 @@ def execute_tasks_h5(
         disable_dependencies (boolean): Disable resolving future objects during the submission.
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
 
     Returns:
         None
@@ -92,35 +96,17 @@ def execute_tasks_h5(
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if task_dict["wait"] and wait:
-                while len(memory_dict) > 0:
-                    memory_dict = _refresh_memory_dict(
-                        memory_dict=memory_dict,
-                        cache_dir_dict=cache_dir_dict,
-                        process_dict=process_dict,
-                        terminate_function=terminate_function,
-                        pysqa_config_directory=pysqa_config_directory,
-                        backend=backend,
-                    )
-            if not task_dict["cancel_futures"] and wait:
-                _cancel_processes(
-                    process_dict=process_dict,
-                    terminate_function=terminate_function,
-                    pysqa_config_directory=pysqa_config_directory,
-                    backend=backend,
-                )
-            else:
-                memory_dict = _refresh_memory_dict(
-                    memory_dict=memory_dict,
-                    cache_dir_dict=cache_dir_dict,
-                    process_dict=process_dict,
-                    terminate_function=terminate_function,
-                    pysqa_config_directory=pysqa_config_directory,
-                    backend=backend,
-                )
-                for value in memory_dict.values():
-                    if not value.done():
-                        value.cancel()
+            _shutdown_executor(
+                wait=wait and task_dict["wait"],
+                cancel_futures=task_dict.get("cancel_futures", False),
+                memory_dict=memory_dict,
+                process_dict=process_dict,
+                cache_dir_dict=cache_dir_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                refresh_rate=refresh_rate,
+            )
             future_queue.task_done()
             future_queue.join()
             break
@@ -198,6 +184,7 @@ def execute_tasks_h5(
                 terminate_function=terminate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
+                refresh_rate=refresh_rate,
             )
 
 
@@ -297,6 +284,7 @@ def _refresh_memory_dict(
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
+    refresh_rate: float = 0.01,
 ) -> dict:
     """
     Refresh memory dictionary
@@ -308,6 +296,7 @@ def _refresh_memory_dict(
         terminate_function (callable): The function to terminate the tasks.
         pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
         backend (str): name of the backend used to spawn tasks.
+        refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
 
     Returns:
         dict: Updated memory dictionary
@@ -321,7 +310,7 @@ def _refresh_memory_dict(
         pysqa_config_directory=pysqa_config_directory,
         backend=backend,
     )
-    return {
+    memory_updated_dict = {
         key: _check_task_output(
             task_key=key,
             future_obj=value,
@@ -330,6 +319,9 @@ def _refresh_memory_dict(
         for key, value in memory_dict.items()
         if not value.done()
     }
+    if len(memory_updated_dict) == len(memory_dict):
+        sleep(refresh_rate)
+    return memory_updated_dict
 
 
 def _cancel_processes(
@@ -369,3 +361,68 @@ def _get_task_input(
     cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
     error_log_file = task_resource_dict.pop("error_log_file", None)
     return task_resource_dict, cache_key, cache_directory, error_log_file
+
+
+def _cancel_futures(future_dict: dict):
+    for value in future_dict.values():
+        if not value.done():
+            value.cancel()
+
+
+def _shutdown_executor(
+    wait: bool,
+    cancel_futures: bool,
+    memory_dict: dict,
+    process_dict: dict,
+    cache_dir_dict: dict,
+    terminate_function: Optional[Callable] = None,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+    refresh_rate: float = 0.01,
+):
+    if wait and not cancel_futures:
+        while len(memory_dict) > 0:
+            memory_dict = _refresh_memory_dict(
+                memory_dict=memory_dict,
+                cache_dir_dict=cache_dir_dict,
+                process_dict=process_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                refresh_rate=refresh_rate,
+            )
+    elif wait and cancel_futures:
+        for value in memory_dict.values():
+            if not value.done():
+                value.cancel()
+        while len(memory_dict) > 0:
+            memory_dict = _refresh_memory_dict(
+                memory_dict=memory_dict,
+                cache_dir_dict=cache_dir_dict,
+                process_dict=process_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                refresh_rate=refresh_rate,
+            )
+    elif cancel_futures:  # wait is False
+        _cancel_processes(
+            process_dict=process_dict,
+            terminate_function=terminate_function,
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+        )
+        _cancel_futures(future_dict=memory_dict)
+    else:  # wait is False and cancel_futures is False
+        memory_dict = _refresh_memory_dict(
+            memory_dict=memory_dict,
+            cache_dir_dict=cache_dir_dict,
+            process_dict=process_dict,
+            terminate_function=terminate_function,
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+            refresh_rate=refresh_rate,
+        )
+        # The future objects are detached so mark them as cancelled even though the processes are
+        # not terminated. This is to prevent the main process from waiting indefinitely for the results.
+        _cancel_futures(future_dict=memory_dict)
