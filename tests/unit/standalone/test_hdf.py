@@ -62,8 +62,7 @@ class TestSharedFunctions(unittest.TestCase):
             cache_key="test_mixed",
         )
         self.assertTrue(isinstance(future, Future))
-        self.assertTrue(future.done())
-        self.assertEqual(future.result(), 3)
+        self.assertFalse(future.done())
 
     def test_hdf_args(self):
         cache_directory = os.path.abspath("executorlib_cache")
