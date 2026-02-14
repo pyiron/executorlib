@@ -96,7 +96,7 @@ def execute_with_pysqa(
 
 def terminate_tasks_in_cache(
     cache_directory: str,
-    config_directory: Optional[str] = None,
+    pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
 ):
     """
@@ -104,7 +104,7 @@ def terminate_tasks_in_cache(
 
     Args:
         cache_directory (str): The directory to store cache files.
-        config_directory (str, optional): path to the config directory.
+        pysqa_config_directory (str, optional): path to the pysqa config directory.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
     hdf5_file_lst = []
@@ -116,6 +116,30 @@ def terminate_tasks_in_cache(
         if queue_id is not None:
             terminate_with_pysqa(
                 queue_id=queue_id,
-                config_directory=config_directory,
+                config_directory=pysqa_config_directory,
                 backend=backend,
             )
+
+
+def terminate_task_in_cache(
+    cache_directory: str,
+    cache_key: str,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+):
+    """
+    Delete a specific job stored in the cache directory from the queuing system
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+        cache_key (str): The key of the cache file to be deleted.
+        pysqa_config_directory (str, optional): path to the pysqa config directory.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
+    """
+    queue_id = get_queue_id(file_name=os.path.join(cache_directory, cache_key + "_i.h5"))
+    if queue_id is not None:
+        terminate_with_pysqa(
+            queue_id=queue_id,
+            config_directory=pysqa_config_directory,
+            backend=backend,
+        )

@@ -45,7 +45,7 @@ def get_cache_data(cache_directory: str) -> list[dict]:
 
 def terminate_tasks_in_cache(
     cache_directory: str,
-    config_directory: Optional[str] = None,
+    pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
 ):
     """
@@ -53,14 +53,39 @@ def terminate_tasks_in_cache(
 
     Args:
         cache_directory (str): The directory to store cache files.
-        config_directory (str, optional): path to the config directory.
+        pysqa_config_directory (str, optional): path to the pysqa config directory.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
     from executorlib.task_scheduler.file.spawner_pysqa import terminate_tasks_in_cache
 
     return terminate_tasks_in_cache(
         cache_directory=cache_directory,
-        config_directory=config_directory,
+        pysqa_config_directory=pysqa_config_directory,
+        backend=backend,
+    )
+
+
+def terminate_task_in_cache(
+    cache_directory: str,
+    cache_key: str,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+):
+    """
+    Delete a specific job stored in the cache directory from the queuing system
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+        cache_key (str): The key of the cache file to be deleted.
+        pysqa_config_directory (str, optional): path to the pysqa config directory.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
+    """
+    from executorlib.task_scheduler.file.spawner_pysqa import terminate_task_in_cache
+
+    return terminate_task_in_cache(
+        cache_directory=cache_directory,
+        cache_key=cache_key,
+        pysqa_config_directory=pysqa_config_directory,
         backend=backend,
     )
 
