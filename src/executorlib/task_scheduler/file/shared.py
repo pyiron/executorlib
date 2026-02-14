@@ -126,9 +126,7 @@ def execute_tasks_h5(
                     pysqa_config_directory=pysqa_config_directory,
                     backend=backend,
                 )
-                for value in memory_dict.values():
-                    if not value.done():
-                        value.cancel()
+                _cancel_futures(future_dict=memory_dict)
                 future_queue.task_done()
                 future_queue.join()
             else:  # wait is False and cancel_futures is False
@@ -136,9 +134,7 @@ def execute_tasks_h5(
                 future_queue.join()
                 # The future objects are detached so mark them as cancelled even though the processes are
                 # not terminated. This is to prevent the main process from waiting indefinitely for the results.
-                for value in memory_dict.values():
-                    if not value.done():
-                        value.cancel()
+                _cancel_futures(future_dict=memory_dict)
             break
         elif task_dict is not None:
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
@@ -385,3 +381,9 @@ def _get_task_input(
     cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))
     error_log_file = task_resource_dict.pop("error_log_file", None)
     return task_resource_dict, cache_key, cache_directory, error_log_file
+
+
+def _cancel_futures(future_dict: dict):
+    for value in future_dict.values():
+        if not value.done():
+            value.cancel()
