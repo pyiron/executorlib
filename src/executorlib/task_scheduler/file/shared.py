@@ -92,49 +92,17 @@ def execute_tasks_h5(
         with contextlib.suppress(queue.Empty):
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
-            if task_dict["wait"] and wait and not task_dict["cancel_futures"]:
-                while len(memory_dict) > 0:
-                    memory_dict = _refresh_memory_dict(
-                        memory_dict=memory_dict,
-                        cache_dir_dict=cache_dir_dict,
-                        process_dict=process_dict,
-                        terminate_function=terminate_function,
-                        pysqa_config_directory=pysqa_config_directory,
-                        backend=backend,
-                    )
-                future_queue.task_done()
-                future_queue.join()
-            elif task_dict["wait"] and wait and task_dict["cancel_futures"]:
-                for value in memory_dict.values():
-                    if not value.done():
-                        value.cancel()
-                while len(memory_dict) > 0:
-                    memory_dict = _refresh_memory_dict(
-                        memory_dict=memory_dict,
-                        cache_dir_dict=cache_dir_dict,
-                        process_dict=process_dict,
-                        terminate_function=terminate_function,
-                        pysqa_config_directory=pysqa_config_directory,
-                        backend=backend,
-                    )
-                future_queue.task_done()
-                future_queue.join()
-            elif task_dict["cancel_futures"]:  # wait is False
-                _cancel_processes(
-                    process_dict=process_dict,
-                    terminate_function=terminate_function,
-                    pysqa_config_directory=pysqa_config_directory,
-                    backend=backend,
-                )
-                _cancel_futures(future_dict=memory_dict)
-                future_queue.task_done()
-                future_queue.join()
-            else:  # wait is False and cancel_futures is False
-                future_queue.task_done()
-                future_queue.join()
-                # The future objects are detached so mark them as cancelled even though the processes are
-                # not terminated. This is to prevent the main process from waiting indefinitely for the results.
-                _cancel_futures(future_dict=memory_dict)
+            _shutdown_executor(
+                wait=wait and task_dict["wait"], 
+                cancel_futures=task_dict["cancel_futures"], 
+                future_queue=future_queue, 
+                memory_dict=memory_dict, 
+                process_dict=process_dict, 
+                cache_dir_dict=cache_dir_dict, 
+                terminate_function=terminate_function, 
+                pysqa_config_directory=pysqa_config_directory, 
+                backend=backend,
+            )
             break
         elif task_dict is not None:
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
@@ -387,3 +355,59 @@ def _cancel_futures(future_dict: dict):
     for value in future_dict.values():
         if not value.done():
             value.cancel()
+
+
+def _shutdown_executor(
+    wait: bool, 
+    cancel_futures: bool, 
+    future_queue: queue.Queue, 
+    memory_dict: dict, 
+    process_dict: dict, 
+    cache_dir_dict: dict, 
+    terminate_function: Optional[Callable], 
+    pysqa_config_directory: Optional[str], 
+    backend: Optional[str],
+):
+    if wait and not cancel_futures:
+        while len(memory_dict) > 0:
+            memory_dict = _refresh_memory_dict(
+                memory_dict=memory_dict,
+                cache_dir_dict=cache_dir_dict,
+                process_dict=process_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+            )
+        future_queue.task_done()
+        future_queue.join()
+    elif wait and cancel_futures:
+        for value in memory_dict.values():
+            if not value.done():
+                value.cancel()
+        while len(memory_dict) > 0:
+            memory_dict = _refresh_memory_dict(
+                memory_dict=memory_dict,
+                cache_dir_dict=cache_dir_dict,
+                process_dict=process_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+            )
+        future_queue.task_done()
+        future_queue.join()
+    elif cancel_futures:  # wait is False
+        _cancel_processes(
+            process_dict=process_dict,
+            terminate_function=terminate_function,
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+        )
+        _cancel_futures(future_dict=memory_dict)
+        future_queue.task_done()
+        future_queue.join()
+    else:  # wait is False and cancel_futures is False
+        future_queue.task_done()
+        future_queue.join()
+        # The future objects are detached so mark them as cancelled even though the processes are
+        # not terminated. This is to prevent the main process from waiting indefinitely for the results.
+        _cancel_futures(future_dict=memory_dict)
