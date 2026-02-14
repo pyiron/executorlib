@@ -1,8 +1,9 @@
 import os
 import shutil
 import unittest
+from concurrent.futures import Future
 
-from executorlib import get_cache_data
+from executorlib import get_cache_data, get_future_from_cache
 from executorlib.api import TestClusterExecutor
 from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
@@ -62,6 +63,26 @@ class TestTestClusterExecutor(unittest.TestCase):
         self.assertTrue(os.path.exists("rather_this_dir"))
         cache_lst = get_cache_data(cache_directory="rather_this_dir")
         self.assertEqual(len(cache_lst), 1)
+
+    def test_get_future_from_cache(self):
+        with TestClusterExecutor(cache_directory="cache_dir", resource_dict={}) as exe:
+            cloudpickle_register(ind=1)
+            future = exe.submit(
+                foo,
+                1,
+                resource_dict={
+                    "cache_directory": "cache_dir",
+                    "cache_key": "foo",
+                },
+            )
+            self.assertEqual(future.result(), 2)
+        future = get_future_from_cache(
+            cache_directory="cache_dir",
+            cache_key="foo",
+        )
+        self.assertTrue(isinstance(future, Future))
+        self.assertTrue(future.done())
+        self.assertEqual(future.result(), 2)
 
     def test_empty(self):
         with TestClusterExecutor(cache_directory="rather_this_dir") as exe:
