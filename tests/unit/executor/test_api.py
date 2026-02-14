@@ -24,6 +24,10 @@ def foo(x):
     return x + 1
 
 
+def get_error(i):
+    raise ValueError(f"error {i}")
+
+
 @unittest.skipIf(
     skip_h5py_test, "h5py is not installed, so the h5io tests are skipped."
 )
@@ -75,7 +79,17 @@ class TestTestClusterExecutor(unittest.TestCase):
                     "cache_key": "foo",
                 },
             )
+            future_error = exe.submit(
+                get_error,
+                1,
+                resource_dict={
+                    "cache_directory": "cache_dir",
+                    "cache_key": "error",
+                },
+            )
             self.assertEqual(future.result(), 2)
+            with self.assertRaises(ValueError):
+                future_error.result()
         future = get_future_from_cache(
             cache_directory="cache_dir",
             cache_key="foo",
@@ -83,6 +97,14 @@ class TestTestClusterExecutor(unittest.TestCase):
         self.assertTrue(isinstance(future, Future))
         self.assertTrue(future.done())
         self.assertEqual(future.result(), 2)
+        future_error = get_future_from_cache(
+            cache_directory="cache_dir",
+            cache_key="error",
+        )
+        self.assertTrue(isinstance(future_error, Future))
+        self.assertTrue(future_error.done())
+        with self.assertRaises(ValueError):
+            future_error.result()
 
     def test_empty(self):
         with TestClusterExecutor(cache_directory="rather_this_dir") as exe:

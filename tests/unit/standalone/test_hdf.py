@@ -50,7 +50,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_get_future_from_file(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        file_name = os.path.join(cache_directory, "test_mixed_o.h5")
+        file_name = os.path.join(cache_directory, "test_mixed_i.h5")
         a = 1
         b = 2
         dump(
@@ -63,6 +63,14 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(isinstance(future, Future))
         self.assertFalse(future.done())
+
+    def test_get_future_from_file_missing(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        with self.assertRaises(FileNotFoundError):
+            get_future_from_cache(
+            cache_directory=cache_directory,
+            cache_key="does_not_exist",
+        )
 
     def test_hdf_args(self):
         cache_directory = os.path.abspath("executorlib_cache")
