@@ -245,7 +245,7 @@ def _execute_tasks_with_dependencies(
         executor (TaskSchedulerBase): Executor to execute the tasks with after the dependencies are resolved.
         refresh_rate (float): Set the refresh rate in seconds, how frequently the input queue is checked.
     """
-    wait_lst = []
+    wait_lst: list = []
     while True:
         try:
             task_dict = future_queue.get_nowait()
