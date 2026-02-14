@@ -99,7 +99,6 @@ def execute_tasks_h5(
             _shutdown_executor(
                 wait=wait and task_dict["wait"],
                 cancel_futures=task_dict["cancel_futures"],
-                future_queue=future_queue,
                 memory_dict=memory_dict,
                 process_dict=process_dict,
                 cache_dir_dict=cache_dir_dict,
@@ -108,6 +107,8 @@ def execute_tasks_h5(
                 backend=backend,
                 refresh_rate=refresh_rate,
             )
+            future_queue.task_done()
+            future_queue.join()
             break
         elif task_dict is not None:
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
@@ -371,14 +372,13 @@ def _cancel_futures(future_dict: dict):
 def _shutdown_executor(
     wait: bool,
     cancel_futures: bool,
-    future_queue: queue.Queue,
     memory_dict: dict,
     process_dict: dict,
     cache_dir_dict: dict,
-    terminate_function: Optional[Callable],
-    pysqa_config_directory: Optional[str],
-    backend: Optional[str],
-    refresh_rate: float,
+    terminate_function: Optional[Callable] = None,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+    refresh_rate: float = 0.01,
 ):
     if wait and not cancel_futures:
         while len(memory_dict) > 0:
@@ -391,8 +391,6 @@ def _shutdown_executor(
                 backend=backend,
                 refresh_rate=refresh_rate,
             )
-        future_queue.task_done()
-        future_queue.join()
     elif wait and cancel_futures:
         for value in memory_dict.values():
             if not value.done():
@@ -407,8 +405,6 @@ def _shutdown_executor(
                 backend=backend,
                 refresh_rate=refresh_rate,
             )
-        future_queue.task_done()
-        future_queue.join()
     elif cancel_futures:  # wait is False
         _cancel_processes(
             process_dict=process_dict,
@@ -417,8 +413,6 @@ def _shutdown_executor(
             backend=backend,
         )
         _cancel_futures(future_dict=memory_dict)
-        future_queue.task_done()
-        future_queue.join()
     else:  # wait is False and cancel_futures is False
         memory_dict = _refresh_memory_dict(
             memory_dict=memory_dict,
@@ -432,5 +426,3 @@ def _shutdown_executor(
         # The future objects are detached so mark them as cancelled even though the processes are
         # not terminated. This is to prevent the main process from waiting indefinitely for the results.
         _cancel_futures(future_dict=memory_dict)
-        future_queue.task_done()
-        future_queue.join()

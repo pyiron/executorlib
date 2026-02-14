@@ -2,10 +2,11 @@ import os
 import shutil
 import unittest
 from time import sleep
-from concurrent.futures import Future
+from concurrent.futures import Future, wait
 
 from executorlib import get_cache_data, get_future_from_cache
 from executorlib.api import TestClusterExecutor
+from executorlib.task_scheduler.file.shared import _shutdown_executor
 from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
 
@@ -176,3 +177,19 @@ class TestTestClusterExecutor(unittest.TestCase):
         for f in ["rather_this_dir", "shutdown_1_dir", "shutdown_2_dir", "shutdown_3_dir", "cache_dir"]:
             if os.path.exists(f):
                 shutil.rmtree(f, ignore_errors=True)
+
+    def test_shutdown_executor_function(self):
+        memory_dict={"a": Future()}
+        _shutdown_executor(
+            wait=True,
+            cancel_futures=True,
+            memory_dict=memory_dict,
+            process_dict={},
+            cache_dir_dict={"a": "cache_dir"},
+            terminate_function=None,
+            pysqa_config_directory=None,
+            backend=None,
+            refresh_rate=0.01,
+        )
+        self.assertTrue(memory_dict["a"].done())
+        self.assertTrue(memory_dict["a"].cancelled())
