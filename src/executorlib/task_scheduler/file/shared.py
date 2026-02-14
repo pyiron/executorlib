@@ -93,14 +93,14 @@ def execute_tasks_h5(
             task_dict = future_queue.get_nowait()
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
             _shutdown_executor(
-                wait=wait and task_dict["wait"], 
-                cancel_futures=task_dict["cancel_futures"], 
-                future_queue=future_queue, 
-                memory_dict=memory_dict, 
-                process_dict=process_dict, 
-                cache_dir_dict=cache_dir_dict, 
-                terminate_function=terminate_function, 
-                pysqa_config_directory=pysqa_config_directory, 
+                wait=wait and task_dict["wait"],
+                cancel_futures=task_dict["cancel_futures"],
+                future_queue=future_queue,
+                memory_dict=memory_dict,
+                process_dict=process_dict,
+                cache_dir_dict=cache_dir_dict,
+                terminate_function=terminate_function,
+                pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
             )
             break
@@ -358,14 +358,14 @@ def _cancel_futures(future_dict: dict):
 
 
 def _shutdown_executor(
-    wait: bool, 
-    cancel_futures: bool, 
-    future_queue: queue.Queue, 
-    memory_dict: dict, 
-    process_dict: dict, 
-    cache_dir_dict: dict, 
-    terminate_function: Optional[Callable], 
-    pysqa_config_directory: Optional[str], 
+    wait: bool,
+    cancel_futures: bool,
+    future_queue: queue.Queue,
+    memory_dict: dict,
+    process_dict: dict,
+    cache_dir_dict: dict,
+    terminate_function: Optional[Callable],
+    pysqa_config_directory: Optional[str],
     backend: Optional[str],
 ):
     if wait and not cancel_futures:
