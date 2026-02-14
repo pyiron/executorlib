@@ -5,7 +5,7 @@ from concurrent.futures import Future
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_cache_execute_command
-from executorlib.standalone.hdf import get_cache_files, get_output
+from executorlib.standalone.hdf import get_cache_files, get_output, get_queue_id
 from executorlib.standalone.serialize import serialize_funct
 from executorlib.task_scheduler.file.spawner_subprocess import terminate_subprocess
 
@@ -152,7 +152,7 @@ def execute_tasks_h5(
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     if not disable_dependencies:
                         task_dependent_lst = [
-                            process_dict[k] for k in future_wait_key_lst
+                            process_dict[k] for k in future_wait_key_lst if k in process_dict
                         ]
                     else:
                         if len(future_wait_key_lst) > 0:
@@ -181,9 +181,13 @@ def execute_tasks_h5(
                         backend=backend,
                         cache_directory=cache_directory,
                     )
-                file_name_dict[task_key] = os.path.join(
+                file_name = os.path.join(
                     cache_directory, task_key + "_o.h5"
                 )
+                file_name_dict[task_key] = file_name
+                queue_id = get_queue_id(file_name=file_name)
+                if queue_id is not None:
+                    process_dict[task_key] = queue_id
                 memory_dict[task_key] = task_dict["future"]
                 cache_dir_dict[task_key] = cache_directory
             future_queue.task_done()
