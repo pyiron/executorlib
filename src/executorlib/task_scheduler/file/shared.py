@@ -123,6 +123,16 @@ def execute_tasks_h5(
                         value.cancel()
             future_queue.task_done()
             future_queue.join()
+            if not task_dict["wait"] or not wait:
+                while len(memory_dict) > 0:
+                    memory_dict = _refresh_memory_dict(
+                        memory_dict=memory_dict,
+                        cache_dir_dict=cache_dir_dict,
+                        process_dict=process_dict,
+                        terminate_function=terminate_function,
+                        pysqa_config_directory=pysqa_config_directory,
+                        backend=backend,
+                    )
             break
         elif task_dict is not None:
             task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
