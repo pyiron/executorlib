@@ -98,7 +98,7 @@ def execute_tasks_h5(
         if task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]:
             _shutdown_executor(
                 wait=wait and task_dict["wait"],
-                cancel_futures=task_dict["cancel_futures"],
+                cancel_futures=task_dict.get("cancel_futures", False),
                 memory_dict=memory_dict,
                 process_dict=process_dict,
                 cache_dir_dict=cache_dir_dict,
