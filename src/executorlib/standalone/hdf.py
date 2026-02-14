@@ -182,7 +182,7 @@ def get_future_from_cache(
     """
     file_name_in = os.path.join(cache_directory, cache_key + "_i.h5")
     file_name_out = os.path.join(cache_directory, cache_key + "_o.h5")
-    future = Future()
+    future: Future = Future()
     if os.path.exists(file_name_out):
         file_name = file_name_out
     elif os.path.exists(file_name_in):
