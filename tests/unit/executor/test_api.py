@@ -165,9 +165,12 @@ class TestTestClusterExecutor(unittest.TestCase):
         exe = TestClusterExecutor(cache_directory="shutdown_3_dir")
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
+        future_2 = exe.submit(add_with_sleep, future_1, parameter_2=3)
         exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(future_1.done())
         self.assertTrue(future_1.cancelled())
+        self.assertTrue(future_2.done())
+        self.assertTrue(future_2.cancelled())
 
     def tearDown(self):
         for f in ["rather_this_dir", "shutdown_1_dir", "shutdown_2_dir", "shutdown_3_dir", "cache_dir"]:
