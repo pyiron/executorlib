@@ -406,8 +406,16 @@ def _shutdown_executor(
         future_queue.task_done()
         future_queue.join()
     else:  # wait is False and cancel_futures is False
-        future_queue.task_done()
-        future_queue.join()
+        memory_dict = _refresh_memory_dict(
+            memory_dict=memory_dict,
+            cache_dir_dict=cache_dir_dict,
+            process_dict=process_dict,
+            terminate_function=terminate_function,
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+        )
         # The future objects are detached so mark them as cancelled even though the processes are
         # not terminated. This is to prevent the main process from waiting indefinitely for the results.
         _cancel_futures(future_dict=memory_dict)
+        future_queue.task_done()
+        future_queue.join()
