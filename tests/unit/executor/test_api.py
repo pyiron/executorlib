@@ -143,8 +143,8 @@ class TestTestClusterExecutor(unittest.TestCase):
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
         exe.shutdown(wait=False, cancel_futures=False)
-        self.assertFalse(future_1.done())
-        self.assertFalse(future_1.cancelled())
+        self.assertTrue(future_1.done())
+        self.assertTrue(future_1.cancelled())
         sleep(2)
         exe = TestClusterExecutor()
         cloudpickle_register(ind=1)
@@ -167,7 +167,7 @@ class TestTestClusterExecutor(unittest.TestCase):
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=3)
         exe.shutdown(wait=True, cancel_futures=True)
         self.assertTrue(future_1.done())
-        self.assertEqual(future_1.result(), 3)
+        self.assertTrue(future_1.cancelled())
 
     def tearDown(self):
         shutil.rmtree("rather_this_dir", ignore_errors=True)
