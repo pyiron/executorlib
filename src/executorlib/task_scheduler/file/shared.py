@@ -134,7 +134,7 @@ def execute_tasks_h5(
             else:  # wait is False and cancel_futures is False
                 future_queue.task_done()
                 future_queue.join()
-                # The future objects are detached so mark them as cancelled even though the processes are 
+                # The future objects are detached so mark them as cancelled even though the processes are
                 # not terminated. This is to prevent the main process from waiting indefinitely for the results.
                 for value in memory_dict.values():
                     if not value.done():
