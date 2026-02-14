@@ -152,7 +152,9 @@ def execute_tasks_h5(
                     file_name = os.path.join(cache_directory, task_key + "_i.h5")
                     if not disable_dependencies:
                         task_dependent_lst = [
-                            process_dict[k] for k in future_wait_key_lst if k in process_dict
+                            process_dict[k]
+                            for k in future_wait_key_lst
+                            if k in process_dict
                         ]
                     else:
                         if len(future_wait_key_lst) > 0:
@@ -181,9 +183,7 @@ def execute_tasks_h5(
                         backend=backend,
                         cache_directory=cache_directory,
                     )
-                file_name = os.path.join(
-                    cache_directory, task_key + "_o.h5"
-                )
+                file_name = os.path.join(cache_directory, task_key + "_o.h5")
                 file_name_dict[task_key] = file_name
                 queue_id = get_queue_id(file_name=file_name)
                 if queue_id is not None:
