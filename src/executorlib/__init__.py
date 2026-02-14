@@ -49,12 +49,12 @@ def get_future_from_cache(
     cache_key: str,
 ) -> Future:
     """
-    Reload future from HDF5 file in cache directory with the given cache key. The function checks if the output file 
-    exists, if not it checks for the input file. If neither of them exist, it raises a FileNotFoundError. If the output 
-    file exists, it loads the output and sets it as the result of the future. If only the input file exists, it checks 
+    Reload future from HDF5 file in cache directory with the given cache key. The function checks if the output file
+    exists, if not it checks for the input file. If neither of them exist, it raises a FileNotFoundError. If the output
+    file exists, it loads the output and sets it as the result of the future. If only the input file exists, it checks
     if the execution is finished and if there was an error. If there was no error, it sets the output as the result of
     the future, otherwise it raises the error.
-    
+
     Args:
         cache_directory (str): The directory to store cache files.
         cache_key (str): The key of the cache file to be reloaded.
