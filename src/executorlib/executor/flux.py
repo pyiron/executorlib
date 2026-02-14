@@ -415,6 +415,7 @@ class FluxClusterExecutor(BaseExecutor):
                         init_function=init_function,
                         disable_dependencies=disable_dependencies,
                         wait=wait,
+                        refresh_rate=refresh_rate,
                     )
                 )
         else:

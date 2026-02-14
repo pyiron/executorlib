@@ -2,6 +2,7 @@ import contextlib
 import os
 import queue
 from concurrent.futures import Future
+from time import sleep
 from typing import Any, Callable, Optional
 
 from executorlib.standalone.command import get_cache_execute_command
@@ -17,6 +18,7 @@ class FutureItem:
 
         Args:
             file_name (str): The name of the file.
+            selector (int | str, optional): The selector to select a specific part of the result. Defaults to None.
 
         """
         self._file_name = file_name
@@ -62,6 +64,7 @@ def execute_tasks_h5(
     disable_dependencies: bool = False,
     pmi_mode: Optional[str] = None,
     wait: bool = True,
+    refresh_rate: float = 0.01,
 ) -> None:
     """
     Execute tasks stored in a queue using HDF5 files.
@@ -78,6 +81,7 @@ def execute_tasks_h5(
         disable_dependencies (boolean): Disable resolving future objects during the submission.
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None (Flux only)
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
 
     Returns:
         None
@@ -101,6 +105,7 @@ def execute_tasks_h5(
                         terminate_function=terminate_function,
                         pysqa_config_directory=pysqa_config_directory,
                         backend=backend,
+                        refresh_rate=refresh_rate,
                     )
             if not task_dict["cancel_futures"] and wait:
                 _cancel_processes(
@@ -117,6 +122,7 @@ def execute_tasks_h5(
                     terminate_function=terminate_function,
                     pysqa_config_directory=pysqa_config_directory,
                     backend=backend,
+                    refresh_rate=refresh_rate,
                 )
                 for value in memory_dict.values():
                     if not value.done():
@@ -198,6 +204,7 @@ def execute_tasks_h5(
                 terminate_function=terminate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
+                refresh_rate=refresh_rate,
             )
 
 
@@ -297,6 +304,7 @@ def _refresh_memory_dict(
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
+    refresh_rate: float = 0.01,
 ) -> dict:
     """
     Refresh memory dictionary
@@ -308,6 +316,7 @@ def _refresh_memory_dict(
         terminate_function (callable): The function to terminate the tasks.
         pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
         backend (str): name of the backend used to spawn tasks.
+        refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
 
     Returns:
         dict: Updated memory dictionary
@@ -321,7 +330,7 @@ def _refresh_memory_dict(
         pysqa_config_directory=pysqa_config_directory,
         backend=backend,
     )
-    return {
+    memory_updated_dict = {
         key: _check_task_output(
             task_key=key,
             future_obj=value,
@@ -330,6 +339,9 @@ def _refresh_memory_dict(
         for key, value in memory_dict.items()
         if not value.done()
     }
+    if len(memory_updated_dict) == len(memory_dict):
+        sleep(refresh_rate)
+    return memory_updated_dict
 
 
 def _cancel_processes(
