@@ -36,7 +36,7 @@ submission_template = """\
 #SBATCH --get-user-env=L
 #SBATCH --ntasks={{cores}}
 {%- if dependency_list %}
-#SBATCH --dependency_list=afterok:{{ dependency_list | join(',') }}
+#SBATCH --dependency=afterok:{{ dependency_list | join(',') }}
 {%- endif %}
 
 {{command}}
