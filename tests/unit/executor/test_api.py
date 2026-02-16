@@ -124,13 +124,17 @@ class TestTestClusterExecutor(unittest.TestCase):
             cloudpickle_register(ind=1)
             fs1 = exe.submit(add_with_sleep, 1, 1)
             fs2 = exe.submit(add_with_sleep, fs1, 1)
+            fs3 = exe.submit(add_with_sleep, fs1, fs2)
             self.assertFalse(fs1.done())
             self.assertFalse(fs2.done())
+            self.assertFalse(fs3.done())
             self.assertEqual(fs1.result(), 2)
             self.assertEqual(fs2.result(), 3)
-            self.assertEqual(len(os.listdir("cache_dir")), 2)
+            self.assertEqual(fs3.result(), 5)
+            self.assertEqual(len(os.listdir("cache_dir")), 3)
             self.assertTrue(fs1.done())
             self.assertTrue(fs2.done())
+            self.assertTrue(fs3.done())
 
     def test_executor_dependency_plot(self):
         with TestClusterExecutor(
