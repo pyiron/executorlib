@@ -88,7 +88,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
 
     def test_executor_dependencies(self):
         with FluxClusterExecutor(
-            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            resource_dict={"cores": 1, "cwd": "executorlib_cache"},
             block_allocation=False,
             cache_directory="executorlib_cache",
             pmi_mode=pmi,
