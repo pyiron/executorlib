@@ -68,6 +68,7 @@ def backend_execute_task_in_file(file_name: str) -> None:
     Returns:
         None
     """
+    apply_dict = {}
     try:
         apply_dict = backend_load_file(file_name=file_name)
         time_start = time.time()
