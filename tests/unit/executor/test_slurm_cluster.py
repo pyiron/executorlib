@@ -2,6 +2,7 @@ import os
 import importlib
 import unittest
 import shutil
+from time import sleep
 
 from executorlib import SlurmClusterExecutor
 from executorlib.standalone.serialize import cloudpickle_register
@@ -34,6 +35,9 @@ submission_template = """\
 #SBATCH --chdir={{working_directory}}
 #SBATCH --get-user-env=L
 #SBATCH --ntasks={{cores}}
+{%- if dependency_list %}
+#SBATCH --dependency_list=afterok:{{ dependency_list | join(',') }}
+{%- endif %}
 
 {{command}}
 """
@@ -45,6 +49,11 @@ def mpi_funct(i):
     size = MPI.COMM_WORLD.Get_size()
     rank = MPI.COMM_WORLD.Get_rank()
     return i, size, rank
+
+
+def echo(i):
+    sleep(1)
+    return i
 
 
 @unittest.skipIf(
@@ -65,6 +74,24 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertEqual(len(os.listdir("executorlib_cache")), 3)
             self.assertTrue(fs1.done())
+
+    def test_executor_dependencies(self):
+        with SlurmClusterExecutor(
+            resource_dict={"cores": 2, "cwd": "executorlib_cache", "submission_template": submission_template},
+            block_allocation=False,
+            cache_directory="executorlib_cache",
+            pmi_mode="pmi2",
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs1 = exe.submit(echo, 1)
+            fs2 = exe.submit(echo, fs1)
+            self.assertFalse(fs1.done())
+            self.assertFalse(fs2.done())
+            self.assertEqual(fs1.result(), 1)
+            self.assertEqual(fs2.result(), 1)
+            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+            self.assertTrue(fs1.done())
+            self.assertTrue(fs2.done())
 
     def test_executor_no_cwd(self):
         with SlurmClusterExecutor(

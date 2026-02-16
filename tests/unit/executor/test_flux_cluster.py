@@ -81,6 +81,24 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
 
+    def test_executor_dependencies(self):
+        with FluxClusterExecutor(
+            resource_dict={"cores": 2, "cwd": "executorlib_cache"},
+            block_allocation=False,
+            cache_directory="executorlib_cache",
+            pmi_mode=pmi,
+        ) as exe:
+            cloudpickle_register(ind=1)
+            fs1 = exe.submit(echo, 1)
+            fs2 = exe.submit(echo, fs1)
+            self.assertFalse(fs1.done())
+            self.assertFalse(fs2.done())
+            self.assertEqual(fs1.result(), 1)
+            self.assertEqual(fs2.result(), 1)
+            self.assertEqual(len(os.listdir("executorlib_cache")), 4)
+            self.assertTrue(fs1.done())
+            self.assertTrue(fs2.done())
+
     def test_executor_blockallocation_echo(self):
         with FluxClusterExecutor(
             resource_dict={"cores": 1, "cwd": "executorlib_cache"},
