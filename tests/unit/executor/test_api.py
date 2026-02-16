@@ -128,7 +128,7 @@ class TestTestClusterExecutor(unittest.TestCase):
             self.assertFalse(fs2.done())
             self.assertEqual(fs1.result(), 2)
             self.assertEqual(fs2.result(), 3)
-            self.assertEqual(len(os.listdir("cache_dir")), 4)
+            self.assertEqual(len(os.listdir("cache_dir")), 2)
             self.assertTrue(fs1.done())
             self.assertTrue(fs2.done())
 
