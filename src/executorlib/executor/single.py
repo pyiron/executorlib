@@ -17,6 +17,17 @@ from executorlib.task_scheduler.interactive.blockallocation import (
 from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
+try:
+    from executorlib.standalone.validate import (
+        validate_resource_dict,
+        validate_resource_dict_with_optional_keys,
+    )
+except ImportError:
+    from executorlib.task_scheduler.base import validate_resource_dict
+    from executorlib.task_scheduler.base import (
+        validate_resource_dict as validate_resource_dict_with_optional_keys,
+    )
+
 
 class SingleNodeExecutor(BaseExecutor):
     """
@@ -176,6 +187,7 @@ class SingleNodeExecutor(BaseExecutor):
                         init_function=init_function,
                         log_obj_size=log_obj_size,
                         wait=wait,
+                        validator=validate_resource_dict,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -198,6 +210,7 @@ class SingleNodeExecutor(BaseExecutor):
                     init_function=init_function,
                     log_obj_size=log_obj_size,
                     wait=wait,
+                    validator=validate_resource_dict,
                 )
             )
 
@@ -361,6 +374,7 @@ class TestClusterExecutor(BaseExecutor):
                     execute_function=execute_in_subprocess,
                     wait=wait,
                     refresh_rate=refresh_rate,
+                    validator=validate_resource_dict_with_optional_keys,
                 )
             )
         else:
@@ -375,6 +389,7 @@ class TestClusterExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        validator=validate_resource_dict,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -395,6 +410,7 @@ def create_single_node_executor(
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
     wait: bool = True,
+    validator: Callable = validate_resource_dict,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a single node executor
@@ -464,6 +480,7 @@ def create_single_node_executor(
             ),
             executor_kwargs=resource_dict,
             spawner=MpiExecSpawner,
+            validator=validator,
         )
     else:
         return OneProcessTaskScheduler(
@@ -471,4 +488,5 @@ def create_single_node_executor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=MpiExecSpawner,
+            validator=validator,
         )

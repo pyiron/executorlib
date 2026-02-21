@@ -15,4 +15,5 @@ dependencies:
 - jupyter-book =1.0.0
 - mpi4py =4.1.1
 - python =3.12
+- pydantic =2.12.4
 - pyzmq =27.1.0

@@ -10,6 +10,7 @@ dependencies:
 - h5py =3.6.0
 - networkx =2.8.8
 - ipython =7.33.0
+- pydantic =2.5.3
 - pygraphviz =1.10
 - hatchling =1.27.0
 - hatch-vcs =0.4.0

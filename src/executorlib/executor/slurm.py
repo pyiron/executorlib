@@ -19,6 +19,17 @@ from executorlib.task_scheduler.interactive.spawner_slurm import (
     validate_max_workers,
 )
 
+try:
+    from executorlib.standalone.validate import (
+        validate_resource_dict,
+        validate_resource_dict_with_optional_keys,
+    )
+except ImportError:
+    from executorlib.task_scheduler.base import validate_resource_dict
+    from executorlib.task_scheduler.base import (
+        validate_resource_dict as validate_resource_dict_with_optional_keys,
+    )
+
 
 class SlurmClusterExecutor(BaseExecutor):
     """
@@ -192,6 +203,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         resource_dict=resource_dict,
                         pysqa_config_directory=pysqa_config_directory,
                         backend="slurm",
+                        validator=validate_resource_dict_with_optional_keys,
                     ),
                 )
 
@@ -218,6 +230,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         disable_dependencies=disable_dependencies,
                         wait=wait,
                         refresh_rate=refresh_rate,
+                        validator=validate_resource_dict_with_optional_keys,
                     )
                 )
         else:
@@ -410,6 +423,7 @@ class SlurmJobExecutor(BaseExecutor):
                         init_function=init_function,
                         log_obj_size=log_obj_size,
                         wait=wait,
+                        validator=validate_resource_dict,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -433,6 +447,7 @@ class SlurmJobExecutor(BaseExecutor):
                     init_function=init_function,
                     log_obj_size=log_obj_size,
                     wait=wait,
+                    validator=validate_resource_dict,
                 )
             )
 
@@ -448,6 +463,7 @@ def create_slurm_executor(
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
     wait: bool = True,
+    validator: Callable = validate_resource_dict,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -489,6 +505,7 @@ def create_slurm_executor(
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        validator (callable): A function to validate the resource_dict.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -519,6 +536,7 @@ def create_slurm_executor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=SrunSpawner,
+            validator=validator,
         )
     else:
         return OneProcessTaskScheduler(
@@ -526,4 +544,5 @@ def create_slurm_executor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=SrunSpawner,
+            validator=validator,
         )
