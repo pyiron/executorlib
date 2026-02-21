@@ -389,13 +389,13 @@ class TestClusterExecutor(BaseExecutor):
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
+                        validator=validate_resource_dict,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
                     export_workflow_filename=export_workflow_filename,
-                    validator=validate_resource_dict,
                 )
             )
 
