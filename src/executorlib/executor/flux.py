@@ -18,12 +18,16 @@ from executorlib.task_scheduler.interactive.blockallocation import (
 from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
-
 try:
-    from executorlib.standalone.validate import validate_resource_dict, validate_resource_dict_with_optional_keys
+    from executorlib.standalone.validate import (
+        validate_resource_dict,
+        validate_resource_dict_with_optional_keys,
+    )
 except ImportError:
     from executorlib.task_scheduler.base import validate_resource_dict
-    from executorlib.task_scheduler.base import validate_resource_dict as validate_resource_dict_with_optional_keys
+    from executorlib.task_scheduler.base import (
+        validate_resource_dict as validate_resource_dict_with_optional_keys,
+    )
 
 
 class FluxJobExecutor(BaseExecutor):
@@ -169,7 +173,7 @@ class FluxJobExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
-            validator (callable): A function to validate the resource_dict. 
+            validator (callable): A function to validate the resource_dict.
 
         """
         default_resource_dict: dict = {

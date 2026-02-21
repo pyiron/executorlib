@@ -13,12 +13,12 @@ class ResourceDictValidation(BaseModel):
     error_log_file: Optional[str] = None
     restart_limit: Optional[int] = None
     run_time_limit: Optional[int] = None
-    priority: Optional[int] = None,
-    openmpi_oversubscribe: Optional[bool] = None,
-    pmi_mode: Optional[str] = None,
-    flux_executor_nesting: Optional[bool] = None,
-    flux_log_files: Optional[bool] = None,
-    run_time_limit: Optional[int] = None,
+    priority: Optional[int] = (None,)
+    openmpi_oversubscribe: Optional[bool] = (None,)
+    pmi_mode: Optional[str] = (None,)
+    flux_executor_nesting: Optional[bool] = (None,)
+    flux_log_files: Optional[bool] = (None,)
+    run_time_limit: Optional[int] = (None,)
     slurm_cmd_args: Optional[list[str]] = None
 
 
@@ -29,6 +29,10 @@ def validate_resource_dict(resource_dict: dict) -> None:
 def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
     accepted_keys = ResourceDictValidation.model_fields.keys()
     optional_lst = [key for key in resource_dict.keys() if key not in accepted_keys]
-    validate_dict = {key: value for key, value in resource_dict.items() if key in accepted_keys}
+    validate_dict = {
+        key: value for key, value in resource_dict.items() if key in accepted_keys
+    }
     _ = ResourceDictValidation(**validate_dict)
-    warnings.warn(f"The following keys are not recognized and cannot be validated: {optional_lst}")
+    warnings.warn(
+        f"The following keys are not recognized and cannot be validated: {optional_lst}"
+    )

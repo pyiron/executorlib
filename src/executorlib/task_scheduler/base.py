@@ -26,7 +26,11 @@ class TaskSchedulerBase(FutureExecutor):
         max_cores (int): defines the number cores which can be used in parallel
     """
 
-    def __init__(self, max_cores: Optional[int] = None, validator: Callable = validate_resource_dict):
+    def __init__(
+        self,
+        max_cores: Optional[int] = None,
+        validator: Callable = validate_resource_dict,
+    ):
         """
         Initialize the ExecutorBase class.
         """

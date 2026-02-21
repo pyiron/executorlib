@@ -19,12 +19,16 @@ from executorlib.task_scheduler.interactive.spawner_slurm import (
     validate_max_workers,
 )
 
-
 try:
-    from executorlib.standalone.validate import validate_resource_dict, validate_resource_dict_with_optional_keys
+    from executorlib.standalone.validate import (
+        validate_resource_dict,
+        validate_resource_dict_with_optional_keys,
+    )
 except ImportError:
     from executorlib.task_scheduler.base import validate_resource_dict
-    from executorlib.task_scheduler.base import validate_resource_dict as validate_resource_dict_with_optional_keys
+    from executorlib.task_scheduler.base import (
+        validate_resource_dict as validate_resource_dict_with_optional_keys,
+    )
 
 
 class SlurmClusterExecutor(BaseExecutor):
@@ -501,7 +505,7 @@ def create_slurm_executor(
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
-        validator (callable): A function to validate the resource_dict. 
+        validator (callable): A function to validate the resource_dict.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
