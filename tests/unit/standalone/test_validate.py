@@ -1,3 +1,4 @@
+import importlib
 import unittest
 from unittest.mock import patch
 
@@ -5,12 +6,15 @@ from unittest.mock import patch
 class TestValidate(unittest.TestCase):
     def test_single_node_executor(self):
         with patch.dict('sys.modules', {'pydantic': None}):
-            from executorlib import SingleNodeExecutor
+            import executorlib.executor.single
+            importlib.reload(executorlib.executor.single)
 
     def test_flux_job_executor(self):
         with patch.dict('sys.modules', {'pydantic': None}):
-            from executorlib import FluxJobExecutor
+            import executorlib.executor.flux
+            importlib.reload(executorlib.executor.flux)
 
     def test_slurm_job_executor(self):
         with patch.dict('sys.modules', {'pydantic': None}):
-            from executorlib import SlurmJobExecutor
+            import executorlib.executor.slurm
+            importlib.reload(executorlib.executor.slurm)
