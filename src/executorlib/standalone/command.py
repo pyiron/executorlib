@@ -162,7 +162,7 @@ def generate_slurm_command(
     if openmpi_oversubscribe:
         command_prepend_lst += ["--oversubscribe"]
     if run_time_limit is not None:
-        command_prepend_lst += ["--time=" + str(run_time_limit//60+1)]
+        command_prepend_lst += ["--time=" + str(run_time_limit // 60 + 1)]
     if slurm_cmd_args is not None and len(slurm_cmd_args) > 0:
         command_prepend_lst += slurm_cmd_args
     return command_prepend_lst
