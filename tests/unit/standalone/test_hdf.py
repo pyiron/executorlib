@@ -64,6 +64,11 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertTrue(isinstance(future, Future))
         self.assertFalse(future.done())
 
+    def test_get_output_file_missing(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        with self.assertRaises(FileNotFoundError):
+            get_output(file_name=os.path.join(cache_directory, "does_not_exist.h5"))
+
     def test_get_future_from_file_missing(self):
         cache_directory = os.path.abspath("executorlib_cache")
         with self.assertRaises(FileNotFoundError):
