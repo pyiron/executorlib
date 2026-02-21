@@ -97,13 +97,14 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
                 return False, False, None
             
     i = 0
+    error = FileNotFoundError(f"Output file {file_name} not found.")
     while i < 10:
         try:
             return get_output_helper(file_name=file_name)
-        except FileNotFoundError as e:
+        except FileNotFoundError as error:
             i += 1
             sleep(0.1)
-    raise e
+    raise error
 
 def get_runtime(file_name: str) -> float:
     """
