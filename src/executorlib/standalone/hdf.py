@@ -102,7 +102,7 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
     while i < 10:
         try:
             return get_output_helper(file_name=file_name)
-        except FileNotFoundError as error:
+        except FileNotFoundError:
             i += 1
             sleep(0.1)
     raise error
