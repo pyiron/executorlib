@@ -31,6 +31,7 @@ class PysqaSpawner(BaseSpawner):
         pmi_mode: Optional[str] = None,
         config_directory: Optional[str] = None,
         backend: Optional[str] = None,
+        run_time_limit: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -50,6 +51,7 @@ class PysqaSpawner(BaseSpawner):
             pmi_mode (str, optional): PMI interface to use (OpenMPI v5 requires pmix) default is None
             config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str): name of the backend used to spawn tasks.
+            run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         """
         super().__init__(
             cwd=cwd,
@@ -68,6 +70,7 @@ class PysqaSpawner(BaseSpawner):
         self._pysqa_submission_kwargs = kwargs
         self._process: Optional[int] = None
         self._queue_adapter: Optional[QueueAdapter] = None
+        self._run_time_limit = run_time_limit
 
     def bootup(
         self,
@@ -191,6 +194,7 @@ class PysqaSpawner(BaseSpawner):
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=working_directory,
             cores=int(self._cores * self._threads_per_core),
+            run_time_max=self._run_time_limit,
             **self._pysqa_submission_kwargs,
         )
 

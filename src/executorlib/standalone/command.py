@@ -126,6 +126,7 @@ def generate_slurm_command(
     openmpi_oversubscribe: bool = False,
     slurm_cmd_args: Optional[list[str]] = None,
     pmi_mode: Optional[str] = None,
+    run_time_limit: Optional[int] = None,
 ) -> list[str]:
     """
     Generate the command list for the SLURM interface.
@@ -140,6 +141,7 @@ def generate_slurm_command(
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
+        run_time_limit (int): The maximum runtime in seconds for each task. Default: None
 
     Returns:
         list[str]: The generated command list.
@@ -159,6 +161,8 @@ def generate_slurm_command(
         command_prepend_lst += ["--exact"]
     if openmpi_oversubscribe:
         command_prepend_lst += ["--oversubscribe"]
+    if run_time_limit is not None:
+        command_prepend_lst += ["--time=" + str(run_time_limit // 60 + 1)]
     if slurm_cmd_args is not None and len(slurm_cmd_args) > 0:
         command_prepend_lst += slurm_cmd_args
     return command_prepend_lst
