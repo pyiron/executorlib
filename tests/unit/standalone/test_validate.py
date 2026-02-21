@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import unittest
+import os
 import sys
 from unittest.mock import patch
 
@@ -19,7 +20,10 @@ class TestValidate(unittest.TestCase):
             from executorlib.executor.single import validate_resource_dict
             
             source_file = inspect.getfile(validate_resource_dict)
-            self.assertTrue(source_file.endswith('task_scheduler/base.py'))
+            if os.name == 'nt':
+                self.assertTrue(source_file.endswith('task_scheduler\\base.py'))
+            else:
+                self.assertTrue(source_file.endswith('task_scheduler/base.py'))
             self.assertIsNone(validate_resource_dict({"any": "thing"}))
 
     def test_flux_job_executor(self):
@@ -35,7 +39,10 @@ class TestValidate(unittest.TestCase):
             from executorlib.executor.flux import validate_resource_dict
             
             source_file = inspect.getfile(validate_resource_dict)
-            self.assertTrue(source_file.endswith('task_scheduler/base.py'))
+            if os.name == 'nt':
+                self.assertTrue(source_file.endswith('task_scheduler\\base.py'))
+            else:
+                self.assertTrue(source_file.endswith('task_scheduler/base.py'))
             self.assertIsNone(validate_resource_dict({"any": "thing"}))
 
     def test_slurm_job_executor(self):
@@ -51,5 +58,8 @@ class TestValidate(unittest.TestCase):
             from executorlib.executor.slurm import validate_resource_dict
             
             source_file = inspect.getfile(validate_resource_dict)
-            self.assertTrue(source_file.endswith('task_scheduler/base.py'))
+            if os.name == 'nt':
+                self.assertTrue(source_file.endswith('task_scheduler\\base.py'))
+            else:
+                self.assertTrue(source_file.endswith('task_scheduler/base.py'))
             self.assertIsNone(validate_resource_dict({"any": "thing"}))
