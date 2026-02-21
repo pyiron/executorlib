@@ -57,6 +57,6 @@ class TestPysqaExecuteCommand(unittest.TestCase):
             slurm_cmd_args=["--help"],
             run_time_limit=250,
         )
-        self.assertEqual(len(command_lst), 12)
+        self.assertEqual(len(command_lst), 13)
         reply_lst = ['srun', '-n', '1', '-D', '/tmp/test', '-N', '1', '--cpus-per-task=2', '--gpus-per-task=1', '--exact', '--oversubscribe', '--time=5', '--help']
         self.assertEqual(command_lst, reply_lst)
