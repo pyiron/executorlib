@@ -33,7 +33,8 @@ def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
         key: value for key, value in resource_dict.items() if key in accepted_keys
     }
     _ = ResourceDictValidation(**validate_dict)
-    warnings.warn(
-        f"The following keys are not recognized and cannot be validated: {optional_lst}",
-        stacklevel=2,
-    )
+    if len(optional_lst) > 0:
+        warnings.warn(
+            f"The following keys are not recognized and cannot be validated: {optional_lst}",
+            stacklevel=2,
+        )
