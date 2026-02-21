@@ -14,6 +14,10 @@ from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
 
 
+def validate_resource_dict(resource_dict: dict):
+    pass
+
+
 class TaskSchedulerBase(FutureExecutor):
     """
     Base class for the executor.
@@ -22,7 +26,7 @@ class TaskSchedulerBase(FutureExecutor):
         max_cores (int): defines the number cores which can be used in parallel
     """
 
-    def __init__(self, max_cores: Optional[int] = None):
+    def __init__(self, max_cores: Optional[int] = None, validator: Callable = validate_resource_dict):
         """
         Initialize the ExecutorBase class.
         """
@@ -31,6 +35,7 @@ class TaskSchedulerBase(FutureExecutor):
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
         self._process: Optional[Union[Thread, list[Thread]]] = None
+        self._validator = validator
 
     @property
     def max_workers(self) -> Optional[int]:
@@ -120,6 +125,7 @@ class TaskSchedulerBase(FutureExecutor):
         """
         if resource_dict is None:
             resource_dict = {}
+        self._validator(resource_dict)
         cores = resource_dict.get("cores")
         if (
             cores is not None

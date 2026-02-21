@@ -9,7 +9,7 @@ from executorlib.standalone.inputcheck import (
     check_nested_flux_executor,
     check_pmi_mode,
 )
-from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
 from executorlib.task_scheduler.file.spawner_subprocess import (
     execute_in_subprocess,
@@ -37,6 +37,7 @@ class FileTaskScheduler(TaskSchedulerBase):
         pmi_mode: Optional[str] = None,
         wait: bool = True,
         refresh_rate: float = 0.01,
+        validator: Callable = validate_resource_dict,
     ):
         """
         Initialize the FileExecutor.
@@ -55,7 +56,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
             refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
         """
-        super().__init__(max_cores=None)
+        super().__init__(max_cores=None, validator=validator)
         default_resource_dict = {
             "cores": 1,
             "cwd": None,
@@ -106,6 +107,7 @@ def create_file_executor(
     execute_function: Callable = execute_with_pysqa,
     wait: bool = True,
     refresh_rate: float = 0.01,
+    validator: Callable = validate_resource_dict,
 ):
     if block_allocation:
         raise ValueError(
@@ -138,4 +140,5 @@ def create_file_executor(
         pmi_mode=pmi_mode,
         wait=wait,
         refresh_rate=refresh_rate,
+        validator=validator,
     )

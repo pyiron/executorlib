@@ -14,6 +14,7 @@ from executorlib.standalone.scheduler import pysqa_execute_command, terminate_wi
 from executorlib.task_scheduler.interactive.blockallocation import (
     BlockAllocationTaskScheduler,
 )
+from executorlib.task_scheduler.base import validate_resource_dict
 
 
 class PysqaSpawner(BaseSpawner):
@@ -230,6 +231,7 @@ def create_pysqa_block_allocation_scheduler(
     resource_dict: Optional[dict] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
+    validator: Callable = validate_resource_dict,
 ):
     if resource_dict is None:
         resource_dict = {}
@@ -256,4 +258,5 @@ def create_pysqa_block_allocation_scheduler(
         max_workers=max_workers,
         executor_kwargs=resource_dict,
         spawner=PysqaSpawner,
+        validator=validator,
     )

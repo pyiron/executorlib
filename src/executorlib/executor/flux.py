@@ -19,6 +19,13 @@ from executorlib.task_scheduler.interactive.dependency import DependencyTaskSche
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
 
+try:
+    from executorlib.standalone.validate import validate_resource_dict, validate_resource_dict_with_optional_keys
+except ImportError:
+    from executorlib.task_scheduler.base import validate_resource_dict
+    from executorlib.task_scheduler.base import validate_resource_dict as validate_resource_dict_with_optional_keys
+
+
 class FluxJobExecutor(BaseExecutor):
     """
     The executorlib.FluxJobExecutor leverages either the message passing interface (MPI), the SLURM workload manager or
@@ -162,6 +169,7 @@ class FluxJobExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            validator (callable): A function to validate the resource_dict. 
 
         """
         default_resource_dict: dict = {
@@ -194,6 +202,7 @@ class FluxJobExecutor(BaseExecutor):
                         init_function=init_function,
                         log_obj_size=log_obj_size,
                         wait=wait,
+                        validator=validate_resource_dict,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -220,6 +229,7 @@ class FluxJobExecutor(BaseExecutor):
                     init_function=init_function,
                     log_obj_size=log_obj_size,
                     wait=wait,
+                    validator=validate_resource_dict,
                 )
             )
 
@@ -396,6 +406,7 @@ class FluxClusterExecutor(BaseExecutor):
                         resource_dict=resource_dict,
                         pysqa_config_directory=pysqa_config_directory,
                         backend="flux",
+                        validator=validate_resource_dict_with_optional_keys,
                     )
                 )
             else:
@@ -421,6 +432,7 @@ class FluxClusterExecutor(BaseExecutor):
                         disable_dependencies=disable_dependencies,
                         wait=wait,
                         refresh_rate=refresh_rate,
+                        validator=validate_resource_dict_with_optional_keys,
                     )
                 )
         else:
@@ -438,6 +450,7 @@ class FluxClusterExecutor(BaseExecutor):
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
+                        validator=validate_resource_dict,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -462,6 +475,7 @@ def create_flux_executor(
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
     wait: bool = True,
+    validator: Callable = validate_resource_dict,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a flux executor
@@ -549,6 +563,7 @@ def create_flux_executor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=FluxPythonSpawner,
+            validator=validator,
         )
     else:
         return OneProcessTaskScheduler(
@@ -556,4 +571,5 @@ def create_flux_executor(
             max_workers=max_workers,
             executor_kwargs=resource_dict,
             spawner=FluxPythonSpawner,
+            validator=validator,
         )
