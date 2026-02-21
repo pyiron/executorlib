@@ -33,4 +33,5 @@ __all__: list[str] = [
     "MpiExecSpawner",
     "SocketInterface",
     "SubprocessSpawner",
+    "ExecutorlibSocketError",
 ]
