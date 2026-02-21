@@ -32,7 +32,7 @@ class TestValidate(unittest.TestCase):
             import executorlib.executor.flux
             importlib.reload(executorlib.executor.flux)
 
-            from executorlib.executor.single import validate_resource_dict
+            from executorlib.executor.flux import validate_resource_dict
             
             source_file = inspect.getfile(validate_resource_dict)
             self.assertTrue(source_file.endswith('task_scheduler/base.py'))
@@ -48,7 +48,7 @@ class TestValidate(unittest.TestCase):
             import executorlib.executor.slurm
             importlib.reload(executorlib.executor.slurm)
 
-            from executorlib.executor.single import validate_resource_dict
+            from executorlib.executor.slurm import validate_resource_dict
             
             source_file = inspect.getfile(validate_resource_dict)
             self.assertTrue(source_file.endswith('task_scheduler/base.py'))
