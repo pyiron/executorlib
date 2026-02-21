@@ -87,6 +87,7 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
     Returns:
         Tuple[bool, bool, object]: boolean flag indicating if output is available and the output object itself
     """
+
     def get_output_helper(file_name: str) -> tuple[bool, bool, Any]:
         with h5py.File(file_name, "r") as hdf:
             if "output" in hdf:
@@ -95,7 +96,7 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
                 return True, False, cloudpickle.loads(np.void(hdf["/error"]))
             else:
                 return False, False, None
-            
+
     i = 0
     error = FileNotFoundError(f"Output file {file_name} not found.")
     while i < 10:
@@ -105,6 +106,7 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
             i += 1
             sleep(0.1)
     raise error
+
 
 def get_runtime(file_name: str) -> float:
     """
