@@ -1,7 +1,7 @@
 import queue
 import random
 from concurrent.futures import Future
-from threading import Thread
+from threading import Event, Thread
 from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
@@ -77,6 +77,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self_id = random.getrandbits(128)
         self._self_id = self_id
         _interrupt_bootup_dict[self._self_id] = False
+        bootup_events = [Event() for _ in range(self._max_workers)]
+        bootup_events[0].set()
         self._set_process(
             process=[
                 Thread(
@@ -85,6 +87,10 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                     | {
                         "worker_id": worker_id,
                         "stop_function": lambda: _interrupt_bootup_dict[self_id],
+                        "bootup_event": bootup_events[worker_id],
+                        "next_bootup_event": bootup_events[worker_id + 1]
+                        if worker_id + 1 < self._max_workers
+                        else None,
                     },
                 )
                 for worker_id in range(self._max_workers)
@@ -211,6 +217,8 @@ def _execute_multiple_tasks(
     worker_id: int = 0,
     stop_function: Optional[Callable] = None,
     restart_limit: int = 0,
+    bootup_event: Optional[Event] = None,
+    next_bootup_event: Optional[Event] = None,
     **kwargs,
 ) -> None:
     """
@@ -239,7 +247,12 @@ def _execute_multiple_tasks(
                          distribution.
         stop_function (Callable): Function to stop the interface.
         restart_limit (int): The maximum number of restarting worker processes.
+        bootup_event (Event): Event to wait on before submitting the job to the scheduler, ensuring workers are
+                              submitted in worker_id order.
+        next_bootup_event (Event): Event to signal after job submission, unblocking the next worker.
     """
+    if bootup_event is not None:
+        bootup_event.wait()
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
@@ -250,6 +263,8 @@ def _execute_multiple_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
+    if next_bootup_event is not None:
+        next_bootup_event.set()
     interface_initialization_exception = _set_init_function(
         interface=interface,
         init_function=init_function,

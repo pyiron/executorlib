@@ -146,6 +146,7 @@ class FluxPythonSpawner(BaseSpawner):
             )
         else:
             self._future = self._flux_executor.submit(jobspec=jobspec)
+        self._future.jobid()
         return self.poll()
 
     def shutdown(self, wait: bool = True):
