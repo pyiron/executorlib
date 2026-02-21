@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-from typing import Optional
 import warnings
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class ResourceDictValidation(BaseModel):
@@ -28,7 +29,7 @@ def validate_resource_dict(resource_dict: dict) -> None:
 
 def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
     accepted_keys = ResourceDictValidation.model_fields.keys()
-    optional_lst = [key for key in resource_dict.keys() if key not in accepted_keys]
+    optional_lst = [key for key in resource_dict if key not in accepted_keys]
     validate_dict = {
         key: value for key, value in resource_dict.items() if key in accepted_keys
     }

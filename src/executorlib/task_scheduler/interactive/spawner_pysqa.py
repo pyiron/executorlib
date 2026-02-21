@@ -11,10 +11,10 @@ from executorlib.standalone.interactive.spawner import (
     set_current_directory_in_environment,
 )
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
+from executorlib.task_scheduler.base import validate_resource_dict
 from executorlib.task_scheduler.interactive.blockallocation import (
     BlockAllocationTaskScheduler,
 )
-from executorlib.task_scheduler.base import validate_resource_dict
 
 
 class PysqaSpawner(BaseSpawner):
