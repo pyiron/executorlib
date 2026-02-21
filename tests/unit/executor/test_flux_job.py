@@ -5,7 +5,7 @@ from time import sleep
 import numpy as np
 
 from executorlib import FluxJobExecutor
-from executorlib.standalone.interactive.communication import ExecutorlibSocketError
+from executorlib.api import ExecutorlibSocketError
 
 
 try:

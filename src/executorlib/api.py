@@ -9,6 +9,7 @@ from executorlib.executor.single import TestClusterExecutor
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.interactive.communication import (
     SocketInterface,
+    ExecutorlibSocketError,
     interface_bootup,
     interface_connect,
     interface_receive,
