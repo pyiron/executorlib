@@ -54,6 +54,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
             fs1 = exe.submit(my_funct, 1, b=2)
             fs2 = exe.submit(my_funct, 1, b=fs1)
             self.assertFalse(fs2.done())
+            self.assertEqual(fs1.result(), 3)
+            self.assertTrue(fs1.done())
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
 
