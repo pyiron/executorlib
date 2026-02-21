@@ -1,5 +1,6 @@
 import os
 from concurrent.futures import Future
+from time import sleep
 from typing import Any, Optional
 
 import cloudpickle
@@ -86,14 +87,23 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
     Returns:
         Tuple[bool, bool, object]: boolean flag indicating if output is available and the output object itself
     """
-    with h5py.File(file_name, "r") as hdf:
-        if "output" in hdf:
-            return True, True, cloudpickle.loads(np.void(hdf["/output"]))
-        elif "error" in hdf:
-            return True, False, cloudpickle.loads(np.void(hdf["/error"]))
-        else:
-            return False, False, None
-
+    def get_output_helper(file_name: str) -> tuple[bool, bool, Any]:
+        with h5py.File(file_name, "r") as hdf:
+            if "output" in hdf:
+                return True, True, cloudpickle.loads(np.void(hdf["/output"]))
+            elif "error" in hdf:
+                return True, False, cloudpickle.loads(np.void(hdf["/error"]))
+            else:
+                return False, False, None
+            
+    i = 0
+    while i < 10:
+        try:
+            return get_output_helper(file_name=file_name)
+        except FileNotFoundError as e:
+            i += 1
+            sleep(0.1)
+    raise e
 
 def get_runtime(file_name: str) -> float:
     """
