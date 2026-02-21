@@ -45,6 +45,7 @@ class FluxJobExecutor(BaseExecutor):
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
                               - restart_limit (int): The maximum number of restarting worker processes. Default: 0
+                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -136,6 +137,7 @@ class FluxJobExecutor(BaseExecutor):
                                                       compute notes. Defaults to False.
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
+                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -246,6 +248,7 @@ class FluxClusterExecutor(BaseExecutor):
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
+                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -333,6 +336,7 @@ class FluxClusterExecutor(BaseExecutor):
                                                            only)
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
+                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -364,6 +368,7 @@ class FluxClusterExecutor(BaseExecutor):
             "cwd": None,
             "openmpi_oversubscribe": False,
             "slurm_cmd_args": [],
+            "run_time_limit": None,
         }
         if resource_dict is None:
             resource_dict = {}
@@ -478,6 +483,7 @@ def create_flux_executor(
                                                   compute notes. Defaults to False.
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
+                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.

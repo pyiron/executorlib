@@ -45,6 +45,7 @@ class SlurmClusterExecutor(BaseExecutor):
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
                               - restart_limit (int): The maximum number of restarting worker processes. Default: 0
+                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -132,6 +133,7 @@ class SlurmClusterExecutor(BaseExecutor):
                                                            only)
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
+                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -267,6 +269,7 @@ class SlurmJobExecutor(BaseExecutor):
                                                   compute notes. Defaults to False.
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
+                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -356,6 +359,7 @@ class SlurmJobExecutor(BaseExecutor):
                                                       compute notes. Defaults to False.
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
                                                           raised by the Python functions submitted to the Executor.
+                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -469,6 +473,7 @@ def create_slurm_executor(
                                                   compute notes. Defaults to False.
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
+                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                   context of an HPC cluster this essential to be able to communicate to an
