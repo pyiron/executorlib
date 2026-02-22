@@ -167,7 +167,9 @@ class SingleNodeExecutor(BaseExecutor):
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
-        check_restart_limit(restart_limit=restart_limit, block_allocation=block_allocation)
+        check_restart_limit(
+            restart_limit=restart_limit, block_allocation=block_allocation
+        )
         if not disable_dependencies:
             super().__init__(
                 executor=DependencyTaskScheduler(
