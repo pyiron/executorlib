@@ -27,10 +27,11 @@ class TestValidateImport(unittest.TestCase):
             
             source_file = inspect.getfile(validate_resource_dict)
             if os.name == 'nt':
-                self.assertTrue(source_file.endswith('task_scheduler\\base.py'))
+                self.assertTrue(source_file.endswith('standalone\\validate.py'))
             else:
-                self.assertTrue(source_file.endswith('task_scheduler/base.py'))
-            self.assertIsNone(validate_resource_dict({"any": "thing"}))
+                self.assertTrue(source_file.endswith('standalone/validate.py'))
+            with self.assertRaises(TypeError):
+                validate_resource_dict({"any": "thing"})
 
     def test_flux_job_executor(self):
         with patch.dict('sys.modules', {'pydantic': None}):
@@ -46,10 +47,11 @@ class TestValidateImport(unittest.TestCase):
             
             source_file = inspect.getfile(validate_resource_dict)
             if os.name == 'nt':
-                self.assertTrue(source_file.endswith('task_scheduler\\base.py'))
+                self.assertTrue(source_file.endswith('standalone\\validate.py'))
             else:
-                self.assertTrue(source_file.endswith('task_scheduler/base.py'))
-            self.assertIsNone(validate_resource_dict({"any": "thing"}))
+                self.assertTrue(source_file.endswith('standalone/validate.py'))
+            with self.assertRaises(TypeError):
+                validate_resource_dict({"any": "thing"})
 
     def test_slurm_job_executor(self):
         with patch.dict('sys.modules', {'pydantic': None}):
@@ -65,10 +67,41 @@ class TestValidateImport(unittest.TestCase):
             
             source_file = inspect.getfile(validate_resource_dict)
             if os.name == 'nt':
-                self.assertTrue(source_file.endswith('task_scheduler\\base.py'))
+                self.assertTrue(source_file.endswith('standalone\\validate.py'))
             else:
-                self.assertTrue(source_file.endswith('task_scheduler/base.py'))
-            self.assertIsNone(validate_resource_dict({"any": "thing"}))
+                self.assertTrue(source_file.endswith('standalone/validate.py'))
+            with self.assertRaises(TypeError):
+                validate_resource_dict({"any": "thing"})
+
+
+class TestValidateFallback(unittest.TestCase):
+    def test_validate_resource_dict_fallback(self):
+        with patch.dict('sys.modules', {'pydantic': None}):
+            if 'executorlib.standalone.validate' in sys.modules:
+                del sys.modules['executorlib.standalone.validate']
+
+            from executorlib.standalone.validate import validate_resource_dict, ResourceDictValidation
+            from dataclasses import is_dataclass
+
+            self.assertTrue(is_dataclass(ResourceDictValidation))
+
+            # Valid dict
+            self.assertIsNone(validate_resource_dict({"cores": 1}))
+
+            # Invalid dict (extra key)
+            with self.assertRaises(TypeError):
+                validate_resource_dict({"invalid_key": 1})
+
+    def test_validate_resource_dict_with_optional_keys_fallback(self):
+        with patch.dict('sys.modules', {'pydantic': None}):
+            if 'executorlib.standalone.validate' in sys.modules:
+                del sys.modules['executorlib.standalone.validate']
+
+            from executorlib.standalone.validate import validate_resource_dict_with_optional_keys
+
+            # Valid dict with optional keys
+            with self.assertWarns(UserWarning):
+                validate_resource_dict_with_optional_keys({"cores": 1, "optional_key": 2})
 
 
 @unittest.skipIf(skip_pydantic_test, "pydantic is not installed")
