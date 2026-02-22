@@ -113,7 +113,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         executor = create_single_node_executor(
             max_workers=1,
             max_cores=2,
-            resource_dict={
+            executor_kwargs={
                 "cores": 1,
                 "threads_per_core": 1,
                 "gpus_per_core": 0,
@@ -165,7 +165,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         executor = create_single_node_executor(
             max_workers=1,
             max_cores=2,
-            resource_dict={
+            executor_kwargs={
                 "cores": 1,
                 "threads_per_core": 1,
                 "gpus_per_core": 0,
@@ -219,7 +219,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
         executor = create_single_node_executor(
             max_workers=1,
             max_cores=2,
-            resource_dict={
+            executor_kwargs={
                 "cores": 1,
                 "threads_per_core": 1,
                 "gpus_per_core": 0,

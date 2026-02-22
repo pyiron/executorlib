@@ -14,6 +14,7 @@ from executorlib.standalone.inputcheck import (
     check_refresh_rate,
     check_resource_dict,
     check_resource_dict_is_empty,
+    check_restart_limit,
     check_pmi_mode,
     check_max_workers_and_cores,
     check_hostname_localhost,
@@ -69,6 +70,10 @@ class TestInputCheck(unittest.TestCase):
             check_pmi(backend="test", pmi="test")
         with self.assertRaises(ValueError):
             check_pmi(backend="flux_allocation", pmi="test")
+
+    def test_check_restart_limit(self):
+        with self.assertRaises(ValueError):
+            check_restart_limit(restart_limit=1, block_allocation=False)
 
     def test_check_nested_flux_executor(self):
         with self.assertRaises(ValueError):

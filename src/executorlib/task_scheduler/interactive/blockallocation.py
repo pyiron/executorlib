@@ -1,7 +1,7 @@
 import queue
 import random
 from concurrent.futures import Future
-from threading import Thread
+from threading import Event, Thread
 from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
@@ -16,7 +16,7 @@ from executorlib.standalone.interactive.communication import (
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
-from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.interactive.shared import (
     execute_task_dict,
     reset_task_dict,
@@ -38,6 +38,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         max_workers (int): defines the number workers which can execute functions in parallel
         executor_kwargs (dict): keyword arguments for the executor
         spawner (BaseSpawner): interface class to initiate python processes
+        restart_limit (int): The maximum number of restarting worker processes.
 
     Examples:
 
@@ -65,18 +66,25 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         max_workers: int = 1,
         executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
+        validator: Callable = validate_resource_dict,
+        restart_limit: int = 0,
     ):
         if executor_kwargs is None:
             executor_kwargs = {}
-        super().__init__(max_cores=executor_kwargs.get("max_cores"))
+        super().__init__(
+            max_cores=executor_kwargs.get("max_cores"), validator=validator
+        )
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
+        executor_kwargs["restart_limit"] = restart_limit
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
         self_id = random.getrandbits(128)
         self._self_id = self_id
         _interrupt_bootup_dict[self._self_id] = False
+        bootup_events = [Event() for _ in range(self._max_workers)]
+        bootup_events[0].set()
         self._set_process(
             process=[
                 Thread(
@@ -85,6 +93,12 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                     | {
                         "worker_id": worker_id,
                         "stop_function": lambda: _interrupt_bootup_dict[self_id],
+                        "bootup_event": bootup_events[worker_id],
+                        "next_bootup_event": (
+                            bootup_events[worker_id + 1]
+                            if worker_id + 1 < self._max_workers
+                            else None
+                        ),
                     },
                 )
                 for worker_id in range(self._max_workers)
@@ -211,6 +225,8 @@ def _execute_multiple_tasks(
     worker_id: int = 0,
     stop_function: Optional[Callable] = None,
     restart_limit: int = 0,
+    bootup_event: Optional[Event] = None,
+    next_bootup_event: Optional[Event] = None,
     **kwargs,
 ) -> None:
     """
@@ -239,7 +255,12 @@ def _execute_multiple_tasks(
                          distribution.
         stop_function (Callable): Function to stop the interface.
         restart_limit (int): The maximum number of restarting worker processes.
+        bootup_event (Event): Event to wait on before submitting the job to the scheduler, ensuring workers are
+                              submitted in worker_id order.
+        next_bootup_event (Event): Event to signal after job submission, unblocking the next worker.
     """
+    if bootup_event is not None:
+        bootup_event.wait()
     interface = interface_bootup(
         command_lst=get_interactive_execute_command(
             cores=cores,
@@ -250,6 +271,8 @@ def _execute_multiple_tasks(
         worker_id=worker_id,
         stop_function=stop_function,
     )
+    if next_bootup_event is not None:
+        next_bootup_event.set()
     interface_initialization_exception = _set_init_function(
         interface=interface,
         init_function=init_function,

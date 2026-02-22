@@ -11,7 +11,7 @@ from executorlib.standalone.interactive.arguments import (
     get_future_objects_from_input,
     update_futures_in_input,
 )
-from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.interactive.dependency_plot import (
     export_dependency_graph_function,
     generate_nodes_and_edges_for_plotting,
@@ -47,8 +47,9 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         plot_dependency_graph: bool = False,
         plot_dependency_graph_filename: Optional[str] = None,
         export_workflow_filename: Optional[str] = None,
+        validator: Callable = validate_resource_dict,
     ) -> None:
-        super().__init__(max_cores=max_cores)
+        super().__init__(max_cores=max_cores, validator=validator)
         self._process_kwargs = {
             "future_queue": self._future_queue,
             "executor_queue": executor._future_queue,
@@ -136,6 +137,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         """
         if resource_dict is None:
             resource_dict = {}
+        self._validator(resource_dict=resource_dict)
         if not self._generate_dependency_graph:
             f = super().submit(fn, *args, resource_dict=resource_dict, **kwargs)
         else:

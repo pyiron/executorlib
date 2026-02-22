@@ -54,6 +54,8 @@ class TestCacheExecutorSerial(unittest.TestCase):
             fs1 = exe.submit(my_funct, 1, b=2)
             fs2 = exe.submit(my_funct, 1, b=fs1)
             self.assertFalse(fs2.done())
+            self.assertEqual(fs1.result(), 3)
+            self.assertTrue(fs1.done())
             self.assertEqual(fs2.result(), 4)
             self.assertTrue(fs2.done())
 
@@ -61,9 +63,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
         with self.assertRaises(TypeError):
             create_file_executor()
         with self.assertRaises(ValueError):
-            create_file_executor(block_allocation=True, resource_dict={})
+            create_file_executor(block_allocation=True, executor_kwargs={})
         with self.assertRaises(ValueError):
-            create_file_executor(init_function=True, resource_dict={})
+            create_file_executor(init_function=True, executor_kwargs={})
 
     def test_executor_dependence_error(self):
         with self.assertRaises(ValueError):
@@ -76,7 +78,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
-            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
+            executor_kwargs={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
@@ -84,7 +86,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_error(self):
         cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
-            resource_dict={"cwd": cwd}, execute_function=execute_in_subprocess
+            executor_kwargs={"cwd": cwd}, execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
@@ -94,7 +96,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_error_file(self):
         cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
-            resource_dict={"cwd": cwd, "error_log_file": "error.out"},
+            executor_kwargs={"cwd": cwd, "error_log_file": "error.out"},
             execute_function=execute_in_subprocess
         ) as exe:
             fs1 = exe.submit(get_error, a=1)
@@ -124,7 +126,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             kwargs={
                 "future_queue": q,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
+                "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -164,7 +166,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             kwargs={
                 "future_queue": q,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
+                "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -204,7 +206,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             kwargs={
                 "future_queue": q,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cache_directory": cache_dir},
+                "executor_kwargs": {"cores": 1, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
