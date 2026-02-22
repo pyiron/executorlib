@@ -5,8 +5,14 @@ import os
 import sys
 from unittest.mock import patch
 
+try:
+    from pydantic import ValidationError
+    skip_pydantic_test = False
+except ImportError:
+    skip_pydantic_test = True
 
-class TestValidate(unittest.TestCase):
+
+class TestValidateImport(unittest.TestCase):
     def test_single_node_executor(self):
         with patch.dict('sys.modules', {'pydantic': None}):
             if 'executorlib.standalone.validate' in sys.modules:
@@ -63,3 +69,16 @@ class TestValidate(unittest.TestCase):
             else:
                 self.assertTrue(source_file.endswith('task_scheduler/base.py'))
             self.assertIsNone(validate_resource_dict({"any": "thing"}))
+
+
+@unittest.skipIf(skip_pydantic_test, "pydantic is not installed")
+class TestValidateFunction(unittest.TestCase):
+    def test_validate_function(self):
+        from executorlib import SingleNodeExecutor
+
+        def dummy_function(i):
+            return i
+        
+        with SingleNodeExecutor() as exe:
+            with self.assertRaises(ValidationError):
+                exe.submit(dummy_function, 5, resource_dict={"any": "thing"})
