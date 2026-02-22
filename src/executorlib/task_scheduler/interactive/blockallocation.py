@@ -88,9 +88,11 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                         "worker_id": worker_id,
                         "stop_function": lambda: _interrupt_bootup_dict[self_id],
                         "bootup_event": bootup_events[worker_id],
-                        "next_bootup_event": bootup_events[worker_id + 1]
-                        if worker_id + 1 < self._max_workers
-                        else None,
+                        "next_bootup_event": (
+                            bootup_events[worker_id + 1]
+                            if worker_id + 1 < self._max_workers
+                            else None
+                        ),
                     },
                 )
                 for worker_id in range(self._max_workers)
