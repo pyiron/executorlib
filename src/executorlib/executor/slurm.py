@@ -179,6 +179,7 @@ class SlurmClusterExecutor(BaseExecutor):
         }
         if resource_dict is None:
             resource_dict = {}
+        validate_resource_dict_with_optional_keys(resource_dict=resource_dict)
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
@@ -407,6 +408,7 @@ class SlurmJobExecutor(BaseExecutor):
         }
         if resource_dict is None:
             resource_dict = {}
+        validate_resource_dict(resource_dict=resource_dict)
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
