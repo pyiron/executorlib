@@ -51,16 +51,16 @@ class SlurmClusterExecutor(BaseExecutor):
                               * threads_per_core (int): number of OpenMP threads to be used for each function call
                               * gpus_per_core (int): number of GPUs per worker - defaults to 0
                               * cwd (str): current working directory where the parallel python task is executed
-                              * cache_key (str): Rather than using the internal hashing of executorlib the user can 
-                                                 provide an external cache_key to identify tasks on the file system. 
-                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function. 
-                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes - 
-                                                  do not allow other tasks to use the same compute node. 
-                              * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                       multiple tasks in one file.
                               * run_time_limit (int): the maximum time the execution of the submitted Python function is
                                                       allowed to take in seconds.
-                              * priority (int): the queuing system priority assigned to a given Python function to 
+                              * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
                               *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
@@ -146,17 +146,17 @@ class SlurmClusterExecutor(BaseExecutor):
                                   * threads_per_core (int): number of OpenMP threads to be used for each function call
                                   * gpus_per_core (int): number of GPUs per worker - defaults to 0
                                   * cwd (str): current working directory where the parallel python task is executed
-                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can 
-                                                      provide an external cache_key to identify tasks on the file system. 
-                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python 
-                                                     function. 
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                      provide an external cache_key to identify tasks on the file system.
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python
+                                                     function.
                                   * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
-                                                      - do not allow other tasks to use the same compute node. 
-                                  * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                                                      - do not allow other tasks to use the same compute node.
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                           multiple tasks in one file.
-                                  * run_time_limit (int): the maximum time the execution of the submitted Python 
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python
                                                         function is allowed to take in seconds.
-                                  * priority (int): the queuing system priority assigned to a given Python function to 
+                                  * priority (int): the queuing system priority assigned to a given Python function to
                                                     influence the scheduling.
                                   * slurm_cmd_args (list): Additional command line arguments for the srun call.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
@@ -290,16 +290,16 @@ class SlurmJobExecutor(BaseExecutor):
                               * threads_per_core (int): number of OpenMP threads to be used for each function call
                               * gpus_per_core (int): number of GPUs per worker - defaults to 0
                               * cwd (str): current working directory where the parallel python task is executed
-                              * cache_key (str): Rather than using the internal hashing of executorlib the user can 
-                                                 provide an external cache_key to identify tasks on the file system. 
-                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function. 
-                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes - 
-                                                  do not allow other tasks to use the same compute node. 
-                              * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                       multiple tasks in one file.
                               * run_time_limit (int): the maximum time the execution of the submitted Python function is
                                                       allowed to take in seconds.
-                              * priority (int): the queuing system priority assigned to a given Python function to 
+                              * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
                               *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
@@ -385,17 +385,17 @@ class SlurmJobExecutor(BaseExecutor):
                                   * threads_per_core (int): number of OpenMP threads to be used for each function call
                                   * gpus_per_core (int): number of GPUs per worker - defaults to 0
                                   * cwd (str): current working directory where the parallel python task is executed
-                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can 
-                                                      provide an external cache_key to identify tasks on the file system. 
-                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python 
-                                                     function. 
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                      provide an external cache_key to identify tasks on the file system.
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python
+                                                     function.
                                   * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
-                                                      - do not allow other tasks to use the same compute node. 
-                                  * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                                                      - do not allow other tasks to use the same compute node.
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                           multiple tasks in one file.
-                                  * run_time_limit (int): the maximum time the execution of the submitted Python 
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python
                                                         function is allowed to take in seconds.
-                                  * priority (int): the queuing system priority assigned to a given Python function to 
+                                  * priority (int): the queuing system priority assigned to a given Python function to
                                                     influence the scheduling.
                                   * slurm_cmd_args (list): Additional command line arguments for the srun call.
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
@@ -513,16 +513,16 @@ def create_slurm_executor(
                               * threads_per_core (int): number of OpenMP threads to be used for each function call
                               * gpus_per_core (int): number of GPUs per worker - defaults to 0
                               * cwd (str): current working directory where the parallel python task is executed
-                              * cache_key (str): Rather than using the internal hashing of executorlib the user can 
-                                                 provide an external cache_key to identify tasks on the file system. 
-                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function. 
-                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes - 
-                                                  do not allow other tasks to use the same compute node. 
-                              * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                       multiple tasks in one file.
                               * run_time_limit (int): the maximum time the execution of the submitted Python function is
                                                       allowed to take in seconds.
-                              * priority (int): the queuing system priority assigned to a given Python function to 
+                              * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
                               * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
