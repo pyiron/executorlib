@@ -194,7 +194,7 @@ class FluxJobExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pmi_mode=pmi_mode,
                         flux_executor=flux_executor,
                         flux_executor_nesting=flux_executor_nesting,
@@ -221,7 +221,7 @@ class FluxJobExecutor(BaseExecutor):
                     max_workers=max_workers,
                     cache_directory=cache_directory,
                     max_cores=max_cores,
-                    resource_dict=resource_dict,
+                    executor_kwargs=resource_dict,
                     pmi_mode=pmi_mode,
                     flux_executor=flux_executor,
                     flux_executor_nesting=flux_executor_nesting,
@@ -404,7 +404,7 @@ class FluxClusterExecutor(BaseExecutor):
                         pmi_mode=pmi_mode,
                         init_function=init_function,
                         max_workers=max_workers,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pysqa_config_directory=pysqa_config_directory,
                         backend="flux",
                     )
@@ -420,7 +420,7 @@ class FluxClusterExecutor(BaseExecutor):
                         backend="flux",
                         max_cores=max_cores,
                         cache_directory=cache_directory,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         flux_executor=None,
                         pmi_mode=pmi_mode,
                         flux_executor_nesting=False,
@@ -441,7 +441,7 @@ class FluxClusterExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pmi_mode=None,
                         flux_executor=None,
                         flux_executor_nesting=False,
@@ -463,7 +463,7 @@ def create_flux_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: Optional[dict] = None,
+    executor_kwargs: Optional[dict] = None,
     pmi_mode: Optional[str] = None,
     flux_executor=None,
     flux_executor_nesting: bool = False,
@@ -484,7 +484,7 @@ def create_flux_executor(
                            max_cores is recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
-        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+        executor_kwargs (dict): A dictionary of arguments required by the executor. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
@@ -524,29 +524,31 @@ def create_flux_executor(
         validate_max_workers,
     )
 
-    if resource_dict is None:
-        resource_dict = {}
-    cores_per_worker = resource_dict.get("cores", 1)
-    resource_dict["cache_directory"] = cache_directory
-    resource_dict["hostname_localhost"] = hostname_localhost
-    resource_dict["log_obj_size"] = log_obj_size
+    if executor_kwargs is None:
+        executor_kwargs = {}
+    cores_per_worker = executor_kwargs.get("cores", 1)
+    executor_kwargs["cache_directory"] = cache_directory
+    executor_kwargs["hostname_localhost"] = hostname_localhost
+    executor_kwargs["log_obj_size"] = log_obj_size
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_pmi(backend="flux_allocation", pmi=pmi_mode)
-    check_oversubscribe(oversubscribe=resource_dict.get("openmpi_oversubscribe", False))
+    check_oversubscribe(
+        oversubscribe=executor_kwargs.get("openmpi_oversubscribe", False)
+    )
     check_command_line_argument_lst(
-        command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
+        command_line_argument_lst=executor_kwargs.get("slurm_cmd_args", [])
     )
     check_wait_on_shutdown(wait_on_shutdown=wait)
-    if "openmpi_oversubscribe" in resource_dict:
-        del resource_dict["openmpi_oversubscribe"]
-    if "slurm_cmd_args" in resource_dict:
-        del resource_dict["slurm_cmd_args"]
-    resource_dict["pmi_mode"] = pmi_mode
-    resource_dict["flux_executor"] = flux_executor
-    resource_dict["flux_executor_nesting"] = flux_executor_nesting
-    resource_dict["flux_log_files"] = flux_log_files
+    if "openmpi_oversubscribe" in executor_kwargs:
+        del executor_kwargs["openmpi_oversubscribe"]
+    if "slurm_cmd_args" in executor_kwargs:
+        del executor_kwargs["slurm_cmd_args"]
+    executor_kwargs["pmi_mode"] = pmi_mode
+    executor_kwargs["flux_executor"] = flux_executor
+    executor_kwargs["flux_executor_nesting"] = flux_executor_nesting
+    executor_kwargs["flux_log_files"] = flux_log_files
     if block_allocation:
-        resource_dict["init_function"] = init_function
+        executor_kwargs["init_function"] = init_function
         max_workers = validate_number_of_cores(
             max_cores=max_cores,
             max_workers=max_workers,
@@ -556,11 +558,11 @@ def create_flux_executor(
         validate_max_workers(
             max_workers=max_workers,
             cores=cores_per_worker,
-            threads_per_core=resource_dict.get("threads_per_core", 1),
+            threads_per_core=executor_kwargs.get("threads_per_core", 1),
         )
         return BlockAllocationTaskScheduler(
             max_workers=max_workers,
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=FluxPythonSpawner,
             restart_limit=restart_limit,
         )
@@ -568,6 +570,6 @@ def create_flux_executor(
         return OneProcessTaskScheduler(
             max_cores=max_cores,
             max_workers=max_workers,
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=FluxPythonSpawner,
         )

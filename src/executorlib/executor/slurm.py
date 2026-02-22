@@ -189,7 +189,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         pmi_mode=pmi_mode,
                         init_function=init_function,
                         max_workers=max_workers,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pysqa_config_directory=pysqa_config_directory,
                         backend="slurm",
                     ),
@@ -206,7 +206,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         backend="slurm",
                         max_cores=max_cores,
                         cache_directory=cache_directory,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pmi_mode=pmi_mode,
                         flux_executor=None,
                         flux_executor_nesting=False,
@@ -227,7 +227,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
@@ -408,7 +408,7 @@ class SlurmJobExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pmi_mode=pmi_mode,
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
@@ -432,7 +432,7 @@ class SlurmJobExecutor(BaseExecutor):
                     max_workers=max_workers,
                     cache_directory=cache_directory,
                     max_cores=max_cores,
-                    resource_dict=resource_dict,
+                    executor_kwargs=resource_dict,
                     pmi_mode=pmi_mode,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
@@ -448,7 +448,7 @@ def create_slurm_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: Optional[dict] = None,
+    executor_kwargs: Optional[dict] = None,
     pmi_mode: Optional[str] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
@@ -466,7 +466,7 @@ def create_slurm_executor(
                            max_cores is recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
-        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+        executor_kwargs (dict): A dictionary of arguments required by the executor. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
@@ -502,17 +502,17 @@ def create_slurm_executor(
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
     """
-    if resource_dict is None:
-        resource_dict = {}
-    cores_per_worker = resource_dict.get("cores", 1)
-    resource_dict["cache_directory"] = cache_directory
-    resource_dict["hostname_localhost"] = hostname_localhost
-    resource_dict["log_obj_size"] = log_obj_size
-    resource_dict["pmi_mode"] = pmi_mode
+    if executor_kwargs is None:
+        executor_kwargs = {}
+    cores_per_worker = executor_kwargs.get("cores", 1)
+    executor_kwargs["cache_directory"] = cache_directory
+    executor_kwargs["hostname_localhost"] = hostname_localhost
+    executor_kwargs["log_obj_size"] = log_obj_size
+    executor_kwargs["pmi_mode"] = pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_wait_on_shutdown(wait_on_shutdown=wait)
     if block_allocation:
-        resource_dict["init_function"] = init_function
+        executor_kwargs["init_function"] = init_function
         max_workers = validate_number_of_cores(
             max_cores=max_cores,
             max_workers=max_workers,
@@ -522,11 +522,11 @@ def create_slurm_executor(
         validate_max_workers(
             max_workers=max_workers,
             cores=cores_per_worker,
-            threads_per_core=resource_dict.get("threads_per_core", 1),
+            threads_per_core=executor_kwargs.get("threads_per_core", 1),
         )
         return BlockAllocationTaskScheduler(
             max_workers=max_workers,
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=SrunSpawner,
             restart_limit=restart_limit,
         )
@@ -534,6 +534,6 @@ def create_slurm_executor(
         return OneProcessTaskScheduler(
             max_cores=max_cores,
             max_workers=max_workers,
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=SrunSpawner,
         )
