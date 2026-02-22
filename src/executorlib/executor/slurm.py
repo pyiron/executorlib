@@ -6,6 +6,7 @@ from executorlib.standalone.inputcheck import (
     check_log_obj_size,
     check_plot_dependency_graph,
     check_refresh_rate,
+    check_restart_limit,
     check_wait_on_shutdown,
     validate_number_of_cores,
 )
@@ -18,6 +19,17 @@ from executorlib.task_scheduler.interactive.spawner_slurm import (
     SrunSpawner,
     validate_max_workers,
 )
+
+try:
+    from executorlib.standalone.validate import (
+        validate_resource_dict,
+        validate_resource_dict_with_optional_keys,
+    )
+except ImportError:
+    from executorlib.task_scheduler.base import validate_resource_dict
+    from executorlib.task_scheduler.base import (
+        validate_resource_dict as validate_resource_dict_with_optional_keys,
+    )
 
 
 class SlurmClusterExecutor(BaseExecutor):
@@ -35,17 +47,22 @@ class SlurmClusterExecutor(BaseExecutor):
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - restart_limit (int): The maximum number of restarting worker processes. Default: 0
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to
+                                                influence the scheduling.
+                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -68,6 +85,7 @@ class SlurmClusterExecutor(BaseExecutor):
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
     Examples:
         ```
@@ -108,6 +126,7 @@ class SlurmClusterExecutor(BaseExecutor):
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
         wait: bool = True,
+        openmpi_oversubscribe: bool = False,
     ):
         """
         The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -123,17 +142,23 @@ class SlurmClusterExecutor(BaseExecutor):
             cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                                  - cores (int): number of MPI cores to be used for each function call
-                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
-                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                                  - cwd (str/None): current working directory where the parallel python task is executed
-                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                                  and SLURM only) - default False
-                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                           only)
-                                  - error_log_file (str): Name of the error log file to use for storing exceptions
-                                                          raised by the Python functions submitted to the Executor.
-                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                                  * cores (int): number of MPI cores to be used for each function call
+                                  * threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  * cwd (str): current working directory where the parallel python task is executed
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                      provide an external cache_key to identify tasks on the file system.
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python
+                                                     function.
+                                  * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
+                                                      - do not allow other tasks to use the same compute node.
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                          multiple tasks in one file.
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python
+                                                        function is allowed to take in seconds.
+                                  * priority (int): the queuing system priority assigned to a given Python function to
+                                                    influence the scheduling.
+                                  * slurm_cmd_args (list): Additional command line arguments for the srun call.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -156,6 +181,7 @@ class SlurmClusterExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
         """
         default_resource_dict: dict = {
@@ -163,11 +189,12 @@ class SlurmClusterExecutor(BaseExecutor):
             "threads_per_core": 1,
             "gpus_per_core": 0,
             "cwd": None,
-            "openmpi_oversubscribe": False,
+            "openmpi_oversubscribe": openmpi_oversubscribe,
             "slurm_cmd_args": [],
         }
         if resource_dict is None:
             resource_dict = {}
+        validate_resource_dict_with_optional_keys(resource_dict=resource_dict)
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
@@ -189,9 +216,10 @@ class SlurmClusterExecutor(BaseExecutor):
                         pmi_mode=pmi_mode,
                         init_function=init_function,
                         max_workers=max_workers,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pysqa_config_directory=pysqa_config_directory,
                         backend="slurm",
+                        validator=validate_resource_dict_with_optional_keys,
                     ),
                 )
 
@@ -206,7 +234,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         backend="slurm",
                         max_cores=max_cores,
                         cache_directory=cache_directory,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pmi_mode=pmi_mode,
                         flux_executor=None,
                         flux_executor_nesting=False,
@@ -218,6 +246,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         disable_dependencies=disable_dependencies,
                         wait=wait,
                         refresh_rate=refresh_rate,
+                        validator=validate_resource_dict_with_optional_keys,
                     )
                 )
         else:
@@ -227,7 +256,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
@@ -237,6 +266,7 @@ class SlurmClusterExecutor(BaseExecutor):
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
                     export_workflow_filename=export_workflow_filename,
+                    validator=validate_resource_dict_with_optional_keys,
                 )
             )
 
@@ -256,20 +286,22 @@ class SlurmJobExecutor(BaseExecutor):
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
-                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
-                                                           Defaults to None.
-                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
-                                                  compute notes. Defaults to False.
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to
+                                                influence the scheduling.
+                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -291,6 +323,8 @@ class SlurmJobExecutor(BaseExecutor):
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        restart_limit (int): The maximum number of restarting worker processes.
+        openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
     Examples:
         ```
@@ -330,6 +364,8 @@ class SlurmJobExecutor(BaseExecutor):
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
         wait: bool = True,
+        restart_limit: int = 0,
+        openmpi_oversubscribe: bool = False,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -345,21 +381,23 @@ class SlurmJobExecutor(BaseExecutor):
             cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                                  - cores (int): number of MPI cores to be used for each function call
-                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
-                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                                  - cwd (str/None): current working directory where the parallel python task is executed
-                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                                  and SLURM only) - default False
-                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                           only)
-                                  - num_nodes (int, optional): The number of compute nodes to use for executing the task.
-                                                           Defaults to None.
-                                  - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
-                                                      compute notes. Defaults to False.
-                                  - error_log_file (str): Name of the error log file to use for storing exceptions
-                                                          raised by the Python functions submitted to the Executor.
-                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                                  * cores (int): number of MPI cores to be used for each function call
+                                  * threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  * cwd (str): current working directory where the parallel python task is executed
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                      provide an external cache_key to identify tasks on the file system.
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python
+                                                     function.
+                                  * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
+                                                      - do not allow other tasks to use the same compute node.
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                          multiple tasks in one file.
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python
+                                                        function is allowed to take in seconds.
+                                  * priority (int): the queuing system priority assigned to a given Python function to
+                                                    influence the scheduling.
+                                  * slurm_cmd_args (list): Additional command line arguments for the srun call.
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
@@ -381,6 +419,8 @@ class SlurmJobExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            restart_limit (int): The maximum number of restarting worker processes.
+            openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
         """
         default_resource_dict: dict = {
@@ -388,13 +428,17 @@ class SlurmJobExecutor(BaseExecutor):
             "threads_per_core": 1,
             "gpus_per_core": 0,
             "cwd": None,
-            "openmpi_oversubscribe": False,
+            "openmpi_oversubscribe": openmpi_oversubscribe,
             "slurm_cmd_args": [],
         }
         if resource_dict is None:
             resource_dict = {}
+        validate_resource_dict(resource_dict=resource_dict)
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
+        )
+        check_restart_limit(
+            restart_limit=restart_limit, block_allocation=block_allocation
         )
         if not disable_dependencies:
             super().__init__(
@@ -403,19 +447,21 @@ class SlurmJobExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pmi_mode=pmi_mode,
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
                         log_obj_size=log_obj_size,
                         wait=wait,
+                        restart_limit=restart_limit,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
                     export_workflow_filename=export_workflow_filename,
+                    validator=validate_resource_dict,
                 )
             )
         else:
@@ -426,13 +472,15 @@ class SlurmJobExecutor(BaseExecutor):
                     max_workers=max_workers,
                     cache_directory=cache_directory,
                     max_cores=max_cores,
-                    resource_dict=resource_dict,
+                    executor_kwargs=resource_dict,
                     pmi_mode=pmi_mode,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
                     log_obj_size=log_obj_size,
                     wait=wait,
+                    validator=validate_resource_dict,
+                    restart_limit=restart_limit,
                 )
             )
 
@@ -441,13 +489,15 @@ def create_slurm_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: Optional[dict] = None,
+    executor_kwargs: Optional[dict] = None,
     pmi_mode: Optional[str] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
     wait: bool = True,
+    validator: Callable = validate_resource_dict,
+    restart_limit: int = 0,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -458,22 +508,23 @@ def create_slurm_executor(
                            max_cores is recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
-        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                              and SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                       only)
-                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
-                                                           Defaults to None.
-                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
-                                                  compute notes. Defaults to False.
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+        executor_kwargs (dict): A dictionary of arguments required by the executor. With the following keys:
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to
+                                                influence the scheduling.
+                              * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                   context of an HPC cluster this essential to be able to communicate to an
@@ -489,21 +540,23 @@ def create_slurm_executor(
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        validator (callable): A function to validate the resource_dict.
+        restart_limit (int): The maximum number of restarting worker processes.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
     """
-    if resource_dict is None:
-        resource_dict = {}
-    cores_per_worker = resource_dict.get("cores", 1)
-    resource_dict["cache_directory"] = cache_directory
-    resource_dict["hostname_localhost"] = hostname_localhost
-    resource_dict["log_obj_size"] = log_obj_size
-    resource_dict["pmi_mode"] = pmi_mode
+    if executor_kwargs is None:
+        executor_kwargs = {}
+    cores_per_worker = executor_kwargs.get("cores", 1)
+    executor_kwargs["cache_directory"] = cache_directory
+    executor_kwargs["hostname_localhost"] = hostname_localhost
+    executor_kwargs["log_obj_size"] = log_obj_size
+    executor_kwargs["pmi_mode"] = pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_wait_on_shutdown(wait_on_shutdown=wait)
     if block_allocation:
-        resource_dict["init_function"] = init_function
+        executor_kwargs["init_function"] = init_function
         max_workers = validate_number_of_cores(
             max_cores=max_cores,
             max_workers=max_workers,
@@ -513,17 +566,20 @@ def create_slurm_executor(
         validate_max_workers(
             max_workers=max_workers,
             cores=cores_per_worker,
-            threads_per_core=resource_dict.get("threads_per_core", 1),
+            threads_per_core=executor_kwargs.get("threads_per_core", 1),
         )
         return BlockAllocationTaskScheduler(
             max_workers=max_workers,
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=SrunSpawner,
+            validator=validator,
+            restart_limit=restart_limit,
         )
     else:
         return OneProcessTaskScheduler(
             max_cores=max_cores,
             max_workers=max_workers,
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=SrunSpawner,
+            validator=validator,
         )

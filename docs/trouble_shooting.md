@@ -42,18 +42,26 @@ The resource dictionary parameter `resource_dict` can contain one or more of the
 * `threads_per_core` (int): number of OpenMP threads to be used for each function call
 * `gpus_per_core` (int): number of GPUs per worker - defaults to 0
 * `cwd` (str/None): current working directory where the parallel python task is executed
-* `openmpi_oversubscribe` (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
+* `cache_key` (str): Rather than using the internal hashing of executorlib the user can provide an external `cache_key`
+  to identify tasks on the file system. The initial file name is going to be `cache_key` + `_i.h5` and the final file
+  name is going to be `cache_key` + `_o.h5`.
+* `num_nodes` (int): number of compute nodes used for the evaluation of the Python function. 
+* `exclusive` (bool): boolean flag to reserve exclusive access to selected compute nodes - do not allow other tasks to 
+  use the same compute node. 
+* `error_log_file` (str): path to the error log file, primarily used to merge the log of multiple tasks in one file.
+* `run_time_limit` (int): the maximum time the execution of the submitted Python function is allowed to take in seconds.
+* `priority` (int): the queuing system priority assigned to a given Python function to influence the scheduling.
 * `slurm_cmd_args` (list): Additional command line arguments for the srun call (SLURM only)
 
 For the special case of the [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) 
 the resource dictionary parameter `resource_dict` can also include additional parameters define in the submission script
 of the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) these include but are not limited to: 
-* `run_time_max` (int): the maximum time the execution of the submitted Python function is allowed to take in seconds.
 * `memory_max` (int): the maximum amount of memory the Python function is allowed to use in Gigabytes. 
 * `partition` (str): the partition of the queuing system the Python function is submitted to. 
 * `queue` (str): the name of the queue the Python function is submitted to. 
 
-All parameters in the resource dictionary `resource_dict` are optional. 
+All parameters in the resource dictionary `resource_dict` are optional. When `pydantic` is installed as optional 
+dependency the `resource_dict` is validated using `pydantic`.
 
 ## SSH Connection
 While the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) provides the option to connect to
