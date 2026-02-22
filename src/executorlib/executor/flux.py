@@ -13,15 +13,15 @@ from executorlib.standalone.inputcheck import (
     check_wait_on_shutdown,
     validate_number_of_cores,
 )
+from executorlib.standalone.validate import (
+    validate_resource_dict,
+    validate_resource_dict_with_optional_keys,
+)
 from executorlib.task_scheduler.interactive.blockallocation import (
     BlockAllocationTaskScheduler,
 )
 from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
-from executorlib.standalone.validate import (
-    validate_resource_dict,
-    validate_resource_dict_with_optional_keys,
-)
 
 
 class FluxJobExecutor(BaseExecutor):
