@@ -3,9 +3,11 @@ from typing import Optional
 
 try:
     from pydantic import BaseModel, Extra
+
     HAS_PYDANTIC = True
 except ImportError:
     from dataclasses import dataclass
+
     BaseModel = object
     Extra = None
     HAS_PYDANTIC = False
@@ -25,6 +27,7 @@ class ResourceDictValidation(BaseModel):
     slurm_cmd_args: Optional[list[str]] = None
 
     if HAS_PYDANTIC:
+
         class Config:
             extra = Extra.forbid
 
