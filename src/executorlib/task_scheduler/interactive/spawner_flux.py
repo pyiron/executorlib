@@ -144,9 +144,9 @@ class FluxPythonSpawner(BaseSpawner):
             self._future = self._flux_executor.submit(
                 jobspec=jobspec, urgency=self._priority
             )
-            self._future.jobid()
         else:
             self._future = self._flux_executor.submit(jobspec=jobspec)
+        if self._future is not None:
             self._future.jobid()
         return self.poll()
 
