@@ -206,7 +206,7 @@ class SlurmClusterExecutor(BaseExecutor):
                         backend="slurm",
                         max_cores=max_cores,
                         cache_directory=cache_directory,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         pmi_mode=pmi_mode,
                         flux_executor=None,
                         flux_executor_nesting=False,

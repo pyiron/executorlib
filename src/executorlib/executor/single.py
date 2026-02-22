@@ -348,7 +348,7 @@ class TestClusterExecutor(BaseExecutor):
                     backend=None,
                     max_cores=max_cores,
                     cache_directory=cache_directory,
-                    resource_dict=resource_dict,
+                    executor_kwargs=resource_dict,
                     flux_executor=None,
                     pmi_mode=None,
                     flux_executor_nesting=False,
