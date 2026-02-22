@@ -60,7 +60,8 @@ of the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.
 * `partition` (str): the partition of the queuing system the Python function is submitted to. 
 * `queue` (str): the name of the queue the Python function is submitted to. 
 
-All parameters in the resource dictionary `resource_dict` are optional. 
+All parameters in the resource dictionary `resource_dict` are optional. When `pydantic` is installed as optional 
+dependency the `resource_dict` is validated using `pydantic`.
 
 ## SSH Connection
 While the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) provides the option to connect to
