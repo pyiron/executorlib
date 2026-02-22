@@ -33,7 +33,7 @@ class ResourceDictValidation(BaseModel):
 
 
 if not HAS_PYDANTIC:
-    ResourceDictValidation = dataclass(ResourceDictValidation)
+    ResourceDictValidation = dataclass(ResourceDictValidation)  # type: ignore
 
 
 def _get_accepted_keys() -> list[str]:
