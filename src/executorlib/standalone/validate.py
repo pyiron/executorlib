@@ -1,7 +1,7 @@
 import warnings
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class ResourceDictValidation(BaseModel):
@@ -21,9 +21,12 @@ class ResourceDictValidation(BaseModel):
     flux_log_files: Optional[bool] = None
     slurm_cmd_args: Optional[list[str]] = None
 
+    class Config:
+        extra = Extra.forbid 
+
 
 def validate_resource_dict(resource_dict: dict) -> None:
-    _ = ResourceDictValidation.validate(**resource_dict)
+    _ = ResourceDictValidation(**resource_dict)
 
 
 def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
@@ -32,7 +35,7 @@ def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
     validate_dict = {
         key: value for key, value in resource_dict.items() if key in accepted_keys
     }
-    _ = ResourceDictValidation.validate(**validate_dict)
+    _ = ResourceDictValidation(**validate_dict)
     if len(optional_lst) > 0:
         warnings.warn(
             f"The following keys are not recognized and cannot be validated: {optional_lst}",
