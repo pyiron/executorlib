@@ -70,6 +70,7 @@ class FluxJobExecutor(BaseExecutor):
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
     Examples:
         ```
@@ -112,6 +113,7 @@ class FluxJobExecutor(BaseExecutor):
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
         wait: bool = True,
+        openmpi_oversubscribe: bool = False,
     ):
         """
         The executorlib.FluxJobExecutor leverages either the message passing interface (MPI), the SLURM workload manager
@@ -162,6 +164,7 @@ class FluxJobExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
         """
         default_resource_dict: dict = {
@@ -169,7 +172,7 @@ class FluxJobExecutor(BaseExecutor):
             "threads_per_core": 1,
             "gpus_per_core": 0,
             "cwd": None,
-            "openmpi_oversubscribe": False,
+            "openmpi_oversubscribe": openmpi_oversubscribe,
             "slurm_cmd_args": [],
         }
         if resource_dict is None:
@@ -243,8 +246,6 @@ class FluxClusterExecutor(BaseExecutor):
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
                               - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
@@ -271,6 +272,7 @@ class FluxClusterExecutor(BaseExecutor):
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
     Examples:
         ```
@@ -311,6 +313,7 @@ class FluxClusterExecutor(BaseExecutor):
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
         wait: bool = True,
+        openmpi_oversubscribe: bool = False,
     ):
         """
         The executorlib.FluxClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -330,8 +333,6 @@ class FluxClusterExecutor(BaseExecutor):
                                   - threads_per_core (int): number of OpenMP threads to be used for each function call
                                   - gpus_per_core (int): number of GPUs per worker - defaults to 0
                                   - cwd (str/None): current working directory where the parallel python task is executed
-                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                                  and SLURM only) - default False
                                   - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                            only)
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
@@ -359,6 +360,7 @@ class FluxClusterExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
         """
         default_resource_dict: dict = {
@@ -366,7 +368,7 @@ class FluxClusterExecutor(BaseExecutor):
             "threads_per_core": 1,
             "gpus_per_core": 0,
             "cwd": None,
-            "openmpi_oversubscribe": False,
+            "openmpi_oversubscribe": openmpi_oversubscribe,
             "slurm_cmd_args": [],
             "run_time_limit": None,
         }
