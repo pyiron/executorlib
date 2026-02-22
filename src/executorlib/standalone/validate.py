@@ -1,5 +1,6 @@
 import warnings
-from typing import Optional
+from concurrent.futures import Executor
+from typing import Callable, Optional
 
 from pydantic import BaseModel, Extra
 
@@ -13,14 +14,8 @@ class ResourceDictValidation(BaseModel):
     num_nodes: Optional[int] = None
     exclusive: Optional[bool] = None
     error_log_file: Optional[str] = None
-    restart_limit: Optional[int] = None
     run_time_limit: Optional[int] = None
     priority: Optional[int] = None
-    openmpi_oversubscribe: Optional[bool] = None
-    pmi_mode: Optional[str] = None
-    flux_executor_nesting: Optional[bool] = None
-    flux_log_files: Optional[bool] = None
-    slurm_cmd_args: Optional[list[str]] = None
 
     class Config:
         extra = Extra.forbid
