@@ -9,6 +9,7 @@ from executorlib.standalone.inputcheck import (
     check_plot_dependency_graph,
     check_pmi,
     check_refresh_rate,
+    check_restart_limit,
     check_wait_on_shutdown,
     validate_number_of_cores,
 )
@@ -70,6 +71,7 @@ class FluxJobExecutor(BaseExecutor):
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        restart_limit (int): The maximum number of restarting worker processes.
         openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
     Examples:
@@ -113,6 +115,7 @@ class FluxJobExecutor(BaseExecutor):
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
         wait: bool = True,
+        restart_limit: int = 0,
         openmpi_oversubscribe: bool = False,
     ):
         """
@@ -164,6 +167,7 @@ class FluxJobExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            restart_limit (int): The maximum number of restarting worker processes.
             openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
         """
@@ -179,6 +183,9 @@ class FluxJobExecutor(BaseExecutor):
             resource_dict = {}
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
+        )
+        check_restart_limit(
+            restart_limit=restart_limit, block_allocation=block_allocation
         )
         if not disable_dependencies:
             super().__init__(
@@ -197,6 +204,7 @@ class FluxJobExecutor(BaseExecutor):
                         init_function=init_function,
                         log_obj_size=log_obj_size,
                         wait=wait,
+                        restart_limit=restart_limit,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -223,6 +231,7 @@ class FluxJobExecutor(BaseExecutor):
                     init_function=init_function,
                     log_obj_size=log_obj_size,
                     wait=wait,
+                    restart_limit=restart_limit,
                 )
             )
 
@@ -464,6 +473,7 @@ def create_flux_executor(
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
     wait: bool = True,
+    restart_limit: int = 0,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a flux executor
@@ -504,6 +514,7 @@ def create_flux_executor(
         init_function (None): optional function to preset arguments for functions which are submitted later
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        restart_limit (int): The maximum number of restarting worker processes.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -553,6 +564,7 @@ def create_flux_executor(
             max_workers=max_workers,
             executor_kwargs=executor_kwargs,
             spawner=FluxPythonSpawner,
+            restart_limit=restart_limit,
         )
     else:
         return OneProcessTaskScheduler(
