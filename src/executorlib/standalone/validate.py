@@ -1,6 +1,5 @@
 import warnings
-from concurrent.futures import Executor
-from typing import Callable, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Extra
 
