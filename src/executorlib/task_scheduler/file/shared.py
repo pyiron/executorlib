@@ -57,7 +57,7 @@ class FutureItem:
 def execute_tasks_h5(
     future_queue: queue.Queue,
     execute_function: Callable,
-    resource_dict: dict,
+    executor_kwargs: dict,
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -71,7 +71,7 @@ def execute_tasks_h5(
 
     Args:
         future_queue (queue.Queue): The queue containing the tasks.
-        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+        executor_kwargs (dict): A dictionary of executor arguments required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
         execute_function (Callable): The function to execute the tasks.
@@ -119,7 +119,7 @@ def execute_tasks_h5(
             task_resource_dict, cache_key, cache_directory, error_log_file = (
                 _get_task_input(
                     task_resource_dict=task_dict["resource_dict"].copy(),
-                    resource_dict=resource_dict,
+                    executor_kwargs=executor_kwargs,
                 )
             )
             task_key, data_dict = serialize_funct(
@@ -352,10 +352,10 @@ def _cancel_processes(
 
 
 def _get_task_input(
-    task_resource_dict: dict, resource_dict: dict
+    task_resource_dict: dict, executor_kwargs: dict
 ) -> tuple[dict, Optional[str], str, Optional[str]]:
     task_resource_dict.update(
-        {k: v for k, v in resource_dict.items() if k not in task_resource_dict}
+        {k: v for k, v in executor_kwargs.items() if k not in task_resource_dict}
     )
     cache_key = task_resource_dict.pop("cache_key", None)
     cache_directory = os.path.abspath(task_resource_dict.pop("cache_directory"))

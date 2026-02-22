@@ -173,4 +173,4 @@ class TestParser(unittest.TestCase):
             create_pysqa_block_allocation_scheduler()
 
         with self.assertRaises(ValueError):
-            create_pysqa_block_allocation_scheduler(resource_dict={"cwd": "."})
+            create_pysqa_block_allocation_scheduler(executor_kwargs={"cwd": "."})
