@@ -23,7 +23,7 @@ class ResourceDictValidation(BaseModel):
     slurm_cmd_args: Optional[list[str]] = None
 
     class Config:
-        extra = Extra.forbid 
+        extra = Extra.forbid
 
 
 def validate_resource_dict(resource_dict: dict) -> None:
