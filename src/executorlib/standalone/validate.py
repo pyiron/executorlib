@@ -15,6 +15,7 @@ class ResourceDictValidation(BaseModel):
     error_log_file: Optional[str] = None
     run_time_limit: Optional[int] = None
     priority: Optional[int] = None
+    slurm_cmd_args: Optional[list[str]] = None
 
     class Config:
         extra = Extra.forbid
