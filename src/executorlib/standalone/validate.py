@@ -23,7 +23,7 @@ class ResourceDictValidation(BaseModel):
 
 
 def validate_resource_dict(resource_dict: dict) -> None:
-    _ = ResourceDictValidation(**resource_dict)
+    _ = ResourceDictValidation.validate(**resource_dict)
 
 
 def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
@@ -32,7 +32,7 @@ def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
     validate_dict = {
         key: value for key, value in resource_dict.items() if key in accepted_keys
     }
-    _ = ResourceDictValidation(**validate_dict)
+    _ = ResourceDictValidation.validate(**validate_dict)
     if len(optional_lst) > 0:
         warnings.warn(
             f"The following keys are not recognized and cannot be validated: {optional_lst}",

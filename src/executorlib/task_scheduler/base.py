@@ -129,7 +129,7 @@ class TaskSchedulerBase(FutureExecutor):
         """
         if resource_dict is None:
             resource_dict = {}
-        self._validator(resource_dict)
+        self._validator(resource_dict=resource_dict)
         cores = resource_dict.get("cores")
         if (
             cores is not None

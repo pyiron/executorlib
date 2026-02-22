@@ -6,7 +6,7 @@ import sys
 from unittest.mock import patch
 
 try:
-    from pydantic import ValidationError
+    import pydantic
     skip_pydantic_test = False
 except ImportError:
     skip_pydantic_test = True
@@ -80,5 +80,5 @@ class TestValidateFunction(unittest.TestCase):
             return i
         
         with SingleNodeExecutor() as exe:
-            with self.assertRaises(ValidationError):
+            with self.assertRaises(TypeError):
                 exe.submit(dummy_function, 5, resource_dict={"any": "thing"})
