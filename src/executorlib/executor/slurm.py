@@ -19,17 +19,10 @@ from executorlib.task_scheduler.interactive.spawner_slurm import (
     SrunSpawner,
     validate_max_workers,
 )
-
-try:
-    from executorlib.standalone.validate import (
-        validate_resource_dict,
-        validate_resource_dict_with_optional_keys,
-    )
-except ImportError:
-    from executorlib.task_scheduler.base import validate_resource_dict
-    from executorlib.task_scheduler.base import (
-        validate_resource_dict as validate_resource_dict_with_optional_keys,
-    )
+from executorlib.standalone.validate import (
+    validate_resource_dict,
+    validate_resource_dict_with_optional_keys,
+)
 
 
 class SlurmClusterExecutor(BaseExecutor):
