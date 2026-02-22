@@ -144,9 +144,10 @@ class FluxPythonSpawner(BaseSpawner):
             self._future = self._flux_executor.submit(
                 jobspec=jobspec, urgency=self._priority
             )
+            self._future.jobid()
         else:
             self._future = self._flux_executor.submit(jobspec=jobspec)
-        self._future.jobid()
+            self._future.jobid()
         return self.poll()
 
     def shutdown(self, wait: bool = True):
