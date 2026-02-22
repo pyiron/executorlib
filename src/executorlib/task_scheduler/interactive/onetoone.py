@@ -1,7 +1,7 @@
 import queue
 from concurrent.futures import Future
 from threading import Thread
-from typing import Optional
+from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
@@ -9,7 +9,7 @@ from executorlib.standalone.interactive.communication import (
     interface_bootup,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
-from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.interactive.shared import execute_task_dict
 
 
@@ -51,10 +51,13 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
         max_workers: Optional[int] = None,
         executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
+        validator: Callable = validate_resource_dict,
     ):
         if executor_kwargs is None:
             executor_kwargs = {}
-        super().__init__(max_cores=executor_kwargs.get("max_cores"))
+        super().__init__(
+            max_cores=executor_kwargs.get("max_cores"), validator=validator
+        )
         executor_kwargs.update(
             {
                 "future_queue": self._future_queue,

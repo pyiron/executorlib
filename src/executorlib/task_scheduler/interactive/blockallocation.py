@@ -16,7 +16,7 @@ from executorlib.standalone.interactive.communication import (
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
-from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.interactive.shared import (
     execute_task_dict,
     reset_task_dict,
@@ -66,11 +66,14 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         max_workers: int = 1,
         executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
+        validator: Callable = validate_resource_dict,
         restart_limit: int = 0,
     ):
         if executor_kwargs is None:
             executor_kwargs = {}
-        super().__init__(max_cores=executor_kwargs.get("max_cores"))
+        super().__init__(
+            max_cores=executor_kwargs.get("max_cores"), validator=validator
+        )
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False

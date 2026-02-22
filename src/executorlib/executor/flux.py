@@ -19,6 +19,17 @@ from executorlib.task_scheduler.interactive.blockallocation import (
 from executorlib.task_scheduler.interactive.dependency import DependencyTaskScheduler
 from executorlib.task_scheduler.interactive.onetoone import OneProcessTaskScheduler
 
+try:
+    from executorlib.standalone.validate import (
+        validate_resource_dict,
+        validate_resource_dict_with_optional_keys,
+    )
+except ImportError:
+    from executorlib.task_scheduler.base import validate_resource_dict
+    from executorlib.task_scheduler.base import (
+        validate_resource_dict as validate_resource_dict_with_optional_keys,
+    )
+
 
 class FluxJobExecutor(BaseExecutor):
     """
@@ -35,18 +46,22 @@ class FluxJobExecutor(BaseExecutor):
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
-                                                           Defaults to None.
-                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
-                                                  compute notes. Defaults to False.
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - restart_limit (int): The maximum number of restarting worker processes. Default: 0
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to
+                                                influence the scheduling.
+                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -132,17 +147,23 @@ class FluxJobExecutor(BaseExecutor):
             cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                                  - cores (int): number of MPI cores to be used for each function call
-                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
-                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                                  - cwd (str/None): current working directory where the parallel python task is executed
-                                  - num_nodes (int, optional): The number of compute nodes to use for executing the task.
-                                                               Defaults to None.
-                                  - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
-                                                      compute notes. Defaults to False.
-                                  - error_log_file (str): Name of the error log file to use for storing exceptions
-                                                          raised by the Python functions submitted to the Executor.
-                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                                  * cores (int): number of MPI cores to be used for each function call
+                                  * threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  * cwd (str): current working directory where the parallel python task is executed
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                      provide an external cache_key to identify tasks on the file system.
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python
+                                                     function.
+                                  * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
+                                                      - do not allow other tasks to use the same compute node.
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                          multiple tasks in one file.
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python
+                                                        function is allowed to take in seconds.
+                                  * priority (int): the queuing system priority assigned to a given Python function to
+                                                    influence the scheduling.
+                                  * slurm_cmd_args (list): Additional command line arguments for the srun call.
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
             flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -167,6 +188,7 @@ class FluxJobExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            validator (callable): A function to validate the resource_dict.
             restart_limit (int): The maximum number of restarting worker processes.
             openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
@@ -181,6 +203,7 @@ class FluxJobExecutor(BaseExecutor):
         }
         if resource_dict is None:
             resource_dict = {}
+        validate_resource_dict(resource_dict=resource_dict)
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
@@ -211,6 +234,7 @@ class FluxJobExecutor(BaseExecutor):
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
                     export_workflow_filename=export_workflow_filename,
+                    validator=validate_resource_dict,
                 )
             )
         else:
@@ -231,6 +255,7 @@ class FluxJobExecutor(BaseExecutor):
                     init_function=init_function,
                     log_obj_size=log_obj_size,
                     wait=wait,
+                    validator=validate_resource_dict,
                     restart_limit=restart_limit,
                 )
             )
@@ -251,14 +276,22 @@ class FluxClusterExecutor(BaseExecutor):
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to
+                                                influence the scheduling.
+                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -338,15 +371,23 @@ class FluxClusterExecutor(BaseExecutor):
             cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                                  - cores (int): number of MPI cores to be used for each function call
-                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
-                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                                  - cwd (str/None): current working directory where the parallel python task is executed
-                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                           only)
-                                  - error_log_file (str): Name of the error log file to use for storing exceptions
-                                                          raised by the Python functions submitted to the Executor.
-                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                                  * cores (int): number of MPI cores to be used for each function call
+                                  * threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  * cwd (str): current working directory where the parallel python task is executed
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                      provide an external cache_key to identify tasks on the file system.
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python
+                                                     function.
+                                  * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
+                                                      - do not allow other tasks to use the same compute node.
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                          multiple tasks in one file.
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python
+                                                        function is allowed to take in seconds.
+                                  * priority (int): the queuing system priority assigned to a given Python function to
+                                                    influence the scheduling.
+                                  * slurm_cmd_args (list): Additional command line arguments for the srun call.
             pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -383,6 +424,7 @@ class FluxClusterExecutor(BaseExecutor):
         }
         if resource_dict is None:
             resource_dict = {}
+        validate_resource_dict_with_optional_keys(resource_dict=resource_dict)
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
         )
@@ -407,6 +449,7 @@ class FluxClusterExecutor(BaseExecutor):
                         executor_kwargs=resource_dict,
                         pysqa_config_directory=pysqa_config_directory,
                         backend="flux",
+                        validator=validate_resource_dict_with_optional_keys,
                     )
                 )
             else:
@@ -432,6 +475,7 @@ class FluxClusterExecutor(BaseExecutor):
                         disable_dependencies=disable_dependencies,
                         wait=wait,
                         refresh_rate=refresh_rate,
+                        validator=validate_resource_dict_with_optional_keys,
                     )
                 )
         else:
@@ -455,6 +499,7 @@ class FluxClusterExecutor(BaseExecutor):
                     plot_dependency_graph=plot_dependency_graph,
                     plot_dependency_graph_filename=plot_dependency_graph_filename,
                     export_workflow_filename=export_workflow_filename,
+                    validator=validate_resource_dict,
                 )
             )
 
@@ -473,6 +518,7 @@ def create_flux_executor(
     init_function: Optional[Callable] = None,
     log_obj_size: bool = False,
     wait: bool = True,
+    validator: Callable = validate_resource_dict,
     restart_limit: int = 0,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
@@ -485,17 +531,22 @@ def create_flux_executor(
         max_cores (int): defines the number cores which can be used in parallel
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         executor_kwargs (dict): A dictionary of arguments required by the executor. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - num_nodes (int, optional): The number of compute nodes to use for executing the task.
-                                                           Defaults to None.
-                              - exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing
-                                                  compute notes. Defaults to False.
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can
+                                                 provide an external cache_key to identify tasks on the file system.
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
+                                                  do not allow other tasks to use the same compute node.
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to
+                                                influence the scheduling.
+                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -564,6 +615,7 @@ def create_flux_executor(
             max_workers=max_workers,
             executor_kwargs=executor_kwargs,
             spawner=FluxPythonSpawner,
+            validator=validator,
             restart_limit=restart_limit,
         )
     else:
@@ -572,4 +624,5 @@ def create_flux_executor(
             max_workers=max_workers,
             executor_kwargs=executor_kwargs,
             spawner=FluxPythonSpawner,
+            validator=validator,
         )
