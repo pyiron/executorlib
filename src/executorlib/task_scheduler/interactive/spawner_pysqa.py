@@ -227,25 +227,25 @@ def create_pysqa_block_allocation_scheduler(
     pmi_mode: Optional[str] = None,
     init_function: Optional[Callable] = None,
     max_workers: Optional[int] = None,
-    resource_dict: Optional[dict] = None,
+    executor_kwargs: Optional[dict] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
 ):
-    if resource_dict is None:
-        resource_dict = {}
-    cores_per_worker = resource_dict.get("cores", 1)
-    if "cwd" in resource_dict and resource_dict["cwd"] is not None:
-        resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
+    if executor_kwargs is None:
+        executor_kwargs = {}
+    cores_per_worker = executor_kwargs.get("cores", 1)
+    if "cwd" in executor_kwargs and executor_kwargs["cwd"] is not None:
+        executor_kwargs["cwd"] = os.path.abspath(executor_kwargs["cwd"])
     if cache_directory is not None:
-        resource_dict["cache_directory"] = os.path.abspath(cache_directory)
+        executor_kwargs["cache_directory"] = os.path.abspath(cache_directory)
     else:
-        resource_dict["cache_directory"] = os.path.abspath(".")
-    resource_dict["hostname_localhost"] = hostname_localhost
-    resource_dict["log_obj_size"] = log_obj_size
-    resource_dict["pmi_mode"] = pmi_mode
-    resource_dict["init_function"] = init_function
-    resource_dict["config_directory"] = pysqa_config_directory
-    resource_dict["backend"] = backend
+        executor_kwargs["cache_directory"] = os.path.abspath(".")
+    executor_kwargs["hostname_localhost"] = hostname_localhost
+    executor_kwargs["log_obj_size"] = log_obj_size
+    executor_kwargs["pmi_mode"] = pmi_mode
+    executor_kwargs["init_function"] = init_function
+    executor_kwargs["config_directory"] = pysqa_config_directory
+    executor_kwargs["backend"] = backend
     max_workers = validate_number_of_cores(
         max_cores=max_cores,
         max_workers=max_workers,
@@ -254,6 +254,6 @@ def create_pysqa_block_allocation_scheduler(
     )
     return BlockAllocationTaskScheduler(
         max_workers=max_workers,
-        executor_kwargs=resource_dict,
+        executor_kwargs=executor_kwargs,
         spawner=PysqaSpawner,
     )

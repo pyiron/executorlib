@@ -170,7 +170,7 @@ class SingleNodeExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
@@ -192,7 +192,7 @@ class SingleNodeExecutor(BaseExecutor):
                     max_workers=max_workers,
                     cache_directory=cache_directory,
                     max_cores=max_cores,
-                    resource_dict=resource_dict,
+                    executor_kwargs=resource_dict,
                     hostname_localhost=hostname_localhost,
                     block_allocation=block_allocation,
                     init_function=init_function,
@@ -370,7 +370,7 @@ class TestClusterExecutor(BaseExecutor):
                         max_workers=max_workers,
                         cache_directory=cache_directory,
                         max_cores=max_cores,
-                        resource_dict=resource_dict,
+                        executor_kwargs=resource_dict,
                         hostname_localhost=hostname_localhost,
                         block_allocation=block_allocation,
                         init_function=init_function,
@@ -389,7 +389,7 @@ def create_single_node_executor(
     max_workers: Optional[int] = None,
     max_cores: Optional[int] = None,
     cache_directory: Optional[str] = None,
-    resource_dict: Optional[dict] = None,
+    executor_kwargs: Optional[dict] = None,
     hostname_localhost: Optional[bool] = None,
     block_allocation: bool = False,
     init_function: Optional[Callable] = None,
@@ -405,7 +405,7 @@ def create_single_node_executor(
                            max_cores is recommended, as computers have a limited number of compute cores.
         max_cores (int): defines the number cores which can be used in parallel
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
-        resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+        executor_kwargs (dict): A dictionary of arguments required by the executor. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
@@ -434,27 +434,27 @@ def create_single_node_executor(
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
     """
-    if resource_dict is None:
-        resource_dict = {}
-    cores_per_worker = resource_dict.get("cores", 1)
-    resource_dict["cache_directory"] = cache_directory
-    resource_dict["hostname_localhost"] = hostname_localhost
-    resource_dict["log_obj_size"] = log_obj_size
+    if executor_kwargs is None:
+        executor_kwargs = {}
+    cores_per_worker = executor_kwargs.get("cores", 1)
+    executor_kwargs["cache_directory"] = cache_directory
+    executor_kwargs["hostname_localhost"] = hostname_localhost
+    executor_kwargs["log_obj_size"] = log_obj_size
 
     check_init_function(block_allocation=block_allocation, init_function=init_function)
-    check_gpus_per_worker(gpus_per_worker=resource_dict.get("gpus_per_core", 0))
+    check_gpus_per_worker(gpus_per_worker=executor_kwargs.get("gpus_per_core", 0))
     check_command_line_argument_lst(
-        command_line_argument_lst=resource_dict.get("slurm_cmd_args", [])
+        command_line_argument_lst=executor_kwargs.get("slurm_cmd_args", [])
     )
     check_wait_on_shutdown(wait_on_shutdown=wait)
-    if "threads_per_core" in resource_dict:
-        del resource_dict["threads_per_core"]
-    if "gpus_per_core" in resource_dict:
-        del resource_dict["gpus_per_core"]
-    if "slurm_cmd_args" in resource_dict:
-        del resource_dict["slurm_cmd_args"]
+    if "threads_per_core" in executor_kwargs:
+        del executor_kwargs["threads_per_core"]
+    if "gpus_per_core" in executor_kwargs:
+        del executor_kwargs["gpus_per_core"]
+    if "slurm_cmd_args" in executor_kwargs:
+        del executor_kwargs["slurm_cmd_args"]
     if block_allocation:
-        resource_dict["init_function"] = init_function
+        executor_kwargs["init_function"] = init_function
         return BlockAllocationTaskScheduler(
             max_workers=validate_number_of_cores(
                 max_cores=max_cores,
@@ -462,13 +462,13 @@ def create_single_node_executor(
                 cores_per_worker=cores_per_worker,
                 set_local_cores=True,
             ),
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=MpiExecSpawner,
         )
     else:
         return OneProcessTaskScheduler(
             max_cores=max_cores,
             max_workers=max_workers,
-            executor_kwargs=resource_dict,
+            executor_kwargs=executor_kwargs,
             spawner=MpiExecSpawner,
         )
