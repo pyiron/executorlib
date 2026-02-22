@@ -45,14 +45,22 @@ class SingleNodeExecutor(BaseExecutor):
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can 
+                                                 provide an external cache_key to identify tasks on the file system. 
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function. 
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes - 
+                                                  do not allow other tasks to use the same compute node. 
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to 
+                                                influence the scheduling.
+                              * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -130,16 +138,23 @@ class SingleNodeExecutor(BaseExecutor):
             cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                                  - cores (int): number of MPI cores to be used for each function call
-                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
-                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                                  - cwd (str/None): current working directory where the parallel python task is executed
-                                  - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                           only)
-                                  - error_log_file (str): Name of the error log file to use for storing exceptions
-                                                          raised by the Python functions submitted to the Executor.
-                                  - restart_limit (int): The maximum number of restarting worker processes. Default: 0
-                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                                  * cores (int): number of MPI cores to be used for each function call
+                                  * threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  * cwd (str): current working directory where the parallel python task is executed
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can 
+                                                      provide an external cache_key to identify tasks on the file system. 
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python 
+                                                     function. 
+                                  * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
+                                                      - do not allow other tasks to use the same compute node. 
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                                                          multiple tasks in one file.
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python 
+                                                        function is allowed to take in seconds.
+                                  * priority (int): the queuing system priority assigned to a given Python function to 
+                                                    influence the scheduling.
+                                  * slurm_cmd_args (list): Additional command line arguments for the srun call.
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -237,13 +252,22 @@ class TestClusterExecutor(BaseExecutor):
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         max_cores (int): defines the number cores which can be used in parallel
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
-                              - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can 
+                                                 provide an external cache_key to identify tasks on the file system. 
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function. 
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes - 
+                                                  do not allow other tasks to use the same compute node. 
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to 
+                                                influence the scheduling.
+                              * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -317,13 +341,23 @@ class TestClusterExecutor(BaseExecutor):
             cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
             max_cores (int): defines the number cores which can be used in parallel
             resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                                  - cores (int): number of MPI cores to be used for each function call
-                                  - threads_per_core (int): number of OpenMP threads to be used for each function call
-                                  - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                                  - cwd (str/None): current working directory where the parallel python task is executed
-                                  - error_log_file (str): Name of the error log file to use for storing exceptions
-                                                          raised by the Python functions submitted to the Executor.
-                                  - run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+                                  * cores (int): number of MPI cores to be used for each function call
+                                  * threads_per_core (int): number of OpenMP threads to be used for each function call
+                                  * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                                  * cwd (str): current working directory where the parallel python task is executed
+                                  * cache_key (str): Rather than using the internal hashing of executorlib the user can 
+                                                      provide an external cache_key to identify tasks on the file system. 
+                                  * num_nodes (int): number of compute nodes used for the evaluation of the Python 
+                                                     function. 
+                                  * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
+                                                      - do not allow other tasks to use the same compute node. 
+                                  * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                                                          multiple tasks in one file.
+                                  * run_time_limit (int): the maximum time the execution of the submitted Python 
+                                                        function is allowed to take in seconds.
+                                  * priority (int): the queuing system priority assigned to a given Python function to 
+                                                    influence the scheduling.
+                                  * slurm_cmd_args (list): Additional command line arguments for the srun call.
             hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                       context of an HPC cluster this essential to be able to communicate to an
                                       Executor running on a different compute node within the same allocation. And
@@ -436,16 +470,22 @@ def create_single_node_executor(
         max_cores (int): defines the number cores which can be used in parallel
         cache_directory (str, optional): The directory to store cache files. Defaults to "executorlib_cache".
         resource_dict (dict): A dictionary of resources required by the task. With the following keys:
-                              - cores (int): number of MPI cores to be used for each function call
-                              - threads_per_core (int): number of OpenMP threads to be used for each function call
-                              - gpus_per_core (int): number of GPUs per worker - defaults to 0
-                              - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                              and SLURM only) - default False
-                              - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
-                                                       only)
-                              - error_log_file (str): Name of the error log file to use for storing exceptions raised
-                                                      by the Python functions submitted to the Executor.
+                              * cores (int): number of MPI cores to be used for each function call
+                              * threads_per_core (int): number of OpenMP threads to be used for each function call
+                              * gpus_per_core (int): number of GPUs per worker - defaults to 0
+                              * cwd (str): current working directory where the parallel python task is executed
+                              * cache_key (str): Rather than using the internal hashing of executorlib the user can 
+                                                 provide an external cache_key to identify tasks on the file system. 
+                              * num_nodes (int): number of compute nodes used for the evaluation of the Python function. 
+                              * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes - 
+                                                  do not allow other tasks to use the same compute node. 
+                              * error_log_file (str): path to the error log file, primarily used to merge the log of 
+                                                      multiple tasks in one file.
+                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
+                                                      allowed to take in seconds.
+                              * priority (int): the queuing system priority assigned to a given Python function to 
+                                                influence the scheduling.
+                              * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
                                   context of an HPC cluster this essential to be able to communicate to an
                                   Executor running on a different compute node within the same allocation. And

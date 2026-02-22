@@ -50,7 +50,7 @@ The resource dictionary parameter `resource_dict` can contain one or more of the
   use the same compute node. 
 * `error_log_file` (str): path to the error log file, primarily used to merge the log of multiple tasks in one file.
 * `run_time_limit` (int): the maximum time the execution of the submitted Python function is allowed to take in seconds.
-* `priority` (int):
+* `priority` (int): the queuing system priority assigned to a given Python function to influence the scheduling.
 * `slurm_cmd_args` (list): Additional command line arguments for the srun call (SLURM only)
 
 For the special case of the [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) 
