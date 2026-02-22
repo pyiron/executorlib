@@ -36,14 +36,12 @@ if not HAS_PYDANTIC:
     ResourceDictValidation = dataclass(ResourceDictValidation)  # type: ignore
 
 
-def _get_accepted_keys() -> list[str]:
-    if hasattr(ResourceDictValidation, "model_fields"):
-        return list(ResourceDictValidation.model_fields.keys())
-    elif hasattr(ResourceDictValidation, "__fields__"):
-        return list(ResourceDictValidation.__fields__.keys())
-    elif hasattr(ResourceDictValidation, "__dataclass_fields__"):
-        return list(ResourceDictValidation.__dataclass_fields__.keys())
-    return []
+def _get_accepted_keys(class_type) -> list[str]:
+    if hasattr(class_type, "model_fields"):
+        return list(class_type.model_fields.keys())
+    elif hasattr(class_type, "__dataclass_fields__"):
+        return list(class_type.__dataclass_fields__.keys())
+    raise TypeError("Unsupported class type for validation")
 
 
 def validate_resource_dict(resource_dict: dict) -> None:
@@ -51,7 +49,7 @@ def validate_resource_dict(resource_dict: dict) -> None:
 
 
 def validate_resource_dict_with_optional_keys(resource_dict: dict) -> None:
-    accepted_keys = _get_accepted_keys()
+    accepted_keys = _get_accepted_keys(class_type=ResourceDictValidation)
     optional_lst = [key for key in resource_dict if key not in accepted_keys]
     validate_dict = {
         key: value for key, value in resource_dict.items() if key in accepted_keys

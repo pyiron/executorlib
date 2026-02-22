@@ -103,6 +103,27 @@ class TestValidateFallback(unittest.TestCase):
             with self.assertWarns(UserWarning):
                 validate_resource_dict_with_optional_keys({"cores": 1, "optional_key": 2})
 
+    def test_get_accepted_keys(self):
+        from executorlib.standalone.validate import _get_accepted_keys, ResourceDictValidation
+
+        accepted_keys = _get_accepted_keys(ResourceDictValidation)
+        expected_keys = [
+            "cores",
+            "threads_per_core",
+            "gpus_per_core",
+            "cwd",
+            "cache_key",
+            "num_nodes",
+            "exclusive",
+            "error_log_file",
+            "run_time_limit",
+            "priority",
+            "slurm_cmd_args"
+        ]
+        self.assertEqual(set(accepted_keys), set(expected_keys))
+        with self.assertRaises(TypeError):
+            _get_accepted_keys(int)
+
 
 @unittest.skipIf(skip_pydantic_test, "pydantic is not installed")
 class TestValidateFunction(unittest.TestCase):
