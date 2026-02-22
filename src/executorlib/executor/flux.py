@@ -519,7 +519,9 @@ def create_flux_executor(
     executor_kwargs["log_obj_size"] = log_obj_size
     check_init_function(block_allocation=block_allocation, init_function=init_function)
     check_pmi(backend="flux_allocation", pmi=pmi_mode)
-    check_oversubscribe(oversubscribe=executor_kwargs.get("openmpi_oversubscribe", False))
+    check_oversubscribe(
+        oversubscribe=executor_kwargs.get("openmpi_oversubscribe", False)
+    )
     check_command_line_argument_lst(
         command_line_argument_lst=executor_kwargs.get("slurm_cmd_args", [])
     )
