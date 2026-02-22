@@ -63,9 +63,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
         with self.assertRaises(TypeError):
             create_file_executor()
         with self.assertRaises(ValueError):
-            create_file_executor(block_allocation=True, resource_dict={})
+            create_file_executor(block_allocation=True, executor_kwargs={})
         with self.assertRaises(ValueError):
-            create_file_executor(init_function=True, resource_dict={})
+            create_file_executor(init_function=True, executor_kwargs={})
 
     def test_executor_dependence_error(self):
         with self.assertRaises(ValueError):
