@@ -32,6 +32,7 @@ class SrunSpawner(SubprocessSpawner):
         openmpi_oversubscribe: bool = False,
         slurm_cmd_args: Optional[list[str]] = None,
         pmi_mode: Optional[str] = None,
+        run_time_limit: Optional[int] = None,
     ):
         """
         Srun interface implementation.
@@ -47,6 +48,7 @@ class SrunSpawner(SubprocessSpawner):
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
             slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
+            run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         """
         super().__init__(
             cwd=cwd,
@@ -60,6 +62,7 @@ class SrunSpawner(SubprocessSpawner):
         self._num_nodes = num_nodes
         self._exclusive = exclusive
         self._pmi_mode = pmi_mode
+        self._run_time_limit = run_time_limit
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
@@ -81,6 +84,7 @@ class SrunSpawner(SubprocessSpawner):
             openmpi_oversubscribe=self._openmpi_oversubscribe,
             slurm_cmd_args=self._slurm_cmd_args,
             pmi_mode=self._pmi_mode,
+            run_time_limit=self._run_time_limit,
         )
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,

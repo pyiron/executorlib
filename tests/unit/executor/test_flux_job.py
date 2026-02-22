@@ -1,9 +1,11 @@
 import os
 import unittest
+from time import sleep
 
 import numpy as np
 
 from executorlib import FluxJobExecutor
+from executorlib.api import ExecutorlibSocketError
 
 
 try:
@@ -17,6 +19,11 @@ except ImportError:
 
 
 def calc(i):
+    return i
+
+
+def delayed_calc(i):
+    sleep(2)
     return i
 
 
@@ -109,6 +116,24 @@ class TestFluxBackend(unittest.TestCase):
             output,
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
+
+    def test_run_time_limit(self):
+        with FluxJobExecutor(
+            max_cores=1,
+            resource_dict={"cores": 1},
+            flux_executor=self.executor,
+            block_allocation=False,
+            pmi_mode=pmi,
+        ) as p:
+            f1 = p.submit(delayed_calc, 1, resource_dict={"run_time_limit": 1})
+            f2 = p.submit(delayed_calc, 2, resource_dict={"run_time_limit": 5})
+            self.assertFalse(f1.done())
+            self.assertFalse(f2.done())
+            self.assertEqual(f2.result(), 2)
+            self.assertTrue(f1.done())
+            self.assertTrue(f2.done())
+            with self.assertRaises(ExecutorlibSocketError):
+                f1.result()
 
     def test_output_files_cwd(self):
         dirname = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))

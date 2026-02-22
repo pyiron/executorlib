@@ -158,6 +158,13 @@ def check_hostname_localhost(hostname_localhost: Optional[bool]) -> None:
         )
 
 
+def check_restart_limit(restart_limit: int, block_allocation: bool = True) -> None:
+    if not block_allocation and restart_limit != 0:
+        raise ValueError(
+            "The option to specify a restart limit for worker processes is only available with block_allocation=True."
+        )
+
+
 def check_pmi_mode(pmi_mode: Optional[str]) -> None:
     if pmi_mode is not None:
         raise ValueError(

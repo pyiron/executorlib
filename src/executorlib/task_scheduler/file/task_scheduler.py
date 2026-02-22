@@ -9,7 +9,7 @@ from executorlib.standalone.inputcheck import (
     check_nested_flux_executor,
     check_pmi_mode,
 )
-from executorlib.task_scheduler.base import TaskSchedulerBase
+from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
 from executorlib.task_scheduler.file.spawner_subprocess import (
     execute_in_subprocess,
@@ -28,7 +28,7 @@ except ImportError:
 class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
-        resource_dict: Optional[dict] = None,
+        executor_kwargs: Optional[dict] = None,
         execute_function: Callable = execute_with_pysqa,
         terminate_function: Optional[Callable] = None,
         pysqa_config_directory: Optional[str] = None,
@@ -37,12 +37,13 @@ class FileTaskScheduler(TaskSchedulerBase):
         pmi_mode: Optional[str] = None,
         wait: bool = True,
         refresh_rate: float = 0.01,
+        validator: Callable = validate_resource_dict,
     ):
         """
         Initialize the FileExecutor.
 
         Args:
-            resource_dict (dict): A dictionary of resources required by the task. With the following keys:
+            executor_kwargs (dict): A dictionary of executor arguments required by the task. With the following keys:
                               - cores (int): number of MPI cores to be used for each function call
                               - cwd (str/None): current working directory where the parallel python task is executed
                               - cache_directory (str): The directory to store cache files.
@@ -55,7 +56,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
             refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
         """
-        super().__init__(max_cores=None)
+        super().__init__(max_cores=None, validator=validator)
         default_resource_dict = {
             "cores": 1,
             "cwd": None,
@@ -63,13 +64,13 @@ class FileTaskScheduler(TaskSchedulerBase):
             "exclusive": False,
             "openmpi_oversubscribe": False,
         }
-        if resource_dict is None:
-            resource_dict = {}
-        resource_dict.update(
-            {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
+        if executor_kwargs is None:
+            executor_kwargs = {}
+        executor_kwargs.update(
+            {k: v for k, v in default_resource_dict.items() if k not in executor_kwargs}
         )
         self._process_kwargs = {
-            "resource_dict": resource_dict,
+            "executor_kwargs": executor_kwargs,
             "future_queue": self._future_queue,
             "execute_function": execute_function,
             "terminate_function": terminate_function,
@@ -89,7 +90,7 @@ class FileTaskScheduler(TaskSchedulerBase):
 
 
 def create_file_executor(
-    resource_dict: dict,
+    executor_kwargs: dict,
     max_workers: Optional[int] = None,
     backend: Optional[str] = None,
     max_cores: Optional[int] = None,
@@ -106,6 +107,7 @@ def create_file_executor(
     execute_function: Callable = execute_with_pysqa,
     wait: bool = True,
     refresh_rate: float = 0.01,
+    validator: Callable = validate_resource_dict,
 ):
     if block_allocation:
         raise ValueError(
@@ -116,7 +118,7 @@ def create_file_executor(
             "The option to specify an init_function is not available with the pysqa based backend."
         )
     if cache_directory is not None:
-        resource_dict["cache_directory"] = cache_directory
+        executor_kwargs["cache_directory"] = cache_directory
     if backend is None:
         check_pmi_mode(pmi_mode=pmi_mode)
     check_max_workers_and_cores(max_cores=max_cores, max_workers=max_workers)
@@ -129,7 +131,7 @@ def create_file_executor(
     else:
         terminate_function = terminate_subprocess  # type: ignore
     return FileTaskScheduler(
-        resource_dict=resource_dict,
+        executor_kwargs=executor_kwargs,
         pysqa_config_directory=pysqa_config_directory,
         backend=backend,
         disable_dependencies=disable_dependencies,
@@ -138,4 +140,5 @@ def create_file_executor(
         pmi_mode=pmi_mode,
         wait=wait,
         refresh_rate=refresh_rate,
+        validator=validator,
     )

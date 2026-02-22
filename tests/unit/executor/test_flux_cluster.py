@@ -47,6 +47,11 @@ def stop_function():
     return True
 
 
+def add_with_sleep(parameter_1, parameter_2):
+    sleep(1)
+    return parameter_1 + parameter_2
+
+
 @unittest.skipIf(
     skip_flux_test or skip_mpi4py_test,
     "h5py or mpi4py or flux are not installed, so the h5py, flux and mpi4py tests are skipped.",
@@ -80,6 +85,27 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
+
+    def test_executor_dependencies(self):
+        with FluxClusterExecutor(
+            resource_dict={"cores": 1, "cwd": "executorlib_cache"},
+            block_allocation=False,
+            cache_directory="executorlib_cache",
+            pmi_mode=pmi,
+        ) as exe:
+            fs1 = exe.submit(add_with_sleep, 1, 1)
+            fs2 = exe.submit(add_with_sleep, fs1, 1)
+            fs3 = exe.submit(add_with_sleep, fs1, fs2)
+            self.assertFalse(fs1.done())
+            self.assertFalse(fs2.done())
+            self.assertFalse(fs3.done())
+            self.assertEqual(fs1.result(), 2)
+            self.assertEqual(fs2.result(), 3)
+            self.assertEqual(fs3.result(), 5)
+            self.assertEqual(len(os.listdir("executorlib_cache")), 6)
+            self.assertTrue(fs1.done())
+            self.assertTrue(fs2.done())
+            self.assertTrue(fs3.done())
 
     def test_executor_blockallocation_echo(self):
         with FluxClusterExecutor(

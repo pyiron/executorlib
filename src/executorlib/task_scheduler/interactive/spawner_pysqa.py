@@ -11,6 +11,7 @@ from executorlib.standalone.interactive.spawner import (
     set_current_directory_in_environment,
 )
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
+from executorlib.task_scheduler.base import validate_resource_dict
 from executorlib.task_scheduler.interactive.blockallocation import (
     BlockAllocationTaskScheduler,
 )
@@ -31,6 +32,7 @@ class PysqaSpawner(BaseSpawner):
         pmi_mode: Optional[str] = None,
         config_directory: Optional[str] = None,
         backend: Optional[str] = None,
+        run_time_limit: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -50,6 +52,7 @@ class PysqaSpawner(BaseSpawner):
             pmi_mode (str, optional): PMI interface to use (OpenMPI v5 requires pmix) default is None
             config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
             backend (str): name of the backend used to spawn tasks.
+            run_time_limit (int): The maximum runtime in seconds for each task. Default: None
         """
         super().__init__(
             cwd=cwd,
@@ -68,6 +71,7 @@ class PysqaSpawner(BaseSpawner):
         self._pysqa_submission_kwargs = kwargs
         self._process: Optional[int] = None
         self._queue_adapter: Optional[QueueAdapter] = None
+        self._run_time_limit = run_time_limit
 
     def bootup(
         self,
@@ -191,6 +195,7 @@ class PysqaSpawner(BaseSpawner):
             command=" ".join(self.generate_command(command_lst=command_lst)),
             working_directory=working_directory,
             cores=int(self._cores * self._threads_per_core),
+            run_time_max=self._run_time_limit,
             **self._pysqa_submission_kwargs,
         )
 
@@ -223,25 +228,26 @@ def create_pysqa_block_allocation_scheduler(
     pmi_mode: Optional[str] = None,
     init_function: Optional[Callable] = None,
     max_workers: Optional[int] = None,
-    resource_dict: Optional[dict] = None,
+    executor_kwargs: Optional[dict] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
+    validator: Callable = validate_resource_dict,
 ):
-    if resource_dict is None:
-        resource_dict = {}
-    cores_per_worker = resource_dict.get("cores", 1)
-    if "cwd" in resource_dict and resource_dict["cwd"] is not None:
-        resource_dict["cwd"] = os.path.abspath(resource_dict["cwd"])
+    if executor_kwargs is None:
+        executor_kwargs = {}
+    cores_per_worker = executor_kwargs.get("cores", 1)
+    if "cwd" in executor_kwargs and executor_kwargs["cwd"] is not None:
+        executor_kwargs["cwd"] = os.path.abspath(executor_kwargs["cwd"])
     if cache_directory is not None:
-        resource_dict["cache_directory"] = os.path.abspath(cache_directory)
+        executor_kwargs["cache_directory"] = os.path.abspath(cache_directory)
     else:
-        resource_dict["cache_directory"] = os.path.abspath(".")
-    resource_dict["hostname_localhost"] = hostname_localhost
-    resource_dict["log_obj_size"] = log_obj_size
-    resource_dict["pmi_mode"] = pmi_mode
-    resource_dict["init_function"] = init_function
-    resource_dict["config_directory"] = pysqa_config_directory
-    resource_dict["backend"] = backend
+        executor_kwargs["cache_directory"] = os.path.abspath(".")
+    executor_kwargs["hostname_localhost"] = hostname_localhost
+    executor_kwargs["log_obj_size"] = log_obj_size
+    executor_kwargs["pmi_mode"] = pmi_mode
+    executor_kwargs["init_function"] = init_function
+    executor_kwargs["config_directory"] = pysqa_config_directory
+    executor_kwargs["backend"] = backend
     max_workers = validate_number_of_cores(
         max_cores=max_cores,
         max_workers=max_workers,
@@ -250,6 +256,7 @@ def create_pysqa_block_allocation_scheduler(
     )
     return BlockAllocationTaskScheduler(
         max_workers=max_workers,
-        executor_kwargs=resource_dict,
+        executor_kwargs=executor_kwargs,
         spawner=PysqaSpawner,
+        validator=validator,
     )
