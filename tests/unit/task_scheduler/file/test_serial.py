@@ -126,7 +126,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             kwargs={
                 "future_queue": q,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
+                "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -166,7 +166,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             kwargs={
                 "future_queue": q,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
+                "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
@@ -206,7 +206,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
             kwargs={
                 "future_queue": q,
                 "execute_function": execute_in_subprocess,
-                "resource_dict": {"cores": 1, "cache_directory": cache_dir},
+                "executor_kwargs": {"cores": 1, "cache_directory": cache_dir},
                 "terminate_function": terminate_subprocess,
             },
         )
