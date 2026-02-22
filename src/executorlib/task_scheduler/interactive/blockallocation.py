@@ -38,6 +38,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         max_workers (int): defines the number workers which can execute functions in parallel
         executor_kwargs (dict): keyword arguments for the executor
         spawner (BaseSpawner): interface class to initiate python processes
+        restart_limit (int): The maximum number of restarting worker processes.
 
     Examples:
 
@@ -66,6 +67,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs: Optional[dict] = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
         validator: Callable = validate_resource_dict,
+        restart_limit: int = 0,
     ):
         if executor_kwargs is None:
             executor_kwargs = {}
@@ -75,6 +77,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["future_queue"] = self._future_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
+        executor_kwargs["restart_limit"] = restart_limit
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
         self_id = random.getrandbits(128)

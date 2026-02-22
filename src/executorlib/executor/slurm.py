@@ -6,6 +6,7 @@ from executorlib.standalone.inputcheck import (
     check_log_obj_size,
     check_plot_dependency_graph,
     check_refresh_rate,
+    check_restart_limit,
     check_wait_on_shutdown,
     validate_number_of_cores,
 )
@@ -50,8 +51,6 @@ class SlurmClusterExecutor(BaseExecutor):
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
                               - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
                               - error_log_file (str): Name of the error log file to use for storing exceptions raised
                                                       by the Python functions submitted to the Executor.
@@ -79,6 +78,7 @@ class SlurmClusterExecutor(BaseExecutor):
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
     Examples:
         ```
@@ -119,6 +119,7 @@ class SlurmClusterExecutor(BaseExecutor):
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
         wait: bool = True,
+        openmpi_oversubscribe: bool = False,
     ):
         """
         The executorlib.SlurmClusterExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -138,8 +139,6 @@ class SlurmClusterExecutor(BaseExecutor):
                                   - threads_per_core (int): number of OpenMP threads to be used for each function call
                                   - gpus_per_core (int): number of GPUs per worker - defaults to 0
                                   - cwd (str/None): current working directory where the parallel python task is executed
-                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                                  and SLURM only) - default False
                                   - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                            only)
                                   - error_log_file (str): Name of the error log file to use for storing exceptions
@@ -167,6 +166,7 @@ class SlurmClusterExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
         """
         default_resource_dict: dict = {
@@ -174,7 +174,7 @@ class SlurmClusterExecutor(BaseExecutor):
             "threads_per_core": 1,
             "gpus_per_core": 0,
             "cwd": None,
-            "openmpi_oversubscribe": False,
+            "openmpi_oversubscribe": openmpi_oversubscribe,
             "slurm_cmd_args": [],
         }
         if resource_dict is None:
@@ -275,8 +275,6 @@ class SlurmJobExecutor(BaseExecutor):
                               - threads_per_core (int): number of OpenMP threads to be used for each function call
                               - gpus_per_core (int): number of GPUs per worker - defaults to 0
                               - cwd (str/None): current working directory where the parallel python task is executed
-                              - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI and
-                                                              SLURM only) - default False
                               - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
                               - num_nodes (int, optional): The number of compute nodes to use for executing the task.
                                                            Defaults to None.
@@ -306,6 +304,8 @@ class SlurmJobExecutor(BaseExecutor):
         export_workflow_filename (str): Name of the file to store the exported workflow graph in.
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+        restart_limit (int): The maximum number of restarting worker processes.
+        openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
     Examples:
         ```
@@ -345,6 +345,8 @@ class SlurmJobExecutor(BaseExecutor):
         export_workflow_filename: Optional[str] = None,
         log_obj_size: bool = False,
         wait: bool = True,
+        restart_limit: int = 0,
+        openmpi_oversubscribe: bool = False,
     ):
         """
         The executorlib.SlurmJobExecutor leverages either the message passing interface (MPI), the SLURM workload
@@ -364,8 +366,6 @@ class SlurmJobExecutor(BaseExecutor):
                                   - threads_per_core (int): number of OpenMP threads to be used for each function call
                                   - gpus_per_core (int): number of GPUs per worker - defaults to 0
                                   - cwd (str/None): current working directory where the parallel python task is executed
-                                  - openmpi_oversubscribe (bool): adds the `--oversubscribe` command line flag (OpenMPI
-                                                                  and SLURM only) - default False
                                   - slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM
                                                            only)
                                   - num_nodes (int, optional): The number of compute nodes to use for executing the task.
@@ -396,6 +396,8 @@ class SlurmJobExecutor(BaseExecutor):
             export_workflow_filename (str): Name of the file to store the exported workflow graph in.
             log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
             wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
+            restart_limit (int): The maximum number of restarting worker processes.
+            openmpi_oversubscribe (bool): adds the `--oversubscribe` command flag (OpenMPI and SLURM) - default False
 
         """
         default_resource_dict: dict = {
@@ -403,7 +405,7 @@ class SlurmJobExecutor(BaseExecutor):
             "threads_per_core": 1,
             "gpus_per_core": 0,
             "cwd": None,
-            "openmpi_oversubscribe": False,
+            "openmpi_oversubscribe": openmpi_oversubscribe,
             "slurm_cmd_args": [],
         }
         if resource_dict is None:
@@ -411,6 +413,9 @@ class SlurmJobExecutor(BaseExecutor):
         validate_resource_dict(resource_dict=resource_dict)
         resource_dict.update(
             {k: v for k, v in default_resource_dict.items() if k not in resource_dict}
+        )
+        check_restart_limit(
+            restart_limit=restart_limit, block_allocation=block_allocation
         )
         if not disable_dependencies:
             super().__init__(
@@ -426,6 +431,7 @@ class SlurmJobExecutor(BaseExecutor):
                         init_function=init_function,
                         log_obj_size=log_obj_size,
                         wait=wait,
+                        restart_limit=restart_limit,
                     ),
                     max_cores=max_cores,
                     refresh_rate=refresh_rate,
@@ -451,6 +457,7 @@ class SlurmJobExecutor(BaseExecutor):
                     log_obj_size=log_obj_size,
                     wait=wait,
                     validator=validate_resource_dict,
+                    restart_limit=restart_limit,
                 )
             )
 
@@ -467,6 +474,7 @@ def create_slurm_executor(
     log_obj_size: bool = False,
     wait: bool = True,
     validator: Callable = validate_resource_dict,
+    restart_limit: int = 0,
 ) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
     """
     Create a SLURM executor
@@ -509,6 +517,7 @@ def create_slurm_executor(
         log_obj_size (bool): Enable debug mode which reports the size of the communicated objects.
         wait (bool): Whether to wait for the completion of all tasks before shutting down the executor.
         validator (callable): A function to validate the resource_dict.
+        restart_limit (int): The maximum number of restarting worker processes.
 
     Returns:
         InteractiveStepExecutor/ InteractiveExecutor
@@ -540,6 +549,7 @@ def create_slurm_executor(
             executor_kwargs=resource_dict,
             spawner=SrunSpawner,
             validator=validator,
+            restart_limit=restart_limit,
         )
     else:
         return OneProcessTaskScheduler(
