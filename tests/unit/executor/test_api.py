@@ -161,6 +161,7 @@ class TestTestClusterExecutor(unittest.TestCase):
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
         exe.shutdown(wait=False, cancel_futures=False)
+        sleep(0.1)
         self.assertTrue(future_1.done())
         self.assertTrue(future_1.cancelled())
         sleep(2)
