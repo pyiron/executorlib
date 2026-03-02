@@ -211,7 +211,7 @@ class TaskSchedulerBase(FutureExecutor):
             self._future_queue.put(
                 {"shutdown": True, "wait": wait, "cancel_futures": cancel_futures}
             )
-            if isinstance(self._process, Thread):
+            if wait and isinstance(self._process, Thread):
                 self._process.join()
                 self._future_queue.join()
         self._process = None
