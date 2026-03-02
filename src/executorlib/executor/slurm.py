@@ -46,7 +46,7 @@ class SlurmClusterExecutor(BaseExecutor):
                               * cwd (str): current working directory where the parallel python task is executed
                               * cache_key (str): Rather than using the internal hashing of executorlib the user can
                                                  provide an external cache_key to identify tasks on the file system.
-                              * cache_directory (str): The directory to store cache files. 
+                              * cache_directory (str): The directory to store cache files.
                               * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
                               * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
                                                   do not allow other tasks to use the same compute node.
@@ -142,7 +142,7 @@ class SlurmClusterExecutor(BaseExecutor):
                                   * cwd (str): current working directory where the parallel python task is executed
                                   * cache_key (str): Rather than using the internal hashing of executorlib the user can
                                                       provide an external cache_key to identify tasks on the file system.
-                                  * cache_directory (str): The directory to store cache files. 
+                                  * cache_directory (str): The directory to store cache files.
                                   * num_nodes (int): number of compute nodes used for the evaluation of the Python
                                                      function.
                                   * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
@@ -287,7 +287,7 @@ class SlurmJobExecutor(BaseExecutor):
                               * cwd (str): current working directory where the parallel python task is executed
                               * cache_key (str): Rather than using the internal hashing of executorlib the user can
                                                  provide an external cache_key to identify tasks on the file system.
-                              * cache_directory (str): The directory to store cache files. 
+                              * cache_directory (str): The directory to store cache files.
                               * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
                               * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
                                                   do not allow other tasks to use the same compute node.
@@ -383,7 +383,7 @@ class SlurmJobExecutor(BaseExecutor):
                                   * cwd (str): current working directory where the parallel python task is executed
                                   * cache_key (str): Rather than using the internal hashing of executorlib the user can
                                                       provide an external cache_key to identify tasks on the file system.
-                                  * cache_directory (str): The directory to store cache files. 
+                                  * cache_directory (str): The directory to store cache files.
                                   * num_nodes (int): number of compute nodes used for the evaluation of the Python
                                                      function.
                                   * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes
@@ -512,7 +512,7 @@ def create_slurm_executor(
                               * cwd (str): current working directory where the parallel python task is executed
                               * cache_key (str): Rather than using the internal hashing of executorlib the user can
                                                  provide an external cache_key to identify tasks on the file system.
-                              * cache_directory (str): The directory to store cache files. 
+                              * cache_directory (str): The directory to store cache files.
                               * num_nodes (int): number of compute nodes used for the evaluation of the Python function.
                               * exclusive (bool): boolean flag to reserve exclusive access to selected compute nodes -
                                                   do not allow other tasks to use the same compute node.
