@@ -45,6 +45,7 @@ The resource dictionary parameter `resource_dict` can contain one or more of the
 * `cache_key` (str): Rather than using the internal hashing of executorlib the user can provide an external `cache_key`
   to identify tasks on the file system. The initial file name is going to be `cache_key` + `_i.h5` and the final file
   name is going to be `cache_key` + `_o.h5`.
+* `cache_directory` (str): The directory to store cache files.
 * `num_nodes` (int): number of compute nodes used for the evaluation of the Python function. 
 * `exclusive` (bool): boolean flag to reserve exclusive access to selected compute nodes - do not allow other tasks to 
   use the same compute node. 
