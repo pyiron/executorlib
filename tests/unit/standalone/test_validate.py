@@ -51,6 +51,7 @@ class TestValidateFallback(unittest.TestCase):
             "gpus_per_core",
             "cwd",
             "cache_key",
+            "cache_directory",
             "num_nodes",
             "exclusive",
             "error_log_file",

@@ -19,6 +19,7 @@ class ResourceDictValidation(BaseModel):
     gpus_per_core: Optional[int] = None
     cwd: Optional[str] = None
     cache_key: Optional[str] = None
+    cache_directory: Optional[str] = None
     num_nodes: Optional[int] = None
     exclusive: Optional[bool] = None
     error_log_file: Optional[str] = None
