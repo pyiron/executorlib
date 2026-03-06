@@ -348,9 +348,6 @@ def _drain_dead_worker(
         with alive_workers_lock:
             if alive_workers[0] > 0:
                 alive_workers[0] -= 1
-            has_healthy_workers = alive_workers[0] > 0
-    else:
-        has_healthy_workers = False
     while True:
         try:
             task_dict = future_queue.get(timeout=1)
@@ -360,6 +357,11 @@ def _drain_dead_worker(
             task_done(future_queue=future_queue)
             break
         elif "fn" in task_dict and "future" in task_dict:
+            if alive_workers is not None and alive_workers_lock is not None:
+                with alive_workers_lock:
+                    has_healthy_workers = alive_workers[0] > 0
+            else:
+                has_healthy_workers = False
             if has_healthy_workers:
                 future_queue.put(task_dict)
                 task_done(future_queue=future_queue)
