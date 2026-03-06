@@ -1,7 +1,7 @@
 import queue
 import random
 from concurrent.futures import Future
-from threading import Event, Thread
+from threading import Event, Lock, Thread
 from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
@@ -83,6 +83,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self_id = random.getrandbits(128)
         self._self_id = self_id
         _interrupt_bootup_dict[self._self_id] = False
+        alive_workers = [max_workers]
+        alive_workers_lock = Lock()
         bootup_events = [Event() for _ in range(self._max_workers)]
         bootup_events[0].set()
         self._set_process(
@@ -99,6 +101,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                             if worker_id + 1 < self._max_workers
                             else None
                         ),
+                        "alive_workers": alive_workers,
+                        "alive_workers_lock": alive_workers_lock,
                     },
                 )
                 for worker_id in range(self._max_workers)
@@ -227,6 +231,8 @@ def _execute_multiple_tasks(
     restart_limit: int = 0,
     bootup_event: Optional[Event] = None,
     next_bootup_event: Optional[Event] = None,
+    alive_workers: Optional[list] = None,
+    alive_workers_lock: Optional[Lock] = None,
     **kwargs,
 ) -> None:
     """
@@ -258,6 +264,9 @@ def _execute_multiple_tasks(
         bootup_event (Event): Event to wait on before submitting the job to the scheduler, ensuring workers are
                               submitted in worker_id order.
         next_bootup_event (Event): Event to signal after job submission, unblocking the next worker.
+        alive_workers (list): Single-element list [N] tracking how many worker threads are still alive. Shared across
+                              all worker threads; decremented when a worker is permanently dead.
+        alive_workers_lock (Lock): Lock protecting alive_workers from concurrent modification.
     """
     if bootup_event is not None:
         bootup_event.wait()
@@ -279,11 +288,38 @@ def _execute_multiple_tasks(
     )
     restart_counter = 0
     while True:
-        if not interface.status and restart_counter > restart_limit:
-            interface.status = True  # no more restarts
-            interface_initialization_exception = ExecutorlibSocketError(
-                "SocketInterface crashed during execution."
-            )
+        if not interface.status and restart_counter >= restart_limit:
+            # Worker is permanently dead. If healthy workers remain,
+            # recycle tasks back into the shared queue so they can pick
+            # them up. If all workers are dead, fail tasks immediately.
+            if alive_workers is not None and alive_workers_lock is not None:
+                with alive_workers_lock:
+                    if alive_workers[0] > 0:
+                        alive_workers[0] -= 1
+                    has_healthy_workers = alive_workers[0] > 0
+            else:
+                has_healthy_workers = False
+            while True:
+                try:
+                    task_dict = future_queue.get(timeout=1)
+                except queue.Empty:
+                    continue
+                if "shutdown" in task_dict and task_dict["shutdown"]:
+                    task_done(future_queue=future_queue)
+                    break
+                elif "fn" in task_dict and "future" in task_dict:
+                    if has_healthy_workers:
+                        future_queue.put(task_dict)
+                        task_done(future_queue=future_queue)
+                    else:
+                        f = task_dict.pop("future")
+                        f.set_exception(
+                            ExecutorlibSocketError(
+                                "SocketInterface crashed during execution."
+                            )
+                        )
+                        task_done(future_queue=future_queue)
+            break
         elif not interface.status:
             interface.bootup()
             interface_initialization_exception = _set_init_function(
