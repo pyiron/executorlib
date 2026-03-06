@@ -366,9 +366,7 @@ def _drain_dead_worker(
             else:
                 f = task_dict.pop("future")
                 f.set_exception(
-                    ExecutorlibSocketError(
-                        "SocketInterface crashed during execution."
-                    )
+                    ExecutorlibSocketError("SocketInterface crashed during execution.")
                 )
                 task_done(future_queue=future_queue)
 
