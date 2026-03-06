@@ -289,36 +289,11 @@ def _execute_multiple_tasks(
     restart_counter = 0
     while True:
         if not interface.status and restart_counter >= restart_limit:
-            # Worker is permanently dead. If healthy workers remain,
-            # recycle tasks back into the shared queue so they can pick
-            # them up. If all workers are dead, fail tasks immediately.
-            if alive_workers is not None and alive_workers_lock is not None:
-                with alive_workers_lock:
-                    if alive_workers[0] > 0:
-                        alive_workers[0] -= 1
-                    has_healthy_workers = alive_workers[0] > 0
-            else:
-                has_healthy_workers = False
-            while True:
-                try:
-                    task_dict = future_queue.get(timeout=1)
-                except queue.Empty:
-                    continue
-                if "shutdown" in task_dict and task_dict["shutdown"]:
-                    task_done(future_queue=future_queue)
-                    break
-                elif "fn" in task_dict and "future" in task_dict:
-                    if has_healthy_workers:
-                        future_queue.put(task_dict)
-                        task_done(future_queue=future_queue)
-                    else:
-                        f = task_dict.pop("future")
-                        f.set_exception(
-                            ExecutorlibSocketError(
-                                "SocketInterface crashed during execution."
-                            )
-                        )
-                        task_done(future_queue=future_queue)
+            _drain_dead_worker(
+                future_queue=future_queue,
+                alive_workers=alive_workers,
+                alive_workers_lock=alive_workers_lock,
+            )
             break
         elif not interface.status:
             interface.bootup()
@@ -354,6 +329,47 @@ def _execute_multiple_tasks(
                         reset_task_dict(
                             future_obj=f, future_queue=future_queue, task_dict=task_dict
                         )
+                task_done(future_queue=future_queue)
+
+
+def _drain_dead_worker(
+    future_queue: queue.Queue,
+    alive_workers: Optional[list] = None,
+    alive_workers_lock: Optional[Lock] = None,
+) -> None:
+    """Handle a permanently dead worker by recycling or failing its tasks.
+
+    If healthy workers remain, tasks are recycled back into the shared queue
+    so they can be picked up. If all workers are dead, tasks are failed
+    immediately with ExecutorlibSocketError. In both cases, the worker's
+    shutdown message is consumed to prevent hangs in shutdown().
+    """
+    if alive_workers is not None and alive_workers_lock is not None:
+        with alive_workers_lock:
+            if alive_workers[0] > 0:
+                alive_workers[0] -= 1
+            has_healthy_workers = alive_workers[0] > 0
+    else:
+        has_healthy_workers = False
+    while True:
+        try:
+            task_dict = future_queue.get(timeout=1)
+        except queue.Empty:
+            continue
+        if "shutdown" in task_dict and task_dict["shutdown"]:
+            task_done(future_queue=future_queue)
+            break
+        elif "fn" in task_dict and "future" in task_dict:
+            if has_healthy_workers:
+                future_queue.put(task_dict)
+                task_done(future_queue=future_queue)
+            else:
+                f = task_dict.pop("future")
+                f.set_exception(
+                    ExecutorlibSocketError(
+                        "SocketInterface crashed during execution."
+                    )
+                )
                 task_done(future_queue=future_queue)
 
 
