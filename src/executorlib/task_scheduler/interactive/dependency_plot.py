@@ -326,7 +326,9 @@ def _short_object_name(node):
             }
         )
     elif "object at" in node_value_str:
-        short_name = node_value_str[1:-1].split(maxsplit=1)[0].split(".")[-1] + "()"
+        short_name = (
+            node_value_str[1:-1].split(maxsplit=1)[0].rsplit(".", maxsplit=1)[-1] + "()"
+        )
     elif "<function" in node_value_str:
         short_name = node_value_str.split()[1] + "()"
     elif "\n" in node_value_str:

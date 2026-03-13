@@ -17,7 +17,7 @@ dependencies:
 - ipython =9.9.0
 - matplotlib =3.10.8
 - networkx =3.6.1
-- pydantic =2.12.4
+- pydantic =2.12.5
 - pygraphviz =1.14
 - pysqa =0.3.5
 - pyzmq =27.1.0
