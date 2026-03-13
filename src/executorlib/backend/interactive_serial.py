@@ -12,7 +12,7 @@ from executorlib.standalone.interactive.communication import (
 )
 
 
-def main(argument_lst: Optional[list[str]] = None):
+def evaluate_cmd(argument_lst: Optional[list[str]] = None):
     """
     The main function of the program.
 
@@ -90,4 +90,4 @@ def main(argument_lst: Optional[list[str]] = None):
 
 
 if __name__ == "__main__":
-    main(argument_lst=sys.argv)
+    evaluate_cmd(argument_lst=sys.argv)
