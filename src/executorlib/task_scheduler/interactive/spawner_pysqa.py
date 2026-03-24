@@ -238,6 +238,8 @@ def create_pysqa_block_allocation_scheduler(
     cores_per_worker = executor_kwargs.get("cores", 1)
     if "cwd" in executor_kwargs and executor_kwargs["cwd"] is not None:
         executor_kwargs["cwd"] = os.path.abspath(executor_kwargs["cwd"])
+    elif cache_directory is not None:
+        executor_kwargs["cwd"] = os.path.abspath(cache_directory)
     if cache_directory is not None:
         executor_kwargs["cache_directory"] = os.path.abspath(cache_directory)
     else:
