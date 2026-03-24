@@ -55,7 +55,7 @@ class FluxJobExecutor(BaseExecutor):
                                                       allowed to take in seconds.
                               * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
-                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
@@ -287,7 +287,7 @@ class FluxClusterExecutor(BaseExecutor):
                                                       allowed to take in seconds.
                               * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
-                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -544,7 +544,7 @@ def create_flux_executor(
                                                       allowed to take in seconds.
                               * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
-                              *`slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
+                              * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
         pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
         flux_executor (flux.job.FluxExecutor): Flux Python interface to submit the workers to flux
         flux_executor_nesting (bool): Provide hierarchically nested Flux job scheduler inside the submitted function.
