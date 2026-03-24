@@ -23,7 +23,7 @@ class ResourceDictValidation(BaseModel):
     num_nodes: Optional[int] = None
     exclusive: Optional[bool] = None
     error_log_file: Optional[str] = None
-    run_time_limit: Optional[int] = None
+    run_time_max: Optional[int] = None
     priority: Optional[int] = None
     slurm_cmd_args: Optional[list[str]] = None
 
