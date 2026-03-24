@@ -26,6 +26,7 @@ class ResourceDictValidation(BaseModel):
     run_time_limit: Optional[int] = None
     priority: Optional[int] = None
     slurm_cmd_args: Optional[list[str]] = None
+    submission_template: Optional[str] = None
 
     if HAS_PYDANTIC:
 
