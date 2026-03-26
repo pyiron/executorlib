@@ -5,7 +5,7 @@ dependencies:
 - numpy =2.4.2
 - openmpi
 - cloudpickle =3.1.2
-- h5py =3.15.1
+- h5py =3.16.0
 - hatchling =1.29.0
 - hatch-vcs =0.5.0
 - ipython =9.9.0
