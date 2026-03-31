@@ -69,7 +69,7 @@ def execute_with_pysqa(
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],
             "working_directory": os.path.abspath(cwd),
-            "run_time_max": resource_dict.get("run_time_limit"),
+            "run_time_max": resource_dict.get("run_time_max"),
         }
         if "cwd" in resource_dict:
             del resource_dict["cwd"]

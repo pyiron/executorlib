@@ -51,8 +51,8 @@ class FluxJobExecutor(BaseExecutor):
                                                   do not allow other tasks to use the same compute node.
                               * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                       multiple tasks in one file.
-                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
-                                                      allowed to take in seconds.
+                              * run_time_max (int): the maximum time the execution of the submitted Python function is
+                                                    allowed to take in seconds.
                               * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
                               * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
@@ -154,7 +154,7 @@ class FluxJobExecutor(BaseExecutor):
                                                       - do not allow other tasks to use the same compute node.
                                   * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                           multiple tasks in one file.
-                                  * run_time_limit (int): the maximum time the execution of the submitted Python
+                                  * run_time_max (int): the maximum time the execution of the submitted Python
                                                         function is allowed to take in seconds.
                                   * priority (int): the queuing system priority assigned to a given Python function to
                                                     influence the scheduling.
@@ -283,8 +283,8 @@ class FluxClusterExecutor(BaseExecutor):
                                                   do not allow other tasks to use the same compute node.
                               * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                       multiple tasks in one file.
-                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
-                                                      allowed to take in seconds.
+                              * run_time_max (int): the maximum time the execution of the submitted Python function is
+                                                    allowed to take in seconds.
                               * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
                               * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)
@@ -380,7 +380,7 @@ class FluxClusterExecutor(BaseExecutor):
                                                       - do not allow other tasks to use the same compute node.
                                   * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                           multiple tasks in one file.
-                                  * run_time_limit (int): the maximum time the execution of the submitted Python
+                                  * run_time_max (int): the maximum time the execution of the submitted Python
                                                         function is allowed to take in seconds.
                                   * priority (int): the queuing system priority assigned to a given Python function to
                                                     influence the scheduling.
@@ -417,7 +417,7 @@ class FluxClusterExecutor(BaseExecutor):
             "cwd": None,
             "openmpi_oversubscribe": openmpi_oversubscribe,
             "slurm_cmd_args": [],
-            "run_time_limit": None,
+            "run_time_max": None,
         }
         if resource_dict is None:
             resource_dict = {}
@@ -540,8 +540,8 @@ def create_flux_executor(
                                                   do not allow other tasks to use the same compute node.
                               * error_log_file (str): path to the error log file, primarily used to merge the log of
                                                       multiple tasks in one file.
-                              * run_time_limit (int): the maximum time the execution of the submitted Python function is
-                                                      allowed to take in seconds.
+                              * run_time_max (int): the maximum time the execution of the submitted Python function is
+                                                    allowed to take in seconds.
                               * priority (int): the queuing system priority assigned to a given Python function to
                                                 influence the scheduling.
                               * slurm_cmd_args (list): Additional command line arguments for the srun call (SLURM only)

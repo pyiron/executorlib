@@ -44,7 +44,7 @@ class FluxPythonSpawner(BaseSpawner):
         flux_executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
         flux_executor_nesting (bool, optional): Whether to use nested FluxExecutor. Defaults to False.
         flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
-        run_time_limit (int): The maximum runtime in seconds for each task. Default: None
+        run_time_max (int): The maximum runtime in seconds for each task. Default: None
     """
 
     def __init__(
@@ -62,7 +62,7 @@ class FluxPythonSpawner(BaseSpawner):
         flux_executor: Optional[flux.job.FluxExecutor] = None,
         flux_executor_nesting: bool = False,
         flux_log_files: bool = False,
-        run_time_limit: Optional[int] = None,
+        run_time_max: Optional[int] = None,
     ):
         super().__init__(
             cwd=cwd,
@@ -80,7 +80,7 @@ class FluxPythonSpawner(BaseSpawner):
         self._flux_log_files = flux_log_files
         self._priority = priority
         self._future = None
-        self._run_time_limit = run_time_limit
+        self._run_time_max = run_time_max
 
     def bootup(
         self,
@@ -131,8 +131,8 @@ class FluxPythonSpawner(BaseSpawner):
         if self._cwd is not None:
             jobspec.cwd = self._cwd
             os.makedirs(self._cwd, exist_ok=True)
-        if self._run_time_limit is not None:
-            jobspec.duration = self._run_time_limit
+        if self._run_time_max is not None:
+            jobspec.duration = self._run_time_max
         file_prefix = "flux_" + str(self._worker_id)
         if self._flux_log_files and self._cwd is not None:
             jobspec.stderr = os.path.join(self._cwd, file_prefix + ".err")
