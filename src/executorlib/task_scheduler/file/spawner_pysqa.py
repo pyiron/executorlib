@@ -1,6 +1,6 @@
 import os
-from typing import Optional
 from subprocess import CalledProcessError
+from typing import Optional
 
 from pysqa import QueueAdapter
 
