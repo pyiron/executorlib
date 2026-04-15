@@ -25,6 +25,27 @@ except ImportError:
 skip_mpi4py_test = importlib.util.find_spec("mpi4py") is None
 
 
+template = """\
+#!/bin/bash
+# flux: --job-name={{job_name}}
+# flux: --env=CORES={{cores}}
+# flux: --output=time.out
+# flux: --error=error.out
+# flux: --nslots={{cores}}
+# flux: --queue={{queue}}
+{%- if run_time_max %}
+# flux: --time-limit={{run_time_max}}s
+{%- endif %}
+{%- if dependency_list %}
+{%- for jobid in dependency_list %}
+# flux: --dependency=afterok:{{jobid}}
+{%- endfor %}
+{%- endif %}
+
+{{command}}
+"""
+
+
 def echo(i):
     sleep(1)
     return i
@@ -70,6 +91,23 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertEqual(len(os.listdir("executorlib_cache")), 4)
             self.assertTrue(fs1.done())
+
+    def test_executor_wrong_queue_name(self):
+        with self.assertRaises(ValueError):
+            with FluxClusterExecutor(
+                resource_dict={
+                    "cores": 2,
+                    "cwd": "executorlib_cache",
+                    "submission_template": template,
+                    "queue": "test",
+                },
+                block_allocation=False,
+                cache_directory="executorlib_cache",
+                pmi_mode=pmi,
+            ) as exe:
+                cloudpickle_register(ind=1)
+                fs1 = exe.submit(mpi_funct, 1)
+                print(fs1.result())
 
     def test_executor_no_cwd(self):
         with FluxClusterExecutor(
