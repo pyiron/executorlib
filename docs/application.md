@@ -8,4 +8,3 @@ The bulk modulus is calculated by uniformly deforming a supercell of atoms and m
 during compression and elongation. The first derivative of this curve is the pressure and the second derivative is 
 proportional to the bulk modulus. Other material properties like the heat capacity, thermal expansion or thermal conductivity
 can be calculated in similar ways following the [atomistics](https://atomistics.readthedocs.io/) documentation. 
-
