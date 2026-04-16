@@ -56,13 +56,13 @@ cluster = [
     "h5py==3.16.0",
 ]
 validation = [
-    "pydantic==2.13.0",
+    "pydantic==2.13.1",
 ]
 all = [
     "mpi4py==4.1.1",
     "pysqa==0.4.0",
     "h5py==3.16.0",
-    "pydantic==2.13.0",
+    "pydantic==2.13.1",
     "pygraphviz==1.14",
     "networkx==3.6.1",
     "ipython==9.9.0",
