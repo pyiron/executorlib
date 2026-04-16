@@ -9,20 +9,3 @@ during compression and elongation. The first derivative of this curve is the pre
 proportional to the bulk modulus. Other material properties like the heat capacity, thermal expansion or thermal conductivity
 can be calculated in similar ways following the [atomistics](https://atomistics.readthedocs.io/) documentation. 
 
-## Pandas DataFrame operations
-Beyond atomistic simulations, `executorlib` can also accelerate tabular data processing. For example, replacing
-`DataFrame.apply()` with `SingleNodeExecutor.map()` enables parallel evaluation for row-wise operations:
-
-```python
-import pandas
-from executorlib import SingleNodeExecutor
-
-
-def compute(a, b):
-    return (a - b) / (a + b)
-
-
-df = pandas.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-with SingleNodeExecutor() as exe:
-    df["c"] = list(exe.map(compute, df["a"], df["b"]))
-```
