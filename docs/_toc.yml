@@ -2,7 +2,6 @@ format: jb-book
 root: README
 chapters:
 - file: installation.md
-- file: concepts.md
 - file: 1-single-node.ipynb
 - file: 2-hpc-cluster.ipynb
 - file: 3-hpc-job.ipynb
