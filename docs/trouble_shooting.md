@@ -31,6 +31,25 @@ Typical error messages related to missing dependencies are `ModuleNotFoundError`
 * `ModuleNotFoundError: No module named 'h5py'` - Install [h5py](https://www.h5py.org/) as explained in the [Caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching) section of the installation. 
 * `ModuleNotFoundError: No module named 'networkx'` - Install [networkx](https://networkx.org/) as explained in the [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation) section of the installation.
 
+## Test Coverage for Integration Tests
+When Python functions are executed with executorlib, they run in subprocesses started via `sys.executable`. As a result, `coverage run`
+only tracks the main test process by default and can miss function execution inside executorlib workers.
+
+To collect coverage from both the main process and executorlib subprocesses, enable the subprocess patch in your project configuration:
+```toml
+[tool.coverage.run]
+patch = ["subprocess"]
+```
+
+Then execute:
+```bash
+coverage run -m unittest discover
+coverage combine
+coverage report
+```
+
+The `coverage combine` command merges the data from the main process and subprocesses.
+
 ## Python Version 
 Executorlib supports all current Python version ranging from 3.9 to 3.13. Still some of the dependencies and especially 
 the [flux](http://flux-framework.org) job scheduler are currently limited to Python 3.12 and below. Consequently for high
