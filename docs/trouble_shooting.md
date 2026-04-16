@@ -83,6 +83,29 @@ of the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.
 All parameters in the resource dictionary `resource_dict` are optional. When `pydantic` is installed as optional 
 dependency the `resource_dict` is validated using `pydantic`.
 
+## Debugging Submission Command
+When using the [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) the Python functions
+are submitted to the queuing system as individual jobs. If the submission of a job fails, for example due to an
+incorrect `resource_dict` or a configuration issue in the queuing system, `executorlib` captures this error.
+
+In this case, the `future.result()` call will raise the underlying error (e.g., `subprocess.CalledProcessError` or
+`ValueError`). Note that in some environments like Jupyter notebooks, the submission error might occur in a background
+thread, and `future.result()` might hang if the error is not correctly propagated.
+
+To debug a failed submission, you can inspect the cache directory (default `executorlib_cache`). `executorlib` stores the
+input and output for each task as HDF5 files. If a submission fails, you can find the corresponding `_i.h5` file in the
+cache directory and manually try to submit the command to get more detailed error messages.
+
+If you specify an `error_log_file` in the `resource_dict`, `executorlib` will also append any exceptions raised during
+the execution to this file:
+
+```python
+with SlurmJobExecutor(max_workers=2) as p:
+    future = p.submit(calc, 2, j=4, resource_dict={"error_log_file": "error.log"})
+```
+
+The error log will include the function name, arguments, and the full stack trace of the exception.
+
 ## SSH Connection
 While the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) provides the option to connect to
 high performance computing (HPC) clusters via SSH, this functionality is not supported for executorlib. The background 
