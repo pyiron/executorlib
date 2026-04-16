@@ -150,6 +150,7 @@ as hierarchical job scheduler within the allocations.
   * [Filesystem Usage](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#filesystem-usage)
   * [Firewall Issues](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#firewall-issues)
   * [Message Passing Interface](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#message-passing-interface)
+  * [Test Coverage for Integration Tests](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#test-coverage-for-integration-tests)
   * [Python Version](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#python-version)
   * [Resource Dictionary](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#resource-dictionary)
   * [SSH Connection](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#ssh-connection)
