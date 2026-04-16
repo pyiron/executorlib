@@ -87,10 +87,10 @@ sequenceDiagram
 `executorlib` supports two primary communication modes between the main process and the worker processes:
 
 ### Interactive Communication (ZMQ-based)
-Used by `SingleNodeExecutor` and `HPC Job Executor`. It leverages [ZeroMQ (ZMQ)](https://zeromq.org) and [cloudpickle](https://github.com/cloudpipe/cloudpickle) for high-performance, in-memory communication of Python objects. This mode is ideal for low-latency task distribution within an allocation.
+Used by `SingleNodeExecutor`, `SlurmJobExecutor`, and `FluxJobExecutor`. It leverages [ZeroMQ (ZMQ)](https://zeromq.org) and [cloudpickle](https://github.com/cloudpipe/cloudpickle) for high-performance, in-memory communication of Python objects. This mode is ideal for low-latency task distribution within an allocation.
 
 ### File-based Communication
-Used by the `HPC Cluster Executor`. It uses the filesystem to communicate between the main process and the individual HPC jobs. This mode is necessary when tasks are submitted as independent jobs to a scheduler like SLURM or Flux, where direct network communication between the login node and compute nodes might be restricted.
+Used by `SlurmClusterExecutor` and `FluxClusterExecutor`. It uses the filesystem to communicate between the main process and the individual HPC jobs. This mode is necessary when tasks are submitted as independent jobs to a scheduler like SLURM or Flux, where direct network communication between the login node and compute nodes might be restricted.
 
 ## Resource Management
 
