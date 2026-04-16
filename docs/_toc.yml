@@ -8,8 +8,8 @@ chapters:
 - file: 3-hpc-job.ipynb
 - file: application.md
   sections:
-    - file: 5-1-gpaw.ipynb
-    - file: 5-2-quantum-espresso.ipynb
+    - file: 4-1-gpaw.ipynb
+    - file: 4-2-quantum-espresso.ipynb
 - file: trouble_shooting.md
-- file: 4-developer.ipynb
+- file: 5-developer.ipynb
 - file: api.rst
