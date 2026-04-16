@@ -19,18 +19,17 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
   machine learning pipelines and simulation workflows executorlib provides optional caching of intermediate results for 
   iterative development in interactive environments like jupyter notebooks.
 
+## Choosing the Right Executor
+To support different stages of the development cycle, from initial prototyping to large-scale production runs, `executorlib` provides three types of executors:
+
+| Executor | Use Case | HPC Integration | Communication |
+| --- | --- | --- | --- |
+| `SingleNodeExecutor` | Local development and testing | Laptop or Workstation | Socket-based |
+| `SlurmJobExecutor` / `FluxJobExecutor` | Scaling within an existing allocation | SLURM `srun` / Flux | Socket-based |
+| `SlurmClusterExecutor` / `FluxClusterExecutor` | Submitting many independent jobs | SLURM `sbatch` / Flux | File-based |
+
 ## Examples
-The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
-with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor) and the 
-[ThreadPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor) for parallel 
-execution of Python functions on a single computer. executorlib extends this functionality to distribute Python 
-functions over multiple computers within a high performance computing (HPC) cluster. This can be either achieved by 
-submitting each function as individual job to the HPC job scheduler with an [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html) - 
-or by requesting a job from the HPC cluster and then distribute the Python functions within this job with an
-[HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html). Finally, to accelerate the 
-development process executorlib also provides a [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html) - 
-to use the executorlib functionality on a laptop, workstation or single compute node for testing. Starting with the 
-[Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html):
+Starting with the [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html) for local testing:
 ```python
 from executorlib import SingleNodeExecutor
 

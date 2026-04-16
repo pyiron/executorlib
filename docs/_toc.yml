@@ -1,7 +1,10 @@
 format: jb-book
 root: README
 chapters:
+- file: persona.md
 - file: installation.md
+  sections:
+    - file: flux.md
 - file: 1-single-node.ipynb
 - file: 2-hpc-cluster.ipynb
 - file: 3-hpc-job.ipynb
@@ -10,5 +13,7 @@ chapters:
     - file: 5-1-gpaw.ipynb
     - file: 5-2-quantum-espresso.ipynb
 - file: trouble_shooting.md
+  sections:
+    - file: resource_dict.md
 - file: 4-developer.ipynb
 - file: api.rst
