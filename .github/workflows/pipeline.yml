@@ -64,7 +64,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: "3.13"
+        python-version: "3.14"
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
@@ -84,7 +84,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.13'
+        python-version: '3.14'
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
@@ -117,11 +117,11 @@ jobs:
       matrix:
         include:
         - operating-system: ubuntu-latest
-          python-version: '3.13'
+          python-version: '3.14'
           environment-file: .ci_support/environment-openmpi.yml
 
         - operating-system: ubuntu-latest
-          python-version: '3.13'
+          python-version: '3.14'
           environment-file: .ci_support/environment-mpich.yml
 
     steps:
@@ -314,13 +314,16 @@ jobs:
       matrix:
         include:
         - operating-system: macos-latest
-          python-version: '3.13'
+          python-version: '3.14'
 
         - operating-system: ubuntu-24.04-arm
-          python-version: '3.13'
+          python-version: '3.14'
 
         - operating-system: ubuntu-22.04-arm
-          python-version: '3.13'
+          python-version: '3.14'
+
+        - operating-system: ubuntu-latest
+          python-version: '3.14'
 
         - operating-system: ubuntu-latest
           python-version: '3.13'
@@ -355,15 +358,18 @@ jobs:
       matrix:
         include:
         - operating-system: macos-latest
-          python-version: '3.13'
+          python-version: '3.14'
 
         - operating-system: ubuntu-latest
-          python-version: '3.13'
+          python-version: '3.14'
 
         - operating-system: ubuntu-24.04-arm
-          python-version: '3.13'
+          python-version: '3.14'
 
         - operating-system: ubuntu-22.04-arm
+          python-version: '3.14'
+
+        - operating-system: ubuntu-latest
           python-version: '3.13'
 
         - operating-system: ubuntu-latest
@@ -396,7 +402,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: "3.13"
+        python-version: "3.14"
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"

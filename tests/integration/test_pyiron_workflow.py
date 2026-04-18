@@ -11,6 +11,7 @@ from functools import partialmethod
 from time import sleep
 from typing import Callable
 import unittest
+import sys
 
 from executorlib import SingleNodeExecutor
 from executorlib.standalone.serialize import cloudpickle_register
@@ -55,6 +56,10 @@ def dynamic_foo():
     return as_dynamic_foo
 
 
+@unittest.skipIf(
+    sys.version_info.minor >= 14 and sys.version_info.minor >= 3,
+    "Test environment has to be Python <3.14 for dynamic objects.",
+)
 class TestDynamicallyDefinedObjects(unittest.TestCase):
     def test_args(self):
         """
