@@ -36,7 +36,9 @@ def dump(file_name: Optional[str], data_dict: dict) -> None:
                 if data_key in group_dict:
                     fname.create_dataset(
                         name="/" + group_dict[data_key],
-                        data=np.frombuffer(cloudpickle.dumps(data_value), dtype=np.uint8),
+                        data=np.frombuffer(
+                            cloudpickle.dumps(data_value), dtype=np.uint8
+                        ),
                         compression="gzip",
                     )
 
