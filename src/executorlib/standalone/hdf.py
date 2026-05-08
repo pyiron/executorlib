@@ -54,26 +54,26 @@ def load(file_name: str) -> dict:
     with h5py.File(file_name, "r") as hdf:
         data_dict = {}
         if "function" in hdf:
-            data_dict["fn"] = cloudpickle.loads(np.frombuffer(hdf["/function"], dtype=np.uint8))
+            data_dict["fn"] = cloudpickle.loads(hdf["/function"][()].tobytes())
         else:
             raise TypeError("Function not found in HDF5 file.")
         if "input_args" in hdf:
-            data_dict["args"] = cloudpickle.loads(np.frombuffer(hdf["/input_args"], dtype=np.uint8))
+            data_dict["args"] = cloudpickle.loads(hdf["/input_args"][()].tobytes())
         else:
             data_dict["args"] = ()
         if "input_kwargs" in hdf:
-            data_dict["kwargs"] = cloudpickle.loads(np.frombuffer(hdf["/input_kwargs"], dtype=np.uint8))
+            data_dict["kwargs"] = cloudpickle.loads(hdf["/input_kwargs"][()].tobytes())
         else:
             data_dict["kwargs"] = {}
         if "resource_dict" in hdf:
             data_dict["resource_dict"] = cloudpickle.loads(
-                np.frombuffer(hdf["/resource_dict"], dtype=np.uint8)
+                hdf["/resource_dict"][()].tobytes()
             )
         else:
             data_dict["resource_dict"] = {}
         if "error_log_file" in hdf:
             data_dict["error_log_file"] = cloudpickle.loads(
-                np.frombuffer(hdf["/error_log_file"], dtype=np.uint8)
+                hdf["/error_log_file"][()].tobytes()
             )
         return data_dict
 
@@ -92,9 +92,9 @@ def get_output(file_name: str) -> tuple[bool, bool, Any]:
     def get_output_helper(file_name: str) -> tuple[bool, bool, Any]:
         with h5py.File(file_name, "r") as hdf:
             if "output" in hdf:
-                return True, True, cloudpickle.loads(np.frombuffer(hdf["/output"], dtype=np.uint8))
+                return True, True, cloudpickle.loads(hdf["/output"][()].tobytes())
             elif "error" in hdf:
-                return True, False, cloudpickle.loads(np.frombuffer(hdf["/error"], dtype=np.uint8))
+                return True, False, cloudpickle.loads(hdf["/error"][()].tobytes())
             else:
                 return False, False, None
 
@@ -121,7 +121,7 @@ def get_runtime(file_name: str) -> float:
     """
     with h5py.File(file_name, "r") as hdf:
         if "runtime" in hdf:
-            return cloudpickle.loads(np.frombuffer(hdf["/runtime"], dtype=np.uint8))
+            return cloudpickle.loads(hdf["/runtime"][()].tobytes())
         else:
             return 0.0
 
@@ -139,7 +139,7 @@ def get_queue_id(file_name: Optional[str]) -> Optional[int]:
     if file_name is not None and os.path.exists(file_name):
         with h5py.File(file_name, "r") as hdf:
             if "queue_id" in hdf:
-                return cloudpickle.loads(np.frombuffer(hdf["/queue_id"], dtype=np.uint8))
+                return cloudpickle.loads(hdf["/queue_id"][()].tobytes())
     return None
 
 
@@ -225,7 +225,7 @@ def _get_content_of_file(file_name: str) -> dict:
     """
     with h5py.File(file_name, "r") as hdf:
         return {
-            key: cloudpickle.loads(np.frombuffer(hdf["/" + key], dtype=np.uint8))
+            key: cloudpickle.loads(hdf["/" + key][()].tobytes())
             for key in group_dict.values()
             if key in hdf
         }
