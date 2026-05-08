@@ -7,7 +7,7 @@ from executorlib.standalone.select import FutureSelector
 
 
 try:
-    from executorlib.task_scheduler.file.backend import backend_execute_task_in_file
+    from executorlib.task_scheduler.file.backend import backend_execute_task_in_file, backend_write_file
     from executorlib.task_scheduler.file.shared import _check_task_output, _convert_args_and_kwargs, FutureItem
     from executorlib.standalone.hdf import dump, get_runtime
     from executorlib.standalone.serialize import serialize_funct
@@ -63,6 +63,30 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
+
+    def test_backend_write_file(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_file_i.h5")
+        dump(file_name=file_name, data_dict={"fn": my_funct, "args": [1], "kwargs": {"b": 2}})
+        backend_write_file(file_name=file_name, output={"result": 3}, runtime=0.1)
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, "test_file_o.h5")
+        )
+        self.assertTrue(future_file_obj.done())
+        self.assertEqual(future_file_obj.result(), 3)
+
+    def test_backend_write_file_serialization_error(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_file_i.h5")
+        dump(file_name=file_name, data_dict={"fn": my_funct, "args": [1], "kwargs": {"b": 2}})
+        backend_write_file(file_name=file_name, output={"result": Future()}, runtime=0.1)
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, "test_file_o.h5")
+        )
+        with self.assertRaises(Exception):
+            future_file_obj.result()
 
     def test_execute_function_mixed_selector_convert(self):
         cache_directory = os.path.abspath("executorlib_cache")
