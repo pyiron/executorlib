@@ -80,6 +80,7 @@ class TestSharedFunctions(unittest.TestCase):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
         file_name = os.path.join(cache_directory, "test_file_i.h5")
+        dump(file_name=file_name, data_dict={"fn": my_funct, "args": [1], "kwargs": {"b": 2}})
         backend_write_file(file_name=file_name, output={"result": Future()}, runtime=0.1)
         future_file_obj = FutureItem(
             file_name=os.path.join(cache_directory, "test_file_o.h5")
