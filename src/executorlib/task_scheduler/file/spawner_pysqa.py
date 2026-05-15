@@ -86,9 +86,7 @@ def execute_with_pysqa(
             if k in resource_dict:
                 del resource_dict[k]
         if "job_name" not in resource_dict:
-            resource_dict["job_name"] = os.path.basename(
-                os.path.dirname(os.path.abspath(cwd))
-            )
+            resource_dict["job_name"] = os.path.basename(file_name).split("_i.h5")[0]
         submit_kwargs.update(resource_dict)
         set_current_directory_in_environment()
         try:
