@@ -3,7 +3,7 @@ channels:
 dependencies:
 - h5py =3.16.0
 - jupyter
-- mpi4py =4.1.1
+- mpi4py =4.1.2
 - numpy =2.3.5
 - openmpi
 - papermill
