@@ -59,7 +59,7 @@ validation = [
     "pydantic==2.13.4",
 ]
 all = [
-    "mpi4py==4.1.1",
+    "mpi4py==4.1.2",
     "pysqa==0.4.1",
     "h5py==3.16.0",
     "pydantic==2.13.4",
