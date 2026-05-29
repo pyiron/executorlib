@@ -26,14 +26,14 @@ executorlib is the lightest path to take *existing* Python functions and scale t
 library [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects) you already
 know, rather than asking you to adopt a new data, actor, or workflow model.
 
-| | executorlib | `concurrent.futures` | [Dask](https://www.dask.org) | [Parsl](https://parsl-project.org) | [Ray](https://www.ray.io) | [Snakemake](https://snakemake.github.io) |
-|---|---|---|---|---|---|---|
-| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ❌ | ❌ | ❌ |
-| Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ | ✅ |
-| Native HPC scheduler (SLURM/flux) | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ✅ |
-| MPI-parallel functions | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ⚠️ |
-| Caching of results | ✅ | ❌ | ⚠️ | ✅ | ❌ | ✅ |
-| Setup / learning overhead | Low | Very low | Medium | Medium | Medium | High |
+| | executorlib | `concurrent.futures` | [Dask](https://www.dask.org) | [Parsl](https://parsl-project.org) | [Ray](https://www.ray.io) |
+|---|---|---|---|---|---|
+| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ❌ | ❌ |
+| Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ |
+| Native HPC scheduler (SLURM/flux) | ✅ | ❌ | ⚠️ | ✅ | ⚠️ |
+| MPI-parallel functions | ✅ | ❌ | ⚠️ | ✅ | ⚠️ |
+| Caching of results | ✅ | ❌ | ⚠️ | ✅ | ❌ |
+| Setup / learning overhead | Low | Very low | Medium | Medium | Medium |
 
 ✅ first-class · ⚠️ possible via add-on/config · ❌ not supported. See the full
 [comparison: when to use which](https://executorlib.readthedocs.io/en/latest/comparison.html) for honest guidance on
@@ -156,7 +156,6 @@ as hierarchical job scheduler within the allocations.
   * [Dask](https://executorlib.readthedocs.io/en/latest/comparison.html#dask)
   * [Parsl](https://executorlib.readthedocs.io/en/latest/comparison.html#parsl)
   * [Ray](https://executorlib.readthedocs.io/en/latest/comparison.html#ray)
-  * [Snakemake](https://executorlib.readthedocs.io/en/latest/comparison.html#snakemake)
   * [Choose executorlib when](https://executorlib.readthedocs.io/en/latest/comparison.html#choose-executorlib-when)
 * [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html)
   * [Basic Functionality](https://executorlib.readthedocs.io/en/latest/1-single-node.html#basic-functionality)
