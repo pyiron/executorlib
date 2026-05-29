@@ -1,4 +1,4 @@
-# executorlib vs Dask, Parsl, Ray & Snakemake — when to use which
+# Comparison
 
 executorlib is the lightest path to take *existing* Python functions and scale them across high performance computing
 (HPC) nodes — with per-function-call resource control and native [SLURM](https://slurm.schedmd.com) and
