@@ -354,6 +354,24 @@ def _cancel_processes(
 def _get_task_input(
     task_resource_dict: dict, executor_kwargs: dict
 ) -> tuple[dict, Optional[str], str, Optional[str]]:
+    """
+    Merge per-task resource requirements with executor defaults and extract scheduling metadata.
+
+    Executor-level kwargs fill in any keys not already present in the per-task resource dict.
+    The special keys ``cache_key``, ``cache_directory``, and ``error_log_file`` are popped from
+    the merged dict and returned separately so callers do not forward them to the backend.
+
+    Args:
+        task_resource_dict (dict): Per-task resource dict from the submitted future, modified in place.
+        executor_kwargs (dict): Executor-level defaults (e.g. cores, cwd, cache_directory).
+
+    Returns:
+        Tuple[dict, Optional[str], str, Optional[str]]:
+            - merged resource dict (without scheduling-only keys)
+            - cache_key (str or None)
+            - cache_directory (str, absolute path)
+            - error_log_file (str or None)
+    """
     task_resource_dict.update(
         {k: v for k, v in executor_kwargs.items() if k not in task_resource_dict}
     )
@@ -364,6 +382,13 @@ def _get_task_input(
 
 
 def _cancel_futures(future_dict: dict):
+    """
+    Cancel all pending futures in the dictionary.
+
+    Args:
+        future_dict (dict): Mapping of task keys to Future objects. Already-done futures are
+            skipped; pending ones are cancelled.
+    """
     for value in future_dict.values():
         if not value.done():
             value.cancel()
@@ -380,6 +405,28 @@ def _shutdown_executor(
     backend: Optional[str] = None,
     refresh_rate: float = 0.01,
 ):
+    """
+    Shut down the file-based executor, optionally waiting for or cancelling pending tasks.
+
+    The four combinations of ``wait`` / ``cancel_futures`` mirror the semantics of
+    concurrent.futures.Executor.shutdown():
+
+    * wait=True, cancel_futures=False  – poll until all tasks finish.
+    * wait=True, cancel_futures=True   – cancel pending futures then wait for running ones.
+    * wait=False, cancel_futures=True  – cancel everything immediately without blocking.
+    * wait=False, cancel_futures=False – detach tasks and mark futures cancelled.
+
+    Args:
+        wait (bool): Whether to block until all outstanding tasks have resolved.
+        cancel_futures (bool): Whether to cancel futures that have not yet started.
+        memory_dict (dict): Mapping of task keys to their Future objects.
+        process_dict (dict): Mapping of task keys to process handles or queue IDs.
+        cache_dir_dict (dict): Mapping of task keys to the cache directory for each task.
+        terminate_function (Callable, optional): Function used to terminate running processes.
+        pysqa_config_directory (str, optional): Path to the pysqa config directory.
+        backend (str, optional): Name of the backend ("slurm", "flux", or None for subprocess).
+        refresh_rate (float): Polling interval in seconds when waiting for tasks. Defaults to 0.01.
+    """
     if wait and not cancel_futures:
         while len(memory_dict) > 0:
             memory_dict = _refresh_memory_dict(
