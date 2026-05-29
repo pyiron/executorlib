@@ -22,7 +22,7 @@ alternative is the better choice.
 
 ✅ first-class · ⚠️ possible via an add-on or extra configuration · ❌ not supported.
 
-## `concurrent.futures` (the Python standard library)
+## [Concurrent futures](https://docs.python.org/3/library/concurrent.futures.html)
 
 The [`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html) module is where most parallel
 Python starts: `ProcessPoolExecutor` and `ThreadPoolExecutor` run functions in parallel on a single machine. executorlib
