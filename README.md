@@ -19,6 +19,26 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
   machine learning pipelines and simulation workflows executorlib provides optional caching of intermediate results for 
   iterative development in interactive environments like jupyter notebooks.
 
+## Why executorlib?
+executorlib is the lightest path to take *existing* Python functions and scale them across high performance computing
+(HPC) nodes — with per-function-call resource control and native [SLURM](https://slurm.schedmd.com) and
+[flux](http://flux-framework.org) integration — without rewriting your code into a new paradigm. It extends the standard
+library [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects) you already
+know, rather than asking you to adopt a new data, actor, or workflow model.
+
+| | executorlib | `concurrent.futures` | [Dask](https://www.dask.org) | [Parsl](https://parsl-project.org) | [Ray](https://www.ray.io) | [Snakemake](https://snakemake.github.io) |
+|---|---|---|---|---|---|---|
+| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ❌ | ❌ | ❌ |
+| Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ | ✅ |
+| Native HPC scheduler (SLURM/flux) | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ✅ |
+| MPI-parallel functions | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ⚠️ |
+| Caching of results | ✅ | ❌ | ⚠️ | ✅ | ❌ | ✅ |
+| Setup / learning overhead | Low | Very low | Medium | Medium | Medium | High |
+
+✅ first-class · ⚠️ possible via add-on/config · ❌ not supported. See the full
+[comparison: when to use which](https://executorlib.readthedocs.io/en/latest/comparison.html) for honest guidance on
+when another tool is the better fit.
+
 ## Examples
 The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
 with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor) and the 
