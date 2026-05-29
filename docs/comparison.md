@@ -11,14 +11,14 @@ alternative is the better choice.
 
 ## At a glance
 
-| | executorlib | `concurrent.futures` | Dask | Parsl | Ray | Snakemake |
-|---|---|---|---|---|---|---|
-| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ❌ | ❌ | ❌ |
-| Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ | ✅ |
-| Native HPC scheduler (SLURM/flux) | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ✅ |
-| MPI-parallel functions | ✅ | ❌ | ⚠️ | ✅ | ⚠️ | ⚠️ |
-| Caching of results | ✅ | ❌ | ⚠️ | ✅ | ❌ | ✅ |
-| Setup / learning overhead | Low | Very low | Medium | Medium | Medium | High |
+| | executorlib | Concurrent futures | Dask | Parsl | Ray |
+|---|---|---|---|---|---|
+| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ⚠️  | ❌ |
+| Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ |
+| Native HPC scheduler (SLURM/flux) | ✅ | ❌ | ⚠️ | ✅ | ⚠️ |
+| MPI-parallel functions | ✅ | ❌ | ⚠️ | ⚠️ | ⚠️ |
+| Caching of results | ✅ | ❌ | ⚠️ | ✅ | ❌ |
+| Setup / learning overhead | Low | Very low | Medium | Medium | Medium |
 
 ✅ first-class · ⚠️ possible via an add-on or extra configuration · ❌ not supported.
 
@@ -57,14 +57,6 @@ scheduler integration is via cluster launchers rather than native SLURM/flux.
 
 **Use Ray instead when** you need long-lived stateful actors, an AI/ML ecosystem, or a distributed-object model — and you
 are willing to write code in Ray's paradigm.
-
-## [Snakemake](https://snakemake.github.io)
-
-Snakemake is a file-oriented workflow manager: you declare rules with inputs/outputs and it builds a dependency graph,
-with strong HPC support and file-based caching. It is a workflow DSL, not a drop-in way to parallelize Python functions.
-
-**Use Snakemake instead when** your pipeline is naturally expressed as files transformed by rules, and you want
-reproducible, file-driven workflow management rather than in-process Python futures.
 
 ## Choose executorlib when
 
