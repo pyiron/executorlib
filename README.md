@@ -26,7 +26,7 @@ executorlib is the lightest path to take *existing* Python functions and scale t
 library [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects) you already
 know, rather than asking you to adopt a new data, actor, or workflow model.
 
-| | executorlib | `concurrent.futures` | [Dask](https://www.dask.org) | [Parsl](https://parsl-project.org) | [Ray](https://www.ray.io) |
+| | executorlib | [Concurrent futures](https://docs.python.org/3/library/concurrent.futures.html) | [Dask](https://www.dask.org) | [Parsl](https://parsl-project.org) | [Ray](https://www.ray.io) |
 |---|---|---|---|---|---|
 | Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ⚠️  | ❌ |
 | Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ |

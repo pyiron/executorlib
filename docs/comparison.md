@@ -11,7 +11,7 @@ alternative is the better choice.
 
 ## At a glance
 
-| | executorlib | `concurrent.futures` | Dask | Parsl | Ray |
+| | executorlib | Concurrent futures | Dask | Parsl | Ray |
 |---|---|---|---|---|---|
 | Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ⚠️  | ❌ |
 | Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ |
