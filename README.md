@@ -28,10 +28,10 @@ know, rather than asking you to adopt a new data, actor, or workflow model.
 
 | | executorlib | `concurrent.futures` | [Dask](https://www.dask.org) | [Parsl](https://parsl-project.org) | [Ray](https://www.ray.io) |
 |---|---|---|---|---|---|
-| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ❌ | ❌ |
+| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ⚠️  | ❌ |
 | Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ |
 | Native HPC scheduler (SLURM/flux) | ✅ | ❌ | ⚠️ | ✅ | ⚠️ |
-| MPI-parallel functions | ✅ | ❌ | ⚠️ | ✅ | ⚠️ |
+| MPI-parallel functions | ✅ | ❌ | ⚠️ | ⚠️ | ⚠️ |
 | Caching of results | ✅ | ❌ | ⚠️ | ✅ | ❌ |
 | Setup / learning overhead | Low | Very low | Medium | Medium | Medium |
 
