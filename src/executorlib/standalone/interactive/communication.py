@@ -240,6 +240,9 @@ def interface_connect(host: str, port: str) -> tuple[zmq.Context, zmq.Socket]:
     Args:
         host (str): hostname of the host running the SocketInterface instance to connect to.
         port (str): port on the host the SocketInterface instance is running on.
+
+    Returns:
+        Tuple[zmq.Context, zmq.Socket]: The ZMQ context and the connected PAIR socket.
     """
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
@@ -265,6 +268,9 @@ def interface_receive(socket: Optional[zmq.Socket]) -> dict:
 
     Args:
         socket (zmq.Socket): socket for the connection
+
+    Returns:
+        dict: Deserialized dictionary received from the socket, or an empty dict if socket is None.
     """
     if socket is not None:
         return cloudpickle.loads(socket.recv())

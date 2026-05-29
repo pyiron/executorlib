@@ -102,6 +102,18 @@ def _get_hash(binary: bytes) -> str:
 
 
 def _get_function_name(fn: Callable) -> str:
+    """
+    Return a human-readable name for a callable.
+
+    For regular functions and methods the ``__name__`` attribute is used. For callable objects
+    (classes implementing ``__call__``) the class name is extracted from ``__class__``.
+
+    Args:
+        fn (Callable): The callable whose name should be determined.
+
+    Returns:
+        str: A short name string suitable for use as part of a cache key prefix.
+    """
     if hasattr(fn, "__name__"):
         return fn.__name__
     else:
