@@ -217,18 +217,32 @@ def _check_task_output(
     if not os.path.exists(file_name):
         return future_obj
     exec_flag, no_error_flag, result = get_output(file_name=file_name)
-    _update_future(future_obj=future_obj, exec_flag=exec_flag, no_error_flag=no_error_flag, result=result)
+    _update_future(
+        future_obj=future_obj,
+        exec_flag=exec_flag,
+        no_error_flag=no_error_flag,
+        result=result,
+    )
     if duplicate_dict is not None and task_key in duplicate_dict:
         for duplicate_future in duplicate_dict[task_key]:
-            _update_future(future_obj=duplicate_future, exec_flag=exec_flag, no_error_flag=no_error_flag, result=result)
+            _update_future(
+                future_obj=duplicate_future,
+                exec_flag=exec_flag,
+                no_error_flag=no_error_flag,
+                result=result,
+            )
         del duplicate_dict[task_key]
     return future_obj
 
-def _update_future(future_obj: Future, exec_flag: bool, no_error_flag: bool, result: Any) -> None:
+
+def _update_future(
+    future_obj: Future, exec_flag: bool, no_error_flag: bool, result: Any
+) -> None:
     if exec_flag and no_error_flag:
         future_obj.set_result(result)
     elif exec_flag:
         future_obj.set_exception(result)
+
 
 def _convert_args_and_kwargs(
     task_dict: dict, memory_dict: dict, file_name_dict: dict
