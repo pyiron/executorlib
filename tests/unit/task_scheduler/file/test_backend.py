@@ -50,7 +50,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory, duplicate_dict={},
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
@@ -101,7 +101,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name_1)
         f1 = Future()
         _check_task_output(
-            task_key=task_key_1, future_obj=f1, cache_directory=cache_directory
+            task_key=task_key_1, future_obj=f1, cache_directory=cache_directory, duplicate_dict={},
         )
         task_key_2, data_dict = serialize_funct(
             fn=return_list,
@@ -113,7 +113,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name_2)
         f2 = Future()
         _check_task_output(
-            task_key=task_key_2, future_obj=f2, cache_directory=cache_directory
+            task_key=task_key_2, future_obj=f2, cache_directory=cache_directory, duplicate_dict={},
         )
         fs1 = FutureSelector(future=f1, selector="a")
         fs2 = FutureSelector(future=f2, selector=1)
@@ -143,7 +143,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory, duplicate_dict={},
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
@@ -170,7 +170,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory, duplicate_dict={},
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
@@ -198,7 +198,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory, duplicate_dict={},
         )
         self.assertTrue(future_obj.done())
         with self.assertRaises(ValueError):
