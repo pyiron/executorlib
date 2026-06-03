@@ -196,7 +196,10 @@ def execute_tasks_h5(
 
 
 def _check_task_output(
-    task_key: str, future_obj: Future, cache_directory: str, duplicate_dict: Optional[dict] = None
+    task_key: str,
+    future_obj: Future,
+    cache_directory: str,
+    duplicate_dict: Optional[dict] = None,
 ) -> Future:
     """
     Check the output of a task and set the result of the future object if available.
