@@ -238,6 +238,15 @@ def _check_task_output(
 def _update_future(
     future_obj: Future, exec_flag: bool, no_error_flag: bool, result: Any
 ) -> None:
+    """
+    Update the future object with the result of the task execution.
+
+    Args:
+        future_obj (Future): The future object to be updated.
+        exec_flag (bool): Flag indicating whether the task has been executed.
+        no_error_flag (bool): Flag indicating whether the task execution resulted in an error.
+        result (Any): The result of the task execution.
+    """
     if exec_flag and no_error_flag:
         future_obj.set_result(result)
     elif exec_flag:
