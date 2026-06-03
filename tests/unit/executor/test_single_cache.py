@@ -1,6 +1,7 @@
 import os
 import shutil
 import unittest
+from time import sleep
 
 from executorlib import SingleNodeExecutor, get_cache_data
 from executorlib.standalone.serialize import cloudpickle_register
@@ -15,6 +16,11 @@ except ImportError:
 
 def get_error(a):
     raise ValueError(a)
+
+
+def sum_with_wait(a, b):
+    sleep((a + b) / 10)
+    return a + b
 
 
 class AddClass:
@@ -69,6 +75,13 @@ class TestCacheFunctions(unittest.TestCase):
             sum([sum(c["input_args"][0]) for c in cache_lst]), sum(result_lst)
         )
 
+    def test_cache_duplicate_function(self):
+        cache_directory = os.path.abspath("cache_duplicate")
+        with SingleNodeExecutor(hostname_localhost=True, cache_directory=cache_directory) as exe:
+            f1 = exe.submit(sum_with_wait, 1, 1)
+            f2 = exe.submit(sum_with_wait, 1, 1)
+            self.assertEqual(f1.result(), f2.result())
+
     def test_cache_error(self):
         cache_directory = os.path.abspath("cache_error")
         with SingleNodeExecutor(cache_directory=cache_directory) as exe:
@@ -93,3 +106,4 @@ class TestCacheFunctions(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
         shutil.rmtree("cache_error", ignore_errors=True)
+        shutil.rmtree("cache_duplicate", ignore_errors=True)
