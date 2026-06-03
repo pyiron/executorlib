@@ -213,6 +213,7 @@ class TestTestClusterExecutor(unittest.TestCase):
             cancel_futures=True,
             memory_dict=memory_dict,
             process_dict={},
+            duplicate_dict={},
             cache_dir_dict={"a": "cache_dir"},
             terminate_function=None,
             pysqa_config_directory=None,
