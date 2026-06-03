@@ -91,6 +91,7 @@ def execute_tasks_h5(
     process_dict: dict = {}
     cache_dir_dict: dict = {}
     file_name_dict: dict = {}
+    duplicate_dict: dict = {}
     while True:
         task_dict = None
         with contextlib.suppress(queue.Empty):
@@ -101,6 +102,7 @@ def execute_tasks_h5(
                 cancel_futures=task_dict.get("cancel_futures", False),
                 memory_dict=memory_dict,
                 process_dict=process_dict,
+                duplicate_dict=duplicate_dict,
                 cache_dir_dict=cache_dir_dict,
                 terminate_function=terminate_function,
                 pysqa_config_directory=pysqa_config_directory,
@@ -175,12 +177,17 @@ def execute_tasks_h5(
                     process_dict[task_key] = queue_id
                 memory_dict[task_key] = task_dict["future"]
                 cache_dir_dict[task_key] = cache_directory
+            elif memory_dict[task_key] != task_dict["future"]:
+                if task_key not in duplicate_dict:
+                    duplicate_dict[task_key] = []
+                duplicate_dict[task_key].append(task_dict["future"])
             future_queue.task_done()
         else:
             memory_dict = _refresh_memory_dict(
                 memory_dict=memory_dict,
                 cache_dir_dict=cache_dir_dict,
                 process_dict=process_dict,
+                duplicate_dict=duplicate_dict,
                 terminate_function=terminate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
@@ -189,7 +196,7 @@ def execute_tasks_h5(
 
 
 def _check_task_output(
-    task_key: str, future_obj: Future, cache_directory: str
+    task_key: str, future_obj: Future, cache_directory: str, duplicate_dict: dict
 ) -> Future:
     """
     Check the output of a task and set the result of the future object if available.
@@ -198,7 +205,7 @@ def _check_task_output(
         task_key (str): The key of the task.
         future_obj (Future): The future object associated with the task.
         cache_directory (str): The directory where the HDF5 files are stored.
-
+        duplicate_dict (dict): The dictionary mapping task keys to their associated duplicate future objects.
     Returns:
         Future: The updated future object.
 
@@ -211,6 +218,13 @@ def _check_task_output(
         future_obj.set_result(result)
     elif exec_flag:
         future_obj.set_exception(result)
+    if task_key in duplicate_dict:
+        for duplicate_future in duplicate_dict[task_key]:
+            if exec_flag and no_error_flag:
+                duplicate_future.set_result(result)
+            elif exec_flag:
+                duplicate_future.set_exception(result)
+        del duplicate_dict[task_key]
     return future_obj
 
 
@@ -281,6 +295,7 @@ def _refresh_memory_dict(
     memory_dict: dict,
     cache_dir_dict: dict,
     process_dict: dict,
+    duplicate_dict: dict,
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -293,6 +308,7 @@ def _refresh_memory_dict(
         memory_dict (dict): dictionary with task keys and future objects
         cache_dir_dict (dict): dictionary with task keys and cache directories
         process_dict (dict): dictionary with task keys and process reference.
+        duplicate_dict (dict): dictionary with task keys and duplicate future objects.
         terminate_function (callable): The function to terminate the tasks.
         pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
         backend (str): name of the backend used to spawn tasks.
@@ -315,6 +331,7 @@ def _refresh_memory_dict(
             task_key=key,
             future_obj=value,
             cache_directory=cache_dir_dict[key],
+            duplicate_dict=duplicate_dict,
         )
         for key, value in memory_dict.items()
         if not value.done()
@@ -399,6 +416,7 @@ def _shutdown_executor(
     cancel_futures: bool,
     memory_dict: dict,
     process_dict: dict,
+    duplicate_dict: dict,
     cache_dir_dict: dict,
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
@@ -421,6 +439,7 @@ def _shutdown_executor(
         cancel_futures (bool): Whether to cancel futures that have not yet started.
         memory_dict (dict): Mapping of task keys to their Future objects.
         process_dict (dict): Mapping of task keys to process handles or queue IDs.
+        duplicate_dict (dict): Mapping of task keys to lists of duplicate Future objects.
         cache_dir_dict (dict): Mapping of task keys to the cache directory for each task.
         terminate_function (Callable, optional): Function used to terminate running processes.
         pysqa_config_directory (str, optional): Path to the pysqa config directory.
@@ -433,6 +452,7 @@ def _shutdown_executor(
                 memory_dict=memory_dict,
                 cache_dir_dict=cache_dir_dict,
                 process_dict=process_dict,
+                duplicate_dict=duplicate_dict,
                 terminate_function=terminate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
@@ -447,6 +467,7 @@ def _shutdown_executor(
                 memory_dict=memory_dict,
                 cache_dir_dict=cache_dir_dict,
                 process_dict=process_dict,
+                duplicate_dict=duplicate_dict,
                 terminate_function=terminate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
@@ -465,6 +486,7 @@ def _shutdown_executor(
             memory_dict=memory_dict,
             cache_dir_dict=cache_dir_dict,
             process_dict=process_dict,
+            duplicate_dict=duplicate_dict,
             terminate_function=terminate_function,
             pysqa_config_directory=pysqa_config_directory,
             backend=backend,
