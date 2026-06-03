@@ -196,7 +196,7 @@ def execute_tasks_h5(
 
 
 def _check_task_output(
-    task_key: str, future_obj: Future, cache_directory: str, duplicate_dict: dict
+    task_key: str, future_obj: Future, cache_directory: str, duplicate_dict: Optional[dict] = None
 ) -> Future:
     """
     Check the output of a task and set the result of the future object if available.
@@ -218,7 +218,7 @@ def _check_task_output(
         future_obj.set_result(result)
     elif exec_flag:
         future_obj.set_exception(result)
-    if task_key in duplicate_dict:
+    if duplicate_dict is not None and task_key in duplicate_dict:
         for duplicate_future in duplicate_dict[task_key]:
             if exec_flag and no_error_flag:
                 duplicate_future.set_result(result)
@@ -295,7 +295,7 @@ def _refresh_memory_dict(
     memory_dict: dict,
     cache_dir_dict: dict,
     process_dict: dict,
-    duplicate_dict: dict,
+    duplicate_dict: Optional[dict] = None,
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
@@ -412,12 +412,12 @@ def _cancel_futures(future_dict: dict):
 
 
 def _shutdown_executor(
-    wait: bool,
-    cancel_futures: bool,
-    memory_dict: dict,
-    process_dict: dict,
-    duplicate_dict: dict,
-    cache_dir_dict: dict,
+    wait: bool = True,
+    cancel_futures: bool = False,
+    memory_dict: Optional[dict] = None,
+    process_dict: Optional[dict] = None,
+    cache_dir_dict: Optional[dict] = None,
+    duplicate_dict: Optional[dict] = None,
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
