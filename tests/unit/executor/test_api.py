@@ -156,6 +156,17 @@ class TestTestClusterExecutor(unittest.TestCase):
             self.assertEqual(len(nodes), 4)
             self.assertEqual(len(edges), 4)
 
+    def test_duplicate_futures(self):
+        with TestClusterExecutor(cache_directory="cache_dir") as exe:
+            cloudpickle_register(ind=1)
+            future_1 = exe.submit(add_with_sleep, 1, parameter_2=2)
+            future_2 = exe.submit(add_with_sleep, 1, parameter_2=2)
+            self.assertFalse(future_1.done())
+            self.assertFalse(future_2.done())
+            self.assertEqual(future_1.result(), 3)
+            self.assertEqual(future_2.result(), 3)
+            self.assertEqual(len(os.listdir("cache_dir")), 1)
+
     def test_shutdown_wait_false_cancel_futures_false(self):
         exe = TestClusterExecutor(cache_directory="shutdown_1_dir")
         cloudpickle_register(ind=1)
@@ -202,6 +213,7 @@ class TestTestClusterExecutor(unittest.TestCase):
             cancel_futures=True,
             memory_dict=memory_dict,
             process_dict={},
+            duplicate_dict=None,
             cache_dir_dict={"a": "cache_dir"},
             terminate_function=None,
             pysqa_config_directory=None,
