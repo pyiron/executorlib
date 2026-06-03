@@ -415,11 +415,11 @@ def _cancel_futures(future_dict: dict):
 
 
 def _shutdown_executor(
-    wait: bool = True,
-    cancel_futures: bool = False,
-    memory_dict: Optional[dict] = None,
-    process_dict: Optional[dict] = None,
-    cache_dir_dict: Optional[dict] = None,
+    wait: bool,
+    cancel_futures: bool,
+    memory_dict: dict,
+    process_dict: dict,
+    cache_dir_dict: dict,
     duplicate_dict: Optional[dict] = None,
     terminate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
