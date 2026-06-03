@@ -33,10 +33,9 @@ def dump(file_name: Optional[str], data_dict: dict) -> None:
         os.makedirs(os.path.dirname(file_name_abs), exist_ok=True)
         with h5py.File(file_name_abs, "a") as fname:
             for data_key, data_value in data_dict.items():
-                path = "/" + group_dict[data_key]
-                if data_key in group_dict and path not in fname:
+                if data_key in group_dict and "/" + group_dict[data_key] not in fname:
                     fname.create_dataset(
-                        name=path,
+                        name="/" + group_dict[data_key],
                         data=np.void(cloudpickle.dumps(data_value)),
                     )
 
