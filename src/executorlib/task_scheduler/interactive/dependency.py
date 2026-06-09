@@ -285,7 +285,9 @@ def _execute_tasks_with_dependencies(
             # once, when ready, preserving completion-order). Do NOT run get_future_objects_from_input
             # on kwargs -- `lst` can be 100k+ futures, making ingestion (and every wait-list pass) O(N)
             # per collector and stalling the scheduler. Track only the small skip_lst as future_lst.
-            task_dict is not None and task_dict.get("fn") == "batched" and "future" in task_dict
+            task_dict is not None
+            and task_dict.get("fn") == "batched"
+            and "future" in task_dict
         ):
             task_dict["future_lst"] = task_dict["kwargs"]["skip_lst"]
             wait_lst.append(task_dict)
