@@ -281,6 +281,15 @@ def _execute_tasks_with_dependencies(
                     task_dict["future"].set_result(False)
                 else:
                     task_dict["future"].set_result(True)
+        elif (  # batched collector: readiness is its skip_lst + batched_futures (which scans `lst`
+            # once, when ready, preserving completion-order). Do NOT run get_future_objects_from_input
+            # on kwargs -- `lst` can be 100k+ futures, making ingestion (and every wait-list pass) O(N)
+            # per collector and stalling the scheduler. Track only the small skip_lst as future_lst.
+            task_dict is not None and task_dict.get("fn") == "batched" and "future" in task_dict
+        ):
+            task_dict["future_lst"] = task_dict["kwargs"]["skip_lst"]
+            wait_lst.append(task_dict)
+            future_queue.task_done()
         elif (  # handle function submitted to the executor
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
@@ -343,11 +352,18 @@ def _update_waiting_task(
         elif task_wait_dict["fn"] == "batched" and all(
             future.done() for future in task_wait_dict["kwargs"]["skip_lst"]
         ):
-            done_lst = batched_futures(
-                lst=task_wait_dict["kwargs"]["lst"],
-                n=task_wait_dict["kwargs"]["n"],
-                skip_lst=[f.result() for f in task_wait_dict["kwargs"]["skip_lst"]],
-            )
+            try:
+                done_lst = batched_futures(
+                    lst=task_wait_dict["kwargs"]["lst"],
+                    n=task_wait_dict["kwargs"]["n"],
+                    skip_lst=[f.result() for f in task_wait_dict["kwargs"]["skip_lst"]],
+                )
+            except Exception as exc:
+                # A future in `lst` (or skip_lst) raised. Propagate to the batch future instead of
+                # crashing the scheduler thread. (We no longer scan all of `lst` for exceptions via
+                # future_lst for performance, so batched_futures' .result() is where they surface.)
+                task_wait_dict["future"].set_exception(exc)
+                continue
             if len(done_lst) == 0:
                 wait_tmp_lst.append(task_wait_dict)
             else:
