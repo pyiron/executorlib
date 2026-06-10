@@ -14,14 +14,14 @@ class TestBatched(TestCase):
         batched_lst[0].set_result([0, 1, 2])
         batched_lst[1].set_result([3, 4, 5])
         batched_lst[2].set_result([6, 7, 8])
-        self.assertEqual(batched_futures(lst=lst, n=3, skip_set=set()), [0, 1, 2])
-        self.assertEqual(batched_futures(lst=lst, skip_set=batched_lst[:1], n=3), [3, 4, 5])
-        self.assertEqual(batched_futures(lst=lst, skip_set=batched_lst[:2], n=3), [6, 7, 8])
-        self.assertEqual(batched_futures(lst=lst, skip_set=batched_lst, n=3), [9])
+        self.assertEqual(batched_futures(lst=lst, n=3, nested_skip_lst=set()), [0, 1, 2])
+        self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst[:1], n=3), [3, 4, 5])
+        self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst[:2], n=3), [6, 7, 8])
+        self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst, n=3), [9])
 
     def test_batched_futures_not_finished(self):
         lst = []
         for _ in list(range(10)):
             f = Future()
             lst.append(f)
-        self.assertEqual(batched_futures(lst=lst, n=3, skip_set=set()), [])
+        self.assertEqual(batched_futures(lst=lst, n=3, nested_skip_lst=set()), [])
