@@ -29,7 +29,7 @@ def exit_funct():
 
 
 class TestExecutorBackend(unittest.TestCase):
-    def test_meta_executor_serial_with_dependencies(self):
+    def test_no_block_allocation_disable_dependencies(self):
         with SingleNodeExecutor(
             max_cores=2,
             block_allocation=False,
@@ -43,7 +43,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
-    def test_meta_executor_serial_without_dependencies(self):
+    def test_no_block_allocation_with_dependencies(self):
         with SingleNodeExecutor(
             max_cores=2,
             block_allocation=False,
@@ -57,7 +57,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
-    def test_meta_executor_single(self):
+    def test_no_block_allocation_single_core(self):
         with SingleNodeExecutor(
             max_cores=1,
             block_allocation=False,

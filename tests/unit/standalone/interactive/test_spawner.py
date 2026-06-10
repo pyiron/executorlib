@@ -350,7 +350,7 @@ class TestFuturePool(unittest.TestCase):
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
-    def test_meta(self):
+    def test_block_allocation_task_scheduler_info(self):
         meta_data_exe_dict = {
             "cores": 2,
             "spawner": "<class 'executorlib.standalone.interactive.spawner.MpiExecSpawner'>",
@@ -379,7 +379,7 @@ class TestFuturePool(unittest.TestCase):
         with TaskSchedulerBase() as exe:
             self.assertIsNone(exe.info)
 
-    def test_meta_step(self):
+    def test_one_process_task_scheduler_info(self):
         meta_data_exe_dict = {
             "cores": 2,
             "spawner": "<class 'executorlib.standalone.interactive.spawner.MpiExecSpawner'>",

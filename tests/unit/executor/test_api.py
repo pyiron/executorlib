@@ -110,7 +110,7 @@ class TestTestClusterExecutor(unittest.TestCase):
                 cache_key="error",
             )
 
-    def test_empty(self):
+    def test_submit_single_task_and_verify_cache(self):
         with TestClusterExecutor(cache_directory="rather_this_dir") as exe:
             cloudpickle_register(ind=1)
             future = exe.submit(foo,1)
