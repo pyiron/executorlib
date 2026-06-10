@@ -16,10 +16,14 @@ class TestBatched(TestCase):
             f = Future()
             f.set_result(i)
             lst.append(f)
-        self.assertEqual(batched_futures(lst=lst, n=3, skip_lst=[]), [0, 1, 2])
-        self.assertEqual(batched_futures(lst=lst, skip_lst=[[0, 1, 2]], n=3), [3, 4, 5])
-        self.assertEqual(batched_futures(lst=lst, skip_lst=[[0, 1, 2], [3, 4, 5]], n=3), [6, 7, 8])
-        self.assertEqual(batched_futures(lst=lst, skip_lst=[[0, 1, 2], [3, 4, 5], [6, 7, 8]], n=3), [9])
+        batched_lst = [Future(), Future(), Future()]
+        batched_lst[0].set_result([0, 1, 2])
+        batched_lst[1].set_result([3, 4, 5])
+        batched_lst[2].set_result([6, 7, 8])
+        self.assertEqual(batched_futures(lst=lst, n=3, nested_skip_lst=set()), [0, 1, 2])
+        self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst[:1], n=3), [3, 4, 5])
+        self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst[:2], n=3), [6, 7, 8])
+        self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst, n=3), [9])
 
     def test_batched_futures_not_finished(self):
         lst = []

@@ -5,10 +5,12 @@ from concurrent.futures import Future
 _logged_failed_ids: set = set()
 
 
-def batched_futures(lst: list[Future], skip_lst: list[list], n: int) -> list[list]:
+def batched_futures(
+    lst: list[Future], nested_skip_lst: list[Future[list]], n: int
+) -> list[list]:
     """
     Batch n completed future objects. If the number of completed futures is smaller than n and the end of the batch is
-    not reached yet, then an empty list is returned. If n future objects are done, which are not included in the skip_lst
+    not reached yet, then an empty list is returned. If n future objects are done, which are not included in the skip_set
     then they are returned as batch.
 
     Futures that completed with an EXCEPTION (e.g. a labeling job that failed on a degenerate config, or a dead worker)
@@ -21,7 +23,7 @@ def batched_futures(lst: list[Future], skip_lst: list[list], n: int) -> list[lis
 
     Args:
         lst (list): list of all future objects
-        skip_lst (list): list of previous batches of future objects
+        nested_skip_lst (list): nest list of individual results already assigned to previous batches
         n (int): batch size
 
     Returns:
