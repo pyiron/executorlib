@@ -2,7 +2,7 @@ from concurrent.futures import Future
 
 
 def batched_futures(
-    lst: list[Future], nested_skip_lst: list[list[Future]], n: int
+    lst: list[Future], nested_skip_lst: list[Future[list]], n: int
 ) -> list[list]:
     """
     Batch n completed future objects. If the number of completed futures is smaller than n and the end of the batch is
