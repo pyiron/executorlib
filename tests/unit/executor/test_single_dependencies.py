@@ -82,6 +82,23 @@ class TestExecutorWithDependencies(unittest.TestCase):
             self.assertEqual(len(result_lst), 4)
             self.assertTrue(t3-t2 > t2-t1)
 
+    def test_batched_with_failed_upstream_future(self):
+        """A failed future in lst must be excluded from batches; downstream must not see an exception."""
+        # 5 successful futures (returning 0–4) + 1 failed = 6 total → 2 batch futures (n=3).
+        # Expected batches (in completion order): [0,1,2] and [3,4] (partial, all_resolved).
+        with SingleNodeExecutor() as exe:
+            cloudpickle_register(ind=1)
+            future_lst = []
+            for i in range(5):
+                future_lst.append(exe.submit(return_input_dict, i))
+            future_lst.append(exe.submit(raise_error, parameter=0))
+            future_second_lst = exe.batched(future_lst, n=3)
+            result_lst = [f.result() for f in future_second_lst]
+            # All batch futures must succeed (no exception cascaded from the failed input)
+            self.assertEqual(len(result_lst), 2)
+            # The union of all batched results must be exactly {0, 1, 2, 3, 4}
+            self.assertEqual(set(item for batch in result_lst for item in batch), {0, 1, 2, 3, 4})
+
     def test_batched_error(self):
         with self.assertRaises(TypeError):
             with SingleNodeExecutor() as exe:
