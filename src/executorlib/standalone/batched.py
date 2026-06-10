@@ -1,5 +1,4 @@
 from concurrent.futures import Future
-from unittest import result
 
 
 def batched_futures(lst: list[Future], skip_lst: list[list], n: int) -> list[list]:
