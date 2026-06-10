@@ -18,8 +18,8 @@ def batched_futures(lst: list[Future], skip_set: set, n: int) -> list[list]:
     done_lst = []
     n_expected = min(n, len(lst) - len(skip_set))
     for v in lst:
-        if v.done() and v.result() not in skip_set:
+        if v.done() and id(v.result()) not in skip_set:
             done_lst.append(v.result())
-        if len(done_lst) == n_expected:
-            return done_lst
+            if len(done_lst) == n_expected:
+                return done_lst
     return []

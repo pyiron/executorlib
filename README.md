@@ -19,6 +19,26 @@ Up-scale python functions for high performance computing (HPC) with executorlib.
   machine learning pipelines and simulation workflows executorlib provides optional caching of intermediate results for 
   iterative development in interactive environments like jupyter notebooks.
 
+## Why executorlib?
+executorlib is the lightest path to take *existing* Python functions and scale them across high performance computing
+(HPC) nodes — with per-function-call resource control and native [SLURM](https://slurm.schedmd.com) and
+[flux](http://flux-framework.org) integration — without rewriting your code into a new paradigm. It extends the standard
+library [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects) you already
+know, rather than asking you to adopt a new data, actor, or workflow model.
+
+| | executorlib | [Futures](https://docs.python.org/3/library/concurrent.futures.html) | [Dask](https://www.dask.org) | [Parsl](https://parsl-project.org) | [Ray](https://www.ray.io) |
+|---|---|---|---|---|---|
+| Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ⚠️  | ❌ |
+| Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ |
+| Native HPC scheduler (SLURM/flux) | ✅ | ❌ | ⚠️ | ✅ | ⚠️ |
+| MPI-parallel functions | ✅ | ❌ | ⚠️ | ⚠️ | ⚠️ |
+| Caching of results | ✅ | ❌ | ⚠️ | ✅ | ❌ |
+| Setup / learning overhead | Low | Very low | Medium | Medium | Medium |
+
+✅ first-class · ⚠️ possible via add-on/config · ❌ not supported. See the full
+[comparison: when to use which](https://executorlib.readthedocs.io/en/latest/comparison.html) for honest guidance on
+when another tool is the better fit.
+
 ## Examples
 The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
 with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor) and the 
@@ -130,6 +150,13 @@ as hierarchical job scheduler within the allocations.
   * [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-job-executor)
   * [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation)
   * [For Developers](https://executorlib.readthedocs.io/en/latest/installation.html#for-developers)
+* [Comparison](https://executorlib.readthedocs.io/en/latest/comparison.html#comparison)
+  * [At a glace](https://executorlib.readthedocs.io/en/latest/comparison.html#at-a-glance)
+  * [Concurrent futures](https://executorlib.readthedocs.io/en/latest/comparison.html#concurrent-futures-the-python-standard-library)
+  * [Dask](https://executorlib.readthedocs.io/en/latest/comparison.html#dask)
+  * [Parsl](https://executorlib.readthedocs.io/en/latest/comparison.html#parsl)
+  * [Ray](https://executorlib.readthedocs.io/en/latest/comparison.html#ray)
+  * [Choose executorlib when](https://executorlib.readthedocs.io/en/latest/comparison.html#choose-executorlib-when)
 * [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html)
   * [Basic Functionality](https://executorlib.readthedocs.io/en/latest/1-single-node.html#basic-functionality)
   * [Parallel Functions](https://executorlib.readthedocs.io/en/latest/1-single-node.html#parallel-functions)

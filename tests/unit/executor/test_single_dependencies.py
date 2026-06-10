@@ -48,14 +48,14 @@ def raise_error(parameter):
 
 
 class TestExecutorWithDependencies(unittest.TestCase):
-    def test_executor(self):
+    def test_future_chaining_resolves_dependency(self):
         with SingleNodeExecutor(max_cores=1) as exe:
             cloudpickle_register(ind=1)
             future_1 = exe.submit(add_function, 1, parameter_2=2)
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertEqual(future_2.result(), 4)
 
-    def test_executor_no_wait(self):
+    def test_shutdown_no_wait_still_resolves_futures(self):
         exe = SingleNodeExecutor(max_cores=1)
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_function, 1, parameter_2=2)
