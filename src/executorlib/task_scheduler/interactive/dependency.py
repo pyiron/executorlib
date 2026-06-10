@@ -347,7 +347,7 @@ def _update_waiting_task(
                 lst=task_wait_dict["kwargs"]["lst"],
                 n=task_wait_dict["kwargs"]["n"],
                 skip_set={
-                    item
+                    id(item)
                     for f in task_wait_dict["kwargs"]["skip_lst"]
                     for item in f.result()
                 },
