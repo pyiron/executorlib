@@ -3,6 +3,7 @@ root: README
 chapters:
 - file: installation.md
 - file: comparison.md
+- file: 0-hpc-schedulers.ipynb
 - file: 1-single-node.ipynb
 - file: 2-hpc-cluster.ipynb
 - file: 3-hpc-job.ipynb
