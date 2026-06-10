@@ -33,7 +33,7 @@ def mpi_funct_sleep(i):
 
 
 class TestExecutorBackend(unittest.TestCase):
-    def test_meta_executor_serial(self):
+    def test_block_allocation_serial_two_cores(self):
         with SingleNodeExecutor(max_cores=2, block_allocation=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
@@ -43,7 +43,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertTrue(fs_1.done())
             self.assertTrue(fs_2.done())
 
-    def test_meta_executor_single(self):
+    def test_block_allocation_serial_one_core(self):
         with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
             cloudpickle_register(ind=1)
             fs_1 = exe.submit(calc, 1)
@@ -62,7 +62,7 @@ class TestExecutorBackend(unittest.TestCase):
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
-    def test_meta_executor_parallel(self):
+    def test_block_allocation_mpi_two_cores(self):
         with SingleNodeExecutor(
             max_workers=2,
             resource_dict={"cores": 2},
@@ -73,7 +73,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
-    def test_errors(self):
+    def test_invalid_constructor_arguments_raise_errors(self):
         with self.assertRaises(TypeError):
             SingleNodeExecutor(
                 max_cores=1,
@@ -88,7 +88,7 @@ class TestExecutorBackendCache(unittest.TestCase):
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
-    def test_meta_executor_parallel_cache(self):
+    def test_block_allocation_mpi_two_cores_with_cache(self):
         with SingleNodeExecutor(
             max_workers=2,
             resource_dict={"cores": 2},

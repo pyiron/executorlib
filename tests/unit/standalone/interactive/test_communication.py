@@ -199,10 +199,10 @@ class TestInterface(unittest.TestCase):
 
 
 class TestZMQ(unittest.TestCase):
-    def test_interface_receive(self):
+    def test_zmq_interface_receive_message(self):
         self.assertEqual(len(interface_receive(socket=None)), 0)
 
-    def test_initialize_zmq(self):
+    def test_zmq_client_initializes_socket(self):
         message = "test"
         host = "localhost"
 
