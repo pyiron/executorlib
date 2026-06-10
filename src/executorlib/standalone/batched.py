@@ -1,4 +1,5 @@
 from concurrent.futures import Future
+from unittest import result
 
 
 def batched_futures(lst: list[Future], skip_lst: list[list], n: int) -> list[list]:
@@ -15,13 +16,13 @@ def batched_futures(lst: list[Future], skip_lst: list[list], n: int) -> list[lis
     Returns:
         list: results of the batched futures
     """
-    skipped_elements_lst = [item for items in skip_lst for item in items]
+    skipped_ids = {id(item) for items in skip_lst for item in items}
 
     done_lst = []
-    n_expected = min(n, len(lst) - len(skipped_elements_lst))
+    n_expected = min(n, len(lst) - len(skipped_ids))
     for v in lst:
-        if v.done() and v.result() not in skipped_elements_lst:
+        if v.done() and id(v.result()) not in skipped_ids:
             done_lst.append(v.result())
-        if len(done_lst) == n_expected:
-            return done_lst
+            if len(done_lst) == n_expected:
+                return done_lst
     return []
