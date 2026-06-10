@@ -11,7 +11,7 @@ alternative is the better choice.
 
 ## At a glance
 
-| | executorlib | Concurrent futures | Dask | Parsl | Ray |
+| | executorlib | Futures | Dask | Parsl | Ray |
 |---|---|---|---|---|---|
 | Drop-in `Executor` API | ✅ | ✅ | ⚠️ | ⚠️  | ❌ |
 | Per-call resource assignment | ✅ | ❌ | ⚠️ | ✅ | ✅ |
@@ -22,7 +22,7 @@ alternative is the better choice.
 
 ✅ first-class · ⚠️ possible via an add-on or extra configuration · ❌ not supported.
 
-## [Concurrent futures](https://docs.python.org/3/library/concurrent.futures.html)
+## [Futures](https://docs.python.org/3/library/concurrent.futures.html)
 
 The [`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html) module is where most parallel
 Python starts: `ProcessPoolExecutor` and `ThreadPoolExecutor` run functions in parallel on a single machine. executorlib
