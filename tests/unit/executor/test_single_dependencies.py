@@ -3,10 +3,14 @@ import unittest
 from time import sleep, time
 from queue import Queue
 from threading import Thread
+from unittest.mock import MagicMock
 
 from executorlib import SingleNodeExecutor
 from executorlib.executor.single import create_single_node_executor
-from executorlib.task_scheduler.interactive.dependency import _execute_tasks_with_dependencies
+from executorlib.task_scheduler.interactive.dependency import (
+    _execute_tasks_with_dependencies,
+    _update_waiting_task,
+)
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.interactive.spawner import MpiExecSpawner
 
@@ -299,6 +303,43 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 input_dict={"a": exe.submit(sum, [2, 2])},
             )
             self.assertEqual(fs.result()["a"], 4)
+
+    def test_update_waiting_task_batched_exception(self):
+        """_update_waiting_task catches exceptions from batched_futures and sets them on the batch future."""
+        executor_queue = Queue()
+        batch_future = Future()
+
+        # A mock skip_lst future: done(), exception() returns None (passes get_exception_lst),
+        # but result() raises -- triggering the except block in _update_waiting_task.
+        mock_skip_future = MagicMock()
+        mock_skip_future.done.return_value = True
+        mock_skip_future.exception.return_value = None
+        mock_skip_future.result.side_effect = RuntimeError("unexpected skip error")
+
+        task_dict = {
+            "fn": "batched",
+            "args": (),
+            "kwargs": {
+                "lst": [],
+                "n": 3,
+                "skip_lst": [mock_skip_future],
+            },
+            "future": batch_future,
+            "future_lst": [mock_skip_future],
+            "resource_dict": {},
+        }
+
+        result_lst = _update_waiting_task(
+            wait_lst=[task_dict],
+            executor_queue=executor_queue,
+            refresh_rate=0.0,
+        )
+
+        # The batch future must have the exception propagated (not crashed the scheduler)
+        self.assertTrue(batch_future.done())
+        self.assertIsInstance(batch_future.exception(), RuntimeError)
+        # The failed task is consumed (not re-queued in the wait list)
+        self.assertEqual(len(result_lst), 0)
 
 
 class TestExecutorErrors(unittest.TestCase):
