@@ -346,7 +346,7 @@ def _update_waiting_task(
             done_lst = batched_futures(
                 lst=task_wait_dict["kwargs"]["lst"],
                 n=task_wait_dict["kwargs"]["n"],
-                skip_lst=[f.result() for f in task_wait_dict["kwargs"]["skip_lst"]],
+                nested_skip_lst=task_wait_dict["kwargs"]["skip_lst"],
             )
             if len(done_lst) == 0:
                 wait_tmp_lst.append(task_wait_dict)
