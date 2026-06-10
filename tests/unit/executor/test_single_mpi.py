@@ -73,7 +73,7 @@ class TestExecutorBackend(unittest.TestCase):
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
-    def test_errors(self):
+    def test_invalid_constructor_arguments_raise_errors(self):
         with self.assertRaises(TypeError):
             SingleNodeExecutor(
                 max_cores=1,
