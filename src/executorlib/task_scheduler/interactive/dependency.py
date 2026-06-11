@@ -177,7 +177,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         future_lst: list[Future] = []
         for _ in range(len(iterable) // n + (1 if len(iterable) % n > 0 else 0)):
             f: Future = Future()
-            f_skip = Future()
+            f_skip: Future = Future()
             if self._future_queue is not None:
                 self._future_queue.put(
                     {
