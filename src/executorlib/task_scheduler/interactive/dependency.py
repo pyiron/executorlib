@@ -284,12 +284,18 @@ def _execute_tasks_with_dependencies(
                 else:
                     task_dict["future"].set_result(True)
         elif (  # handle batched function submitted to the executor
-            task_dict is not None and "fn" in task_dict and task_dict["fn"] == "batched" and "future" in task_dict
+            task_dict is not None
+            and "fn" in task_dict
+            and task_dict["fn"] == "batched"
+            and "future" in task_dict
         ):
             future_dependency_lst.append(task_dict)
             future_queue.task_done()
         elif (  # handle function submitted to the executor
-            task_dict is not None and "fn" in task_dict and task_dict["fn"] != "batched" and "future" in task_dict
+            task_dict is not None
+            and "fn" in task_dict
+            and task_dict["fn"] != "batched"
+            and "future" in task_dict
         ):
             future_lst, ready_flag = get_future_objects_from_input(
                 args=task_dict["args"], kwargs=task_dict["kwargs"]
@@ -321,7 +327,9 @@ def _execute_tasks_with_dependencies(
 
 
 def _handle_future_dependencies(
-    future_dependency_lst: list[dict], executor_queue: queue.Queue, refresh_rate: float = 0.01
+    future_dependency_lst: list[dict],
+    executor_queue: queue.Queue,
+    refresh_rate: float = 0.01,
 ) -> list:
     """
     Submit the waiting tasks, which future inputs have been completed, to the executor
