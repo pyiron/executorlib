@@ -82,6 +82,31 @@ class TestExecutorWithDependencies(unittest.TestCase):
             self.assertEqual(len(result_lst), 4)
             self.assertTrue(t3-t2 > t2-t1)
 
+    def test_batched_error_future(self):
+        with SingleNodeExecutor() as exe:
+            t1 = time()
+            future_first_lst = []
+            for i in range(10):
+                if i % 3 == 0:
+                    future_first_lst.append(exe.submit(raise_error, parameter=0))
+                else:
+                    future_first_lst.append(exe.submit(return_input_dict, i))
+            future_second_lst = exe.batched(future_first_lst, n=3)
+
+            future_third_lst = []
+            for f in future_second_lst:
+                future_third_lst.append(exe.submit(sum, f))
+
+            t2 = time()
+            self.assertEqual(future_third_lst[0].result(), 7)
+            self.assertEqual(future_third_lst[1].result(), 20)
+            with self.assertRaises(RuntimeError):
+                future_third_lst[2].result()
+            with self.assertRaises(RuntimeError):
+                future_third_lst[3].result()
+            t3 = time()
+            self.assertTrue(t3-t2 > t2-t1)
+
     def test_batched_error(self):
         with self.assertRaises(TypeError):
             with SingleNodeExecutor() as exe:
