@@ -35,6 +35,23 @@ class TestBatched(unittest.TestCase):
         self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst[:1], n=3), [2, 2, 2])
         self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst[:2], n=3), [3, 3, 3])
 
+    def test_batched_futures(self):
+        lst = []
+        for i in range(10):
+            f = Future()
+            if i % 3 == 0:
+                f.set_exception(ValueError(f"Error for {i}"))
+            else:
+                f.set_result(i)
+            lst.append(f)
+        batched_lst = [Future(), Future()]
+        batched_lst[0].set_result([1, 2, 4])
+        batched_lst[1].set_result([5, 7, 8])
+        self.assertEqual(batched_futures(lst=lst, n=3, nested_skip_lst=set()), [1, 2, 4])
+        self.assertEqual(batched_futures(lst=lst, nested_skip_lst=batched_lst[:1], n=3), [5, 7, 8])
+        with self.assertRaises(ValueError):
+            batched_futures(lst=lst, nested_skip_lst=batched_lst, n=3)
+
     def test_batched_futures_not_finished(self):
         lst = []
         for _ in list(range(10)):
