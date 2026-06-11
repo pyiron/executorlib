@@ -268,4 +268,4 @@ class TaskSchedulerBase(FutureExecutor):
         Clean-up the resources associated with the Executor.
         """
         with contextlib.suppress(AttributeError, RuntimeError):
-            self.shutdown(wait=False)
+            self.shutdown(wait=True)
