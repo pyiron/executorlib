@@ -283,7 +283,6 @@ def _execute_tasks_with_dependencies(
                     task_dict["future"].set_result(False)
                 else:
                     task_dict["future"].set_result(True)
-            future_queue.task_done()
         elif (  # handle function submitted to the executor
             task_dict is not None and "fn" in task_dict and "future" in task_dict
         ):
