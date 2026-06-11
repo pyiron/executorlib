@@ -348,46 +348,14 @@ def _update_waiting_task(
                 n=task_wait_dict["kwargs"]["n"],
                 nested_skip_lst=task_wait_dict["kwargs"]["skip_lst"],
             )
-            if len(done_lst) == 0:
+            if isinstance(done_lst, list) and len(done_lst) == 0:
                 wait_tmp_lst.append(task_wait_dict)
-            else:
+            elif not isinstance(done_lst, list):
                 task_wait_dict["future"].set_result(done_lst)
+            else:
+                task_wait_dict["future"].set_exception(done_lst)
         else:
             wait_tmp_lst.append(task_wait_dict)
     if len(wait_lst) == len(wait_tmp_lst):
         sleep(refresh_rate)
     return wait_tmp_lst
-
-
-def batched_futures(
-    lst: list[Future], nested_skip_lst: list[Future[list]], n: int
-) -> list[list]:
-    """
-    Batch n completed future objects. If the number of completed futures is smaller than n and the end of the batch is
-    not reached yet, then an empty list is returned. If n future objects are done, which are not included in the skip_set
-    then they are returned as batch.
-
-    Args:
-        lst (list): list of all future objects
-        nested_skip_lst (list): nest list of individual results already assigned to previous batches
-        n (int): batch size
-
-    Returns:
-        list: results of the batched futures
-    """
-    skip_set = {id(item) for f in nested_skip_lst for item in f.result()}
-
-    done_lst = []
-    failed_lst = []
-    n_expected = min(n, len(lst) - len(skip_set))
-    for v in lst:
-        if v.done():
-            if check_exception_was_raised(future_obj=v):
-                failed_lst.append(v)
-            elif id(v.result()) not in skip_set:
-                done_lst.append(v.result())
-                if len(done_lst) == n_expected:
-                    return done_lst
-    if len(failed_lst) == n_expected:
-        return failed_lst
-    return []
