@@ -271,7 +271,7 @@ def _execute_tasks_with_dependencies(
             future_queue.task_done()
             future_queue.join()
             break
-        if (  # shutdown the executor
+        elif (  # handle internal tasks for getting and setting information about the executor
             task_dict is not None and "internal" in task_dict and task_dict["internal"]
         ):
             if task_dict["task"] == "get_info":
