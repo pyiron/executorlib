@@ -31,7 +31,7 @@ def batched_futures(
                 done_lst.append(v.result())
                 if len(done_lst) == n_expected:
                     return done_lst
-    if len(failed_lst) == len(lst) and len(failed_lst) > 0:
+    if len(failed_lst) == len(lst) - len(skip_set) and len(failed_lst) > 0:
         return failed_lst[0]  # raise the exception only after all futures have failed
     else:
         return []
