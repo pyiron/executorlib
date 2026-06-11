@@ -350,7 +350,7 @@ def _update_waiting_task(
             )
             if isinstance(done_lst, list) and len(done_lst) == 0:
                 wait_tmp_lst.append(task_wait_dict)
-            elif not isinstance(done_lst, list):
+            elif isinstance(done_lst, list) and len(done_lst) > 0:
                 task_wait_dict["future"].set_result(done_lst)
             else:
                 task_wait_dict["future"].set_exception(done_lst)
