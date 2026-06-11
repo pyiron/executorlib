@@ -7,6 +7,7 @@ from typing import Any, Callable, Optional
 from executorlib.standalone.batched import batched_futures
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
+    check_list_of_futures_is_done,
     get_exception_lst,
     get_future_objects_from_input,
     update_futures_in_input,
@@ -185,6 +186,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
                         "args": (),
                         "kwargs": {"lst": iterable, "n": n, "skip_lst": skip_lst},
                         "future": f,
+                        "future_lst": iterable,
                         "future_skip": f_skip,
                         "resource_dict": {},
                     }
@@ -297,9 +299,10 @@ def _execute_tasks_with_dependencies(
             and task_dict["fn"] != "batched"
             and "future" in task_dict
         ):
-            future_lst, ready_flag = get_future_objects_from_input(
+            future_lst = get_future_objects_from_input(
                 args=task_dict["args"], kwargs=task_dict["kwargs"]
             )
+            ready_flag = check_list_of_futures_is_done(future_lst=future_lst)
             exception_lst = get_exception_lst(future_lst=future_lst)
             if not check_exception_was_raised(future_obj=task_dict["future"]):
                 if len(exception_lst) > 0:

@@ -27,10 +27,14 @@ def get_future_objects_from_input(args: tuple, kwargs: dict):
 
     find_future_in_list(lst=args)
     find_future_in_list(lst=kwargs.values())
-    boolean_flag = len([future for future in future_lst if future.done()]) == len(
+
+    return future_lst
+
+
+def check_list_of_futures_is_done(future_lst: list[Future]) -> bool:
+    return len([future for future in future_lst if future.done()]) == len(
         future_lst
     )
-    return future_lst, boolean_flag
 
 
 def get_exception_lst(future_lst: list[Future]) -> list:
