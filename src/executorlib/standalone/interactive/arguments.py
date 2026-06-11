@@ -32,9 +32,7 @@ def get_future_objects_from_input(args: tuple, kwargs: dict):
 
 
 def check_list_of_futures_is_done(future_lst: list[Future]) -> bool:
-    return len([future for future in future_lst if future.done()]) == len(
-        future_lst
-    )
+    return len([future for future in future_lst if future.done()]) == len(future_lst)
 
 
 def get_exception_lst(future_lst: list[Future]) -> list:
