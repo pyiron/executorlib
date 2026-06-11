@@ -32,6 +32,15 @@ def get_future_objects_from_input(args: tuple, kwargs: dict):
 
 
 def check_list_of_futures_is_done(future_lst: list[Future]) -> bool:
+    """
+    Check if all future objects in the list of future objects are done
+
+    Args:
+        future_lst (list): list of future objects
+
+    Returns:
+        bool: True if all future objects in the list of future objects are done, False otherwise
+    """
     return len([future for future in future_lst if future.done()]) == len(future_lst)
 
 
