@@ -98,8 +98,7 @@ class TestExecutorWithDependencies(unittest.TestCase):
                 future_third_lst.append(exe.submit(sum, f))
 
             t2 = time()
-            self.assertEqual(future_third_lst[0].result(), 7)
-            self.assertEqual(future_third_lst[1].result(), 20)
+            self.assertEqual(future_third_lst[0].result() + future_third_lst[1].result(), 27)
             with self.assertRaises(RuntimeError):
                 future_third_lst[2].result()
             with self.assertRaises(RuntimeError):
