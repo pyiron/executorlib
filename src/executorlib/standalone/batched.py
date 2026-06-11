@@ -3,7 +3,7 @@ from concurrent.futures import Future
 
 def batched_futures(
     lst: list[Future], nested_skip_lst: list[Future[list]], n: int
-) -> list[list]:
+) -> list[list] | BaseException:
     """
     Batch n completed future objects. If the number of completed futures is smaller than n and the end of the batch is
     not reached yet, then an empty list is returned. If n future objects are done, which are not included in the skip_set
