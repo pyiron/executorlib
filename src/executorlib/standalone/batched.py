@@ -31,8 +31,9 @@ def batched_futures(
                 if len(done_lst) == n_expected:
                     return True, done_lst
     if (len(lst) - len(skip_set)) == len(failed_lst):
-        return False, failed_lst[
-            :n_expected
-        ]  # raise the exception only after all futures have failed
+        return (
+            False,
+            failed_lst[:n_expected],
+        )  # raise the exception only after all futures have failed
     else:
         return True, []
