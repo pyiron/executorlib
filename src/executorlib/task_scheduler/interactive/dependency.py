@@ -177,6 +177,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         future_lst: list[Future] = []
         for _ in range(len(iterable) // n + (1 if len(iterable) % n > 0 else 0)):
             f: Future = Future()
+            f_skip = Future()
             if self._future_queue is not None:
                 self._future_queue.put(
                     {
@@ -184,10 +185,11 @@ class DependencyTaskScheduler(TaskSchedulerBase):
                         "args": (),
                         "kwargs": {"lst": iterable, "n": n, "skip_lst": skip_lst},
                         "future": f,
+                        "future_skip": f_skip,
                         "resource_dict": {},
                     }
                 )
-            skip_lst = skip_lst.copy() + [f]  # be careful
+            skip_lst = skip_lst.copy() + [f_skip]  # be careful
             future_lst.append(f)
 
         return future_lst
@@ -330,7 +332,7 @@ def _update_waiting_task(
     wait_tmp_lst = []
     for task_wait_dict in wait_lst:
         exception_lst = get_exception_lst(future_lst=task_wait_dict["future_lst"])
-        if len(exception_lst) > 0:
+        if len(exception_lst) > 0 and task_wait_dict["fn"] != "batched":
             task_wait_dict["future"].set_exception(exception_lst[0])
         elif task_wait_dict["fn"] != "batched" and all(
             future.done() for future in task_wait_dict["future_lst"]
@@ -343,17 +345,19 @@ def _update_waiting_task(
         elif task_wait_dict["fn"] == "batched" and all(
             future.done() for future in task_wait_dict["kwargs"]["skip_lst"]
         ):
-            done_lst = batched_futures(
+            success, done_lst = batched_futures(
                 lst=task_wait_dict["kwargs"]["lst"],
                 n=task_wait_dict["kwargs"]["n"],
                 nested_skip_lst=task_wait_dict["kwargs"]["skip_lst"],
             )
-            if isinstance(done_lst, list) and len(done_lst) == 0:
+            if success and len(done_lst) == 0:
                 wait_tmp_lst.append(task_wait_dict)
-            elif isinstance(done_lst, list) and len(done_lst) > 0:
-                task_wait_dict["future"].set_result(done_lst)
+            elif success and len(done_lst) > 0:
+                task_wait_dict["future"].set_result([f.result() for f in done_lst])
+                task_wait_dict["future_skip"].set_result([id(f) for f in done_lst])
             else:
-                task_wait_dict["future"].set_exception(done_lst)
+                task_wait_dict["future"].set_exception(done_lst[0].exception())
+                task_wait_dict["future_skip"].set_result([id(f) for f in done_lst])
         else:
             wait_tmp_lst.append(task_wait_dict)
     if len(wait_lst) == len(wait_tmp_lst):
