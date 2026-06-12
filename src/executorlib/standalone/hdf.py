@@ -1,3 +1,4 @@
+import contextlib
 import os
 from concurrent.futures import Future
 from time import sleep
@@ -34,13 +35,14 @@ def dump(file_name: Optional[str], data_dict: dict) -> None:
         with h5py.File(file_name_abs, "a") as fname:
             for data_key, data_value in data_dict.items():
                 if data_key in group_dict:
-                    fname.create_dataset(
-                        name="/" + group_dict[data_key],
-                        data=np.frombuffer(
-                            cloudpickle.dumps(data_value), dtype=np.uint8
-                        ),
-                        compression="gzip",
-                    )
+                    with contextlib.suppress(ValueError):
+                        fname.create_dataset(
+                            name="/" + group_dict[data_key],
+                            data=np.frombuffer(
+                                cloudpickle.dumps(data_value), dtype=np.uint8
+                            ),
+                            compression="gzip",
+                        )
 
 
 def load(file_name: str) -> dict:
@@ -174,7 +176,11 @@ def get_cache_files(cache_directory: str) -> list[str]:
     file_lst = []
     cache_directory_abs = os.path.abspath(cache_directory)
     for dirpath, _, filenames in os.walk(cache_directory_abs):
-        file_lst += [os.path.join(dirpath, f) for f in filenames if f.endswith("_o.h5")]
+        file_lst += [
+            os.path.join(dirpath, f)
+            for f in filenames
+            if f.endswith("_o.h5") or f.endswith("_i.h5")
+        ]
     return file_lst
 
 

@@ -35,21 +35,21 @@ def get_error(a):
     skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
 )
 class TestCacheExecutorSerial(unittest.TestCase):
-    def test_executor_mixed(self):
+    def test_submit_with_positional_and_keyword_args(self):
         with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
-    def test_executor_mixed_cache_key(self):
+    def test_submit_with_custom_cache_key(self):
         with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(my_funct, 1, b=2, resource_dict={"cache_key": "a/b/c"})
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
-    def test_executor_dependence_mixed(self):
+    def test_submit_dependency_with_keyword_arg_future(self):
         with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             fs2 = exe.submit(my_funct, 1, b=fs1)
@@ -67,7 +67,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         with self.assertRaises(ValueError):
             create_file_executor(init_function=True, executor_kwargs={})
 
-    def test_executor_dependence_error(self):
+    def test_submit_dependency_raises_when_dependencies_disabled(self):
         with self.assertRaises(ValueError):
             with FileTaskScheduler(
                 execute_function=execute_in_subprocess, disable_dependencies=True

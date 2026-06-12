@@ -15,6 +15,12 @@ from executorlib.standalone.serialize import cloudpickle_register
 
 
 def validate_resource_dict(resource_dict: dict):
+    """
+    No-op resource dict validator used as the default when no validation is required.
+
+    Args:
+        resource_dict (dict): Dictionary of resource requirements (ignored).
+    """
     pass
 
 
@@ -32,7 +38,13 @@ class TaskSchedulerBase(FutureExecutor):
         validator: Callable = validate_resource_dict,
     ):
         """
-        Initialize the ExecutorBase class.
+        Initialize the TaskSchedulerBase.
+
+        Args:
+            max_cores (int, optional): Maximum number of cores available to the scheduler.
+                Tasks requesting more cores than this will be rejected. Defaults to None (unlimited).
+            validator (Callable): Function used to validate per-task resource dicts before
+                submission. Defaults to the no-op validate_resource_dict.
         """
         cloudpickle_register(ind=3)
         self._process_kwargs: dict = {}
@@ -43,10 +55,22 @@ class TaskSchedulerBase(FutureExecutor):
 
     @property
     def max_workers(self) -> Optional[int]:
+        """
+        Return the configured number of parallel workers, or None if unconstrained.
+
+        Returns:
+            Optional[int]: The max_workers value stored in process kwargs, or None.
+        """
         return self._process_kwargs.get("max_workers")
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
+        """
+        Setting max_workers after construction is not supported by the base scheduler.
+
+        Raises:
+            NotImplementedError: Always.
+        """
         raise NotImplementedError("The max_workers setter is not implemented.")
 
     @property

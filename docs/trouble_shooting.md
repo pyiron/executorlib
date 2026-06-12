@@ -52,8 +52,45 @@ The `coverage combine` command merges the data from the main process and subproc
 
 ## Python Version 
 Executorlib supports all current Python version ranging from 3.9 to 3.13. Still some of the dependencies and especially 
-the [flux](http://flux-framework.org) job scheduler are currently limited to Python 3.12 and below. Consequently for high
-performance computing installations Python 3.12 is the recommended Python verion. 
+the [flux](http://flux-framework.org) job scheduler are currently limited to Python 3.13 and below. Consequently for high
+performance computing installations Python 3.13 is the recommended Python verion. 
+
+## Cores, Threads per Core and Maximum Workers
+A common point of confusion is the difference between the `cores`, `threads_per_core` and `max_workers` (or `max_cores`)
+parameters, as they all control how many compute resources executorlib uses, but on different levels:
+
+* `max_workers` / `max_cores` are arguments of the `Executor` itself. They define the *total* number of compute cores
+  the executor is allowed to use in parallel across all submitted function calls - essentially the size of the resource
+  pool or allocation that all tasks share. `max_workers` exists for backwards compatibility with the
+  [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Executor) of the
+  Python standard library, while `max_cores` is the recommended way to express the same limit, as it makes clear that the
+  limit refers to the number of compute cores. Setting either is optional - when neither is provided executorlib uses the
+  number of cores available on the machine.
+* `cores` is an entry of the `resource_dict` and is defined *per function call*. It specifies how many Python processes
+  executorlib starts for a single task. These processes are connected via
+  [mpi4py](https://mpi4py.readthedocs.io) and together form one MPI application. Consequently, `cores` is primarily
+  intended for functions implemented with [mpi4py](https://mpi4py.readthedocs.io), where the same Python function is
+  executed once per MPI rank. For a typical serial Python function, increasing `cores` does **not** provide additional
+  parallelism. Instead, executorlib launches multiple copies of the function, which usually wastes resources and can
+  lead to incorrect behavior. Unless you are using MPI through [mpi4py](https://mpi4py.readthedocs.io), `cores`
+  should generally be left at its default value of `1`.
+* `threads_per_core` is also an entry of the `resource_dict` and defined *per function call*. In contrast to `cores`,
+  executorlib starts only a single Python process for the task and reserves the requested resources for that process.
+  The number of reserved cores is communicated through environment variables such as `OMP_NUM_THREADS`. This parameter
+  should be used whenever the Python function itself is executed only once, but internally uses multiple cores. Common
+  examples include thread-parallel libraries such as NumPy, BLAS, MKL or OpenMP-enabled code, as well as Python
+  functions which launch external applications. In the latter case, executorlib starts a single Python process, which
+  then launches the external application. Whether that external application internally uses OpenMP, MPI or a hybrid
+  MPI/OpenMP parallelization strategy is transparent to executorlib. This functionality is demonstrated in the Quantum
+  ESPRESSO application example.
+
+A useful rule of thumb is:
+
+* Use `cores` when executorlib should start multiple Python processes which together form an MPI application via
+  `mpi4py`.
+* Use `threads_per_core` when executorlib should start the Python function only once and reserve multiple cores for it
+  or for an external application launched by it.
+* Use `max_cores` to limit how many resources all submitted tasks may consume collectively.
 
 ## Resource Dictionary
 The resource dictionary parameter `resource_dict` can contain one or more of the following options: 

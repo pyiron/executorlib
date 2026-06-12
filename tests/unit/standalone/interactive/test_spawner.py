@@ -63,8 +63,8 @@ def sleep_one(i):
     return i
 
 
-class TestPyMpiExecutorSerial(unittest.TestCase):
-    def test_pympiexecutor_two_workers(self):
+class TestBlockAllocationTaskSchedulerSerial(unittest.TestCase):
+    def test_two_workers_submit_serial_tasks(self):
         with BlockAllocationTaskScheduler(
             max_workers=2,
             executor_kwargs={},
@@ -86,7 +86,7 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
         ) as exe:
             self.assertEqual(exe.max_workers, 2)
 
-    def test_pympiexecutor_one_worker(self):
+    def test_one_worker_submit_serial_tasks(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={},
@@ -101,8 +101,8 @@ class TestPyMpiExecutorSerial(unittest.TestCase):
             self.assertTrue(fs_2.done())
 
 
-class TestPyMpiExecutorStepSerial(unittest.TestCase):
-    def test_pympiexecutor_two_workers(self):
+class TestOneProcessTaskSchedulerSerial(unittest.TestCase):
+    def test_two_workers_submit_serial_tasks(self):
         with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={},
@@ -124,7 +124,7 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
         ) as exe:
             self.assertEqual(exe.max_workers, 2)
 
-    def test_pympiexecutor_one_worker(self):
+    def test_one_worker_submit_serial_tasks(self):
         with OneProcessTaskScheduler(
             max_cores=1,
             executor_kwargs={},
@@ -142,8 +142,8 @@ class TestPyMpiExecutorStepSerial(unittest.TestCase):
 @unittest.skipIf(
     skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
 )
-class TestPyMpiExecutorMPI(unittest.TestCase):
-    def test_pympiexecutor_one_worker_with_mpi(self):
+class TestBlockAllocationTaskSchedulerMPI(unittest.TestCase):
+    def test_block_allocation_mpi_two_cores(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
@@ -154,7 +154,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
-    def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
+    def test_block_allocation_mpi_multiple_submissions(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
@@ -174,7 +174,7 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
 
-    def test_pympiexecutor_one_worker_with_mpi_echo(self):
+    def test_block_allocation_mpi_echo_broadcast(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
@@ -188,8 +188,8 @@ class TestPyMpiExecutorMPI(unittest.TestCase):
 @unittest.skipIf(
     skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
 )
-class TestPyMpiStepExecutorMPI(unittest.TestCase):
-    def test_pympiexecutor_one_worker_with_mpi(self):
+class TestOneProcessTaskSchedulerMPI(unittest.TestCase):
+    def test_one_process_mpi_two_cores(self):
         with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={"cores": 2},
@@ -200,7 +200,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
             self.assertEqual(fs_1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertTrue(fs_1.done())
 
-    def test_pympiexecutor_one_worker_with_mpi_multiple_submissions(self):
+    def test_one_process_mpi_multiple_submissions(self):
         with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={"cores": 2},
@@ -220,7 +220,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
 
-    def test_pympiexecutor_one_worker_with_mpi_echo(self):
+    def test_one_process_mpi_echo_broadcast(self):
         with OneProcessTaskScheduler(
             max_cores=2,
             executor_kwargs={"cores": 2},
@@ -231,7 +231,7 @@ class TestPyMpiStepExecutorMPI(unittest.TestCase):
         self.assertEqual(output, [2, 2])
 
 
-class TestPyMpiExecutorInitFunction(unittest.TestCase):
+class TestBlockAllocationTaskSchedulerInitFunction(unittest.TestCase):
     def test_internal_memory(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
@@ -272,8 +272,8 @@ class TestPyMpiExecutorInitFunction(unittest.TestCase):
         q.join()
 
 
-class TestFuturePool(unittest.TestCase):
-    def test_pool_serial(self):
+class TestBlockAllocationTaskScheduler(unittest.TestCase):
+    def test_submit_tracks_future_state(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 1},
@@ -318,7 +318,7 @@ class TestFuturePool(unittest.TestCase):
         with self.assertRaises(CancelledError):
             fs2.result()
 
-    def test_pool_serial_map(self):
+    def test_map_returns_array_results(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 1},
@@ -350,7 +350,7 @@ class TestFuturePool(unittest.TestCase):
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
-    def test_meta(self):
+    def test_block_allocation_task_scheduler_info(self):
         meta_data_exe_dict = {
             "cores": 2,
             "spawner": "<class 'executorlib.standalone.interactive.spawner.MpiExecSpawner'>",
@@ -379,7 +379,7 @@ class TestFuturePool(unittest.TestCase):
         with TaskSchedulerBase() as exe:
             self.assertIsNone(exe.info)
 
-    def test_meta_step(self):
+    def test_one_process_task_scheduler_info(self):
         meta_data_exe_dict = {
             "cores": 2,
             "spawner": "<class 'executorlib.standalone.interactive.spawner.MpiExecSpawner'>",
@@ -407,7 +407,7 @@ class TestFuturePool(unittest.TestCase):
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
-    def test_pool_multi_core(self):
+    def test_submit_mpi_task_tracks_future_state(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
@@ -425,7 +425,7 @@ class TestFuturePool(unittest.TestCase):
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
     )
-    def test_pool_multi_core_map(self):
+    def test_map_mpi_tasks(self):
         with BlockAllocationTaskScheduler(
             max_workers=1,
             executor_kwargs={"cores": 2},
@@ -503,7 +503,7 @@ class TestFuturePool(unittest.TestCase):
         q.join()
 
 
-class TestFuturePoolCache(unittest.TestCase):
+class TestBlockAllocationTaskSchedulerCache(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
 

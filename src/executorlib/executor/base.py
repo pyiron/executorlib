@@ -25,10 +25,22 @@ class BaseExecutor(FutureExecutor, ABC):
 
     @property
     def max_workers(self) -> Optional[int]:
+        """
+        Return the number of parallel workers configured for this executor.
+
+        Returns:
+            Optional[int]: The maximum number of parallel workers, or None if unconstrained.
+        """
         return self._task_scheduler.max_workers
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
+        """
+        Set the number of parallel workers on the underlying task scheduler.
+
+        Args:
+            max_workers (int): New maximum number of parallel workers.
+        """
         self._task_scheduler.max_workers = max_workers
 
     @property

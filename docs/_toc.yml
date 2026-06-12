@@ -2,6 +2,7 @@ format: jb-book
 root: README
 chapters:
 - file: installation.md
+- file: comparison.md
 - file: 1-single-node.ipynb
 - file: 2-hpc-cluster.ipynb
 - file: 3-hpc-job.ipynb
@@ -9,6 +10,7 @@ chapters:
   sections:
     - file: 4-1-gpaw.ipynb
     - file: 4-2-quantum-espresso.ipynb
+- file: coupling.md
 - file: trouble_shooting.md
 - file: 5-developer.ipynb
 - file: api.rst
