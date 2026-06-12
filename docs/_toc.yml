@@ -10,6 +10,7 @@ chapters:
   sections:
     - file: 4-1-gpaw.ipynb
     - file: 4-2-quantum-espresso.ipynb
+- file: coupling.md
 - file: trouble_shooting.md
 - file: 5-developer.ipynb
 - file: api.rst

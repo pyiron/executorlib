@@ -141,6 +141,25 @@ given allocation. Even when [SLURM](https://slurm.schedmd.com) is used as primar
 recommended to use [SLURM with flux](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm-with-flux) 
 as hierarchical job scheduler within the allocations. 
 
+## Which Executor should I use?
+executorlib provides five `Executor` classes. They all share the same `submit()` / `map()` interface and only differ in
+*where* the Python functions are executed and *how* the resources are requested. A common workflow is to develop and 
+test with the `SingleNodeExecutor` on a laptop and then switch to one of the HPC executors by changing only the class 
+name:
+
+| Executor | Where it runs | Scheduler command | Best for |
+|---|---|---|---|
+| [`SingleNodeExecutor`](https://executorlib.readthedocs.io/en/latest/1-single-node.html) | laptop, workstation or single compute node | `subprocess` | developing and testing a workflow |
+| [`SlurmClusterExecutor`](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#slurm) | HPC login node | `sbatch` (one job per function) | long-running functions that should outlive the Python session |
+| [`SlurmJobExecutor`](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm) | inside a SLURM allocation | `srun` (job steps) | many functions within one existing allocation |
+| [`FluxClusterExecutor`](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#flux) | HPC login node or Flux instance | `flux submit` | long-running functions; disconnecting and reconnecting |
+| [`FluxJobExecutor`](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#flux) | inside a Flux allocation | `flux run` | high-throughput execution of many short functions |
+
+The **Cluster** executors submit each Python function as an individual job and communicate via the file system, so the
+Python process which created the executor can be closed and the results reloaded later. The **Job** executors run inside
+an existing allocation and communicate via sockets, which has lower overhead and is the better choice for many short
+function calls.
+
 ## Documentation
 * [Installation](https://executorlib.readthedocs.io/en/latest/installation.html)
   * [Minimal](https://executorlib.readthedocs.io/en/latest/installation.html#minimal)
@@ -173,6 +192,11 @@ as hierarchical job scheduler within the allocations.
 * [Application](https://executorlib.readthedocs.io/en/latest/application.html)
   * [GPAW](https://executorlib.readthedocs.io/en/latest/4-1-gpaw.html)
   * [Quantum Espresso](https://executorlib.readthedocs.io/en/latest/4-2-quantum-espresso.html)
+* [Coupling with other Libraries](https://executorlib.readthedocs.io/en/latest/coupling.html)
+  * [emcee](https://executorlib.readthedocs.io/en/latest/coupling.html#emcee-markov-chain-monte-carlo)
+  * [pipefunc](https://executorlib.readthedocs.io/en/latest/coupling.html#pipefunc-function-pipelines)
+  * [omp4py](https://executorlib.readthedocs.io/en/latest/coupling.html#omp4py-openmp-for-python)
+  * [pylammpsmpi](https://executorlib.readthedocs.io/en/latest/coupling.html#pylammpsmpi-mpi-parallel-lammps)
 * [Trouble Shooting](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html)
   * [Filesystem Usage](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#filesystem-usage)
   * [Firewall Issues](https://executorlib.readthedocs.io/en/latest/trouble_shooting.html#firewall-issues)
