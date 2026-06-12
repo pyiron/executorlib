@@ -3,6 +3,7 @@ import unittest
 
 from executorlib.standalone.interactive.arguments import (
     check_exception_was_raised,
+    check_list_of_futures_is_done,
     get_exception_lst,
     get_future_objects_from_input,
     update_futures_in_input,
@@ -13,14 +14,16 @@ class TestSerial(unittest.TestCase):
     def test_get_future_objects_from_input_with_future(self):
         input_args = (1, 2, Future(), [Future()], {3: Future()})
         input_kwargs = {"a": 1, "b": [Future()], "c": {"d": Future()}, "e": Future()}
-        future_lst, boolean_flag = get_future_objects_from_input(args=input_args, kwargs=input_kwargs)
+        future_lst = get_future_objects_from_input(args=input_args, kwargs=input_kwargs)
+        boolean_flag = check_list_of_futures_is_done(future_lst=future_lst)
         self.assertEqual(len(future_lst), 6)
         self.assertFalse(boolean_flag)
 
     def test_get_future_objects_from_input_without_future(self):
         input_args = (1, 2)
         input_kwargs = {"a": 1}
-        future_lst, boolean_flag = get_future_objects_from_input(args=input_args, kwargs=input_kwargs)
+        future_lst = get_future_objects_from_input(args=input_args, kwargs=input_kwargs)
+        boolean_flag = check_list_of_futures_is_done(future_lst=future_lst)
         self.assertEqual(len(future_lst), 0)
         self.assertTrue(boolean_flag)
 

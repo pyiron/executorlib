@@ -7,7 +7,7 @@ from executorlib.standalone.select import FutureSelector
 
 
 try:
-    from executorlib.task_scheduler.file.backend import backend_execute_task_in_file
+    from executorlib.task_scheduler.file.backend import backend_execute_task_in_file, backend_write_file
     from executorlib.task_scheduler.file.shared import _check_task_output, _convert_args_and_kwargs, FutureItem
     from executorlib.standalone.hdf import dump, get_runtime
     from executorlib.standalone.serialize import serialize_funct
@@ -50,7 +50,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory,
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
@@ -63,6 +63,30 @@ class TestSharedFunctions(unittest.TestCase):
         )
         self.assertTrue(future_file_obj.done())
         self.assertEqual(future_file_obj.result(), 3)
+
+    def test_backend_write_file(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_file_i.h5")
+        dump(file_name=file_name, data_dict={"fn": my_funct, "args": [1], "kwargs": {"b": 2}})
+        backend_write_file(file_name=file_name, output={"result": 3}, runtime=0.1)
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, "test_file_o.h5")
+        )
+        self.assertTrue(future_file_obj.done())
+        self.assertEqual(future_file_obj.result(), 3)
+
+    def test_backend_write_file_serialization_error(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_file_i.h5")
+        dump(file_name=file_name, data_dict={"fn": my_funct, "args": [1], "kwargs": {"b": 2}})
+        backend_write_file(file_name=file_name, output={"result": Future()}, runtime=0.1)
+        future_file_obj = FutureItem(
+            file_name=os.path.join(cache_directory, "test_file_o.h5")
+        )
+        with self.assertRaises(Exception):
+            future_file_obj.result()
 
     def test_execute_function_mixed_selector_convert(self):
         cache_directory = os.path.abspath("executorlib_cache")
@@ -77,7 +101,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name_1)
         f1 = Future()
         _check_task_output(
-            task_key=task_key_1, future_obj=f1, cache_directory=cache_directory
+            task_key=task_key_1, future_obj=f1, cache_directory=cache_directory,
         )
         task_key_2, data_dict = serialize_funct(
             fn=return_list,
@@ -89,7 +113,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name_2)
         f2 = Future()
         _check_task_output(
-            task_key=task_key_2, future_obj=f2, cache_directory=cache_directory
+            task_key=task_key_2, future_obj=f2, cache_directory=cache_directory,
         )
         fs1 = FutureSelector(future=f1, selector="a")
         fs2 = FutureSelector(future=f2, selector=1)
@@ -119,7 +143,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory,
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
@@ -146,7 +170,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory,
         )
         self.assertTrue(future_obj.done())
         self.assertEqual(future_obj.result(), 3)
@@ -174,7 +198,7 @@ class TestSharedFunctions(unittest.TestCase):
         backend_execute_task_in_file(file_name=file_name)
         future_obj = Future()
         _check_task_output(
-            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory
+            task_key=task_key, future_obj=future_obj, cache_directory=cache_directory,
         )
         self.assertTrue(future_obj.done())
         with self.assertRaises(ValueError):

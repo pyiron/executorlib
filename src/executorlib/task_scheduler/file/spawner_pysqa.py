@@ -1,4 +1,5 @@
 import os
+from subprocess import CalledProcessError
 from typing import Optional
 
 from pysqa import QueueAdapter
@@ -69,7 +70,7 @@ def execute_with_pysqa(
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],
             "working_directory": os.path.abspath(cwd),
-            "run_time_max": resource_dict.get("run_time_limit"),
+            "run_time_max": resource_dict.get("run_time_max"),
         }
         if "cwd" in resource_dict:
             del resource_dict["cwd"]
@@ -90,8 +91,14 @@ def execute_with_pysqa(
             )
         submit_kwargs.update(resource_dict)
         set_current_directory_in_environment()
-        queue_id = qa.submit_job(**submit_kwargs)
-        dump(file_name=file_name, data_dict={"queue_id": queue_id})
+        try:
+            queue_id = qa.submit_job(**submit_kwargs)
+        except (ValueError, CalledProcessError) as error:
+            dump(file_name=file_name, data_dict={"error": error})
+            file_name_out = os.path.splitext(file_name)[0][:-2]
+            os.rename(file_name_out + "_i.h5", file_name_out + "_o.h5")
+        else:
+            dump(file_name=file_name, data_dict={"queue_id": queue_id})
     return queue_id
 
 

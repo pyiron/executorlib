@@ -117,7 +117,7 @@ class TestFluxBackend(unittest.TestCase):
             [[(1, 2, 0), (1, 2, 1)], [(2, 2, 0), (2, 2, 1)], [(3, 2, 0), (3, 2, 1)]],
         )
 
-    def test_run_time_limit(self):
+    def test_run_time_max(self):
         with FluxJobExecutor(
             max_cores=1,
             resource_dict={"cores": 1},
@@ -125,8 +125,8 @@ class TestFluxBackend(unittest.TestCase):
             block_allocation=False,
             pmi_mode=pmi,
         ) as p:
-            f1 = p.submit(delayed_calc, 1, resource_dict={"run_time_limit": 1})
-            f2 = p.submit(delayed_calc, 2, resource_dict={"run_time_limit": 5})
+            f1 = p.submit(delayed_calc, 1, resource_dict={"run_time_max": 1})
+            f2 = p.submit(delayed_calc, 2, resource_dict={"run_time_max": 5})
             self.assertFalse(f1.done())
             self.assertFalse(f2.done())
             self.assertEqual(f2.result(), 2)

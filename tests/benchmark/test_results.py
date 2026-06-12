@@ -2,7 +2,7 @@ import unittest
 
 
 class TestResults(unittest.TestCase):
-    def test_result(self):
+    def test_timing_benchmarks(self):
         with open("timing.log") as f:
             content = f.readlines()
         timing_dict = {l.split()[0]: float(l.split()[1]) for l in content}

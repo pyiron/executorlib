@@ -48,14 +48,14 @@ def raise_error(parameter):
 
 
 class TestExecutorWithDependencies(unittest.TestCase):
-    def test_executor(self):
+    def test_future_chaining_resolves_dependency(self):
         with SingleNodeExecutor(max_cores=1) as exe:
             cloudpickle_register(ind=1)
             future_1 = exe.submit(add_function, 1, parameter_2=2)
             future_2 = exe.submit(add_function, 1, parameter_2=future_1)
             self.assertEqual(future_2.result(), 4)
 
-    def test_executor_no_wait(self):
+    def test_shutdown_no_wait_still_resolves_futures(self):
         exe = SingleNodeExecutor(max_cores=1)
         cloudpickle_register(ind=1)
         future_1 = exe.submit(add_function, 1, parameter_2=2)
@@ -80,6 +80,30 @@ class TestExecutorWithDependencies(unittest.TestCase):
             t3 = time()
             self.assertEqual(sum(result_lst), 45)
             self.assertEqual(len(result_lst), 4)
+            self.assertTrue(t3-t2 > t2-t1)
+
+    def test_batched_error_future(self):
+        with SingleNodeExecutor() as exe:
+            t1 = time()
+            future_first_lst = []
+            for i in range(10):
+                if i % 3 == 0:
+                    future_first_lst.append(exe.submit(raise_error, parameter=0))
+                else:
+                    future_first_lst.append(exe.submit(return_input_dict, i))
+            future_second_lst = exe.batched(future_first_lst, n=3)
+
+            future_third_lst = []
+            for f in future_second_lst:
+                future_third_lst.append(exe.submit(sum, f))
+
+            t2 = time()
+            self.assertEqual(future_third_lst[0].result() + future_third_lst[1].result(), 27)
+            with self.assertRaises(RuntimeError):
+                future_third_lst[2].result()
+            with self.assertRaises(RuntimeError):
+                future_third_lst[3].result()
+            t3 = time()
             self.assertTrue(t3-t2 > t2-t1)
 
     def test_batched_error(self):

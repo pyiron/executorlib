@@ -55,9 +55,10 @@ class TestValidateFallback(unittest.TestCase):
             "num_nodes",
             "exclusive",
             "error_log_file",
-            "run_time_limit",
+            "run_time_max",
             "priority",
-            "slurm_cmd_args"
+            "slurm_cmd_args",
+            "submission_template",
         ]
         self.assertEqual(set(accepted_keys), set(expected_keys))
         with self.assertRaises(TypeError):
