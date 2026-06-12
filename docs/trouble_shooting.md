@@ -31,10 +31,66 @@ Typical error messages related to missing dependencies are `ModuleNotFoundError`
 * `ModuleNotFoundError: No module named 'h5py'` - Install [h5py](https://www.h5py.org/) as explained in the [Caching](https://executorlib.readthedocs.io/en/latest/installation.html#caching) section of the installation. 
 * `ModuleNotFoundError: No module named 'networkx'` - Install [networkx](https://networkx.org/) as explained in the [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation) section of the installation.
 
+## Test Coverage for Integration Tests
+When Python functions are executed with executorlib, they run in subprocesses started via `sys.executable`. As a result, `coverage run`
+only tracks the main test process by default and can miss function execution inside executorlib workers.
+
+To collect coverage from both the main process and executorlib subprocesses, enable the subprocess patch in your project configuration:
+```toml
+[tool.coverage.run]
+patch = ["subprocess"]
+```
+
+Then execute:
+```bash
+coverage run -m unittest discover
+coverage combine
+coverage report
+```
+
+The `coverage combine` command merges the data from the main process and subprocesses.
+
 ## Python Version 
 Executorlib supports all current Python version ranging from 3.9 to 3.13. Still some of the dependencies and especially 
-the [flux](http://flux-framework.org) job scheduler are currently limited to Python 3.12 and below. Consequently for high
-performance computing installations Python 3.12 is the recommended Python verion. 
+the [flux](http://flux-framework.org) job scheduler are currently limited to Python 3.13 and below. Consequently for high
+performance computing installations Python 3.13 is the recommended Python verion. 
+
+## Cores, Threads per Core and Maximum Workers
+A common point of confusion is the difference between the `cores`, `threads_per_core` and `max_workers` (or `max_cores`)
+parameters, as they all control how many compute resources executorlib uses, but on different levels:
+
+* `max_workers` / `max_cores` are arguments of the `Executor` itself. They define the *total* number of compute cores
+  the executor is allowed to use in parallel across all submitted function calls - essentially the size of the resource
+  pool or allocation that all tasks share. `max_workers` exists for backwards compatibility with the
+  [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.Executor) of the
+  Python standard library, while `max_cores` is the recommended way to express the same limit, as it makes clear that the
+  limit refers to the number of compute cores. Setting either is optional - when neither is provided executorlib uses the
+  number of cores available on the machine.
+* `cores` is an entry of the `resource_dict` and is defined *per function call*. It specifies how many Python processes
+  executorlib starts for a single task. These processes are connected via
+  [mpi4py](https://mpi4py.readthedocs.io) and together form one MPI application. Consequently, `cores` is primarily
+  intended for functions implemented with [mpi4py](https://mpi4py.readthedocs.io), where the same Python function is
+  executed once per MPI rank. For a typical serial Python function, increasing `cores` does **not** provide additional
+  parallelism. Instead, executorlib launches multiple copies of the function, which usually wastes resources and can
+  lead to incorrect behavior. Unless you are using MPI through [mpi4py](https://mpi4py.readthedocs.io), `cores`
+  should generally be left at its default value of `1`.
+* `threads_per_core` is also an entry of the `resource_dict` and defined *per function call*. In contrast to `cores`,
+  executorlib starts only a single Python process for the task and reserves the requested resources for that process.
+  The number of reserved cores is communicated through environment variables such as `OMP_NUM_THREADS`. This parameter
+  should be used whenever the Python function itself is executed only once, but internally uses multiple cores. Common
+  examples include thread-parallel libraries such as NumPy, BLAS, MKL or OpenMP-enabled code, as well as Python
+  functions which launch external applications. In the latter case, executorlib starts a single Python process, which
+  then launches the external application. Whether that external application internally uses OpenMP, MPI or a hybrid
+  MPI/OpenMP parallelization strategy is transparent to executorlib. This functionality is demonstrated in the Quantum
+  ESPRESSO application example.
+
+A useful rule of thumb is:
+
+* Use `cores` when executorlib should start multiple Python processes which together form an MPI application via
+  `mpi4py`.
+* Use `threads_per_core` when executorlib should start the Python function only once and reserve multiple cores for it
+  or for an external application launched by it.
+* Use `max_cores` to limit how many resources all submitted tasks may consume collectively.
 
 ## Resource Dictionary
 The resource dictionary parameter `resource_dict` can contain one or more of the following options: 
@@ -42,18 +98,27 @@ The resource dictionary parameter `resource_dict` can contain one or more of the
 * `threads_per_core` (int): number of OpenMP threads to be used for each function call
 * `gpus_per_core` (int): number of GPUs per worker - defaults to 0
 * `cwd` (str/None): current working directory where the parallel python task is executed
-* `openmpi_oversubscribe` (bool): adds the `--oversubscribe` command line flag (OpenMPI and SLURM only) - default False
+* `cache_key` (str): Rather than using the internal hashing of executorlib the user can provide an external `cache_key`
+  to identify tasks on the file system. The initial file name is going to be `cache_key` + `_i.h5` and the final file
+  name is going to be `cache_key` + `_o.h5`.
+* `cache_directory` (str): The directory to store cache files.
+* `num_nodes` (int): number of compute nodes used for the evaluation of the Python function. 
+* `exclusive` (bool): boolean flag to reserve exclusive access to selected compute nodes - do not allow other tasks to 
+  use the same compute node. 
+* `error_log_file` (str): path to the error log file, primarily used to merge the log of multiple tasks in one file.
+* `run_time_max` (int): the maximum time the execution of the submitted Python function is allowed to take in seconds.
+* `priority` (int): the queuing system priority assigned to a given Python function to influence the scheduling.
 * `slurm_cmd_args` (list): Additional command line arguments for the srun call (SLURM only)
 
 For the special case of the [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) 
 the resource dictionary parameter `resource_dict` can also include additional parameters define in the submission script
 of the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) these include but are not limited to: 
-* `run_time_max` (int): the maximum time the execution of the submitted Python function is allowed to take in seconds.
 * `memory_max` (int): the maximum amount of memory the Python function is allowed to use in Gigabytes. 
 * `partition` (str): the partition of the queuing system the Python function is submitted to. 
 * `queue` (str): the name of the queue the Python function is submitted to. 
 
-All parameters in the resource dictionary `resource_dict` are optional. 
+All parameters in the resource dictionary `resource_dict` are optional. When `pydantic` is installed as optional 
+dependency the `resource_dict` is validated using `pydantic`.
 
 ## SSH Connection
 While the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) provides the option to connect to

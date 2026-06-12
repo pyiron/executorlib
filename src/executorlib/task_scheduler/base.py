@@ -14,6 +14,16 @@ from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
 
 
+def validate_resource_dict(resource_dict: dict):
+    """
+    No-op resource dict validator used as the default when no validation is required.
+
+    Args:
+        resource_dict (dict): Dictionary of resource requirements (ignored).
+    """
+    pass
+
+
 class TaskSchedulerBase(FutureExecutor):
     """
     Base class for the executor.
@@ -22,22 +32,45 @@ class TaskSchedulerBase(FutureExecutor):
         max_cores (int): defines the number cores which can be used in parallel
     """
 
-    def __init__(self, max_cores: Optional[int] = None):
+    def __init__(
+        self,
+        max_cores: Optional[int] = None,
+        validator: Callable = validate_resource_dict,
+    ):
         """
-        Initialize the ExecutorBase class.
+        Initialize the TaskSchedulerBase.
+
+        Args:
+            max_cores (int, optional): Maximum number of cores available to the scheduler.
+                Tasks requesting more cores than this will be rejected. Defaults to None (unlimited).
+            validator (Callable): Function used to validate per-task resource dicts before
+                submission. Defaults to the no-op validate_resource_dict.
         """
         cloudpickle_register(ind=3)
         self._process_kwargs: dict = {}
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
         self._process: Optional[Union[Thread, list[Thread]]] = None
+        self._validator = validator
 
     @property
     def max_workers(self) -> Optional[int]:
+        """
+        Return the configured number of parallel workers, or None if unconstrained.
+
+        Returns:
+            Optional[int]: The max_workers value stored in process kwargs, or None.
+        """
         return self._process_kwargs.get("max_workers")
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
+        """
+        Setting max_workers after construction is not supported by the base scheduler.
+
+        Raises:
+            NotImplementedError: Always.
+        """
         raise NotImplementedError("The max_workers setter is not implemented.")
 
     @property
@@ -120,6 +153,7 @@ class TaskSchedulerBase(FutureExecutor):
         """
         if resource_dict is None:
             resource_dict = {}
+        self._validator(resource_dict=resource_dict)
         cores = resource_dict.get("cores")
         if (
             cores is not None
@@ -143,6 +177,43 @@ class TaskSchedulerBase(FutureExecutor):
             )
         return f
 
+    def map(
+        self,
+        fn: Callable,
+        *iterables,
+        timeout: Optional[float] = None,
+        chunksize: int = 1,
+    ):
+        """Returns an iterator equivalent to map(fn, iter).
+
+        Args:
+            fn: A callable that will take as many arguments as there are
+                passed iterables.
+            timeout: The maximum number of seconds to wait. If None, then there
+                is no limit on the wait time.
+            chunksize: The size of the chunks the iterable will be broken into
+                before being passed to a child process. This argument is only
+                used by ProcessPoolExecutor; it is ignored by
+                ThreadPoolExecutor.
+
+        Returns:
+            An iterator equivalent to: map(func, *iterables) but the calls may
+            be evaluated out-of-order.
+
+        Raises:
+            TimeoutError: If the entire result iterator could not be generated
+                before the given timeout.
+            Exception: If fn(*args) raises for any values.
+        """
+        if isinstance(iterables, (list, tuple)) and any(
+            isinstance(i, Future) for i in iterables
+        ):
+            iterables = tuple(
+                i.result() if isinstance(i, Future) else i for i in iterables
+            )
+
+        return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)
+
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
         """
         Clean-up the resources associated with the Executor.
@@ -161,8 +232,10 @@ class TaskSchedulerBase(FutureExecutor):
         if cancel_futures and self._future_queue is not None:
             cancel_items_in_queue(que=self._future_queue)
         if self._process is not None and self._future_queue is not None:
-            self._future_queue.put({"shutdown": True, "wait": wait})
-            if wait and isinstance(self._process, Thread):
+            self._future_queue.put(
+                {"shutdown": True, "wait": wait, "cancel_futures": cancel_futures}
+            )
+            if isinstance(self._process, Thread):
                 self._process.join()
                 self._future_queue.join()
         self._process = None

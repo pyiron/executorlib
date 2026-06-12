@@ -27,10 +27,12 @@ class SrunSpawner(SubprocessSpawner):
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
         num_nodes: Optional[int] = None,
+        worker_id: int = 0,
         exclusive: bool = False,
         openmpi_oversubscribe: bool = False,
         slurm_cmd_args: Optional[list[str]] = None,
         pmi_mode: Optional[str] = None,
+        run_time_max: Optional[int] = None,
     ):
         """
         Srun interface implementation.
@@ -41,14 +43,17 @@ class SrunSpawner(SubprocessSpawner):
             threads_per_core (int, optional): The number of threads per core. Defaults to 1.
             gpus_per_core (int, optional): The number of GPUs per core. Defaults to 0.
             num_nodes (int, optional): The number of compute nodes to use for executing the task. Defaults to None.
+            worker_id (int): The worker ID. Defaults to 0.
             exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to False.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
             slurm_cmd_args (list[str], optional): Additional command line arguments. Defaults to [].
             pmi_mode (str): PMI interface to use (OpenMPI v5 requires pmix) default is None
+            run_time_max (int): The maximum runtime in seconds for each task. Default: None
         """
         super().__init__(
             cwd=cwd,
             cores=cores,
+            worker_id=worker_id,
             openmpi_oversubscribe=openmpi_oversubscribe,
             threads_per_core=threads_per_core,
         )
@@ -57,6 +62,7 @@ class SrunSpawner(SubprocessSpawner):
         self._num_nodes = num_nodes
         self._exclusive = exclusive
         self._pmi_mode = pmi_mode
+        self._run_time_max = run_time_max
 
     def generate_command(self, command_lst: list[str]) -> list[str]:
         """
@@ -78,6 +84,7 @@ class SrunSpawner(SubprocessSpawner):
             openmpi_oversubscribe=self._openmpi_oversubscribe,
             slurm_cmd_args=self._slurm_cmd_args,
             pmi_mode=self._pmi_mode,
+            run_time_max=self._run_time_max,
         )
         return super().generate_command(
             command_lst=command_prepend_lst + command_lst,

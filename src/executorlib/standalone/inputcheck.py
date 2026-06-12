@@ -17,6 +17,18 @@ def check_oversubscribe(oversubscribe: bool) -> None:
         )
 
 
+def check_wait_on_shutdown(
+    wait_on_shutdown: bool,
+) -> None:
+    """
+    Check if wait_on_shutdown is False and raise a ValueError if it is.
+    """
+    if not wait_on_shutdown:
+        raise ValueError(
+            "The wait_on_shutdown parameter is only supported for the executorlib.FluxClusterExecutor and executorlib.SlurmClusterExecutor."
+        )
+
+
 def check_command_line_argument_lst(command_line_argument_lst: list[str]) -> None:
     """
     Check if command_line_argument_lst is not empty and raise a ValueError if it is.
@@ -129,6 +141,16 @@ def check_init_function(
 def check_max_workers_and_cores(
     max_workers: Optional[int], max_cores: Optional[int]
 ) -> None:
+    """
+    Check that neither max_workers nor max_cores is set when using a pysqa-based backend.
+
+    Args:
+        max_workers (int, optional): Maximum number of workers.
+        max_cores (int, optional): Maximum number of cores.
+
+    Raises:
+        ValueError: If max_workers or max_cores is not None.
+    """
     if max_workers is not None:
         raise ValueError(
             "The number of workers cannot be controlled with the pysqa based backend."
@@ -140,13 +162,48 @@ def check_max_workers_and_cores(
 
 
 def check_hostname_localhost(hostname_localhost: Optional[bool]) -> None:
+    """
+    Check that hostname_localhost is not set when using a pysqa-based backend.
+
+    Args:
+        hostname_localhost (bool, optional): Flag to use localhost for ZMQ connections.
+
+    Raises:
+        ValueError: If hostname_localhost is not None.
+    """
     if hostname_localhost is not None:
         raise ValueError(
             "The option to connect to hosts based on their hostname is not available with the pysqa based backend."
         )
 
 
+def check_restart_limit(restart_limit: int, block_allocation: bool = True) -> None:
+    """
+    Check that restart_limit is only used together with block_allocation.
+
+    Args:
+        restart_limit (int): Maximum number of times a worker process may be restarted.
+        block_allocation (bool): Whether block allocation is enabled. Defaults to True.
+
+    Raises:
+        ValueError: If restart_limit is non-zero and block_allocation is False.
+    """
+    if not block_allocation and restart_limit != 0:
+        raise ValueError(
+            "The option to specify a restart limit for worker processes is only available with block_allocation=True."
+        )
+
+
 def check_pmi_mode(pmi_mode: Optional[str]) -> None:
+    """
+    Check that pmi_mode is not set on a local workstation without SLURM or flux.
+
+    Args:
+        pmi_mode (str, optional): PMI interface name (e.g. "pmix", "pmi1", "pmi2").
+
+    Raises:
+        ValueError: If pmi_mode is not None.
+    """
     if pmi_mode is not None:
         raise ValueError(
             "The option to specify the pmi mode is not available on a local workstation, it requires SLURM or flux."
@@ -180,7 +237,22 @@ def validate_number_of_cores(
     set_local_cores: bool = False,
 ) -> int:
     """
-    Validate the number of cores and return the appropriate value.
+    Validate the number of cores and return the number of workers to use.
+
+    Precedence: max_cores / cores_per_worker > max_workers > CPU count (with warning).
+
+    Args:
+        max_cores (int, optional): Total number of cores available.
+        max_workers (int, optional): Explicit number of parallel workers.
+        cores_per_worker (int, optional): Number of cores allocated to each worker. Defaults to 1.
+        set_local_cores (bool): When True, fall back to the local CPU count if neither
+            max_cores nor max_workers is given instead of raising an error. Defaults to False.
+
+    Returns:
+        int: Number of parallel workers to use.
+
+    Raises:
+        ValueError: If neither max_cores nor max_workers is set and set_local_cores is False.
     """
     if max_cores is not None and max_workers is None and cores_per_worker is not None:
         return int(max_cores / cores_per_worker)

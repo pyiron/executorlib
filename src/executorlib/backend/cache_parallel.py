@@ -39,11 +39,11 @@ def main() -> None:
 
     time_start = time.time()
     apply_dict = {}
-    if mpi_rank_zero:
-        apply_dict = backend_load_file(file_name=file_name)
-    apply_dict = MPI.COMM_WORLD.bcast(apply_dict, root=0)
-    output = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
     try:
+        if mpi_rank_zero:
+            apply_dict = backend_load_file(file_name=file_name)
+        apply_dict = MPI.COMM_WORLD.bcast(apply_dict, root=0)
+        output = apply_dict["fn"].__call__(*apply_dict["args"], **apply_dict["kwargs"])
         result = (
             MPI.COMM_WORLD.gather(output, root=0) if mpi_size_larger_one else output
         )

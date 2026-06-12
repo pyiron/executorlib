@@ -3,7 +3,11 @@ name: Pipeline
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
   pull_request:
+    paths-ignore:
+      - 'docs/**'
 
 jobs:
   black:
@@ -98,6 +102,18 @@ jobs:
         pip install . --no-deps --no-build-isolation
         pip check
 
+  uv_check:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v7
+    - name: Install the project and pip check
+      shell: bash -l {0}
+      run: |
+        uv sync --all-extras --dev
+        pip check
+
   benchmark:
     needs: [black]
     runs-on: ${{ matrix.operating-system }}
@@ -149,7 +165,7 @@ jobs:
       - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           miniforge-version: latest
           channels: conda-forge
           conda-remove-defaults: "true"
@@ -164,7 +180,7 @@ jobs:
           papermill notebooks/1-single-node.ipynb notebooks/1-single-node-out.ipynb -k python3
           flux start papermill notebooks/2-hpc-cluster.ipynb notebooks/2-hpc-cluster-out.ipynb -k python3
           flux start papermill notebooks/3-hpc-job.ipynb notebooks/3-hpc-job-out.ipynb -k python3
-          papermill notebooks/4-developer.ipynb notebooks/4-developer-out.ipynb -k python3
+          papermill notebooks/5-developer.ipynb notebooks/5-developer-out.ipynb -k python3
 
   notebooks_integration:
     needs: [black]
@@ -174,7 +190,7 @@ jobs:
       - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.12"
+          python-version: "3.13"
           miniforge-version: latest
           channels: conda-forge
           conda-remove-defaults: "true"
@@ -186,8 +202,8 @@ jobs:
         shell: bash -l {0}
         timeout-minutes: 20
         run: |
-          flux start papermill notebooks/5-1-gpaw.ipynb notebooks/5-1-gpaw-out.ipynb -k python3
-          flux start papermill notebooks/5-2-quantum-espresso.ipynb notebooks/5-2-quantum-espresso-out.ipynb -k python3
+          flux start papermill notebooks/4-1-gpaw.ipynb notebooks/4-1-gpaw-out.ipynb -k python3
+          flux start papermill notebooks/4-2-quantum-espresso.ipynb notebooks/4-2-quantum-espresso-out.ipynb -k python3
 
   unittest_flux_mpich:
     needs: [black]
@@ -202,7 +218,7 @@ jobs:
         cat .ci_support/environment-mpich.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.12'
+        python-version: '3.13'
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
@@ -218,7 +234,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        python -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
+        python -m unittest tests/unit/task_scheduler/interactive/test_spawner_flux.py tests/unit/executor/test_flux_job_plot.py tests/unit/executor/test_flux_job.py tests/unit/executor/test_flux_cluster.py;
 
   unittest_flux_openmpi:
     needs: [black]
@@ -233,7 +249,7 @@ jobs:
         cat .ci_support/environment-openmpi.yml
     - uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: '3.12'
+        python-version: '3.13'
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
@@ -249,7 +265,7 @@ jobs:
       timeout-minutes: 5
       run: >
         flux start
-        coverage run -a -m unittest tests/test_fluxpythonspawner.py tests/test_fluxjobexecutor_plot.py tests/test_fluxjobexecutor.py tests/test_fluxclusterexecutor.py;
+        coverage run -a -m unittest tests/unit/task_scheduler/interactive/test_spawner_flux.py tests/unit/executor/test_flux_job_plot.py tests/unit/executor/test_flux_job.py tests/unit/executor/test_flux_cluster.py;
         coverage report;
         coverage xml
       env:
@@ -289,11 +305,11 @@ jobs:
       timeout-minutes: 5
       run: |
         pip install . --no-deps --no-build-isolation
-        cd tests
+        cd tests/unit
         sinfo -o "%n %e %m %a %c %C"
         srun --mpi=list
-        python -m unittest test_slurmjobexecutor.py
-        python -m unittest test_slurmclusterexecutor.py
+        python -m unittest executor/test_slurm_job.py
+        python -m unittest executor/test_slurm_cluster.py
 
   unittest_mpich:
     needs: [black]
@@ -436,7 +452,7 @@ jobs:
           GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   uml:
-    needs: [unittest_slurm_mpich, unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
+    needs: [uv_check, unittest_slurm_mpich, unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4

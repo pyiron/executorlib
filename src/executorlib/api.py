@@ -8,6 +8,7 @@ functionality is considered internal and might change during minor releases.
 from executorlib.executor.single import TestClusterExecutor
 from executorlib.standalone.command import get_command_path
 from executorlib.standalone.interactive.communication import (
+    ExecutorlibSocketError,
     SocketInterface,
     interface_bootup,
     interface_connect,
@@ -32,4 +33,5 @@ __all__: list[str] = [
     "MpiExecSpawner",
     "SocketInterface",
     "SubprocessSpawner",
+    "ExecutorlibSocketError",
 ]

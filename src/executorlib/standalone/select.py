@@ -3,21 +3,51 @@ from typing import Any, Optional
 
 
 class FutureSelector(Future):
+    """
+    A Future wrapper that returns a single element from a result that is a tuple, list, or dict.
+
+    This is used by split_future() and get_item_from_future() to give callers an individual
+    Future-like object for each output of a function that returns a collection.
+
+    Args:
+        future (Future): The underlying future whose result is a collection.
+        selector (int | str): Index (for sequences) or key (for mappings) used to extract
+            the desired element from the result.
+    """
+
     def __init__(self, future: Future, selector: int | str):
+        """
+        Args:
+            future (Future): The underlying future whose result is a collection.
+            selector (int | str): Index or key used to extract an element from the result.
+        """
         self._future = future
         self._selector = selector
         super().__init__()
 
     def __getattr__(self, attr: str) -> Any:
+        """Delegate attribute access to the wrapped future."""
         return getattr(self._future, attr)
 
     def __setattr__(self, name: str, value: Any):
+        """Set attributes on the wrapped future, except for the two private instance variables."""
         if name in ["_future", "_selector"]:
             super().__setattr__(name, value)
         else:
             setattr(self._future, name, value)
 
     def result(self, timeout: Optional[float] = None) -> Any:
+        """
+        Return the selected element from the underlying future's result.
+
+        Args:
+            timeout (float, optional): Maximum seconds to wait for the result. Defaults to None
+                (wait indefinitely).
+
+        Returns:
+            Any: The element at position/key ``selector`` in the underlying result, or None if
+                the underlying result is None.
+        """
         result = self._future.result(timeout=timeout)
         if result is not None:
             if (

@@ -25,10 +25,22 @@ class BaseExecutor(FutureExecutor, ABC):
 
     @property
     def max_workers(self) -> Optional[int]:
+        """
+        Return the number of parallel workers configured for this executor.
+
+        Returns:
+            Optional[int]: The maximum number of parallel workers, or None if unconstrained.
+        """
         return self._task_scheduler.max_workers
 
     @max_workers.setter
     def max_workers(self, max_workers: int):
+        """
+        Set the number of parallel workers on the underlying task scheduler.
+
+        Args:
+            max_workers (int): New maximum number of parallel workers.
+        """
         self._task_scheduler.max_workers = max_workers
 
     @property
@@ -103,6 +115,43 @@ class BaseExecutor(FutureExecutor, ABC):
         if self._is_active:
             return self._task_scheduler.submit(
                 *([fn] + list(args)), resource_dict=resource_dict, **kwargs
+            )
+        else:
+            raise RuntimeError("cannot schedule new futures after shutdown")
+
+    def map(
+        self,
+        fn: Callable,
+        *iterables,
+        timeout: Optional[float] = None,
+        chunksize: int = 1,
+    ):
+        """Returns an iterator equivalent to map(fn, iter).
+
+        Args:
+            fn: A callable that will take as many arguments as there are
+                passed iterables.
+            timeout: The maximum number of seconds to wait. If None, then there
+                is no limit on the wait time.
+            chunksize: The size of the chunks the iterable will be broken into
+                before being passed to a child process. This argument is only
+                used by ProcessPoolExecutor; it is ignored by
+                ThreadPoolExecutor.
+
+        Returns:
+            An iterator equivalent to: map(func, *iterables) but the calls may
+            be evaluated out-of-order.
+
+        Raises:
+            TimeoutError: If the entire result iterator could not be generated
+                before the given timeout.
+            Exception: If fn(*args) raises for any values.
+        """
+        if self._is_active:
+            return self._task_scheduler.map(
+                *([fn] + list(iterables)),
+                timeout=timeout,
+                chunksize=chunksize,
             )
         else:
             raise RuntimeError("cannot schedule new futures after shutdown")

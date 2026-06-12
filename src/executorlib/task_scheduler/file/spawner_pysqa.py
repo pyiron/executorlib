@@ -1,10 +1,14 @@
 import os
+from subprocess import CalledProcessError
 from typing import Optional
 
 from pysqa import QueueAdapter
 
 from executorlib.standalone.hdf import dump, get_queue_id
 from executorlib.standalone.inputcheck import check_file_exists
+from executorlib.standalone.interactive.spawner import (
+    set_current_directory_in_environment,
+)
 from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
 
 
@@ -66,6 +70,7 @@ def execute_with_pysqa(
             "command": " ".join(command),
             "dependency_list": [str(qid) for qid in task_dependent_lst],
             "working_directory": os.path.abspath(cwd),
+            "run_time_max": resource_dict.get("run_time_max"),
         }
         if "cwd" in resource_dict:
             del resource_dict["cwd"]
@@ -85,14 +90,21 @@ def execute_with_pysqa(
                 os.path.dirname(os.path.abspath(cwd))
             )
         submit_kwargs.update(resource_dict)
-        queue_id = qa.submit_job(**submit_kwargs)
-        dump(file_name=file_name, data_dict={"queue_id": queue_id})
+        set_current_directory_in_environment()
+        try:
+            queue_id = qa.submit_job(**submit_kwargs)
+        except (ValueError, CalledProcessError) as error:
+            dump(file_name=file_name, data_dict={"error": error})
+            file_name_out = os.path.splitext(file_name)[0][:-2]
+            os.rename(file_name_out + "_i.h5", file_name_out + "_o.h5")
+        else:
+            dump(file_name=file_name, data_dict={"queue_id": queue_id})
     return queue_id
 
 
 def terminate_tasks_in_cache(
     cache_directory: str,
-    config_directory: Optional[str] = None,
+    pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
 ):
     """
@@ -100,7 +112,7 @@ def terminate_tasks_in_cache(
 
     Args:
         cache_directory (str): The directory to store cache files.
-        config_directory (str, optional): path to the config directory.
+        pysqa_config_directory (str, optional): path to the pysqa config directory.
         backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
     """
     hdf5_file_lst = []
@@ -112,6 +124,33 @@ def terminate_tasks_in_cache(
         if queue_id is not None:
             terminate_with_pysqa(
                 queue_id=queue_id,
-                config_directory=config_directory,
+                config_directory=pysqa_config_directory,
                 backend=backend,
             )
+        os.remove(f)
+
+
+def terminate_task_in_cache(
+    cache_directory: str,
+    cache_key: str,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+):
+    """
+    Delete a specific job stored in the cache directory from the queuing system
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+        cache_key (str): The key of the cache file to be deleted.
+        pysqa_config_directory (str, optional): path to the pysqa config directory.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
+    """
+    file_name = os.path.join(cache_directory, cache_key + "_i.h5")
+    queue_id = get_queue_id(file_name=file_name)
+    if queue_id is not None:
+        terminate_with_pysqa(
+            queue_id=queue_id,
+            config_directory=pysqa_config_directory,
+            backend=backend,
+        )
+    os.remove(file_name)

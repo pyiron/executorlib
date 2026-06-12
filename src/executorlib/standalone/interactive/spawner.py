@@ -11,6 +11,7 @@ class BaseSpawner(ABC):
         self,
         cwd: Optional[str] = None,
         cores: int = 1,
+        worker_id: int = 0,
         openmpi_oversubscribe: bool = False,
     ):
         """
@@ -20,9 +21,11 @@ class BaseSpawner(ABC):
             cwd (str): The current working directory.
             cores (int, optional): The number of cores to use. Defaults to 1.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
+            worker_id (int): The worker ID. Defaults to 0.
         """
         self._cwd = cwd
         self._cores = cores
+        self._worker_id = worker_id
         self._openmpi_oversubscribe = openmpi_oversubscribe
 
     @abstractmethod
@@ -69,6 +72,7 @@ class SubprocessSpawner(BaseSpawner):
         self,
         cwd: Optional[str] = None,
         cores: int = 1,
+        worker_id: int = 0,
         openmpi_oversubscribe: bool = False,
         threads_per_core: int = 1,
     ):
@@ -79,11 +83,13 @@ class SubprocessSpawner(BaseSpawner):
             cwd (str, optional): The current working directory. Defaults to None.
             cores (int, optional): The number of cores to use. Defaults to 1.
             threads_per_core (int, optional): The number of threads per core. Defaults to 1.
+            worker_id (int): The worker ID. Defaults to 0.
             openmpi_oversubscribe (bool, optional): Whether to oversubscribe the cores. Defaults to False.
         """
         super().__init__(
             cwd=cwd,
             cores=cores,
+            worker_id=worker_id,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._process: Optional[subprocess.Popen] = None
@@ -106,6 +112,7 @@ class SubprocessSpawner(BaseSpawner):
         """
         if self._cwd is not None:
             os.makedirs(self._cwd, exist_ok=True)
+        set_current_directory_in_environment()
         self._process = subprocess.Popen(
             args=self.generate_command(command_lst=command_lst),
             cwd=self._cwd,
@@ -189,3 +196,15 @@ def generate_mpiexec_command(
         if openmpi_oversubscribe:
             command_prepend_lst += ["--oversubscribe"]
         return command_prepend_lst
+
+
+def set_current_directory_in_environment():
+    """
+    Add the current directory to the PYTHONPATH to be able to access local Python modules.
+    """
+    environment = os.environ
+    current_path = os.getcwd()
+    if "PYTHONPATH" in environment and current_path not in environment["PYTHONPATH"]:
+        environment["PYTHONPATH"] = os.getcwd() + ":" + environment["PYTHONPATH"]
+    elif "PYTHONPATH" not in environment:
+        environment["PYTHONPATH"] = os.getcwd()

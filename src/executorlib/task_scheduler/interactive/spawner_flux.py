@@ -5,7 +5,10 @@ from typing import Callable, Optional
 import flux
 import flux.job
 
-from executorlib.standalone.interactive.spawner import BaseSpawner
+from executorlib.standalone.interactive.spawner import (
+    BaseSpawner,
+    set_current_directory_in_environment,
+)
 
 
 def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):
@@ -31,6 +34,7 @@ class FluxPythonSpawner(BaseSpawner):
         threads_per_core (int, optional): The number of threads per base. Defaults to 1.
         gpus_per_core (int, optional): The number of GPUs per base. Defaults to 0.
         num_nodes (int, optional): The number of compute nodes to use for executing the task. Defaults to None.
+        worker_id (int): The worker ID. Defaults to 0.
         exclusive (bool): Whether to exclusively reserve the compute nodes, or allow sharing compute notes. Defaults to
                           False.
         openmpi_oversubscribe (bool, optional): Whether to oversubscribe. Defaults to False.
@@ -40,6 +44,7 @@ class FluxPythonSpawner(BaseSpawner):
         flux_executor (flux.job.FluxExecutor, optional): The FluxExecutor instance. Defaults to None.
         flux_executor_nesting (bool, optional): Whether to use nested FluxExecutor. Defaults to False.
         flux_log_files (bool, optional): Write flux stdout and stderr files. Defaults to False.
+        run_time_max (int): The maximum runtime in seconds for each task. Default: None
     """
 
     def __init__(
@@ -49,6 +54,7 @@ class FluxPythonSpawner(BaseSpawner):
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
         num_nodes: Optional[int] = None,
+        worker_id: int = 0,
         exclusive: bool = False,
         priority: Optional[int] = None,
         openmpi_oversubscribe: bool = False,
@@ -56,10 +62,12 @@ class FluxPythonSpawner(BaseSpawner):
         flux_executor: Optional[flux.job.FluxExecutor] = None,
         flux_executor_nesting: bool = False,
         flux_log_files: bool = False,
+        run_time_max: Optional[int] = None,
     ):
         super().__init__(
             cwd=cwd,
             cores=cores,
+            worker_id=worker_id,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
         self._threads_per_core = threads_per_core
@@ -72,6 +80,7 @@ class FluxPythonSpawner(BaseSpawner):
         self._flux_log_files = flux_log_files
         self._priority = priority
         self._future = None
+        self._run_time_max = run_time_max
 
     def bootup(
         self,
@@ -115,24 +124,30 @@ class FluxPythonSpawner(BaseSpawner):
                 num_nodes=self._num_nodes,
                 exclusive=self._exclusive,
             )
+        set_current_directory_in_environment()
         jobspec.environment = dict(os.environ)
         if self._pmi_mode is not None:
             jobspec.setattr_shell_option("pmi", self._pmi_mode)
         if self._cwd is not None:
             jobspec.cwd = self._cwd
             os.makedirs(self._cwd, exist_ok=True)
+        if self._run_time_max is not None:
+            jobspec.duration = self._run_time_max
+        file_prefix = "flux_" + str(self._worker_id)
         if self._flux_log_files and self._cwd is not None:
-            jobspec.stderr = os.path.join(self._cwd, "flux.err")
-            jobspec.stdout = os.path.join(self._cwd, "flux.out")
+            jobspec.stderr = os.path.join(self._cwd, file_prefix + ".err")
+            jobspec.stdout = os.path.join(self._cwd, file_prefix + ".out")
         elif self._flux_log_files:
-            jobspec.stderr = os.path.abspath("flux.err")
-            jobspec.stdout = os.path.abspath("flux.out")
+            jobspec.stderr = os.path.abspath(file_prefix + ".err")
+            jobspec.stdout = os.path.abspath(file_prefix + ".out")
         if self._priority is not None:
             self._future = self._flux_executor.submit(
                 jobspec=jobspec, urgency=self._priority
             )
         else:
             self._future = self._flux_executor.submit(jobspec=jobspec)
+        if self._future is not None:
+            self._future.jobid()
         return self.poll()
 
     def shutdown(self, wait: bool = True):

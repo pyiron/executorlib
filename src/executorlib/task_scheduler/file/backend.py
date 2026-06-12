@@ -45,15 +45,22 @@ def backend_write_file(file_name: str, output: Any, runtime: float) -> None:
     """
     file_name_out = os.path.splitext(file_name)[0][:-2]
     os.rename(file_name, file_name_out + "_r.h5")
-    if "result" in output:
+    try:
+        if "result" in output:
+            dump(
+                file_name=file_name_out + "_r.h5",
+                data_dict={"output": output["result"], "runtime": runtime},
+            )
+        else:
+            dump(
+                file_name=file_name_out + "_r.h5",
+                data_dict={"error": output["error"], "runtime": runtime},
+            )
+    except Exception as serialize_error:
+        # Serialization failed — store the error so the job is not stuck
         dump(
             file_name=file_name_out + "_r.h5",
-            data_dict={"output": output["result"], "runtime": runtime},
-        )
-    else:
-        dump(
-            file_name=file_name_out + "_r.h5",
-            data_dict={"error": output["error"], "runtime": runtime},
+            data_dict={"error": serialize_error, "runtime": runtime},
         )
     os.rename(file_name_out + "_r.h5", file_name_out + "_o.h5")
 
@@ -68,9 +75,10 @@ def backend_execute_task_in_file(file_name: str) -> None:
     Returns:
         None
     """
-    apply_dict = backend_load_file(file_name=file_name)
+    apply_dict = {}
     time_start = time.time()
     try:
+        apply_dict = backend_load_file(file_name=file_name)
         result = {
             "result": apply_dict["fn"].__call__(
                 *apply_dict["args"], **apply_dict["kwargs"]
