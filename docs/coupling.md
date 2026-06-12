@@ -1,4 +1,4 @@
-# Coupling with other Libraries
+# Integration
 A lot of scientific Python packages already know how to distribute work over many processes - they just need to be
 handed an object that behaves like an executor or a worker pool. Because executorlib implements the
 [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects) of the Python standard
@@ -18,7 +18,7 @@ not part of the executorlib test environment. In every example the `SingleNodeEx
 HPC cluster.
 ```
 
-## emcee (Markov Chain Monte Carlo)
+## emcee
 [emcee](https://emcee.readthedocs.io) is a widely used Python package for Markov Chain Monte Carlo (MCMC) sampling, for
 example to estimate the posterior distribution of model parameters from experimental data. The likelihood function has
 to be evaluated many times per sampling step, and these evaluations are independent of each other, so they can be
@@ -50,7 +50,7 @@ more expensive likelihood functions the parallel evaluation provides a substanti
 `SingleNodeExecutor` with a `FluxJobExecutor` the very same sampling can be distributed over multiple compute nodes of an
 HPC cluster.
 
-## pipefunc (Function Pipelines)
+## pipefunc
 [pipefunc](https://pipefunc.readthedocs.io) is a library to build function pipelines, where the output of one function
 is used as the input for the next function, including map-reduce patterns over many parameters. pipefunc takes care of
 the book keeping of the pipeline, while the actual execution of the individual functions is delegated to an executor.
@@ -92,7 +92,7 @@ results = pipeline.map(inputs, executor=executor)
 The combination of pipefunc and executorlib is explained in more detail in the
 [pipefunc documentation on execution and parallelism](https://pipefunc.readthedocs.io/en/latest/concepts/execution-and-parallelism/).
 
-## omp4py (OpenMP for Python)
+## omp4py
 The [thread based parallelism](https://executorlib.readthedocs.io/en/latest/1-single-node.html#thread-parallel-functions)
 of executorlib is most commonly used to control the number of threads in linked libraries like NumPy. With
 [omp4py](https://omp4py.readthedocs.io) - a Python implementation of [OpenMP](https://www.openmp.org) - it is also
@@ -124,7 +124,7 @@ with SingleNodeExecutor() as exe:
 The `threads_per_core` parameter sets the environment variables which control the number of threads, so the requested
 number of cores is reserved for the threads created by omp4py inside the `calc_pi()` function.
 
-## pylammpsmpi (MPI-parallel LAMMPS)
+## pylammpsmpi
 [pylammpsmpi](https://pylammpsmpi.readthedocs.io) provides a Python interface to the molecular dynamics code
 [LAMMPS](https://www.lammps.org) which distributes the simulation over multiple MPI ranks while the Python process
 itself remains serial. Internally pylammpsmpi uses an executor to start the MPI-parallel LAMMPS processes, so an
