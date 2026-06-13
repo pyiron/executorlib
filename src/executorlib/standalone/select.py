@@ -15,7 +15,7 @@ class FutureSelector(Future):
             the desired element from the result.
     """
 
-    def __init__(self, future: Future, selector: int | str):
+    def __init__(self, future: Future[Any], selector: int | str):
         """
         Args:
             future (Future): The underlying future whose result is a collection.
@@ -50,7 +50,23 @@ class FutureSelector(Future):
         """
         result = self._future.result(timeout=timeout)
         if result is not None:
-            return result[self._selector]
+            if (
+                isinstance(self._selector, int)
+                and isinstance(result, (tuple, list))
+                or isinstance(result, dict)
+                and self._selector in result
+            ):
+                return result[self._selector]
+            else:
+                raise KeyError(
+                    str(self._selector)
+                    + " of type "
+                    + str(type(self._selector))
+                    + " is not in "
+                    + str(result)
+                    + " of type "
+                    + str(type(result))
+                )
         else:
             return None
 
