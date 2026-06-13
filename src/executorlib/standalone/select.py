@@ -1,5 +1,5 @@
 from concurrent.futures import Future
-from typing import Any, Optional
+from typing import Any, Optional, SupportsIndex
 
 
 class FutureSelector(Future):
@@ -15,7 +15,7 @@ class FutureSelector(Future):
             the desired element from the result.
     """
 
-    def __init__(self, future: Future, selector: int | str):
+    def __init__(self, future: Future[SupportsIndex], selector: int | str):
         """
         Args:
             future (Future): The underlying future whose result is a collection.
