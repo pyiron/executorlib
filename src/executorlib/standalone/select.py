@@ -1,5 +1,5 @@
 from concurrent.futures import Future
-from typing import Any, Optional, SupportsIndex
+from typing import Any, Optional
 
 
 class FutureSelector(Future):
@@ -15,7 +15,7 @@ class FutureSelector(Future):
             the desired element from the result.
     """
 
-    def __init__(self, future: Future[SupportsIndex], selector: int | str):
+    def __init__(self, future: Future[Any], selector: int | str):
         """
         Args:
             future (Future): The underlying future whose result is a collection.
@@ -50,9 +50,9 @@ class FutureSelector(Future):
         """
         result = self._future.result(timeout=timeout)
         if result is not None:
-            if (
-                isinstance(self._selector, int) and isinstance(result, (tuple, list))
-            ) or self._selector in result:
+            if isinstance(self._selector, int) and isinstance(result, (tuple, list)):
+                return result[self._selector]
+            elif isinstance(result, dict) and self._selector in result:
                 return result[self._selector]
             else:
                 raise KeyError(
