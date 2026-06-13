@@ -50,9 +50,12 @@ class FutureSelector(Future):
         """
         result = self._future.result(timeout=timeout)
         if result is not None:
-            if isinstance(self._selector, int) and isinstance(result, (tuple, list)):
-                return result[self._selector]
-            elif isinstance(result, dict) and self._selector in result:
+            if (
+                isinstance(self._selector, int)
+                and isinstance(result, (tuple, list))
+                or isinstance(result, dict)
+                and self._selector in result
+            ):
                 return result[self._selector]
             else:
                 raise KeyError(
