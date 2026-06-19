@@ -16,6 +16,33 @@ from executorlib.standalone.interactive.communication import (
 )
 
 
+def _execute_init_dict(
+    input_dict: dict,
+    memory: dict,
+    socket: Optional[zmq.Socket],
+    mpi_rank_zero: bool,
+    mpi_size_larger_one: bool,
+) -> None:
+    from mpi4py import MPI
+
+    init_error = None
+    try:
+        memory.update(call_funct(input_dict=input_dict, funct=None, memory=memory))
+    except Exception as error:
+        init_error = error
+    if mpi_size_larger_one:
+        all_errors = MPI.COMM_WORLD.gather(init_error, root=0)
+    else:
+        all_errors = [init_error]
+    if mpi_rank_zero:
+        first_error = next((e for e in all_errors if e is not None), None)
+        if first_error is not None:
+            interface_send(socket=socket, result_dict={"error": first_error})
+            backend_write_error_file(error=first_error, apply_dict=input_dict)
+        else:
+            interface_send(socket=socket, result_dict={"result": True})
+
+
 def main() -> None:
     """
     Entry point of the program.
@@ -97,30 +124,13 @@ def main() -> None:
             and "args" in input_dict
             and "kwargs" in input_dict
         ):
-            init_error = None
-            try:
-                memory.update(
-                    call_funct(input_dict=input_dict, funct=None, memory=memory)
-                )
-            except Exception as error:
-                init_error = error
-            if mpi_size_larger_one:
-                all_errors = MPI.COMM_WORLD.gather(init_error, root=0)
-            else:
-                all_errors = [init_error]
-            if mpi_rank_zero:
-                first_error = next((e for e in all_errors if e is not None), None)
-                if first_error is not None:
-                    interface_send(
-                        socket=socket,
-                        result_dict={"error": first_error},
-                    )
-                    backend_write_error_file(
-                        error=first_error,
-                        apply_dict=input_dict,
-                    )
-                else:
-                    interface_send(socket=socket, result_dict={"result": True})
+            _execute_init_dict(
+                input_dict=input_dict,
+                memory=memory,
+                socket=socket,
+                mpi_rank_zero=mpi_rank_zero,
+                mpi_size_larger_one=mpi_size_larger_one,
+            )
 
 
 if __name__ == "__main__":
