@@ -97,22 +97,29 @@ def main() -> None:
             and "args" in input_dict
             and "kwargs" in input_dict
         ):
+            init_error = None
             try:
                 memory.update(
                     call_funct(input_dict=input_dict, funct=None, memory=memory)
                 )
             except Exception as error:
-                if mpi_rank_zero:
+                init_error = error
+            if mpi_size_larger_one:
+                all_errors = MPI.COMM_WORLD.gather(init_error, root=0)
+            else:
+                all_errors = [init_error]
+            if mpi_rank_zero:
+                first_error = next((e for e in all_errors if e is not None), None)
+                if first_error is not None:
                     interface_send(
                         socket=socket,
-                        result_dict={"error": error},
+                        result_dict={"error": first_error},
                     )
                     backend_write_error_file(
-                        error=error,
+                        error=first_error,
                         apply_dict=input_dict,
                     )
-            else:
-                if mpi_rank_zero:
+                else:
                     interface_send(socket=socket, result_dict={"result": True})
 
 

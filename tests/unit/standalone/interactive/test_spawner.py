@@ -271,6 +271,25 @@ class TestBlockAllocationTaskSchedulerInitFunction(unittest.TestCase):
         self.assertEqual(f.result(), np.array([5]))
         q.join()
 
+    @unittest.skipIf(
+        skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
+    )
+    def test_internal_memory_mpi(self):
+        with BlockAllocationTaskScheduler(
+            max_workers=1,
+            executor_kwargs={
+                "cores": 2,
+                "init_function": set_global,
+            },
+            spawner=MpiExecSpawner,
+        ) as p:
+            cloudpickle_register(ind=1)
+            f = p.submit(get_global)
+            result = f.result()
+            self.assertEqual(len(result), 2)
+            np.testing.assert_array_equal(result[0], np.array([5]))
+            np.testing.assert_array_equal(result[1], np.array([5]))
+
 
 class TestBlockAllocationTaskScheduler(unittest.TestCase):
     def test_submit_tracks_future_state(self):
