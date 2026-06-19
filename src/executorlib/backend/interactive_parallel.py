@@ -23,6 +23,23 @@ def _execute_init_dict(
     mpi_rank_zero: bool,
     mpi_size_larger_one: bool,
 ) -> None:
+    """
+    Execute an init-function message and update the in-process memory store.
+
+    Runs the callable in input_dict on every MPI rank, then gathers errors
+    from all ranks to rank 0 so that a failure on any non-zero rank is not
+    silently swallowed. Rank 0 sends the result or the first observed error
+    back to the scheduler via the ZMQ socket.
+
+    Args:
+        input_dict (dict): Message dict with keys "init", "fn", "args", "kwargs".
+        memory (dict): Per-rank memory store; updated in-place with the return
+                       value of the init function on success.
+        socket (zmq.Socket | None): ZMQ socket used by rank 0 to reply to the
+                                    scheduler; None on non-zero ranks.
+        mpi_rank_zero (bool): True only on MPI rank 0.
+        mpi_size_larger_one (bool): True when the communicator has more than one rank.
+    """
     from mpi4py import MPI
 
     init_error = None
