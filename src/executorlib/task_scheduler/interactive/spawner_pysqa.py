@@ -189,7 +189,7 @@ class PysqaSpawner(BaseSpawner):
         if self._cwd is not None:
             working_directory = os.path.join(self._cwd, hash)
         else:
-            working_directory = os.path.abspath(hash)
+            working_directory = os.path.join(os.path.abspath("executorlib_cache"), hash)
         set_current_directory_in_environment()
         return queue_adapter.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
