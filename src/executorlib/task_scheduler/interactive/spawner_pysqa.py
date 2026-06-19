@@ -242,8 +242,6 @@ def create_pysqa_block_allocation_scheduler(
         executor_kwargs["cwd"] = os.path.abspath(cache_directory)
     if cache_directory is not None:
         executor_kwargs["cache_directory"] = os.path.abspath(cache_directory)
-    else:
-        executor_kwargs["cache_directory"] = os.path.abspath(".")
     executor_kwargs["hostname_localhost"] = hostname_localhost
     executor_kwargs["log_obj_size"] = log_obj_size
     executor_kwargs["pmi_mode"] = pmi_mode
