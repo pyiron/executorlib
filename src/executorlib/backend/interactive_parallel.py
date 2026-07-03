@@ -44,9 +44,10 @@ def main() -> None:
             host=argument_dict["host"], port=argument_dict["zmqport"]
         )
 
+    nested_executor = BackendExecutor()
     memory = {
         "executorlib_worker_id": int(argument_dict["worker_id"]),
-        "executorlib_executor": BackendExecutor(),
+        "executorlib_executor": nested_executor,
     }
 
     # required for flux interface - otherwise the current path is not included in the python path
@@ -98,7 +99,7 @@ def main() -> None:
                         socket=socket,
                         result_dict={
                             "result": output_reply,
-                            "tasks_nested": memory["executorlib_executor"].tasks,
+                            "tasks_nested": nested_executor.tasks,
                         },
                     )
         elif (
