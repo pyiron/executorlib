@@ -4,7 +4,7 @@ import queue
 import time
 from concurrent.futures import Future
 from concurrent.futures._base import PENDING
-from typing import Optional, Tuple
+from typing import Optional
 
 from executorlib.standalone.interactive.communication import (
     ExecutorlibSocketError,
@@ -20,7 +20,7 @@ def execute_task_dict(
     cache_directory: Optional[str] = None,
     cache_key: Optional[str] = None,
     error_log_file: Optional[str] = None,
-) -> Tuple[bool, dict]:
+) -> tuple[bool, dict]:
     """
     Execute the task in the task_dict by communicating it via the interface.
 
@@ -89,7 +89,7 @@ def reset_task_dict(future_obj: Future, future_queue: queue.Queue, task_dict: di
 
 def _execute_task_without_cache(
     interface: SocketInterface, task_dict: dict, future_obj: Future
-) -> Tuple[bool, dict]:
+) -> tuple[bool, dict]:
     """
     Execute the task in the task_dict by communicating it via the interface.
 
@@ -121,7 +121,7 @@ def _execute_task_with_cache(
     future_obj: Future,
     cache_directory: str,
     cache_key: Optional[str] = None,
-) -> Tuple[bool, dict]:
+) -> tuple[bool, dict]:
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
 
