@@ -101,13 +101,13 @@ def _execute_task_without_cache(
     Returns:
         bool: True if the task was submitted successfully, False otherwise.
     """
-    try:
-        future_obj.set_result(interface.send_and_receive_dict(input_dict=task_dict))
-    except Exception as thread_exception:
-        if isinstance(thread_exception, ExecutorlibSocketError):
-            return False
-        else:
-            future_obj.set_exception(exception=thread_exception)
+    output = interface.send_and_receive_dict(input_dict=task_dict)
+    if "result" in output:
+        future_obj.set_result(output["result"])
+    elif isinstance(output["error"], ExecutorlibSocketError):
+        return False
+    else:
+        future_obj.set_exception(exception=output["error"])
     return True
 
 
@@ -141,18 +141,17 @@ def _execute_task_with_cache(
     )
     file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
     if file_name not in get_cache_files(cache_directory=cache_directory):
-        try:
-            time_start = time.time()
-            result = interface.send_and_receive_dict(input_dict=task_dict)
-            data_dict["output"] = result
+        time_start = time.time()
+        output = interface.send_and_receive_dict(input_dict=task_dict)
+        if "result" in output:
+            data_dict["output"] = output["result"]
             data_dict["runtime"] = time.time() - time_start
             dump(file_name=file_name, data_dict=data_dict)
-            future_obj.set_result(result)
-        except Exception as thread_exception:
-            if isinstance(thread_exception, ExecutorlibSocketError):
-                return False
-            else:
-                future_obj.set_exception(exception=thread_exception)
+            future_obj.set_result(output["result"])
+        elif isinstance(output["error"], ExecutorlibSocketError):
+            return False
+        else:
+            future_obj.set_exception(exception=output["error"])
     else:
         _, _, result = get_output(file_name=file_name)
         future_obj.set_result(result)

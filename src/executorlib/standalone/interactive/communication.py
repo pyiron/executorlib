@@ -78,19 +78,17 @@ class SocketInterface:
         while len(response_lst) == 0:
             response_lst = self._poller.poll(self._time_out_ms)
             if not self._spawner.poll():
-                raise ExecutorlibSocketError(
-                    "SocketInterface crashed during execution."
-                )
+                return {
+                    "error": ExecutorlibSocketError(
+                        "SocketInterface crashed during execution."
+                    ),
+                }
         data = self._socket.recv(zmq.NOBLOCK)
         if self._logger is not None:
             self._logger.warning(
                 "Received dictionary of size: " + str(sys.getsizeof(data))
             )
-        output = cloudpickle.loads(data)
-        if "result" in output:
-            return output["result"]
-        else:
-            raise output["error"]
+        return cloudpickle.loads(data)
 
     def send_and_receive_dict(self, input_dict: dict) -> dict:
         """
@@ -154,7 +152,7 @@ class SocketInterface:
         if self._spawner.poll():
             result = self.send_and_receive_dict(
                 input_dict={"shutdown": True, "wait": wait}
-            )
+            )["result"]
             self._spawner.shutdown(wait=wait)
         self._reset_socket()
         return result
