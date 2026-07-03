@@ -8,8 +8,8 @@ from time import sleep
 
 try:
     from executorlib.task_scheduler.file.spawner_subprocess import (
-        execute_in_subprocess,
-        terminate_subprocess,
+        subprocess_execute,
+        subprocess_terminate,
     )
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
     from executorlib.task_scheduler.file.shared import execute_tasks_h5, _convert_args_and_kwargs
@@ -36,21 +36,21 @@ def get_error(a):
 )
 class TestCacheExecutorSerial(unittest.TestCase):
     def test_submit_with_positional_and_keyword_args(self):
-        with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
+        with FileTaskScheduler(execute_function=subprocess_execute) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
     def test_submit_with_custom_cache_key(self):
-        with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
+        with FileTaskScheduler(execute_function=subprocess_execute) as exe:
             fs1 = exe.submit(my_funct, 1, b=2, resource_dict={"cache_key": "a/b/c"})
             self.assertFalse(fs1.done())
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
     def test_submit_dependency_with_keyword_arg_future(self):
-        with FileTaskScheduler(execute_function=execute_in_subprocess) as exe:
+        with FileTaskScheduler(execute_function=subprocess_execute) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
             fs2 = exe.submit(my_funct, 1, b=fs1)
             self.assertFalse(fs2.done())
@@ -70,7 +70,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_submit_dependency_raises_when_dependencies_disabled(self):
         with self.assertRaises(ValueError):
             with FileTaskScheduler(
-                execute_function=execute_in_subprocess, disable_dependencies=True
+                execute_function=subprocess_execute, disable_dependencies=True
             ) as exe:
                 fs = exe.submit(my_funct, 1, b=exe.submit(my_funct, 1, b=2))
                 fs.result()
@@ -78,7 +78,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_working_directory(self):
         cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
-            executor_kwargs={"cwd": cwd}, execute_function=execute_in_subprocess
+            executor_kwargs={"cwd": cwd}, execute_function=subprocess_execute
         ) as exe:
             fs1 = exe.submit(list_files_in_working_directory)
             self.assertEqual(fs1.result(), os.listdir(cwd))
@@ -86,7 +86,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
     def test_executor_error(self):
         cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
-            executor_kwargs={"cwd": cwd}, execute_function=execute_in_subprocess
+            executor_kwargs={"cwd": cwd}, execute_function=subprocess_execute
         ) as exe:
             fs1 = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
@@ -97,7 +97,7 @@ class TestCacheExecutorSerial(unittest.TestCase):
         cwd = os.path.join(os.path.dirname(__file__), "..", "..", "..", "static")
         with FileTaskScheduler(
             executor_kwargs={"cwd": cwd, "error_log_file": "error.out"},
-            execute_function=execute_in_subprocess
+            execute_function=subprocess_execute
         ) as exe:
             fs1 = exe.submit(get_error, a=1)
             with self.assertRaises(ValueError):
@@ -125,9 +125,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
-                "execute_function": execute_in_subprocess,
+                "execute_function": subprocess_execute,
                 "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
-                "terminate_function": terminate_subprocess,
+                "terminate_function": subprocess_terminate,
             },
         )
         process.start()
@@ -165,9 +165,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
-                "execute_function": execute_in_subprocess,
+                "execute_function": subprocess_execute,
                 "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
-                "terminate_function": terminate_subprocess,
+                "terminate_function": subprocess_terminate,
             },
         )
         process.start()
@@ -205,9 +205,9 @@ class TestCacheExecutorSerial(unittest.TestCase):
             target=execute_tasks_h5,
             kwargs={
                 "future_queue": q,
-                "execute_function": execute_in_subprocess,
+                "execute_function": subprocess_execute,
                 "executor_kwargs": {"cores": 1, "cache_directory": cache_dir},
-                "terminate_function": terminate_subprocess,
+                "terminate_function": subprocess_terminate,
             },
         )
         process.start()
@@ -218,12 +218,12 @@ class TestCacheExecutorSerial(unittest.TestCase):
         process.join()
 
     def test_execute_in_subprocess(self):
-        process = execute_in_subprocess(
+        process = subprocess_execute(
             command=["sleep", "5"],
             file_name="test.h5",
             data_dict={"fn": sleep, "args": (5,)},
         )
-        self.assertIsNone(terminate_subprocess(task=process))
+        self.assertIsNone(subprocess_terminate(task=process))
 
     def test_execute_in_subprocess_errors(self):
         file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), "executorlib_cache", "test.h5"))
@@ -231,14 +231,14 @@ class TestCacheExecutorSerial(unittest.TestCase):
         with open(file_name, "w") as f:
             f.write("test")
         with self.assertRaises(ValueError):
-            execute_in_subprocess(
+            subprocess_execute(
                 file_name=file_name,
                 data_dict={},
                 command=[],
                 config_directory="test",
             )
         with self.assertRaises(ValueError):
-            execute_in_subprocess(
+            subprocess_execute(
                 file_name=file_name,
                 data_dict={},
                 command=[],

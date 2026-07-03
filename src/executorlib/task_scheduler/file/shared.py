@@ -8,7 +8,7 @@ from typing import Any, Callable, Optional
 from executorlib.standalone.command import get_cache_execute_command
 from executorlib.standalone.hdf import get_cache_files, get_output, get_queue_id
 from executorlib.standalone.serialize import serialize_funct
-from executorlib.task_scheduler.file.spawner_subprocess import terminate_subprocess
+from executorlib.task_scheduler.file.spawner_subprocess import subprocess_terminate
 
 
 class FutureItem:
@@ -381,7 +381,7 @@ def _cancel_processes(
         pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
         backend (str): name of the backend used to spawn tasks.
     """
-    if terminate_function is not None and terminate_function == terminate_subprocess:
+    if terminate_function is not None and terminate_function == subprocess_terminate:
         for task in process_dict.values():
             terminate_function(task=task)
     elif terminate_function is not None and backend is not None:
