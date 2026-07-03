@@ -104,11 +104,10 @@ def _execute_task_without_cache(
     output = interface.send_and_receive_dict(input_dict=task_dict)
     if "result" in output:
         future_obj.set_result(output["result"])
+    elif isinstance(output["error"], ExecutorlibSocketError):
+        return False
     else:
-        if isinstance(output["error"], ExecutorlibSocketError):
-            return False
-        else:
-            future_obj.set_exception(exception=output["error"])
+        future_obj.set_exception(exception=output["error"])
     return True
 
 
@@ -149,11 +148,10 @@ def _execute_task_with_cache(
             data_dict["runtime"] = time.time() - time_start
             dump(file_name=file_name, data_dict=data_dict)
             future_obj.set_result(result)
+        elif isinstance(output["error"], ExecutorlibSocketError):
+            return False
         else:
-            if isinstance(output["error"], ExecutorlibSocketError):
-                return False
-            else:
-                future_obj.set_exception(exception=output["error"])
+            future_obj.set_exception(exception=output["error"])
     else:
         _, _, result = get_output(file_name=file_name)
         future_obj.set_result(result)
