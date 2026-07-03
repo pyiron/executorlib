@@ -194,8 +194,8 @@ class TestInterface(unittest.TestCase):
         self.assertTrue(interface.status)
         interface.send_dict(input_dict=task_dict)
         interface._spawner._process.terminate()
-        with self.assertRaises(ExecutorlibSocketError):
-            raise interface.receive_dict()["error"]
+        output = interface.receive_dict()
+        self.assertIsInstance(output["error"], ExecutorlibSocketError)
 
 
 class TestZMQ(unittest.TestCase):
