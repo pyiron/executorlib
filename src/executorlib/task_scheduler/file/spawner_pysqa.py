@@ -4,12 +4,12 @@ from typing import Optional
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
 from executorlib.standalone.hdf import dump, get_queue_id
 from executorlib.standalone.inputcheck import check_file_exists
 from executorlib.standalone.interactive.spawner import (
     set_current_directory_in_environment,
 )
-from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
 
 
 def execute_with_pysqa(

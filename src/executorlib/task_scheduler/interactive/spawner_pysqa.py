@@ -5,12 +5,12 @@ from typing import Callable, Optional
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
 from executorlib.standalone.inputcheck import validate_number_of_cores
 from executorlib.standalone.interactive.spawner import (
     BaseSpawner,
     set_current_directory_in_environment,
 )
-from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
 from executorlib.task_scheduler.base import validate_resource_dict
 from executorlib.task_scheduler.interactive.blockallocation import (
     BlockAllocationTaskScheduler,
