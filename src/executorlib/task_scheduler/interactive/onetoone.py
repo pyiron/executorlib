@@ -1,7 +1,6 @@
 import queue
 from concurrent.futures import Future
 from threading import Thread
-from time import sleep
 from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
