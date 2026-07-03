@@ -10,7 +10,7 @@ from executorlib.standalone.interactive.spawner import (
 )
 
 
-def execute_in_subprocess(
+def subprocess_execute(
     command: list,
     file_name: str,
     data_dict: dict,
@@ -65,7 +65,7 @@ def execute_in_subprocess(
     return subprocess.Popen(command, universal_newlines=True, cwd=cwd)
 
 
-def terminate_subprocess(task):
+def subprocess_terminate(task):
     """
     Terminate a subprocess and wait for it to complete.
 

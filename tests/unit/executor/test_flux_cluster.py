@@ -13,7 +13,7 @@ try:
     from executorlib import terminate_tasks_in_cache, terminate_task_in_cache
     from executorlib.standalone.hdf import dump
     from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
-    from executorlib.standalone.scheduler import terminate_with_pysqa
+    from executorlib.standalone.command_pysqa import pysqa_terminate
     from executorlib.task_scheduler.interactive.spawner_pysqa import PysqaSpawner
 
     skip_flux_test = "FLUX_URI" not in os.environ
@@ -245,7 +245,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             cache_directory="executorlib_cache",
             backend="flux"
         )
-        self.assertIsNone(terminate_with_pysqa(queue_id=queue_id, backend="flux"))
+        self.assertIsNone(pysqa_terminate(queue_id=queue_id, backend="flux"))
 
     def test_executor_existing_files(self):
         with FluxClusterExecutor(

@@ -9,7 +9,7 @@ from executorlib.standalone.inputcheck import check_file_exists
 from executorlib.standalone.interactive.spawner import (
     set_current_directory_in_environment,
 )
-from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
+from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
 
 
 def execute_with_pysqa(
@@ -122,7 +122,7 @@ def terminate_tasks_in_cache(
     for f in hdf5_file_lst:
         queue_id = get_queue_id(f)
         if queue_id is not None:
-            terminate_with_pysqa(
+            pysqa_terminate(
                 queue_id=queue_id,
                 config_directory=pysqa_config_directory,
                 backend=backend,
@@ -148,7 +148,7 @@ def terminate_task_in_cache(
     file_name = os.path.join(cache_directory, cache_key + "_i.h5")
     queue_id = get_queue_id(file_name=file_name)
     if queue_id is not None:
-        terminate_with_pysqa(
+        pysqa_terminate(
             queue_id=queue_id,
             config_directory=pysqa_config_directory,
             backend=backend,
