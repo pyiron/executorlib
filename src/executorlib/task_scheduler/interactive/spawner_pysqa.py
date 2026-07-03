@@ -189,7 +189,7 @@ class PysqaSpawner(BaseSpawner):
         if self._cwd is not None:
             working_directory = os.path.join(self._cwd, hash)
         else:
-            working_directory = os.path.abspath(hash)
+            working_directory = os.path.join(os.path.abspath("executorlib_cache"), hash)
         set_current_directory_in_environment()
         return queue_adapter.submit_job(
             command=" ".join(self.generate_command(command_lst=command_lst)),
@@ -242,8 +242,6 @@ def create_pysqa_block_allocation_scheduler(
         executor_kwargs["cwd"] = os.path.abspath(cache_directory)
     if cache_directory is not None:
         executor_kwargs["cache_directory"] = os.path.abspath(cache_directory)
-    else:
-        executor_kwargs["cache_directory"] = os.path.abspath(".")
     executor_kwargs["hostname_localhost"] = hostname_localhost
     executor_kwargs["log_obj_size"] = log_obj_size
     executor_kwargs["pmi_mode"] = pmi_mode
