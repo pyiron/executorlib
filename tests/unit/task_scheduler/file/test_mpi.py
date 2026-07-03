@@ -5,7 +5,7 @@ import unittest
 
 try:
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler
-    from executorlib.task_scheduler.file.spawner_subprocess import execute_in_subprocess
+    from executorlib.task_scheduler.file.spawner_subprocess import subprocess_execute
 
     skip_h5py_test = False
 except ImportError:
@@ -30,7 +30,7 @@ def mpi_funct(i):
 class TestCacheExecutorMPI(unittest.TestCase):
     def test_executor(self):
         with FileTaskScheduler(
-            executor_kwargs={"cores": 2}, execute_function=execute_in_subprocess
+            executor_kwargs={"cores": 2}, execute_function=subprocess_execute
         ) as exe:
             fs1 = exe.submit(mpi_funct, 1)
             self.assertFalse(fs1.done())

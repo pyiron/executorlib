@@ -12,17 +12,17 @@ from executorlib.standalone.inputcheck import (
 from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.file.shared import execute_tasks_h5
 from executorlib.task_scheduler.file.spawner_subprocess import (
-    execute_in_subprocess,
-    terminate_subprocess,
+    subprocess_execute,
+    subprocess_terminate,
 )
 
 try:
-    from executorlib.standalone.scheduler import terminate_with_pysqa
+    from executorlib.standalone.command_pysqa import pysqa_terminate
     from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
-    execute_with_pysqa = execute_in_subprocess  # type: ignore
-    terminate_with_pysqa = None  # type: ignore
+    execute_with_pysqa = subprocess_execute  # type: ignore
+    pysqa_terminate = None  # type: ignore
 
 
 class FileTaskScheduler(TaskSchedulerBase):
@@ -126,10 +126,10 @@ def create_file_executor(
     check_executor(executor=flux_executor)
     check_nested_flux_executor(nested_flux_executor=flux_executor_nesting)
     check_flux_log_files(flux_log_files=flux_log_files)
-    if execute_function != execute_in_subprocess:
-        terminate_function = terminate_with_pysqa  # type: ignore
+    if execute_function != subprocess_execute:
+        terminate_function = pysqa_terminate  # type: ignore
     else:
-        terminate_function = terminate_subprocess  # type: ignore
+        terminate_function = subprocess_terminate  # type: ignore
     return FileTaskScheduler(
         executor_kwargs=executor_kwargs,
         pysqa_config_directory=pysqa_config_directory,

@@ -393,7 +393,7 @@ class TestClusterExecutor(BaseExecutor):
         )
         if not plot_dependency_graph:
             from executorlib.task_scheduler.file.spawner_subprocess import (
-                execute_in_subprocess,
+                subprocess_execute,
             )
             from executorlib.task_scheduler.file.task_scheduler import (
                 create_file_executor,
@@ -415,7 +415,7 @@ class TestClusterExecutor(BaseExecutor):
                     block_allocation=block_allocation,
                     init_function=init_function,
                     disable_dependencies=disable_dependencies,
-                    execute_function=execute_in_subprocess,
+                    execute_function=subprocess_execute,
                     wait=wait,
                     refresh_rate=refresh_rate,
                     validator=validate_resource_dict_with_optional_keys,

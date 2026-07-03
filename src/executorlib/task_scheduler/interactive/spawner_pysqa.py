@@ -5,12 +5,12 @@ from typing import Callable, Optional
 
 from pysqa import QueueAdapter
 
+from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
 from executorlib.standalone.inputcheck import validate_number_of_cores
 from executorlib.standalone.interactive.spawner import (
     BaseSpawner,
     set_current_directory_in_environment,
 )
-from executorlib.standalone.scheduler import pysqa_execute_command, terminate_with_pysqa
 from executorlib.task_scheduler.base import validate_resource_dict
 from executorlib.task_scheduler.interactive.blockallocation import (
     BlockAllocationTaskScheduler,
@@ -162,7 +162,7 @@ class PysqaSpawner(BaseSpawner):
             wait (bool, optional): Whether to wait for the interface to shutdown. Defaults to True.
         """
         if self._process is not None:
-            terminate_with_pysqa(
+            pysqa_terminate(
                 queue_id=self._process,
                 config_directory=self._config_directory,
                 backend=self._backend,
