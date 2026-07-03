@@ -147,7 +147,7 @@ def _execute_task_with_cache(
             data_dict["output"] = output["result"]
             data_dict["runtime"] = time.time() - time_start
             dump(file_name=file_name, data_dict=data_dict)
-            future_obj.set_result(result)
+            future_obj.set_result(output["result"])
         elif isinstance(output["error"], ExecutorlibSocketError):
             return False
         else:
