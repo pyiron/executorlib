@@ -6,6 +6,7 @@ from typing import Optional
 import cloudpickle
 import zmq
 
+from executorlib.backend.executor_nested import BackendExecutor
 from executorlib.standalone.error import backend_write_error_file
 from executorlib.standalone.interactive.backend import call_funct, parse_arguments
 from executorlib.standalone.interactive.communication import (
@@ -43,7 +44,10 @@ def main() -> None:
             host=argument_dict["host"], port=argument_dict["zmqport"]
         )
 
-    memory = {"executorlib_worker_id": int(argument_dict["worker_id"])}
+    memory = {
+        "executorlib_worker_id": int(argument_dict["worker_id"]),
+        "executorlib_executor": BackendExecutor(),
+    }
 
     # required for flux interface - otherwise the current path is not included in the python path
     cwd = abspath(".")
@@ -90,7 +94,13 @@ def main() -> None:
             else:
                 # Send output
                 if mpi_rank_zero:
-                    interface_send(socket=socket, result_dict={"result": output_reply})
+                    interface_send(
+                        socket=socket,
+                        result_dict={
+                            "result": output_reply, 
+                            "tasks_nested": memory["executorlib_executor"].tasks,
+                        },
+                    )
         elif (
             "init" in input_dict
             and input_dict["init"]
