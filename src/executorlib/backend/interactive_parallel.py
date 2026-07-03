@@ -97,7 +97,7 @@ def main() -> None:
                     interface_send(
                         socket=socket,
                         result_dict={
-                            "result": output_reply, 
+                            "result": output_reply,
                             "tasks_nested": memory["executorlib_executor"].tasks,
                         },
                     )

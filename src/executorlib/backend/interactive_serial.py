@@ -72,7 +72,7 @@ def evaluate_cmd(argument_lst: Optional[list[str]] = None):
                 interface_send(
                     socket=socket,
                     result_dict={
-                        "result": output, 
+                        "result": output,
                         "tasks_nested": memory["executorlib_executor"].tasks,
                     },
                 )

@@ -14,7 +14,7 @@ class BackendExecutor:
     @property
     def tasks(self):
         return self._tasks_dict
-    
+
     def batched(
         self,
         iterable: list[Future],
@@ -31,7 +31,7 @@ class BackendExecutor:
             list[Future]: list of future objects one for each batch
         """
         raise NotImplementedError("The batched method is not implemented.")
-    
+
     def map(
         self,
         fn: Callable,
@@ -104,8 +104,10 @@ class BackendExecutor:
             "kwargs": kwargs,
             "resource_dict": resource_dict,
             "dependencies": [
-                self._future_dict[future_dependency] 
-                for future_dependency in get_future_objects_from_input(args=args, kwargs=kwargs)
+                self._future_dict[future_dependency]
+                for future_dependency in get_future_objects_from_input(
+                    args=args, kwargs=kwargs
+                )
             ],
         }
         return f
