@@ -75,6 +75,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             max_cores=executor_kwargs.get("max_cores"), validator=validator
         )
         executor_kwargs["future_queue"] = self._future_queue
+        executor_kwargs["return_queue"] = self._return_queue
         executor_kwargs["spawner"] = spawner
         executor_kwargs["queue_join_on_shutdown"] = False
         executor_kwargs["restart_limit"] = restart_limit
@@ -217,6 +218,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
 
 def _execute_multiple_tasks(
     future_queue: queue.Queue,
+    return_queue: queue.Queue,
     cores: int = 1,
     spawner: type[BaseSpawner] = MpiExecSpawner,
     hostname_localhost: Optional[bool] = None,
@@ -240,6 +242,7 @@ def _execute_multiple_tasks(
 
     Args:
         future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+        return_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
         cores (int): defines the total number of MPI ranks to use
         spawner (BaseSpawner): Spawner to start process on selected compute resources
         hostname_localhost (boolean): use localhost instead of the hostname to establish the zmq connection. In the
@@ -317,7 +320,7 @@ def _execute_multiple_tasks(
                     f.set_exception(exception=interface_initialization_exception)
                 else:
                     # The interface failed during the execution
-                    interface.status, _ = execute_task_dict(
+                    interface.status, nested_task_dict = execute_task_dict(
                         task_dict=task_dict,
                         future_obj=f,
                         interface=interface,
@@ -329,6 +332,8 @@ def _execute_multiple_tasks(
                         reset_task_dict(
                             future_obj=f, future_queue=future_queue, task_dict=task_dict
                         )
+                    elif len(nested_task_dict) > 0:
+                        return_queue.put(nested_task_dict)
                 task_done(future_queue=future_queue)
 
 

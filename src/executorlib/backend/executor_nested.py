@@ -100,8 +100,8 @@ class BackendExecutor:
         self._future_dict[f] = id(f)
         self._tasks_dict[id(f)] = {
             "fn": fn,
-            "args": args,
-            "kwargs": kwargs,
+            "args": args,  # at the momemt the future objects are not removed from the args
+            "kwargs": kwargs,  # at the momemt the future objects are not removed from the kwargs
             "resource_dict": resource_dict,
             "dependencies": [
                 self._future_dict[future_dependency]
