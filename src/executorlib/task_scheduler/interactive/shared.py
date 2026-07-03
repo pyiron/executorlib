@@ -4,7 +4,7 @@ import queue
 import time
 from concurrent.futures import Future
 from concurrent.futures._base import PENDING
-from typing import Optional
+from typing import Optional, Tuple
 
 from executorlib.standalone.interactive.communication import (
     ExecutorlibSocketError,
@@ -20,7 +20,7 @@ def execute_task_dict(
     cache_directory: Optional[str] = None,
     cache_key: Optional[str] = None,
     error_log_file: Optional[str] = None,
-) -> bool:
+) -> Tuple[bool, dict]:
     """
     Execute the task in the task_dict by communicating it via the interface.
 
@@ -37,6 +37,7 @@ def execute_task_dict(
 
     Returns:
         bool: True if the task was submitted successfully, False otherwise.
+        dict: Dictionary of nested tasks if any were returned by the executed function, otherwise an empty dictionary.
     """
     if not future_obj.done() and future_obj.set_running_or_notify_cancel():
         if error_log_file is not None:
@@ -54,7 +55,7 @@ def execute_task_dict(
                 future_obj=future_obj,
             )
     else:
-        return True
+        return True, {}
 
 
 def task_done(future_queue: queue.Queue):
@@ -88,7 +89,7 @@ def reset_task_dict(future_obj: Future, future_queue: queue.Queue, task_dict: di
 
 def _execute_task_without_cache(
     interface: SocketInterface, task_dict: dict, future_obj: Future
-) -> bool:
+) -> Tuple[bool, dict]:
     """
     Execute the task in the task_dict by communicating it via the interface.
 
@@ -101,14 +102,17 @@ def _execute_task_without_cache(
     Returns:
         bool: True if the task was submitted successfully, False otherwise.
     """
+    new_task_dict = {}
     output = interface.send_and_receive_dict(input_dict=task_dict)
     if "result" in output:
         future_obj.set_result(output["result"])
+        if "tasks_nested" in output:
+            new_task_dict = output["tasks_nested"]
     elif isinstance(output["error"], ExecutorlibSocketError):
-        return False
+        return False, new_task_dict
     else:
         future_obj.set_exception(exception=output["error"])
-    return True
+    return True, new_task_dict
 
 
 def _execute_task_with_cache(
@@ -117,7 +121,7 @@ def _execute_task_with_cache(
     future_obj: Future,
     cache_directory: str,
     cache_key: Optional[str] = None,
-) -> bool:
+) -> Tuple[bool, dict]:
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
 
@@ -139,6 +143,7 @@ def _execute_task_with_cache(
         resource_dict=task_dict.get("resource_dict", {}),
         cache_key=cache_key,
     )
+    new_task_dict = {}
     file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
     if file_name not in get_cache_files(cache_directory=cache_directory):
         time_start = time.time()
@@ -148,11 +153,13 @@ def _execute_task_with_cache(
             data_dict["runtime"] = time.time() - time_start
             dump(file_name=file_name, data_dict=data_dict)
             future_obj.set_result(output["result"])
+            if "tasks_nested" in output:
+                new_task_dict = output["tasks_nested"]
         elif isinstance(output["error"], ExecutorlibSocketError):
-            return False
+            return False, new_task_dict
         else:
             future_obj.set_exception(exception=output["error"])
     else:
         _, _, result = get_output(file_name=file_name)
         future_obj.set_result(result)
-    return True
+    return True, new_task_dict

@@ -262,7 +262,7 @@ def _execute_task_in_thread(
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
     """
-    if not execute_task_dict(
+    status, _ = execute_task_dict(
         task_dict=task_dict,
         future_obj=future_obj,
         interface=interface_bootup(
@@ -277,7 +277,8 @@ def _execute_task_in_thread(
         cache_directory=cache_directory,
         cache_key=cache_key,
         error_log_file=error_log_file,
-    ):
+    )
+    if status is False:
         future_obj.set_exception(
             ExecutorlibSocketError("SocketInterface crashed during execution.")
         )
