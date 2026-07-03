@@ -5,7 +5,7 @@ from typing import Optional, Union
 from pysqa import QueueAdapter
 
 
-def terminate_with_pysqa(
+def pysqa_terminate(
     queue_id: int,
     config_directory: Optional[str] = None,
     backend: Optional[str] = None,

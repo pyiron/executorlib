@@ -2,7 +2,7 @@ import unittest
 from executorlib.standalone.command import generate_slurm_command
 
 try:
-    from executorlib.standalone.scheduler import pysqa_execute_command
+    from executorlib.standalone.command_pysqa import pysqa_execute_command
 
     skip_pysqa_test = False
 except ImportError:
