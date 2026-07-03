@@ -63,7 +63,7 @@ class TestInterface(unittest.TestCase):
         )
         self.assertTrue(interface.status)
         self.assertEqual(
-            interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
+            interface.send_and_receive_dict(input_dict=task_dict)["result"], np.array(4)
         )
         interface.shutdown(wait=True)
 
@@ -96,7 +96,7 @@ class TestInterface(unittest.TestCase):
         )
         self.assertTrue(interface.status)
         self.assertEqual(
-            interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
+            interface.send_and_receive_dict(input_dict=task_dict)["result"], np.array(4)
         )
         interface.shutdown(wait=True)
 
@@ -129,7 +129,7 @@ class TestInterface(unittest.TestCase):
         )
         self.assertTrue(interface.status)
         self.assertEqual(
-            interface.send_and_receive_dict(input_dict=task_dict), np.array(4)
+            interface.send_and_receive_dict(input_dict=task_dict)["result"], np.array(4)
         )
         interface.shutdown(wait=True)
 
@@ -194,8 +194,8 @@ class TestInterface(unittest.TestCase):
         self.assertTrue(interface.status)
         interface.send_dict(input_dict=task_dict)
         interface._spawner._process.terminate()
-        with self.assertRaises(ExecutorlibSocketError):
-            interface.receive_dict()
+        output = interface.receive_dict()
+        self.assertIsInstance(output["error"], ExecutorlibSocketError)
 
 
 class TestZMQ(unittest.TestCase):

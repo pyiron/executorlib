@@ -379,10 +379,9 @@ def _set_init_function(
 ) -> Optional[Exception]:
     interface_initialization_exception = None
     if init_function is not None and interface.status:
-        try:
-            _ = interface.send_and_receive_dict(
-                input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
-            )
-        except Exception as init_exception:
-            interface_initialization_exception = init_exception
+        output = interface.send_and_receive_dict(
+            input_dict={"init": True, "fn": init_function, "args": (), "kwargs": {}}
+        )
+        if "error" in output:
+            interface_initialization_exception = output["error"]
     return interface_initialization_exception
