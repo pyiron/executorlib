@@ -90,6 +90,7 @@ class ShellInteractiveExecutorTest(unittest.TestCase):
         self.assertFalse(future_pattern.done())
         _execute_multiple_tasks(
             future_queue=test_queue,
+            return_queue=queue.Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
