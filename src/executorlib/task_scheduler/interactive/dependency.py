@@ -329,7 +329,8 @@ def _execute_tasks_with_dependencies(
                 refresh_rate=refresh_rate,
             )
         elif task_return_dict is not None:
-            future_lookup_dict = {}  # we need this future dict later on to resolve the dependencies
+            # we need this future dict later on to resolve the dependencies
+            future_lookup_dict = {}
             for k, v in task_return_dict.items():
                 future_lookup_dict[k] = executor.submit(
                     fn=v["fn"],
