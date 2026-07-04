@@ -85,6 +85,8 @@ class TaskSchedulerBase(FutureExecutor):
         meta_data_dict = self._process_kwargs.copy()
         if "future_queue" in meta_data_dict:
             del meta_data_dict["future_queue"]
+        if "return_queue" in meta_data_dict:
+            del meta_data_dict["return_queue"]
         if self._process is not None and isinstance(self._process, list):
             meta_data_dict["max_workers"] = len(self._process)
             return meta_data_dict
