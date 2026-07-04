@@ -259,7 +259,7 @@ def _execute_tasks_with_dependencies(
             task_dict = None
         try:
             task_return_dict = executor.return_queue.get_nowait()
-        except queue.Empty:
+        except (queue.Empty, AttributeError):
             task_return_dict = None
         if (  # shutdown the executor
             task_dict is not None and "shutdown" in task_dict and task_dict["shutdown"]
