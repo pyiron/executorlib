@@ -14,6 +14,6 @@ dependencies:
 - matplotlib =3.10.0
 - mpi4py =4.1.2
 - networkx =3.6.1
-- pygraphviz =1.14
+- pygraphviz =2.0.1
 - pysqa =0.4.3
 - pyzmq =27.1.0
