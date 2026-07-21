@@ -43,7 +43,7 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
             cache_directory=None,
             cache_key=None,
             error_log_file=None,
-        )
+        )[0]
         self.assertTrue(result)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 3)
@@ -71,7 +71,7 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
             cache_directory=None,
             cache_key=None,
             error_log_file=None,
-        )
+        )[0]
         self.assertTrue(result)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 5)
@@ -98,7 +98,7 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
             cache_directory=None,
             cache_key=None,
             error_log_file=None,
-        )
+        )[0]
         self.assertFalse(result)
         self.assertFalse(f.done())
 
@@ -132,7 +132,7 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
             cache_directory="cache_execute_task",
             cache_key=None,
             error_log_file=None,
-        )
+        )[0]
         self.assertTrue(result)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 3)
@@ -160,7 +160,7 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
             cache_directory="cache_execute_task",
             cache_key=None,
             error_log_file=None,
-        )
+        )[0]
         self.assertTrue(result)
         self.assertTrue(f.done())
         self.assertEqual(f.result(), 5)
@@ -187,6 +187,6 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
             cache_directory="cache_execute_task",
             cache_key=None,
             error_log_file=None,
-        )
+        )[0]
         self.assertFalse(result)
         self.assertFalse(f.done())
