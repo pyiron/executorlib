@@ -18,6 +18,13 @@ try:
 except ImportError:
     skip_h5io_test = True
 
+try:
+    import pysqa  # noqa: F401
+
+    skip_pysqa_test = False
+except ImportError:
+    skip_pysqa_test = True
+
 
 def my_funct(a, b):
     return a + b
@@ -221,7 +228,7 @@ class TestSharedFunctions(unittest.TestCase):
         with self.assertRaises(ValueError):
             future_file_obj.result()
 
-    @unittest.skipIf(sys.platform == "win32", "pysqa module patching not supported on Windows")
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
     def test_check_task_output_dead_job_without_output(self):
         # Reproduces https://github.com/pyiron/executorlib/issues/1037 : a queuing system job
         # which dies without ever writing its output file (e.g. walltime TIMEOUT, OOM, NODE_FAIL
@@ -246,7 +253,7 @@ class TestSharedFunctions(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             future_obj.result()
 
-    @unittest.skipIf(sys.platform == "win32", "pysqa module patching not supported on Windows")
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
     def test_check_task_output_job_still_running(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
@@ -266,7 +273,7 @@ class TestSharedFunctions(unittest.TestCase):
         status_mock.assert_called_once()
         self.assertFalse(future_obj.done())
 
-    @unittest.skipIf(sys.platform == "win32", "pysqa module patching not supported on Windows")
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
     def test_check_task_output_status_check_is_throttled(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
@@ -287,7 +294,7 @@ class TestSharedFunctions(unittest.TestCase):
                 )
         status_mock.assert_called_once()
 
-    @unittest.skipIf(sys.platform == "win32", "pysqa module patching not supported on Windows")
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
     def test_check_task_output_no_backend_never_queries_status(self):
         # subprocess-backed tasks (backend=None) must never trigger a queuing system status check.
         cache_directory = os.path.abspath("executorlib_cache")
