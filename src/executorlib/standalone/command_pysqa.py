@@ -29,6 +29,31 @@ def pysqa_terminate(
             qa.delete_job(process_id=queue_id)
 
 
+def pysqa_get_status_of_job(
+    queue_id: int,
+    config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+) -> Optional[str]:
+    """
+    Query the status of a job from the queuing system.
+
+    Args:
+        queue_id (int): Queuing system ID of the job to check.
+        config_directory (str, optional): path to the config directory.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
+
+    Returns:
+        str: status of the job as reported by the queuing system, None if the queuing system no
+             longer knows about the job (e.g. it timed out, was killed or already finished).
+    """
+    qa = QueueAdapter(
+        directory=config_directory,
+        queue_type=backend,
+        execute_command=pysqa_execute_command,
+    )
+    return qa.get_status_of_job(process_id=queue_id)
+
+
 def pysqa_execute_command(
     commands: str,
     working_directory: Optional[str] = None,
