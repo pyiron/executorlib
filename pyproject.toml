@@ -98,12 +98,14 @@ ignore = [
     "E501",
     # ignore imports which are not at the top of a module
     "PLC0415",
-    # Too many arguments in function definition
-    "PLR0913",
-    # Magic value used in comparison
-    "PLR2004",
     # Too many branches
     "PLR0912",
+    # Too many arguments in function definition
+    "PLR0913",
+    # Too many not-keyword-only arguments,
+    "PLR0917",
+    # Magic value used in comparison
+    "PLR2004",
 ]
 
 [tool.hatch.build]
