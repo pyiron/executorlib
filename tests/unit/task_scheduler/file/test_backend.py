@@ -254,6 +254,34 @@ class TestSharedFunctions(unittest.TestCase):
             future_obj.result()
 
     @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
+    def test_check_task_output_dead_job_reported_as_error_status(self):
+        # On some backends (e.g. flux, whose "flux jobs -a" keeps listing inactive jobs) a
+        # cancelled/failed job is never removed from the queue listing - unlike slurm's squeue,
+        # which drops the job entirely (status None) once it is gone. Instead pysqa reports it
+        # with its terminal-failure status "error" (see command_pysqa.pysqa_terminate, which
+        # already treats "error" as not alive). That status must also fail the future - see
+        # https://github.com/pyiron/executorlib/issues/1037.
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, data_dict = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
+        future_obj = Future()
+        with patch(
+            "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
+            return_value="error",
+        ) as status_mock:
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="flux",
+            )
+        status_mock.assert_called_once()
+        self.assertTrue(future_obj.done())
+        with self.assertRaises(RuntimeError):
+            future_obj.result()
+
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
     def test_check_task_output_job_still_running(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)

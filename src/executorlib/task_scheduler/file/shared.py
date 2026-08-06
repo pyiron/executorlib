@@ -291,6 +291,12 @@ def _job_died_without_output(
     ``_JOB_STATUS_CHECK_INTERVAL`` seconds per task, to avoid flooding the queuing system with
     status queries on every poll of the (much faster) refresh_rate loop.
 
+    A dead job is recognized in two ways, since queuing systems differ in whether they drop
+    terminated jobs from their listing: slurm's squeue removes a job as soon as it is gone
+    (status None), while flux's "flux jobs -a" keeps listing inactive jobs and instead reports
+    pysqa's terminal-failure status "error" (the same status pysqa_terminate already treats as
+    not alive).
+
     Args:
         task_key (str): The key of the task.
         file_name (str): Path of the expected output HDF5 file.
@@ -300,7 +306,8 @@ def _job_died_without_output(
         status_check_dict (dict): Dictionary tracking when each task's job status was last queried.
 
     Returns:
-        bool: True if the job is no longer known to the queuing system and still has no output.
+        bool: True if the job is no longer known to the queuing system, or is reported as having
+            errored out, and still has no output.
     """
     if backend is None or queue_id is None:
         return False
@@ -324,7 +331,7 @@ def _job_died_without_output(
         config_directory=pysqa_config_directory,
         backend=backend,
     )
-    return status is None and not os.path.exists(file_name)
+    return (status is None or status == "error") and not os.path.exists(file_name)
 
 
 def _update_future(
