@@ -243,7 +243,7 @@ class TestCacheExecutorPysqa(unittest.TestCase):
         # issue, but runs it against a live flux instance so the fix is exercised end-to-end
         # rather than through a mocked pysqa status query.
         with patch(
-            "executorlib.task_scheduler.file.shared._JOB_STATUS_CHECK_INTERVAL", 1.0
+            "executorlib.standalone.command_pysqa._JOB_STATUS_CHECK_INTERVAL", 1.0
         ):
             with FluxClusterExecutor(
                 resource_dict={"cores": 1, "cwd": "executorlib_cache"},

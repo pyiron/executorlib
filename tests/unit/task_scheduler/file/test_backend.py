@@ -20,6 +20,7 @@ except ImportError:
 
 try:
     import pysqa  # noqa: F401
+    from executorlib.standalone.command_pysqa import pysqa_job_output_validation
 
     skip_pysqa_test = False
 except ImportError:
@@ -247,6 +248,7 @@ class TestSharedFunctions(unittest.TestCase):
                 cache_directory=cache_directory,
                 queue_id=123,
                 backend="slurm",
+                validate_function=pysqa_job_output_validation,
             )
         status_mock.assert_called_once()
         self.assertTrue(future_obj.done())
@@ -275,6 +277,7 @@ class TestSharedFunctions(unittest.TestCase):
                 cache_directory=cache_directory,
                 queue_id=123,
                 backend="flux",
+                validate_function=pysqa_job_output_validation,
             )
         status_mock.assert_called_once()
         self.assertTrue(future_obj.done())
@@ -297,6 +300,7 @@ class TestSharedFunctions(unittest.TestCase):
                 cache_directory=cache_directory,
                 queue_id=123,
                 backend="slurm",
+                validate_function=pysqa_job_output_validation,
             )
         status_mock.assert_called_once()
         self.assertFalse(future_obj.done())
@@ -318,6 +322,7 @@ class TestSharedFunctions(unittest.TestCase):
                     cache_directory=cache_directory,
                     queue_id=123,
                     backend="slurm",
+                    validate_function=pysqa_job_output_validation,
                     status_check_dict=status_check_dict,
                 )
         status_mock.assert_called_once()
