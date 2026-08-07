@@ -237,15 +237,18 @@ def _check_task_output(
     """
     file_name = os.path.join(cache_directory, task_key + "_o.h5")
     if not os.path.exists(file_name):
-        if backend is None or queue_id is None or validate_function is None:
-            return future_obj
-        elif not validate_function(
-            task_key=task_key,
-            file_name=file_name,
-            queue_id=queue_id,
-            pysqa_config_directory=pysqa_config_directory,
-            backend=backend,
-            status_check_dict=status_check_dict,
+        if (
+            backend is None
+            or queue_id is None
+            or validate_function is None
+            or not validate_function(
+                task_key=task_key,
+                file_name=file_name,
+                queue_id=queue_id,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                status_check_dict=status_check_dict,
+            )
         ):
             return future_obj
         exec_flag, no_error_flag, result = (
