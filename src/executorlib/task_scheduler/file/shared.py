@@ -238,7 +238,7 @@ def _check_task_output(
     file_name = os.path.join(cache_directory, task_key + "_o.h5")
     if not os.path.exists(file_name):
         if backend is None or queue_id is None or validate_function is None:
-            return False
+            return future_obj
         elif not validate_function(
             task_key=task_key,
             file_name=file_name,
