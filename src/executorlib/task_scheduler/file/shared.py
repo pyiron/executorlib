@@ -10,12 +10,6 @@ from executorlib.standalone.hdf import get_cache_files, get_output, get_queue_id
 from executorlib.standalone.serialize import serialize_funct
 from executorlib.task_scheduler.file.spawner_subprocess import subprocess_terminate
 
-# Minimum time between two queries of the queuing system for the status of a task whose output
-# file has not appeared yet. Detecting a dead job (timeout, OOM, node failure, scancel, ...) relies
-# on this status query, but it must not be issued on every poll of the (much faster) refresh_rate
-# loop, as that would flood the queuing system commands (e.g. squeue/sacct) with requests.
-_JOB_STATUS_CHECK_INTERVAL = 30.0
-
 
 class FutureItem:
     def __init__(self, file_name: str, selector: Optional[int | str] = None):

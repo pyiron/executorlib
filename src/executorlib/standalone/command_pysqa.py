@@ -7,6 +7,13 @@ from typing import Optional, Union
 from pysqa import QueueAdapter
 
 
+# Minimum time between two queries of the queuing system for the status of a task whose output
+# file has not appeared yet. Detecting a dead job (timeout, OOM, node failure, scancel, ...) relies
+# on this status query, but it must not be issued on every poll of the (much faster) refresh_rate
+# loop, as that would flood the queuing system commands (e.g. squeue/sacct) with requests.
+_JOB_STATUS_CHECK_INTERVAL = 30.0
+
+
 def pysqa_job_output_validation(
     task_key: str,
     file_name: str,
@@ -14,7 +21,7 @@ def pysqa_job_output_validation(
     status_check_dict: Optional[dict],
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
-    job_status_check_interval: float = 30.0,
+    job_status_check_interval: float = _JOB_STATUS_CHECK_INTERVAL,
 ) -> bool:
     """
     Check whether the queuing system job backing a task has died without ever writing its output
