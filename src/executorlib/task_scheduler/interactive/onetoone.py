@@ -61,6 +61,7 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
         executor_kwargs.update(
             {
                 "future_queue": self._future_queue,
+                "return_queue": self._return_queue,
                 "spawner": spawner,
                 "max_cores": max_cores,
                 "max_workers": max_workers,
@@ -77,6 +78,7 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
 
 def _execute_single_task(
     future_queue: queue.Queue,
+    return_queue: queue.Queue,
     spawner: type[BaseSpawner] = MpiExecSpawner,
     max_cores: Optional[int] = None,
     max_workers: Optional[int] = None,
@@ -88,6 +90,7 @@ def _execute_single_task(
 
     Args:
         future_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
+        return_queue (queue.Queue): task queue of dictionary objects which are submitted to the parallel process
         spawner (BaseSpawner): Interface to start process on selected compute resources
         max_cores (int): defines the number cores which can be used in parallel
         max_workers (int): for backwards compatibility with the standard library, max_workers also defines the number of
@@ -116,6 +119,7 @@ def _execute_single_task(
         elif "fn" in task_dict and "future" in task_dict:
             process, active_task_dict = _wrap_execute_task_in_separate_process(
                 task_dict=task_dict,
+                return_queue=return_queue,
                 active_task_dict=active_task_dict,
                 spawner=spawner,
                 executor_kwargs=kwargs,
@@ -162,6 +166,7 @@ def _wait_for_free_slots(
 
 def _wrap_execute_task_in_separate_process(
     task_dict: dict,
+    return_queue: queue.Queue,
     active_task_dict: dict,
     spawner: type[BaseSpawner],
     executor_kwargs: dict,
@@ -211,6 +216,7 @@ def _wrap_execute_task_in_separate_process(
     task_kwargs.update(
         {
             "task_dict": task_dict,
+            "return_queue": return_queue,
             "spawner": spawner,
             "hostname_localhost": hostname_localhost,
             "future_obj": f,
@@ -226,6 +232,7 @@ def _wrap_execute_task_in_separate_process(
 
 def _execute_task_in_thread(
     task_dict: dict,
+    return_queue: queue.Queue,
     future_obj: Future,
     cores: int = 1,
     spawner: type[BaseSpawner] = MpiExecSpawner,
@@ -262,7 +269,7 @@ def _execute_task_in_thread(
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
     """
-    if not execute_task_dict(
+    status, nested_task_dict = execute_task_dict(
         task_dict=task_dict,
         future_obj=future_obj,
         interface=interface_bootup(
@@ -277,7 +284,10 @@ def _execute_task_in_thread(
         cache_directory=cache_directory,
         cache_key=cache_key,
         error_log_file=error_log_file,
-    ):
+    )
+    if status is False:
         future_obj.set_exception(
             ExecutorlibSocketError("SocketInterface crashed during execution.")
         )
+    elif len(nested_task_dict) > 0:
+        return_queue.put(nested_task_dict)

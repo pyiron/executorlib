@@ -2,6 +2,7 @@ import sys
 from os.path import abspath
 from typing import Optional
 
+from executorlib.backend.executor_nested import BackendExecutor
 from executorlib.standalone.error import backend_write_error_file
 from executorlib.standalone.interactive.backend import call_funct, parse_arguments
 from executorlib.standalone.interactive.communication import (
@@ -29,7 +30,11 @@ def evaluate_cmd(argument_lst: Optional[list[str]] = None):
         host=argument_dict["host"], port=argument_dict["zmqport"]
     )
 
-    memory = {"executorlib_worker_id": int(argument_dict["worker_id"])}
+    nested_executor = BackendExecutor()
+    memory = {
+        "executorlib_worker_id": int(argument_dict["worker_id"]),
+        "executorlib_executor": nested_executor,
+    }
 
     # required for flux interface - otherwise the current path is not included in the python path
     cwd = abspath(".")
@@ -65,7 +70,13 @@ def evaluate_cmd(argument_lst: Optional[list[str]] = None):
                 )
             else:
                 # Send output
-                interface_send(socket=socket, result_dict={"result": output})
+                interface_send(
+                    socket=socket,
+                    result_dict={
+                        "result": output,
+                        "tasks_nested": nested_executor.tasks,
+                    },
+                )
         elif (
             "init" in input_dict
             and input_dict["init"]

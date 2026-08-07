@@ -50,6 +50,7 @@ class TaskSchedulerBase(FutureExecutor):
         self._process_kwargs: dict = {}
         self._max_cores = max_cores
         self._future_queue: Optional[queue.Queue] = queue.Queue()
+        self._return_queue: Optional[queue.Queue] = queue.Queue()
         self._process: Optional[Union[Thread, list[Thread]]] = None
         self._validator = validator
 
@@ -84,6 +85,8 @@ class TaskSchedulerBase(FutureExecutor):
         meta_data_dict = self._process_kwargs.copy()
         if "future_queue" in meta_data_dict:
             del meta_data_dict["future_queue"]
+        if "return_queue" in meta_data_dict:
+            del meta_data_dict["return_queue"]
         if self._process is not None and isinstance(self._process, list):
             meta_data_dict["max_workers"] = len(self._process)
             return meta_data_dict
@@ -101,6 +104,16 @@ class TaskSchedulerBase(FutureExecutor):
             queue.Queue: The future queue.
         """
         return self._future_queue
+
+    @property
+    def return_queue(self) -> Optional[queue.Queue]:
+        """
+        Get the return queue.
+
+        Returns:
+            queue.Queue: The return queue.
+        """
+        return self._return_queue
 
     def batched(
         self,
@@ -238,8 +251,10 @@ class TaskSchedulerBase(FutureExecutor):
             if isinstance(self._process, Thread):
                 self._process.join()
                 self._future_queue.join()
+                self._return_queue.join()
         self._process = None
         self._future_queue = None
+        self._return_queue = None
 
     def _set_process(self, process: Thread):
         """

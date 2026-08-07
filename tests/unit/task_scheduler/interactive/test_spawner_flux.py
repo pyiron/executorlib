@@ -113,6 +113,7 @@ class TestFlux(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             flux_executor=self.flux_executor,
             spawner=FluxPythonSpawner,
@@ -128,6 +129,7 @@ class TestFlux(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             threads_per_core=1,
             flux_executor=self.flux_executor,
