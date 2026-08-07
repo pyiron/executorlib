@@ -6,7 +6,6 @@ from typing import Optional, Union
 
 from pysqa import QueueAdapter
 
-
 # Minimum time between two queries of the queuing system for the status of a task whose output
 # file has not appeared yet. Detecting a dead job (timeout, OOM, node failure, scancel, ...) relies
 # on this status query, but it must not be issued on every poll of the (much faster) refresh_rate
