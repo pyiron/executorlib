@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "hatchling==1.30.1",
+    "hatchling==1.31.0",
     "hatch-vcs==0.5.0",
     "cloudpickle==3.1.2",
     "pyzmq==27.1.0",
@@ -53,7 +53,7 @@ graphnotebook = [
 ]
 mpi = ["mpi4py==4.1.2"]
 cluster = [
-    "pysqa==0.4.3",
+    "pysqa==0.4.4",
     "h5py==3.16.0",
 ]
 validation = [
@@ -61,7 +61,7 @@ validation = [
 ]
 all = [
     "mpi4py==4.1.2",
-    "pysqa==0.4.3",
+    "pysqa==0.4.4",
     "h5py==3.16.0",
     "pydantic==2.13.4",
     "pygraphviz==1.14",
@@ -98,12 +98,14 @@ ignore = [
     "E501",
     # ignore imports which are not at the top of a module
     "PLC0415",
-    # Too many arguments in function definition
-    "PLR0913",
-    # Magic value used in comparison
-    "PLR2004",
     # Too many branches
     "PLR0912",
+    # Too many arguments in function definition
+    "PLR0913",
+    # Too many not-keyword-only arguments,
+    "PLR0917",
+    # Magic value used in comparison
+    "PLR2004",
 ]
 
 [tool.hatch.build]

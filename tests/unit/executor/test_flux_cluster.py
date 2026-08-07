@@ -3,13 +3,15 @@ import importlib
 import unittest
 import shutil
 from time import sleep
+from unittest.mock import patch
 
-from executorlib import FluxClusterExecutor
+from executorlib import FluxClusterExecutor, get_cache_data
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.command import get_cache_execute_command
 
 try:
     import flux.job
+    from pysqa import QueueAdapter
     from executorlib import terminate_tasks_in_cache, terminate_task_in_cache
     from executorlib.standalone.hdf import dump
     from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
@@ -232,6 +234,50 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertEqual(len(os.listdir("executorlib_cache")), 2)
             self.assertTrue(fs1.done())
+
+    def test_executor_future_fails_when_job_dies_without_output(self):
+        # Regression test for https://github.com/pyiron/executorlib/issues/1037 : a queuing
+        # system job which dies before ever writing its output file (walltime TIMEOUT, OOM,
+        # NODE_FAIL, or an external `flux cancel`/scancel) must fail the submitting future
+        # instead of leaving it pending forever. This mirrors the SLURM reproducer from the
+        # issue, but runs it against a live flux instance so the fix is exercised end-to-end
+        # rather than through a mocked pysqa status query.
+        with patch(
+            "executorlib.standalone.command_pysqa._JOB_STATUS_CHECK_INTERVAL", 1.0
+        ):
+            with FluxClusterExecutor(
+                resource_dict={"cores": 1, "cwd": "executorlib_cache"},
+                block_allocation=False,
+                cache_directory="executorlib_cache",
+                pmi_mode=pmi,
+            ) as exe:
+                cloudpickle_register(ind=1)
+                future = exe.submit(long_running_function, 1)
+
+                queue_id = None
+                for _ in range(200):
+                    for entry in get_cache_data(cache_directory="executorlib_cache"):
+                        if entry.get("queue_id") is not None:
+                            queue_id = entry["queue_id"]
+                    if queue_id is not None:
+                        break
+                    sleep(0.1)
+                self.assertIsNotNone(
+                    queue_id, msg="task was never submitted to the flux queue"
+                )
+
+                # Kill the job the same way a scheduler would on a walltime TIMEOUT, OOM, or
+                # NODE_FAIL, or how an operator would with an external `flux cancel` - executorlib
+                # never sees this happen directly and has to notice it via a status query.
+                QueueAdapter(queue_type="flux").delete_job(process_id=queue_id)
+
+                error = future.exception(timeout=30)
+                self.assertIsInstance(
+                    error,
+                    RuntimeError,
+                    msg="the future must fail once its job is gone instead of hanging forever",
+                )
+                self.assertIn("terminated without producing output", str(error))
 
     def test_pysqa_interface(self):
         queue_id = execute_with_pysqa(

@@ -59,6 +59,7 @@ def execute_tasks_h5(
     execute_function: Callable,
     executor_kwargs: dict,
     terminate_function: Optional[Callable] = None,
+    validate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
     disable_dependencies: bool = False,
@@ -76,6 +77,7 @@ def execute_tasks_h5(
                               - cwd (str/None): current working directory where the parallel python task is executed
         execute_function (Callable): The function to execute the tasks.
         terminate_function (Callable): The function to terminate the tasks.
+        validate_function (Callable): The function to validate the tasks.
         pysqa_config_directory (str, optional): path to the pysqa config directory (only for pysqa based backend).
         backend (str, optional): name of the backend used to spawn tasks.
         disable_dependencies (boolean): Disable resolving future objects during the submission.
@@ -92,6 +94,7 @@ def execute_tasks_h5(
     cache_dir_dict: dict = {}
     file_name_dict: dict = {}
     duplicate_dict: dict = {}
+    status_check_dict: dict = {}
     while True:
         task_dict = None
         with contextlib.suppress(queue.Empty):
@@ -104,7 +107,9 @@ def execute_tasks_h5(
                 process_dict=process_dict,
                 duplicate_dict=duplicate_dict,
                 cache_dir_dict=cache_dir_dict,
+                status_check_dict=status_check_dict,
                 terminate_function=terminate_function,
+                validate_function=validate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
                 refresh_rate=refresh_rate,
@@ -188,7 +193,9 @@ def execute_tasks_h5(
                 cache_dir_dict=cache_dir_dict,
                 process_dict=process_dict,
                 duplicate_dict=duplicate_dict,
+                status_check_dict=status_check_dict,
                 terminate_function=terminate_function,
+                validate_function=validate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
                 refresh_rate=refresh_rate,
@@ -199,15 +206,30 @@ def _check_task_output(
     task_key: str,
     future_obj: Future,
     cache_directory: str,
+    queue_id: Optional[int] = None,
+    pysqa_config_directory: Optional[str] = None,
+    backend: Optional[str] = None,
+    validate_function: Optional[Callable] = None,
+    status_check_dict: Optional[dict] = None,
     duplicate_dict: Optional[dict] = None,
 ) -> Future:
     """
     Check the output of a task and set the result of the future object if available.
 
+    If the output file is missing and the task is running on a queuing system backend, this also
+    detects jobs which died without producing output (e.g. walltime TIMEOUT, OOM, NODE_FAIL or an
+    external scancel) by periodically querying the job status via pysqa and fails the future
+    instead of leaving it pending forever.
+
     Args:
         task_key (str): The key of the task.
         future_obj (Future): The future object associated with the task.
         cache_directory (str): The directory where the HDF5 files are stored.
+        queue_id (int, optional): The queuing system ID of the task, if submitted via pysqa.
+        pysqa_config_directory (str, optional): path to the pysqa config directory.
+        backend (str, optional): name of the backend used to spawn tasks ["slurm", "flux"].
+        status_check_dict (dict): Dictionary tracking when each task's job status was last queried,
+            used to throttle calls to the queuing system.
         duplicate_dict (dict): The dictionary mapping task keys to their associated duplicate future objects.
     Returns:
         Future: The updated future object.
@@ -215,8 +237,32 @@ def _check_task_output(
     """
     file_name = os.path.join(cache_directory, task_key + "_o.h5")
     if not os.path.exists(file_name):
-        return future_obj
-    exec_flag, no_error_flag, result = get_output(file_name=file_name)
+        if (
+            backend is None
+            or queue_id is None
+            or validate_function is None
+            or not validate_function(
+                task_key=task_key,
+                file_name=file_name,
+                queue_id=queue_id,
+                pysqa_config_directory=pysqa_config_directory,
+                backend=backend,
+                status_check_dict=status_check_dict,
+            )
+        ):
+            return future_obj
+        exec_flag, no_error_flag, result = (
+            True,
+            False,
+            RuntimeError(
+                f"executorlib: queue job {queue_id} for task {task_key} terminated without "
+                "producing output (timeout, out-of-memory, node failure or cancellation)."
+            ),
+        )
+    else:
+        exec_flag, no_error_flag, result = get_output(file_name=file_name)
+    if status_check_dict is not None:
+        status_check_dict.pop(task_key, None)
     _update_future(
         future_obj=future_obj,
         exec_flag=exec_flag,
@@ -321,7 +367,9 @@ def _refresh_memory_dict(
     cache_dir_dict: dict,
     process_dict: dict,
     duplicate_dict: Optional[dict] = None,
+    status_check_dict: Optional[dict] = None,
     terminate_function: Optional[Callable] = None,
+    validate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
     refresh_rate: float = 0.01,
@@ -334,7 +382,10 @@ def _refresh_memory_dict(
         cache_dir_dict (dict): dictionary with task keys and cache directories
         process_dict (dict): dictionary with task keys and process reference.
         duplicate_dict (dict): dictionary with task keys and duplicate future objects.
+        status_check_dict (dict): dictionary with task keys and the last time their queuing system
+            job status was queried, used to throttle detection of jobs that died without output.
         terminate_function (callable): The function to terminate the tasks.
+        validate_function (callable): The function to validate the tasks.
         pysqa_config_directory (str): path to the pysqa config directory (only for pysqa based backend).
         backend (str): name of the backend used to spawn tasks.
         refresh_rate (float): The rate at which to refresh the result. Defaults to 0.01.
@@ -351,11 +402,19 @@ def _refresh_memory_dict(
         pysqa_config_directory=pysqa_config_directory,
         backend=backend,
     )
+    if status_check_dict is not None:
+        for key in cancelled_lst:
+            status_check_dict.pop(key, None)
     memory_updated_dict = {
         key: _check_task_output(
             task_key=key,
             future_obj=value,
             cache_directory=cache_dir_dict[key],
+            queue_id=process_dict.get(key),
+            pysqa_config_directory=pysqa_config_directory,
+            backend=backend,
+            validate_function=validate_function,
+            status_check_dict=status_check_dict,
             duplicate_dict=duplicate_dict,
         )
         for key, value in memory_dict.items()
@@ -443,7 +502,9 @@ def _shutdown_executor(
     process_dict: dict,
     cache_dir_dict: dict,
     duplicate_dict: Optional[dict] = None,
+    status_check_dict: Optional[dict] = None,
     terminate_function: Optional[Callable] = None,
+    validate_function: Optional[Callable] = None,
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
     refresh_rate: float = 0.01,
@@ -466,6 +527,9 @@ def _shutdown_executor(
         process_dict (dict): Mapping of task keys to process handles or queue IDs.
         duplicate_dict (dict): Mapping of task keys to lists of duplicate Future objects.
         cache_dir_dict (dict): Mapping of task keys to the cache directory for each task.
+        status_check_dict (dict): Mapping of task keys to the last time their queuing system job
+            status was queried, used to throttle detection of jobs that died without output.
+        validate_function (Callable, optional): Function used to validate the tasks.
         terminate_function (Callable, optional): Function used to terminate running processes.
         pysqa_config_directory (str, optional): Path to the pysqa config directory.
         backend (str, optional): Name of the backend ("slurm", "flux", or None for subprocess).
@@ -478,7 +542,9 @@ def _shutdown_executor(
                 cache_dir_dict=cache_dir_dict,
                 process_dict=process_dict,
                 duplicate_dict=duplicate_dict,
+                status_check_dict=status_check_dict,
                 terminate_function=terminate_function,
+                validate_function=validate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
                 refresh_rate=refresh_rate,
@@ -493,7 +559,9 @@ def _shutdown_executor(
                 cache_dir_dict=cache_dir_dict,
                 process_dict=process_dict,
                 duplicate_dict=duplicate_dict,
+                status_check_dict=status_check_dict,
                 terminate_function=terminate_function,
+                validate_function=validate_function,
                 pysqa_config_directory=pysqa_config_directory,
                 backend=backend,
                 refresh_rate=refresh_rate,
@@ -512,7 +580,9 @@ def _shutdown_executor(
             cache_dir_dict=cache_dir_dict,
             process_dict=process_dict,
             duplicate_dict=duplicate_dict,
+            status_check_dict=status_check_dict,
             terminate_function=terminate_function,
+            validate_function=validate_function,
             pysqa_config_directory=pysqa_config_directory,
             backend=backend,
             refresh_rate=refresh_rate,
