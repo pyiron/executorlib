@@ -14,7 +14,7 @@ def pysqa_job_output_validation(
     status_check_dict: Optional[dict],
     pysqa_config_directory: Optional[str] = None,
     backend: Optional[str] = None,
-    job_status_check_interval: float = 30.0
+    job_status_check_interval: float = 30.0,
 ) -> bool:
     """
     Check whether the queuing system job backing a task has died without ever writing its output

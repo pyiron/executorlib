@@ -17,7 +17,10 @@ from executorlib.task_scheduler.file.spawner_subprocess import (
 )
 
 try:
-    from executorlib.standalone.command_pysqa import pysqa_terminate, pysqa_job_output_validation
+    from executorlib.standalone.command_pysqa import (
+        pysqa_job_output_validation,
+        pysqa_terminate,
+    )
     from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
