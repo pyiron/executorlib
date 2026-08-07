@@ -17,12 +17,13 @@ from executorlib.task_scheduler.file.spawner_subprocess import (
 )
 
 try:
-    from executorlib.standalone.command_pysqa import pysqa_terminate
+    from executorlib.standalone.command_pysqa import pysqa_terminate, pysqa_job_output_validation
     from executorlib.task_scheduler.file.spawner_pysqa import execute_with_pysqa
 except ImportError:
     # If pysqa is not available fall back to executing tasks in a subprocess
     execute_with_pysqa = subprocess_execute  # type: ignore
     pysqa_terminate = None  # type: ignore
+    pysqa_job_output_validation = None  # type: ignore
 
 
 class FileTaskScheduler(TaskSchedulerBase):
@@ -74,6 +75,7 @@ class FileTaskScheduler(TaskSchedulerBase):
             "future_queue": self._future_queue,
             "execute_function": execute_function,
             "terminate_function": terminate_function,
+            "validate_function": pysqa_job_output_validation,
             "pysqa_config_directory": pysqa_config_directory,
             "backend": backend,
             "disable_dependencies": disable_dependencies,
