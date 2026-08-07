@@ -413,6 +413,7 @@ def _refresh_memory_dict(
             queue_id=process_dict.get(key),
             pysqa_config_directory=pysqa_config_directory,
             backend=backend,
+            validate_function=validate_function,
             status_check_dict=status_check_dict,
             duplicate_dict=duplicate_dict,
         )
