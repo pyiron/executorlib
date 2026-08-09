@@ -80,34 +80,35 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         executor_kwargs["restart_limit"] = restart_limit
         self._process_kwargs = executor_kwargs
         self._max_workers = max_workers
-        self_id = random.getrandbits(128)
-        self._self_id = self_id
+        self._self_id = random.getrandbits(128)
         _interrupt_bootup_dict[self._self_id] = False
-        alive_workers = [max_workers]
-        alive_workers_lock = Lock()
-        bootup_events = [Event() for _ in range(self._max_workers)]
-        bootup_events[0].set()
+        self._alive_workers = [max_workers]
+        self._alive_workers_lock = Lock()
+        self._bootup_events = [Event() for _ in range(self._max_workers)]
+        self._bootup_events[0].set()
         self._set_process(
             process=[
                 Thread(
                     target=_execute_multiple_tasks,
-                    kwargs=executor_kwargs
-                    | {
-                        "worker_id": worker_id,
-                        "stop_function": lambda: _interrupt_bootup_dict[self_id],
-                        "bootup_event": bootup_events[worker_id],
-                        "next_bootup_event": (
-                            bootup_events[worker_id + 1]
-                            if worker_id + 1 < self._max_workers
-                            else None
-                        ),
-                        "alive_workers": alive_workers,
-                        "alive_workers_lock": alive_workers_lock,
-                    },
+                    kwargs=self._worker_kwargs(worker_id),
                 )
                 for worker_id in range(self._max_workers)
             ],
         )
+
+    def _worker_kwargs(self, worker_id: int) -> dict:
+        return self._process_kwargs | {
+            "worker_id": worker_id,
+            "stop_function": lambda: _interrupt_bootup_dict[self._self_id],
+            "bootup_event": self._bootup_events[worker_id],
+            "next_bootup_event": (
+                self._bootup_events[worker_id + 1]
+                if worker_id + 1 < len(self._bootup_events)
+                else None
+            ),
+            "alive_workers": self._alive_workers,
+            "alive_workers_lock": self._alive_workers_lock,
+        }
 
     @property
     def max_workers(self) -> int:
@@ -126,12 +127,17 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                         process for process in self._process if process.is_alive()
                     ]
             elif self._max_workers < max_workers:
+                old_max_workers = self._max_workers
+                self._bootup_events.extend(
+                    Event() for _ in range(max_workers - old_max_workers)
+                )
+                self._alive_workers[0] += max_workers - old_max_workers
                 new_process_lst = [
                     Thread(
                         target=_execute_multiple_tasks,
-                        kwargs=self._process_kwargs,
+                        kwargs=self._worker_kwargs(worker_id),
                     )
-                    for _ in range(max_workers - self._max_workers)
+                    for worker_id in range(old_max_workers, max_workers)
                 ]
                 for process_instance in new_process_lst:
                     process_instance.start()
