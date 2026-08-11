@@ -39,7 +39,6 @@ class TestBlockAllocationResize(unittest.TestCase):
             "executorlib.task_scheduler.interactive.blockallocation.Thread",
             FakeThread,
         ):
-            scheduler._bootup_events.append(FakeThread)
             scheduler.max_workers = 2
 
         worker = FakeThread.instances[-1]

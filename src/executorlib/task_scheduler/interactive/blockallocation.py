@@ -97,9 +97,10 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         )
 
     def _worker_kwargs(self, worker_id: int) -> dict:
+        self_id = self._self_id
         return self._process_kwargs | {
             "worker_id": worker_id,
-            "stop_function": lambda: _interrupt_bootup_dict[self._self_id],
+            "stop_function": lambda: _interrupt_bootup_dict[self_id],
             "bootup_event": self._bootup_events[worker_id],
             "next_bootup_event": (
                 self._bootup_events[worker_id + 1]
@@ -131,6 +132,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                 self._bootup_events.extend(
                     Event() for _ in range(max_workers - old_max_workers)
                 )
+                for idx in range(old_max_workers, max_workers):
+                    self._bootup_events[idx].set()
                 self._alive_workers[0] += max_workers - old_max_workers
                 new_process_lst = [
                     Thread(
