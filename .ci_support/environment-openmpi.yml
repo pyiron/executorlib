@@ -14,4 +14,4 @@ dependencies:
 - pydantic =2.13.4
 - pygraphviz =1.14
 - pysqa =0.4.4
-- pyzmq =27.1.0
+- pyzmq =27.2.0
