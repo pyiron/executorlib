@@ -34,6 +34,7 @@ class SubprocessExecutorTest(unittest.TestCase):
         self.assertFalse(f.done())
         _execute_multiple_tasks(
             future_queue=test_queue,
+            return_queue=queue.Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
@@ -60,6 +61,7 @@ class SubprocessExecutorTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             _execute_multiple_tasks(
                 future_queue=test_queue,
+                return_queue=queue.Queue(),
                 cores=1,
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
@@ -87,6 +89,7 @@ class SubprocessExecutorTest(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             _execute_multiple_tasks(
                 future_queue=test_queue,
+                return_queue=queue.Queue(),
                 cores=1,
                 openmpi_oversubscribe=False,
                 spawner=MpiExecSpawner,
