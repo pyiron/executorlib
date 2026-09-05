@@ -152,7 +152,7 @@ class SocketInterface:
         if self._spawner.poll():
             result = self.send_and_receive_dict(
                 input_dict={"shutdown": True, "wait": wait}
-            )["result"]
+            ).get("result")
             self._spawner.shutdown(wait=wait)
         self._reset_socket()
         return result
