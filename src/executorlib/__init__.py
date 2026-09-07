@@ -44,31 +44,37 @@ def get_cache_data(cache_directory: str) -> list[dict]:
     return get_cache_data(cache_directory=cache_directory)
 
 
-def get_cache_data_queue(cache_directory: str, queue_type: Optional[str] = None, config_directory: Optional[str] = None) -> list[dict]:
+def get_cache_data_queue(
+    cache_directory: str,
+    queue_type: Optional[str] = None,
+    config_directory: Optional[str] = None,
+) -> list[dict]:
     """
     Collect all HDF5 files in the cache directory and check their status in the queue system
-    
+
     Args:
         cache_directory (str): The directory to store cache files.
         queue_type (str, optional): The type of the queue system ["slurm", "flux"].
         config_directory (str, optional): The directory containing the configuration for the queue system.
 
     Returns:
-        list[dict]: List of dictionaries each representing on of the HDF5 files in the 
+        list[dict]: List of dictionaries each representing on of the HDF5 files in the
                     cache directory with their status in the queue system.
     """
     from executorlib.standalone.hdf import get_cache_data
     from executorlib.task_scheduler.file.spawner_pysqa import get_queue_system_status
 
     cache_dict = get_cache_data(cache_directory=cache_directory)
-    dfq = get_queue_system_status(queue_type=queue_type, config_directory=config_directory)
+    dfq = get_queue_system_status(
+        queue_type=queue_type, config_directory=config_directory
+    )
 
     cache_updated_dict = []
     for row in cache_dict:
         if "output" in row and row["output"]:
             row["status"] = "finished"
         elif "queue_id" in row and row["queue_id"] in dfq["jobid"].values:
-            row["status"] =  dfq[dfq["jobid"]==row["queue_id"]]["status"].values[-1]
+            row["status"] = dfq[dfq["jobid"] == row["queue_id"]]["status"].values[-1]
         elif "queue_id" not in row:
             row["status"] = "running"
         else:

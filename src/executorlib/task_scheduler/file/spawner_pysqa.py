@@ -157,7 +157,9 @@ def terminate_task_in_cache(
     os.remove(file_name)
 
 
-def get_queue_system_status(queue_type: Optional[str] = None, config_directory: Optional[str] = None) -> DataFrame:
+def get_queue_system_status(
+    queue_type: Optional[str] = None, config_directory: Optional[str] = None
+) -> DataFrame:
     """
     Get the status of the queue system.
 
