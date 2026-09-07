@@ -2,6 +2,7 @@ import os
 from subprocess import CalledProcessError
 from typing import Optional
 
+from pandas import DataFrame
 from pysqa import QueueAdapter
 
 from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
@@ -154,3 +155,20 @@ def terminate_task_in_cache(
             backend=backend,
         )
     os.remove(file_name)
+
+
+def get_queue_system_status(queue_type: Optional[str] = None, config_directory: Optional[str] = None) -> DataFrame:
+    """
+    Get the status of the queue system.
+
+    Args:
+        queue_type (str, optional): The type of the queue system ["slurm", "flux"].
+        config_directory (str, optional): The directory containing the configuration for the queue system.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing the status of the queue system.
+    """
+    return QueueAdapter(
+        directory=config_directory,
+        queue_type=queue_type,
+    ).get_queue_status()
