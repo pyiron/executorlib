@@ -18,6 +18,13 @@ try:
 except ImportError:
     skip_h5py_test = True
 
+try:
+    import pysqa
+
+    skip_pysqa_test = False
+except ImportError:
+    skip_pysqa_test = True
+
 
 def add_function(parameter_1, parameter_2):
     return parameter_1 + parameter_2
@@ -120,6 +127,10 @@ class TestTestClusterExecutor(unittest.TestCase):
         cache_lst = get_cache_data(cache_directory="rather_this_dir")
         self.assertEqual(len(cache_lst), 1)
 
+    @unittest.skipIf(
+        skip_pysqa_test,
+        "pysqa module patching not supported on Windows or when pysqa is not installed",
+    )
     @patch(
         "executorlib.task_scheduler.file.spawner_pysqa.get_queue_system_cache_data",
         return_value=[{"status": "running"}],
