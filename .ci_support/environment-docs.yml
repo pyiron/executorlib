@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - flux-core
-- hatchling =1.31.0
+- hatchling =1.32.0
 - hatch-vcs =0.5.0
 - myst-parser
 - nbsphinx
@@ -16,5 +16,5 @@ dependencies:
 - jupyter-book =1.0.0
 - mpi4py =4.1.2
 - python =3.12
-- pydantic =2.13.4
-- pyzmq =27.1.0
+- pydantic =2.13.5
+- pyzmq =27.2.0

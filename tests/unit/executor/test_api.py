@@ -3,8 +3,9 @@ import shutil
 import unittest
 from time import sleep
 from concurrent.futures import Future, wait
+from unittest.mock import patch
 
-from executorlib import get_cache_data, get_future_from_cache
+from executorlib import get_cache_data, get_cache_data_queue, get_future_from_cache
 from executorlib.api import TestClusterExecutor
 from executorlib.task_scheduler.interactive.dependency_plot import generate_nodes_and_edges_for_plotting
 from executorlib.standalone.serialize import cloudpickle_register
@@ -16,6 +17,13 @@ try:
     skip_h5py_test = False
 except ImportError:
     skip_h5py_test = True
+
+try:
+    import pysqa
+
+    skip_pysqa_test = False
+except ImportError:
+    skip_pysqa_test = True
 
 
 def add_function(parameter_1, parameter_2):
@@ -118,6 +126,36 @@ class TestTestClusterExecutor(unittest.TestCase):
         self.assertTrue(os.path.exists("rather_this_dir"))
         cache_lst = get_cache_data(cache_directory="rather_this_dir")
         self.assertEqual(len(cache_lst), 1)
+
+    @unittest.skipIf(
+        skip_pysqa_test,
+        "pysqa module patching not supported on Windows or when pysqa is not installed",
+    )
+    @patch(
+        "executorlib.task_scheduler.file.spawner_pysqa.get_queue_system_cache_data",
+        return_value=[{"status": "running"}],
+    )
+    @patch(
+        "executorlib.standalone.hdf.get_cache_data",
+        return_value=[{"queue_id": 42}],
+    )
+    def test_get_cache_data_queue(
+        self,
+        get_cache_data_mock,
+        get_queue_system_cache_data_mock,
+    ):
+        cache_lst = get_cache_data_queue(
+            cache_directory="rather_this_dir",
+            queue_type="flux",
+            config_directory="config_dir",
+        )
+        get_cache_data_mock.assert_called_once_with(cache_directory="rather_this_dir")
+        get_queue_system_cache_data_mock.assert_called_once_with(
+            cache_dict=[{"queue_id": 42}],
+            queue_type="flux",
+            config_directory="config_dir",
+        )
+        self.assertEqual(cache_lst, [{"status": "running"}])
 
     def test_executor_dependencies(self):
         with TestClusterExecutor(cache_directory="cache_dir") as exe:
