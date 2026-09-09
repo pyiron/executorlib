@@ -59,6 +59,8 @@ def serialize_funct(
         Tuple[str, dict]: A tuple containing the task key and the serialized data.
 
     """
+    excp = None 
+
     if fn_args is None:
         fn_args = []
     if fn_kwargs is None:
@@ -68,21 +70,26 @@ def serialize_funct(
     if cache_key is not None:
         task_key = cache_key
     else:
-        binary_all = cloudpickle.dumps(
-            {
-                "fn": fn,
-                "args": fn_args,
-                "kwargs": fn_kwargs,
-            }
-        )
-        task_key = _get_function_name(fn=fn) + _get_hash(binary=binary_all)
+        try:
+            binary_all = cloudpickle.dumps(
+                {
+                    "fn": fn,
+                    "args": fn_args,
+                    "kwargs": fn_kwargs,
+                }
+            )
+        except Exception as e:
+            excp = e
+            binary_all = None
+        else:
+            task_key = _get_function_name(fn=fn) + _get_hash(binary=binary_all)
     data = {
         "fn": fn,
         "args": fn_args,
         "kwargs": fn_kwargs,
         "resource_dict": resource_dict,
     }
-    return task_key, data
+    return task_key, data, excp
 
 
 def _get_hash(binary: bytes) -> str:

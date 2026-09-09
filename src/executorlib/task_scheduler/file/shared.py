@@ -118,79 +118,76 @@ def execute_tasks_h5(
             future_queue.join()
             break
         elif task_dict is not None:
-            try:
-                task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
-                    task_dict=task_dict,
-                    memory_dict=memory_dict,
-                    file_name_dict=file_name_dict,
+            task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
+                task_dict=task_dict,
+                memory_dict=memory_dict,
+                file_name_dict=file_name_dict,
+            )
+            task_resource_dict, cache_key, cache_directory, error_log_file = (
+                _get_task_input(
+                    task_resource_dict=task_dict["resource_dict"].copy(),
+                    executor_kwargs=executor_kwargs,
                 )
-                task_resource_dict, cache_key, cache_directory, error_log_file = (
-                    _get_task_input(
-                        task_resource_dict=task_dict["resource_dict"].copy(),
-                        executor_kwargs=executor_kwargs,
-                    )
-                )
-                task_key, data_dict = serialize_funct(
-                    fn=task_dict["fn"],
-                    fn_args=task_args,
-                    fn_kwargs=task_kwargs,
-                    resource_dict=task_resource_dict,
-                    cache_key=cache_key,
-                )
-                data_dict["error_log_file"] = error_log_file
-                if task_key not in memory_dict:
-                    if os.path.join(
-                        cache_directory, task_key + "_o.h5"
-                    ) not in get_cache_files(cache_directory=cache_directory):
-                        file_name = os.path.join(cache_directory, task_key + "_i.h5")
-                        if not disable_dependencies:
-                            task_dependent_lst = [
-                                process_dict[k]
-                                for k in future_wait_key_lst
-                                if k in process_dict
-                            ]
-                        else:
-                            if len(future_wait_key_lst) > 0:
-                                task_dict["future"].set_exception(
-                                    ValueError(
-                                        "Future objects are not supported as input if disable_dependencies=True."
-                                    )
-                                )
-                            task_dependent_lst = []
-                        process_dict[task_key] = execute_function(
-                            command=get_cache_execute_command(
-                                file_name=file_name,
-                                cores=task_resource_dict["cores"],
-                                backend=backend,
-                                exclusive=task_resource_dict.get("exclusive", False),
-                                openmpi_oversubscribe=task_resource_dict.get(
-                                    "openmpi_oversubscribe", False
-                                ),
-                                pmi_mode=pmi_mode,
-                            ),
-                            file_name=file_name,
-                            data_dict=data_dict,
-                            task_dependent_lst=task_dependent_lst,
-                            resource_dict=task_resource_dict,
-                            config_directory=pysqa_config_directory,
-                            backend=backend,
-                            cache_directory=cache_directory,
-                        )
-                    file_name = os.path.join(cache_directory, task_key + "_o.h5")
-                    file_name_dict[task_key] = file_name
-                    queue_id = get_queue_id(file_name=file_name)
-                    if queue_id is not None:
-                        process_dict[task_key] = queue_id
-                    memory_dict[task_key] = task_dict["future"]
-                    cache_dir_dict[task_key] = cache_directory
-                elif memory_dict[task_key] != task_dict["future"]:
-                    if task_key not in duplicate_dict:
-                        duplicate_dict[task_key] = []
-                    duplicate_dict[task_key].append(task_dict["future"])
-            except Exception as exc:
-                # e.g. an argument cloudpickle cannot serialize - fail the
-                # future instead of killing the scheduler thread
+            )
+            task_key, data_dict, exc = serialize_funct(
+                fn=task_dict["fn"],
+                fn_args=task_args,
+                fn_kwargs=task_kwargs,
+                resource_dict=task_resource_dict,
+                cache_key=cache_key,
+            )
+            data_dict["error_log_file"] = error_log_file
+            if exc is not None:
                 task_dict["future"].set_exception(exc)
+            elif task_key not in memory_dict:
+                if os.path.join(
+                    cache_directory, task_key + "_o.h5"
+                ) not in get_cache_files(cache_directory=cache_directory):
+                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
+                    if not disable_dependencies:
+                        task_dependent_lst = [
+                            process_dict[k]
+                            for k in future_wait_key_lst
+                            if k in process_dict
+                        ]
+                    else:
+                        if len(future_wait_key_lst) > 0:
+                            task_dict["future"].set_exception(
+                                ValueError(
+                                    "Future objects are not supported as input if disable_dependencies=True."
+                                )
+                            )
+                        task_dependent_lst = []
+                    process_dict[task_key] = execute_function(
+                        command=get_cache_execute_command(
+                            file_name=file_name,
+                            cores=task_resource_dict["cores"],
+                            backend=backend,
+                            exclusive=task_resource_dict.get("exclusive", False),
+                            openmpi_oversubscribe=task_resource_dict.get(
+                                "openmpi_oversubscribe", False
+                            ),
+                            pmi_mode=pmi_mode,
+                        ),
+                        file_name=file_name,
+                        data_dict=data_dict,
+                        task_dependent_lst=task_dependent_lst,
+                        resource_dict=task_resource_dict,
+                        config_directory=pysqa_config_directory,
+                        backend=backend,
+                        cache_directory=cache_directory,
+                    )
+                file_name = os.path.join(cache_directory, task_key + "_o.h5")
+                file_name_dict[task_key] = file_name
+                queue_id = get_queue_id(file_name=file_name)
+                if queue_id is not None:
+                    process_dict[task_key] = queue_id
+                memory_dict[task_key] = task_dict["future"]
+                cache_dir_dict[task_key] = cache_directory
+            elif memory_dict[task_key] != task_dict["future"]:
+                if task_key not in duplicate_dict:
+                    duplicate_dict[task_key] = []
+                duplicate_dict[task_key].append(task_dict["future"])
             future_queue.task_done()
         else:
             memory_dict = _refresh_memory_dict(
