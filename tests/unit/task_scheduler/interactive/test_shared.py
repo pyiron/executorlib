@@ -20,6 +20,11 @@ def get_error():
     raise ExecutorlibSocketError()
 
 
+class Unpicklable:
+    def __reduce__(self):
+        raise TypeError("cannot pickle Unpicklable")
+
+
 class TestExecuteTaskDictWithoutCache(unittest.TestCase):
     def test_execute_task_sum(self):
         cloudpickle_register(ind=1)
@@ -101,6 +106,34 @@ class TestExecuteTaskDictWithoutCache(unittest.TestCase):
         )
         self.assertFalse(result)
         self.assertFalse(f.done())
+
+    def test_execute_task_unpicklable_argument(self):
+        cloudpickle_register(ind=1)
+        f = Future()
+        interface = interface_bootup(
+            command_lst=get_interactive_execute_command(
+                cores=1,
+            ),
+            connections=SubprocessSpawner(),
+            hostname_localhost=True,
+            log_obj_size=False,
+            worker_id=1,
+            stop_function=None,
+        )
+        self.assertTrue(interface.status)
+        self.assertFalse(f.done())
+        result = execute_task_dict(
+            task_dict={"fn": len, "args": ([Unpicklable()],), "kwargs": {}},
+            future_obj=f,
+            interface=interface,
+            cache_directory=None,
+            cache_key=None,
+            error_log_file=None,
+        )
+        self.assertTrue(result)
+        self.assertTrue(f.done())
+        with self.assertRaises(TypeError):
+            f.result()
 
 
 @unittest.skipIf(

@@ -41,18 +41,24 @@ def execute_task_dict(
     if not future_obj.done() and future_obj.set_running_or_notify_cancel():
         if error_log_file is not None:
             task_dict["error_log_file"] = error_log_file
-        if cache_directory is None:
-            return _execute_task_without_cache(
-                interface=interface, task_dict=task_dict, future_obj=future_obj
-            )
-        else:
-            return _execute_task_with_cache(
-                interface=interface,
-                task_dict=task_dict,
-                cache_directory=cache_directory,
-                cache_key=cache_key,
-                future_obj=future_obj,
-            )
+        try:
+            if cache_directory is None:
+                return _execute_task_without_cache(
+                    interface=interface, task_dict=task_dict, future_obj=future_obj
+                )
+            else:
+                return _execute_task_with_cache(
+                    interface=interface,
+                    task_dict=task_dict,
+                    cache_directory=cache_directory,
+                    cache_key=cache_key,
+                    future_obj=future_obj,
+                )
+        except Exception as exc:
+            # e.g. an argument cloudpickle cannot serialize - fail the future
+            # instead of killing the worker thread
+            future_obj.set_exception(exc)
+            return True
     else:
         return True
 

@@ -47,6 +47,11 @@ def raise_error(parameter):
     raise RuntimeError
 
 
+class Unpicklable:
+    def __reduce__(self):
+        raise TypeError("cannot pickle Unpicklable")
+
+
 class TestExecutorWithDependencies(unittest.TestCase):
     def test_future_chaining_resolves_dependency(self):
         with SingleNodeExecutor(max_cores=1) as exe:
@@ -336,6 +341,29 @@ class TestExecutorErrors(unittest.TestCase):
                 cloudpickle_register(ind=1)
                 fs = exe.submit(raise_error, parameter=0)
                 fs.result()
+
+    def test_unpicklable_argument_block_allocation_false(self):
+        with self.assertRaises(TypeError):
+            with SingleNodeExecutor(max_cores=1, block_allocation=False) as exe:
+                cloudpickle_register(ind=1)
+                fs = exe.submit(len, [Unpicklable()])
+                fs.result(timeout=15)
+
+    def test_unpicklable_argument_block_allocation_true(self):
+        with self.assertRaises(TypeError):
+            with SingleNodeExecutor(max_cores=1, block_allocation=True) as exe:
+                cloudpickle_register(ind=1)
+                fs = exe.submit(len, [Unpicklable()])
+                fs.result(timeout=15)
+
+    def test_unpicklable_argument_recovers_for_next_task(self):
+        with SingleNodeExecutor(max_cores=1, block_allocation=False) as exe:
+            cloudpickle_register(ind=1)
+            bad_fs = exe.submit(len, [Unpicklable()])
+            good_fs = exe.submit(sum, [1, 2])
+            with self.assertRaises(TypeError):
+                bad_fs.result(timeout=15)
+            self.assertEqual(good_fs.result(timeout=15), 3)
 
     def test_block_allocation_false_one_worker_loop(self):
         with self.assertRaises(RuntimeError):
