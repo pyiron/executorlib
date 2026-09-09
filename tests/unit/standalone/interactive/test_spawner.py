@@ -263,6 +263,7 @@ class TestBlockAllocationTaskSchedulerInitFunction(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
@@ -445,6 +446,7 @@ class TestBlockAllocationTaskScheduler(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
@@ -461,6 +463,7 @@ class TestBlockAllocationTaskScheduler(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
@@ -477,6 +480,7 @@ class TestBlockAllocationTaskScheduler(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
@@ -495,6 +499,7 @@ class TestBlockAllocationTaskScheduler(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=2,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
@@ -518,6 +523,7 @@ class TestBlockAllocationTaskSchedulerCache(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
@@ -537,6 +543,7 @@ class TestBlockAllocationTaskSchedulerCache(unittest.TestCase):
         cloudpickle_register(ind=1)
         _execute_multiple_tasks(
             future_queue=q,
+            return_queue=Queue(),
             cores=1,
             openmpi_oversubscribe=False,
             spawner=MpiExecSpawner,
