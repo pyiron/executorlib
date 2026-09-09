@@ -157,7 +157,11 @@ def terminate_task_in_cache(
     os.remove(file_name)
 
 
-def get_queue_system_cache_data(cache_dict: list[dict], queue_type: Optional[str] = None, config_directory: Optional[str] = None) -> list[dict]:
+def get_queue_system_cache_data(
+    cache_dict: list[dict],
+    queue_type: Optional[str] = None,
+    config_directory: Optional[str] = None,
+) -> list[dict]:
     """
     Get the status of the queue system.
 
@@ -170,7 +174,7 @@ def get_queue_system_cache_data(cache_dict: list[dict], queue_type: Optional[str
         cache_dict (list[dict]): List of dictionaries each representing on of the HDF5 files in the cache directory.
     """
     return _merge_cache_with_queue_status(
-        cache_dict=cache_dict, 
+        cache_dict=cache_dict,
         dataframe=QueueAdapter(
             directory=config_directory,
             queue_type=queue_type,
@@ -178,7 +182,9 @@ def get_queue_system_cache_data(cache_dict: list[dict], queue_type: Optional[str
     )
 
 
-def _merge_cache_with_queue_status(cache_dict: list[dict], dataframe: DataFrame) -> list[dict]:
+def _merge_cache_with_queue_status(
+    cache_dict: list[dict], dataframe: DataFrame
+) -> list[dict]:
     """
     Merge the cache data with the queue status.
 
@@ -194,7 +200,9 @@ def _merge_cache_with_queue_status(cache_dict: list[dict], dataframe: DataFrame)
         if "output" in row and row["output"]:
             row["status"] = "finished"
         elif "queue_id" in row and row["queue_id"] in dataframe["jobid"].values:
-            row["status"] = dataframe[dataframe["jobid"] == row["queue_id"]]["status"].values[-1]
+            row["status"] = dataframe[dataframe["jobid"] == row["queue_id"]][
+                "status"
+            ].values[-1]
         elif "queue_id" not in row:
             row["status"] = "running"
         else:

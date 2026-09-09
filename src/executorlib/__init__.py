@@ -62,11 +62,13 @@ def get_cache_data_queue(
                     cache directory with their status in the queue system.
     """
     from executorlib.standalone.hdf import get_cache_data
-    from executorlib.task_scheduler.file.spawner_pysqa import get_queue_system_cache_data
+    from executorlib.task_scheduler.file.spawner_pysqa import (
+        get_queue_system_cache_data,
+    )
 
     return get_queue_system_cache_data(
-        cache_dict=get_cache_data(cache_directory=cache_directory), 
-        queue_type=queue_type, 
+        cache_dict=get_cache_data(cache_directory=cache_directory),
+        queue_type=queue_type,
         config_directory=config_directory,
     )
 
