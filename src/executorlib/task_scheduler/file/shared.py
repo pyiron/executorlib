@@ -119,12 +119,10 @@ def execute_tasks_h5(
             break
         elif task_dict is not None:
             try:
-                task_args, task_kwargs, future_wait_key_lst = (
-                    _convert_args_and_kwargs(
-                        task_dict=task_dict,
-                        memory_dict=memory_dict,
-                        file_name_dict=file_name_dict,
-                    )
+                task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
+                    task_dict=task_dict,
+                    memory_dict=memory_dict,
+                    file_name_dict=file_name_dict,
                 )
                 task_resource_dict, cache_key, cache_directory, error_log_file = (
                     _get_task_input(
