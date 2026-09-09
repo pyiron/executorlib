@@ -134,7 +134,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                 )
                 for idx in range(old_max_workers, max_workers):
                     self._bootup_events[idx].set()
-                self._alive_workers[0] += max_workers - old_max_workers
+                with self._alive_workers_lock:
+                    self._alive_workers[0] += max_workers - old_max_workers
                 new_process_lst = [
                     Thread(
                         target=_execute_multiple_tasks,
