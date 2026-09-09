@@ -62,26 +62,13 @@ def get_cache_data_queue(
                     cache directory with their status in the queue system.
     """
     from executorlib.standalone.hdf import get_cache_data
-    from executorlib.task_scheduler.file.spawner_pysqa import get_queue_system_status
+    from executorlib.task_scheduler.file.spawner_pysqa import get_queue_system_cache_data
 
-    cache_dict = get_cache_data(cache_directory=cache_directory)
-    dfq = get_queue_system_status(
-        queue_type=queue_type, config_directory=config_directory
+    return get_queue_system_cache_data(
+        cache_dict=get_cache_data(cache_directory=cache_directory), 
+        queue_type=queue_type, 
+        config_directory=config_directory,
     )
-
-    cache_updated_dict = []
-    for row in cache_dict:
-        if "output" in row and row["output"]:
-            row["status"] = "finished"
-        elif "queue_id" in row and row["queue_id"] in dfq["jobid"].values:
-            row["status"] = dfq[dfq["jobid"] == row["queue_id"]]["status"].values[-1]
-        elif "queue_id" not in row:
-            row["status"] = "running"
-        else:
-            row["status"] = "aborted"
-        cache_updated_dict.append(row)
-
-    return cache_updated_dict
 
 
 def get_future_from_cache(
