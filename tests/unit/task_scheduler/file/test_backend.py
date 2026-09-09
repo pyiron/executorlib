@@ -19,8 +19,13 @@ except ImportError:
     skip_h5io_test = True
 
 try:
+    from pandas import DataFrame
     import pysqa  # noqa: F401
     from executorlib.standalone.command_pysqa import pysqa_job_output_validation
+    from executorlib.task_scheduler.file.spawner_pysqa import (
+        _merge_cache_with_queue_status,
+        get_queue_system_cache_data,
+    )
 
     skip_pysqa_test = False
 except ImportError:
@@ -346,6 +351,52 @@ class TestSharedFunctions(unittest.TestCase):
             )
         status_mock.assert_not_called()
         self.assertFalse(future_obj.done())
+
+    @unittest.skipIf(
+        sys.platform == "win32" or skip_pysqa_test,
+        "pysqa module patching not supported on Windows or when pysqa is not installed",
+    )
+    def test_merge_cache_with_queue_status_edge_cases(self):
+        cache_lst = _merge_cache_with_queue_status(
+            cache_dict=[
+                {"filename": "finished_o.h5", "output": 1},
+                {"filename": "queued_i.h5", "queue_id": 42},
+                {"filename": "local_i.h5"},
+                {"filename": "aborted_i.h5", "queue_id": 99},
+            ],
+            dataframe=DataFrame(
+                [
+                    {"jobid": 42, "status": "submitted"},
+                    {"jobid": 42, "status": "running"},
+                ]
+            ),
+        )
+        self.assertEqual(
+            [entry["status"] for entry in cache_lst],
+            ["finished", "running", "running", "aborted"],
+        )
+
+    @unittest.skipIf(
+        sys.platform == "win32" or skip_pysqa_test,
+        "pysqa module patching not supported on Windows or when pysqa is not installed",
+    )
+    def test_get_queue_system_cache_data(self):
+        with patch(
+            "executorlib.task_scheduler.file.spawner_pysqa.QueueAdapter"
+        ) as queue_adapter_mock:
+            queue_adapter_mock.return_value.get_queue_status.return_value = DataFrame(
+                [{"jobid": 21, "status": "pending"}]
+            )
+            cache_lst = get_queue_system_cache_data(
+                cache_dict=[{"filename": "task_i.h5", "queue_id": 21}],
+                queue_type="flux",
+                config_directory="config_dir",
+            )
+        queue_adapter_mock.assert_called_once_with(
+            directory="config_dir",
+            queue_type="flux",
+        )
+        self.assertEqual(cache_lst[0]["status"], "pending")
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
