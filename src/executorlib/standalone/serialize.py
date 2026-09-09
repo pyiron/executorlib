@@ -60,8 +60,6 @@ def serialize_funct(
                                                exception if the serialization failed.
 
     """
-    excp = None
-
     if fn_args is None:
         fn_args = []
     if fn_kwargs is None:
@@ -80,8 +78,7 @@ def serialize_funct(
                 }
             )
         except Exception as e:
-            excp = e
-            binary_all = None
+            return "", {}, e
         else:
             task_key = _get_function_name(fn=fn) + _get_hash(binary=binary_all)
     data = {
@@ -90,7 +87,7 @@ def serialize_funct(
         "kwargs": fn_kwargs,
         "resource_dict": resource_dict,
     }
-    return task_key, data, excp
+    return task_key, data, None
 
 
 def _get_hash(binary: bytes) -> str:

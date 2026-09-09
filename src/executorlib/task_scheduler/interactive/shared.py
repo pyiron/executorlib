@@ -136,15 +136,15 @@ def _execute_task_with_cache(
     """
     from executorlib.standalone.hdf import dump, get_cache_files, get_output
 
-    task_key, data_dict, excp = serialize_funct(
+    task_key, data_dict, serialize_exception = serialize_funct(
         fn=task_dict["fn"],
         fn_args=task_dict["args"],
         fn_kwargs=task_dict["kwargs"],
         resource_dict=task_dict.get("resource_dict", {}),
         cache_key=cache_key,
     )
-    if excp is not None:
-        future_obj.set_exception(exception=excp)
+    if serialize_exception is not None:
+        future_obj.set_exception(exception=serialize_exception)
     else:
         file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
         if file_name not in get_cache_files(cache_directory=cache_directory):
