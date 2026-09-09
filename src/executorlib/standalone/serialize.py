@@ -59,7 +59,7 @@ def serialize_funct(
         Tuple[str, dict]: A tuple containing the task key and the serialized data.
 
     """
-    excp = None 
+    excp = None
 
     if fn_args is None:
         fn_args = []
