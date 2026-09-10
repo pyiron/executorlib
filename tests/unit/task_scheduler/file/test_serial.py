@@ -54,6 +54,18 @@ class TestCacheExecutorSerial(unittest.TestCase):
             self.assertEqual(fs1.result(), 3)
             self.assertTrue(fs1.done())
 
+    def test_submit_unpicklable_argument_with_custom_cache_key(self):
+        with FileTaskScheduler(execute_function=subprocess_execute) as exe:
+            fs_bad = exe.submit(
+                len,
+                [Unpicklable()],
+                resource_dict={"cache_key": "bad/key"},
+            )
+            fs_good = exe.submit(my_funct, 1, b=2)
+            with self.assertRaises(TypeError):
+                fs_bad.result(timeout=15)
+            self.assertEqual(fs_good.result(timeout=15), 3)
+
     def test_submit_dependency_with_keyword_arg_future(self):
         with FileTaskScheduler(execute_function=subprocess_execute) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
@@ -261,6 +273,46 @@ class TestCacheExecutorSerial(unittest.TestCase):
                 "kwargs": {},
                 "future": fs_bad,
                 "resource_dict": {},
+            }
+        )
+        q.put(
+            {
+                "fn": my_funct,
+                "args": (),
+                "kwargs": {"a": 1, "b": 2},
+                "future": fs_good,
+                "resource_dict": {},
+            }
+        )
+        cache_dir = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        process = Thread(
+            target=execute_tasks_h5,
+            kwargs={
+                "future_queue": q,
+                "execute_function": subprocess_execute,
+                "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
+                "terminate_function": subprocess_terminate,
+            },
+        )
+        process.start()
+        with self.assertRaises(TypeError):
+            fs_bad.result(timeout=15)
+        self.assertEqual(fs_good.result(timeout=15), 3)
+        q.put({"shutdown": True, "wait": True})
+        process.join()
+
+    def test_executor_function_unpicklable_argument_with_cache_key(self):
+        fs_bad = Future()
+        fs_good = Future()
+        q = Queue()
+        q.put(
+            {
+                "fn": len,
+                "args": ([Unpicklable()],),
+                "kwargs": {},
+                "future": fs_bad,
+                "resource_dict": {"cache_key": "bad/key"},
             }
         )
         q.put(
