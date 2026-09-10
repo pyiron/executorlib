@@ -149,7 +149,11 @@ def _execute_task_with_cache(
         file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
         if file_name not in get_cache_files(cache_directory=cache_directory):
             time_start = time.time()
-            output = interface.send_and_receive_dict(input_dict=task_dict)
+            try:
+                output = interface.send_and_receive_dict(input_dict=task_dict)
+            except Exception as e:
+                future_obj.set_exception(exception=e)
+                return True
             if "result" in output:
                 data_dict["output"] = output["result"]
                 data_dict["runtime"] = time.time() - time_start
