@@ -158,25 +158,31 @@ def execute_tasks_h5(
                                 )
                             )
                         task_dependent_lst = []
-                    process_dict[task_key] = execute_function(
-                        command=get_cache_execute_command(
-                            file_name=file_name,
-                            cores=task_resource_dict["cores"],
-                            backend=backend,
-                            exclusive=task_resource_dict.get("exclusive", False),
-                            openmpi_oversubscribe=task_resource_dict.get(
-                                "openmpi_oversubscribe", False
+                    try:
+                        process_dict[task_key] = execute_function(
+                            command=get_cache_execute_command(
+                                file_name=file_name,
+                                cores=task_resource_dict["cores"],
+                                backend=backend,
+                                exclusive=task_resource_dict.get("exclusive", False),
+                                openmpi_oversubscribe=task_resource_dict.get(
+                                    "openmpi_oversubscribe", False
+                                ),
+                                pmi_mode=pmi_mode,
                             ),
-                            pmi_mode=pmi_mode,
-                        ),
-                        file_name=file_name,
-                        data_dict=data_dict,
-                        task_dependent_lst=task_dependent_lst,
-                        resource_dict=task_resource_dict,
-                        config_directory=pysqa_config_directory,
-                        backend=backend,
-                        cache_directory=cache_directory,
-                    )
+                            file_name=file_name,
+                            data_dict=data_dict,
+                            task_dependent_lst=task_dependent_lst,
+                            resource_dict=task_resource_dict,
+                            config_directory=pysqa_config_directory,
+                            backend=backend,
+                            cache_directory=cache_directory,
+                        )
+                    except Exception as e:
+                        task_dict["future"].set_exception(e)
+                        memory_dict[task_key] = task_dict["future"]
+                        future_queue.task_done()
+                        continue
                 file_name = os.path.join(cache_directory, task_key + "_o.h5")
                 file_name_dict[task_key] = file_name
                 queue_id = get_queue_id(file_name=file_name)
