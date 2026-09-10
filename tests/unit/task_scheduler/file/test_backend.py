@@ -55,7 +55,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_mixed(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(
+        task_key, data_dict, _ = serialize_funct(
             fn=my_funct,
             fn_args=[1],
             fn_kwargs={"b": 2},
@@ -106,7 +106,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_mixed_selector_convert(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key_1, data_dict = serialize_funct(
+        task_key_1, data_dict, _ = serialize_funct(
             fn=return_dict,
             fn_args=[1],
             fn_kwargs={"b": 2},
@@ -118,7 +118,7 @@ class TestSharedFunctions(unittest.TestCase):
         _check_task_output(
             task_key=task_key_1, future_obj=f1, cache_directory=cache_directory,
         )
-        task_key_2, data_dict = serialize_funct(
+        task_key_2, data_dict, _ = serialize_funct(
             fn=return_list,
             fn_args=[1],
             fn_kwargs={"b": 2},
@@ -147,7 +147,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_args(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(
+        task_key, data_dict, _ = serialize_funct(
             fn=my_funct,
             fn_args=[1, 2],
             fn_kwargs=None,
@@ -175,7 +175,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_kwargs(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(
+        task_key, data_dict, _ = serialize_funct(
             fn=my_funct,
             fn_args=None,
             fn_kwargs={"a": 1, "b": 2},
@@ -202,7 +202,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_execute_function_error(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(
+        task_key, data_dict, _ = serialize_funct(
             fn=get_error,
             fn_args=[],
             fn_kwargs={"a": 1},
@@ -241,7 +241,7 @@ class TestSharedFunctions(unittest.TestCase):
         # or an external scancel) must fail the future instead of leaving it pending forever.
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
+        task_key, data_dict, _ = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
         future_obj = Future()
         with patch(
             "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
@@ -270,7 +270,7 @@ class TestSharedFunctions(unittest.TestCase):
         # https://github.com/pyiron/executorlib/issues/1037.
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
+        task_key, data_dict, _ = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
         future_obj = Future()
         with patch(
             "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
@@ -293,7 +293,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_check_task_output_job_still_running(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
+        task_key, data_dict, _ = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
         future_obj = Future()
         with patch(
             "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
@@ -314,7 +314,7 @@ class TestSharedFunctions(unittest.TestCase):
     def test_check_task_output_status_check_is_throttled(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
+        task_key, data_dict, _ = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
         status_check_dict = {}
         with patch(
             "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
@@ -337,7 +337,7 @@ class TestSharedFunctions(unittest.TestCase):
         # subprocess-backed tasks (backend=None) must never trigger a queuing system status check.
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)
-        task_key, data_dict = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
+        task_key, data_dict, _ = serialize_funct(fn=my_funct, fn_args=[1], fn_kwargs={"b": 2})
         future_obj = Future()
         with patch(
             "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
