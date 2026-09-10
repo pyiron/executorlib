@@ -223,3 +223,44 @@ class TestExecuteTaskDictWithCache(unittest.TestCase):
         )
         self.assertFalse(result)
         self.assertFalse(f.done())
+
+    def test_execute_task_unpicklable_argument_with_cache_key(self):
+        cloudpickle_register(ind=1)
+        bad_future = Future()
+        good_future = Future()
+        interface = interface_bootup(
+            command_lst=get_interactive_execute_command(
+                cores=1,
+            ),
+            connections=SubprocessSpawner(),
+            hostname_localhost=True,
+            log_obj_size=False,
+            worker_id=1,
+            stop_function=None,
+        )
+        self.assertTrue(interface.status)
+
+        bad_result = execute_task_dict(
+            task_dict={"fn": len, "args": ([Unpicklable()],), "kwargs": {}},
+            future_obj=bad_future,
+            interface=interface,
+            cache_directory="cache_execute_task",
+            cache_key="cache/key",
+            error_log_file=None,
+        )
+        self.assertTrue(bad_result)
+        self.assertTrue(bad_future.done())
+        with self.assertRaises(TypeError):
+            bad_future.result()
+
+        good_result = execute_task_dict(
+            task_dict={"fn": sum, "args": ([1, 2],), "kwargs": {}},
+            future_obj=good_future,
+            interface=interface,
+            cache_directory="cache_execute_task",
+            cache_key="cache/key-next",
+            error_log_file=None,
+        )
+        self.assertTrue(good_result)
+        self.assertTrue(good_future.done())
+        self.assertEqual(good_future.result(), 3)
