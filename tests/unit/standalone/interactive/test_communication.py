@@ -167,8 +167,16 @@ class TestInterface(unittest.TestCase):
             log_obj_size=False,
             time_out_ms=100,
         )
-        interface.bind_to_random_port()
-        self.assertIsNone(interface.shutdown(wait=True))
+        port = interface.bind_to_random_port()
+        # Connect a peer so the PAIR socket is not in the ZMQ "mute state" and
+        # send_dict() does not block forever. The peer never replies, emulating
+        # a worker process that exits while shutdown() is waiting for its reply.
+        context, socket = interface_connect(host="localhost", port=str(port))
+        try:
+            self.assertIsNone(interface.shutdown(wait=True))
+        finally:
+            socket.close()
+            context.term()
 
     def test_interface_serial_wrong_input(self):
         cloudpickle_register(ind=1)
