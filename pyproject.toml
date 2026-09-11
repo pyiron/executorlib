@@ -1,9 +1,9 @@
 [build-system]
 requires = [
-    "hatchling==1.31.0",
+    "hatchling==1.32.0",
     "hatch-vcs==0.5.0",
     "cloudpickle==3.1.2",
-    "pyzmq==27.1.0",
+    "pyzmq==27.2.0",
 ]
 build-backend = "hatchling.build"
 
@@ -31,7 +31,7 @@ classifiers = [
 ]
 dependencies = [
     "cloudpickle==3.1.2",
-    "pyzmq==27.1.0",
+    "pyzmq==27.2.0",
 ]
 dynamic = ["version"]
 
@@ -43,28 +43,28 @@ Repository = "https://github.com/pyiron/executorlib"
 [project.optional-dependencies]
 cache = ["h5py==3.16.0"]
 graph = [
-    "pygraphviz==1.14",
+    "pygraphviz==2.0.1",
     "networkx==3.6.1",
 ]
 graphnotebook = [
-    "pygraphviz==1.14",
+    "pygraphviz==2.0.1",
     "networkx==3.6.1",
     "ipython==9.9.0",
 ]
 mpi = ["mpi4py==4.1.2"]
 cluster = [
-    "pysqa==0.4.4",
+    "pysqa==1.0.0",
     "h5py==3.16.0",
 ]
 validation = [
-    "pydantic==2.13.4",
+    "pydantic==2.13.5",
 ]
 all = [
     "mpi4py==4.1.2",
-    "pysqa==0.4.4",
+    "pysqa==1.0.0",
     "h5py==3.16.0",
-    "pydantic==2.13.4",
-    "pygraphviz==1.14",
+    "pydantic==2.13.5",
+    "pygraphviz==2.0.1",
     "networkx==3.6.1",
     "ipython==9.9.0",
 ]
@@ -102,6 +102,8 @@ ignore = [
     "PLR0912",
     # Too many arguments in function definition
     "PLR0913",
+    # Too many statements
+    "PLR0915",
     # Too many not-keyword-only arguments,
     "PLR0917",
     # Magic value used in comparison

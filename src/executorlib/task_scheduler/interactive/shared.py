@@ -101,13 +101,17 @@ def _execute_task_without_cache(
     Returns:
         bool: True if the task was submitted successfully, False otherwise.
     """
-    output = interface.send_and_receive_dict(input_dict=task_dict)
-    if "result" in output:
-        future_obj.set_result(output["result"])
-    elif isinstance(output["error"], ExecutorlibSocketError):
-        return False
+    try:
+        output = interface.send_and_receive_dict(input_dict=task_dict)
+    except Exception as e:
+        future_obj.set_exception(exception=e)
     else:
-        future_obj.set_exception(exception=output["error"])
+        if "result" in output:
+            future_obj.set_result(output["result"])
+        elif isinstance(output["error"], ExecutorlibSocketError):
+            return False
+        else:
+            future_obj.set_exception(exception=output["error"])
     return True
 
 
@@ -132,27 +136,34 @@ def _execute_task_with_cache(
     """
     from executorlib.standalone.hdf import dump, get_cache_files, get_output
 
-    task_key, data_dict = serialize_funct(
+    task_key, data_dict, serialize_exception = serialize_funct(
         fn=task_dict["fn"],
         fn_args=task_dict["args"],
         fn_kwargs=task_dict["kwargs"],
         resource_dict=task_dict.get("resource_dict", {}),
         cache_key=cache_key,
     )
-    file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
-    if file_name not in get_cache_files(cache_directory=cache_directory):
-        time_start = time.time()
-        output = interface.send_and_receive_dict(input_dict=task_dict)
-        if "result" in output:
-            data_dict["output"] = output["result"]
-            data_dict["runtime"] = time.time() - time_start
-            dump(file_name=file_name, data_dict=data_dict)
-            future_obj.set_result(output["result"])
-        elif isinstance(output["error"], ExecutorlibSocketError):
-            return False
-        else:
-            future_obj.set_exception(exception=output["error"])
+    if serialize_exception is not None:
+        future_obj.set_exception(exception=serialize_exception)
     else:
-        _, _, result = get_output(file_name=file_name)
-        future_obj.set_result(result)
+        file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
+        if file_name not in get_cache_files(cache_directory=cache_directory):
+            time_start = time.time()
+            try:
+                output = interface.send_and_receive_dict(input_dict=task_dict)
+            except Exception as e:
+                future_obj.set_exception(exception=e)
+                return True
+            if "result" in output:
+                data_dict["output"] = output["result"]
+                data_dict["runtime"] = time.time() - time_start
+                dump(file_name=file_name, data_dict=data_dict)
+                future_obj.set_result(output["result"])
+            elif isinstance(output["error"], ExecutorlibSocketError):
+                return False
+            else:
+                future_obj.set_exception(exception=output["error"])
+        else:
+            _, _, result = get_output(file_name=file_name)
+            future_obj.set_result(result)
     return True

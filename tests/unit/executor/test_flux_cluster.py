@@ -5,7 +5,7 @@ import shutil
 from time import sleep
 from unittest.mock import patch
 
-from executorlib import FluxClusterExecutor, get_cache_data
+from executorlib import FluxClusterExecutor, get_cache_data, get_cache_data_queue
 from executorlib.standalone.serialize import cloudpickle_register
 from executorlib.standalone.command import get_cache_execute_command
 
@@ -93,6 +93,48 @@ class TestCacheExecutorPysqa(unittest.TestCase):
             self.assertEqual(fs1.result(), [(1, 2, 0), (1, 2, 1)])
             self.assertEqual(len(os.listdir("executorlib_cache")), 4)
             self.assertTrue(fs1.done())
+
+    def test_get_cache_data_queue(self):
+        with FluxClusterExecutor(
+            resource_dict={"cores": 1, "cwd": "executorlib_cache"},
+            block_allocation=False,
+            cache_directory="executorlib_cache",
+            pmi_mode=pmi,
+        ) as exe:
+            cloudpickle_register(ind=1)
+            future = exe.submit(long_running_function, 1)
+
+            running_entry = None
+            for _ in range(200):
+                cache_lst = get_cache_data_queue(
+                    cache_directory="executorlib_cache",
+                    queue_type="flux",
+                )
+                if cache_lst and cache_lst[0].get("queue_id") is not None:
+                    queue_id = cache_lst[0]["queue_id"]
+                    queue_status = QueueAdapter(queue_type="flux").get_queue_status()
+                    matching_status = queue_status[queue_status["jobid"] == queue_id]
+                    if len(matching_status) > 0:
+                        running_entry = cache_lst[0]
+                        self.assertEqual(
+                            running_entry["status"],
+                            matching_status["status"].values[-1],
+                        )
+                        break
+                sleep(0.1)
+
+            self.assertIsNotNone(
+                running_entry,
+                msg="task was never observed in the flux queue",
+            )
+            self.assertEqual(future.result(), 1)
+
+        cache_lst = get_cache_data_queue(
+            cache_directory="executorlib_cache",
+            queue_type="flux",
+        )
+        self.assertEqual(len(cache_lst), 1)
+        self.assertEqual(cache_lst[0]["status"], "finished")
 
     def test_executor_wrong_queue_name(self):
         with self.assertRaises(ValueError):

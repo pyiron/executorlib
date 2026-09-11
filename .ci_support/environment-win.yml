@@ -6,11 +6,11 @@ dependencies:
 - msmpi
 - cloudpickle =3.1.2
 - h5py =3.16.0
-- hatchling =1.31.0
+- hatchling =1.32.0
 - hatch-vcs =0.5.0
 - ipython =9.9.0
 - mpi4py =4.1.2
 - networkx =3.6.1
-- pydantic =2.13.4
-- pygraphviz =1.14
-- pyzmq =27.1.0
+- pydantic =2.13.5
+- pygraphviz =2.0.1
+- pyzmq =27.2.0

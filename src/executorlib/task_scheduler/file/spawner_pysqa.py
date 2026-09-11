@@ -2,6 +2,7 @@ import os
 from subprocess import CalledProcessError
 from typing import Optional
 
+from pandas import DataFrame
 from pysqa import QueueAdapter
 
 from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
@@ -154,3 +155,58 @@ def terminate_task_in_cache(
             backend=backend,
         )
     os.remove(file_name)
+
+
+def get_queue_system_cache_data(
+    cache_dict: list[dict],
+    queue_type: Optional[str] = None,
+    config_directory: Optional[str] = None,
+) -> list[dict]:
+    """
+    Get the status of the queue system.
+
+    Args:
+        cache_dict (list[dict]): List of dictionaries each representing on of the HDF5 files in the cache directory.
+        queue_type (str, optional): The type of the queue system ["slurm", "flux"].
+        config_directory (str, optional): The directory containing the configuration for the queue system.
+
+    Returns:
+        cache_dict (list[dict]): List of dictionaries each representing on of the HDF5 files in the cache directory.
+    """
+    return _merge_cache_with_queue_status(
+        cache_dict=cache_dict,
+        dataframe=QueueAdapter(
+            directory=config_directory,
+            queue_type=queue_type,
+        ).get_queue_status(),
+    )
+
+
+def _merge_cache_with_queue_status(
+    cache_dict: list[dict], dataframe: DataFrame
+) -> list[dict]:
+    """
+    Merge the cache data with the queue status.
+
+    Args:
+        cache_dict (list[dict]): List of dictionaries each representing on of the HDF5 files in the cache directory.
+        dataframe (DataFrame): DataFrame containing the status of the queue system.
+
+    Returns:
+        cache_dict (list[dict]): List of dictionaries each representing on of the HDF5 files in the cache directory.
+    """
+    cache_updated_dict = []
+    for row in cache_dict:
+        if "output" in row and row["output"]:
+            row["status"] = "finished"
+        elif "queue_id" in row and row["queue_id"] in dataframe["jobid"].values:
+            row["status"] = dataframe[dataframe["jobid"] == row["queue_id"]][
+                "status"
+            ].values[-1]
+        elif "queue_id" not in row:
+            row["status"] = "running"
+        else:
+            row["status"] = "aborted"
+        cache_updated_dict.append(row)
+
+    return cache_updated_dict

@@ -150,9 +150,11 @@ class SocketInterface:
         """
         result = None
         if self._spawner.poll():
-            result = self.send_and_receive_dict(
+            output = self.send_and_receive_dict(
                 input_dict={"shutdown": True, "wait": wait}
-            ).get("result")
+            )
+            if "result" in output:
+                result = output["result"]
             self._spawner.shutdown(wait=wait)
         self._reset_socket()
         return result

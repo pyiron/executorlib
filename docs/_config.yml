@@ -1,5 +1,6 @@
 title: executorlib
 author: Jan Janssen
+copyright: "2026"
 
 execute:
   execute_notebooks           : off

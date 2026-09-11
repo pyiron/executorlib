@@ -44,6 +44,35 @@ def get_cache_data(cache_directory: str) -> list[dict]:
     return get_cache_data(cache_directory=cache_directory)
 
 
+def get_cache_data_queue(
+    cache_directory: str,
+    queue_type: Optional[str] = None,
+    config_directory: Optional[str] = None,
+) -> list[dict]:
+    """
+    Collect all HDF5 files in the cache directory and check their status in the queue system
+
+    Args:
+        cache_directory (str): The directory to store cache files.
+        queue_type (str, optional): The type of the queue system ["slurm", "flux"].
+        config_directory (str, optional): The directory containing the configuration for the queue system.
+
+    Returns:
+        list[dict]: List of dictionaries each representing on of the HDF5 files in the
+                    cache directory with their status in the queue system.
+    """
+    from executorlib.standalone.hdf import get_cache_data
+    from executorlib.task_scheduler.file.spawner_pysqa import (
+        get_queue_system_cache_data,
+    )
+
+    return get_queue_system_cache_data(
+        cache_dict=get_cache_data(cache_directory=cache_directory),
+        queue_type=queue_type,
+        config_directory=config_directory,
+    )
+
+
 def get_future_from_cache(
     cache_directory: str,
     cache_key: str,
