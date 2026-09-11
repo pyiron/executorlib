@@ -31,6 +31,20 @@ class BrokenSpawner(MpiExecSpawner):
     def bootup(self, command_lst: list[str], stop_function: Optional[Callable] = None,):
         return False
 
+
+class DelayedExitSpawner(MpiExecSpawner):
+    """Spawner that reports the process as alive for the first poll() call only,
+    emulating a worker which exits while shutdown() is waiting for its reply."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._poll_call_count = 0
+
+    def poll(self) -> bool:
+        self._poll_call_count += 1
+        return self._poll_call_count == 1
+
+
 class TestInterface(unittest.TestCase):
     @unittest.skipIf(
         skip_mpi4py_test, "mpi4py is not installed, so the mpi4py tests are skipped."
@@ -145,6 +159,16 @@ class TestInterface(unittest.TestCase):
             sleep(0.1)
         self.assertFalse(interface._spawner.poll())
         interface.shutdown(wait=True)
+
+    def test_interface_shutdown_with_process_exiting_during_wait(self):
+        cloudpickle_register(ind=1)
+        interface = SocketInterface(
+            spawner=DelayedExitSpawner(cwd=None, cores=1, openmpi_oversubscribe=False),
+            log_obj_size=False,
+            time_out_ms=100,
+        )
+        interface.bind_to_random_port()
+        self.assertIsNone(interface.shutdown(wait=True))
 
     def test_interface_serial_wrong_input(self):
         cloudpickle_register(ind=1)
