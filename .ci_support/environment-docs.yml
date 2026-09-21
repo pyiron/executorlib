@@ -2,7 +2,7 @@ channels:
 - conda-forge
 dependencies:
 - flux-core
-- hatchling =1.32.0
+- hatchling =1.32.3
 - hatch-vcs =0.5.0
 - myst-parser
 - nbsphinx
