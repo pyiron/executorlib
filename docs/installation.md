@@ -17,6 +17,36 @@ the hierarchical data format (HDF5), which requires the [h5py](https://www.h5py.
 schedulers, which requires the [Python simple queuing system adatper (pysqa)](https://pysqa.readthedocs.io) and the 
 visualisation of dependencies, which requires a number of visualisation packages. 
 
+## Commercial Distribution
+For commercial users [Anaconda](https://www.anaconda.com) provides the [main-x channel](https://www.anaconda.com/industries) 
+as part of its commercial distribution and `executorlib` is available on this channel. This allows commercial users to 
+install `executorlib` the same way as the [conda-forge](https://conda-forge.org) community distribution, just via a 
+channel which includes commercial support from Anaconda. 
+
+To use the commercial distribution, first install [miniconda](https://www.anaconda.com/download) and then login to your 
+[anaconda.com](https://www.anaconda.com) account from the command line using:
+```
+anaconda login
+```
+This redirects to [auth.anaconda.com/ui/activate](https://auth.anaconda.com/ui/activate) to activate your 
+[anaconda.com](https://www.anaconda.com) account on the current device. Afterwards, add the `main-x` channel to the 
+conda configuration in addition to the default `main` channel:
+```
+conda config --append default_channels https://repo.anaconda.com/pkgs/main
+conda config --append default_channels https://repo.anaconda.cloud/repo/main-x
+```
+More details on setting up the `main-x` channel are available in the [official documentation](https://www.anaconda.com/docs/getting-started/main-x). 
+Once the channels are configured `executorlib` can be installed with:
+```
+conda install executorlib
+```
+Or for a more extensive environment with a number of additional dependencies:
+```
+conda install executorlib pysqa jupyter h5py pygraphviz mpi4py networkx
+```
+A demonstration notebook which covers the installation and basic usage of `executorlib` via the commercial Anaconda 
+distribution is available in the [executorlib-support repository](https://github.com/pyiron-dev/executorlib-support/blob/main/executorlib.ipynb).
+
 ## MPI support
 The submission of MPI parallel Python functions requires the installation of the [mpi4py](https://mpi4py.readthedocs.io) 
 package. This can be installed in combination with executorlib using either the [Python package manager](https://pypi.org/project/mpi4py/):
