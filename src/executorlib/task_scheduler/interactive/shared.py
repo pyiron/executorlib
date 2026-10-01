@@ -4,9 +4,10 @@ import queue
 import time
 from concurrent.futures import Future
 from concurrent.futures._base import PENDING
-from typing import Optional
+from typing import Any, Optional
 
 from executorlib.standalone.interactive.communication import (
+    AsyncSocketInterface,
     ExecutorlibSocketError,
     SocketInterface,
 )
@@ -55,6 +56,63 @@ def execute_task_dict(
             )
     else:
         return True
+
+
+async def execute_task_dict_async(
+    task_dict: dict,
+    future_obj: Future,
+    interface: AsyncSocketInterface,
+    cache_directory: Optional[str] = None,
+    cache_key: Optional[str] = None,
+    error_log_file: Optional[str] = None,
+) -> bool:
+    """
+    Coroutine version of execute_task_dict() for the AsyncSocketInterface, with identical caching and error semantics.
+
+    Returns:
+        bool: True if the task was submitted successfully, False otherwise.
+    """
+    if future_obj.done() or not future_obj.set_running_or_notify_cancel():
+        return True
+    if error_log_file is not None:
+        task_dict["error_log_file"] = error_log_file
+    file_name: Optional[str] = None
+    data_dict: dict[str, Any] = {}
+    if cache_directory is not None:
+        from executorlib.standalone.hdf import dump, get_cache_files, get_output
+
+        task_key, data_dict, serialize_exception = serialize_funct(
+            fn=task_dict["fn"],
+            fn_args=task_dict["args"],
+            fn_kwargs=task_dict["kwargs"],
+            resource_dict=task_dict.get("resource_dict", {}),
+            cache_key=cache_key,
+        )
+        if serialize_exception is not None:
+            future_obj.set_exception(exception=serialize_exception)
+            return True
+        file_name = os.path.abspath(os.path.join(cache_directory, task_key + "_o.h5"))
+        if file_name in get_cache_files(cache_directory=cache_directory):
+            _, _, result = get_output(file_name=file_name)
+            future_obj.set_result(result)
+            return True
+    time_start = time.time()
+    try:
+        output = await interface.send_and_receive_dict_async(input_dict=task_dict)
+    except Exception as e:
+        future_obj.set_exception(exception=e)
+        return True
+    if "result" in output:
+        if file_name is not None:
+            data_dict["output"] = output["result"]
+            data_dict["runtime"] = time.time() - time_start
+            dump(file_name=file_name, data_dict=data_dict)
+        future_obj.set_result(output["result"])
+    elif isinstance(output["error"], ExecutorlibSocketError):
+        return False
+    else:
+        future_obj.set_exception(exception=output["error"])
+    return True
 
 
 def task_done(future_queue: queue.Queue):

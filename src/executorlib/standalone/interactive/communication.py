@@ -5,6 +5,7 @@ from typing import Any, Callable, Optional
 
 import cloudpickle
 import zmq
+import zmq.asyncio
 
 
 class ExecutorlibSocketError(RuntimeError):
@@ -32,7 +33,7 @@ class SocketInterface:
             log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
             time_out_ms (int): Time out for waiting for a message on socket in milliseconds.
         """
-        self._context = zmq.Context()
+        self._context = self._new_context()
         self._socket = self._context.socket(zmq.PAIR)
         self._poller = zmq.Poller()
         self._poller.register(self._socket, zmq.POLLIN)
@@ -45,6 +46,9 @@ class SocketInterface:
         self._command_lst: list[str] = []
         self._booted_sucessfully: bool = False
         self._stop_function: Optional[Callable] = None
+
+    def _new_context(self) -> zmq.Context:
+        return zmq.Context()
 
     @property
     def status(self) -> bool:
@@ -179,6 +183,87 @@ class SocketInterface:
         self.shutdown(wait=True)
 
 
+class AsyncSocketInterface(SocketInterface):
+    """
+    Variant of the SocketInterface based on zmq.asyncio. The communication methods are coroutines which have to be
+    awaited on the event loop the interface is used from. All interfaces of one executor share a single ZMQ context,
+    which is owned and terminated by the caller. The communication protocol is identical to the SocketInterface.
+
+    Args:
+        context (zmq.asyncio.Context): shared asyncio ZMQ context
+        spawner (executorlib.shared.spawner.BaseSpawner): Interface for starting the parallel process
+        log_obj_size (boolean): Enable debug mode which reports the size of the communicated objects.
+        time_out_ms (int): Time out for waiting for a message on socket in milliseconds.
+    """
+
+    def __init__(
+        self,
+        context: zmq.asyncio.Context,
+        spawner=None,
+        log_obj_size: bool = False,
+        time_out_ms: int = 1000,
+    ):
+        self._shared_context = context
+        super().__init__(
+            spawner=spawner, log_obj_size=log_obj_size, time_out_ms=time_out_ms
+        )
+
+    def _new_context(self) -> zmq.Context:
+        return self._shared_context
+
+    async def send_dict_async(self, input_dict: dict):
+        data = cloudpickle.dumps(input_dict)
+        if self._logger is not None:
+            self._logger.warning("Send dictionary of size: " + str(sys.getsizeof(data)))
+        await self._socket.send(data)
+
+    async def receive_dict_async(self) -> dict:
+        response = 0
+        while response == 0:
+            response = await self._socket.poll(self._time_out_ms)
+            if not self._spawner.poll():
+                return {
+                    "error": ExecutorlibSocketError(
+                        "SocketInterface crashed during execution."
+                    ),
+                }
+        data = await self._socket.recv()
+        if self._logger is not None:
+            self._logger.warning(
+                "Received dictionary of size: " + str(sys.getsizeof(data))
+            )
+        return cloudpickle.loads(data)
+
+    async def send_and_receive_dict_async(self, input_dict: dict) -> dict:
+        await self.send_dict_async(input_dict=input_dict)
+        return await self.receive_dict_async()
+
+    async def shutdown_async(self, wait: bool = True):
+        result = None
+        if self._spawner.poll():
+            output = await self.send_and_receive_dict_async(
+                input_dict={"shutdown": True, "wait": wait}
+            )
+            if "result" in output:
+                result = output["result"]
+            self._spawner.shutdown(wait=wait)
+        self._reset_socket()
+        return result
+
+    def _reset_socket(self):
+        # The shared context is terminated by its owner, only the socket is closed here.
+        if self._socket is not None:
+            self._socket.close(linger=0)
+        self._process = None
+        self._socket = None
+        self._context = None
+
+    def __del__(self):
+        # The socket belongs to the event loop thread, so only the worker process is stopped here.
+        if self._spawner is not None and self._spawner.poll():
+            self._spawner.shutdown(wait=False)
+
+
 def interface_bootup(
     command_lst: list[str],
     connections,
@@ -186,6 +271,7 @@ def interface_bootup(
     log_obj_size: bool = False,
     worker_id: Optional[int] = None,
     stop_function: Optional[Callable] = None,
+    context: Optional[zmq.asyncio.Context] = None,
 ) -> SocketInterface:
     """
     Start interface for ZMQ communication
@@ -205,6 +291,7 @@ def interface_bootup(
         worker_id (int): Communicate the worker which ID was assigned to it for future reference and resource
                          distribution.
         stop_function (Callable): Function to stop the interface.
+        context (zmq.asyncio.Context): if provided an AsyncSocketInterface using this shared context is returned.
 
     Returns:
          executorlib.shared.communication.SocketInterface: socket interface for zmq communication
@@ -218,10 +305,17 @@ def interface_bootup(
         ]
     if worker_id is not None:
         command_lst += ["--worker-id", str(worker_id)]
-    interface = SocketInterface(
-        spawner=connections,
-        log_obj_size=log_obj_size,
-    )
+    if context is not None:
+        interface: SocketInterface = AsyncSocketInterface(
+            context=context,
+            spawner=connections,
+            log_obj_size=log_obj_size,
+        )
+    else:
+        interface = SocketInterface(
+            spawner=connections,
+            log_obj_size=log_obj_size,
+        )
     command_lst += [
         "--zmqport",
         str(interface.bind_to_random_port()),
