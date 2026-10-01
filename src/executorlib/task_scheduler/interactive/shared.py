@@ -4,7 +4,7 @@ import queue
 import time
 from concurrent.futures import Future
 from concurrent.futures._base import PENDING
-from typing import Optional
+from typing import Any, Optional
 
 from executorlib.standalone.interactive.communication import (
     AsyncSocketInterface,
@@ -76,7 +76,8 @@ async def execute_task_dict_async(
         return True
     if error_log_file is not None:
         task_dict["error_log_file"] = error_log_file
-    file_name, data_dict = None, {}
+    file_name: Optional[str] = None
+    data_dict: dict[str, Any] = {}
     if cache_directory is not None:
         from executorlib.standalone.hdf import dump, get_cache_files, get_output
 

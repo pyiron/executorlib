@@ -95,6 +95,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._bootup_events[0].set()
         # Experimental: drive all workers from one private asyncio event loop instead of one thread per worker.
         if os.environ.get("EXECUTORLIB_ASYNCIO", "0").lower() in ("1", "true"):
+            assert self._future_queue is not None
             self._async_pool = AsyncWorkerPool(future_queue=self._future_queue)
         self._set_process(
             process=[self._new_worker(worker_id) for worker_id in range(max_workers)],
