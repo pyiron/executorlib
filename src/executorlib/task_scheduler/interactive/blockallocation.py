@@ -1,3 +1,4 @@
+import os
 import queue
 import random
 from concurrent.futures import Future
@@ -17,6 +18,10 @@ from executorlib.standalone.interactive.communication import (
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
+from executorlib.task_scheduler.interactive.blockallocation_async import (
+    AsyncWorker,
+    AsyncWorkerPool,
+)
 from executorlib.task_scheduler.interactive.shared import (
     execute_task_dict,
     reset_task_dict,
@@ -61,6 +66,8 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
 
     """
 
+    _async_pool: Optional[AsyncWorkerPool] = None
+
     def __init__(
         self,
         max_workers: int = 1,
@@ -86,14 +93,21 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         self._alive_workers_lock = Lock()
         self._bootup_events = [Event() for _ in range(self._max_workers)]
         self._bootup_events[0].set()
+        # Experimental: drive all workers from one private asyncio event loop instead of one thread per worker.
+        if os.environ.get("EXECUTORLIB_ASYNCIO", "0").lower() in ("1", "true"):
+            self._async_pool = AsyncWorkerPool(future_queue=self._future_queue)
         self._set_process(
-            process=[
-                Thread(
-                    target=_execute_multiple_tasks,
-                    kwargs=self._worker_kwargs(worker_id),
-                )
-                for worker_id in range(self._max_workers)
-            ],
+            process=[self._new_worker(worker_id) for worker_id in range(max_workers)],
+        )
+
+    def _new_worker(self, worker_id: int):
+        if self._async_pool is not None:
+            return AsyncWorker(
+                pool=self._async_pool, kwargs=self._worker_kwargs(worker_id)
+            )
+        return Thread(
+            target=_execute_multiple_tasks,
+            kwargs=self._worker_kwargs(worker_id),
         )
 
     def _worker_kwargs(self, worker_id: int) -> dict:
@@ -137,10 +151,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                 with self._alive_workers_lock:
                     self._alive_workers[0] += max_workers - old_max_workers
                 new_process_lst = [
-                    Thread(
-                        target=_execute_multiple_tasks,
-                        kwargs=self._worker_kwargs(worker_id),
-                    )
+                    self._new_worker(worker_id)
                     for worker_id in range(old_max_workers, max_workers)
                 ]
                 for process_instance in new_process_lst:
@@ -210,10 +221,12 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
                     for process in self._process:
                         process.join()
                     self._future_queue.join()
+        if self._async_pool is not None:
+            self._async_pool.close(wait=wait)
         self._process = None
         self._future_queue = None
 
-    def _set_process(self, process: list[Thread]):  # type: ignore
+    def _set_process(self, process: list):  # type: ignore
         """
         Set the process for the executor.
 
