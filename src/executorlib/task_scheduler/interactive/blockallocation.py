@@ -16,7 +16,7 @@ from executorlib.standalone.interactive.communication import (
     interface_bootup,
 )
 from executorlib.standalone.interactive.spawner import BaseSpawner, MpiExecSpawner
-from executorlib.standalone.queue import cancel_items_in_queue
+from executorlib.standalone.queue import cancel_items_in_queue, put_front
 from executorlib.task_scheduler.base import TaskSchedulerBase, validate_resource_dict
 from executorlib.task_scheduler.interactive.blockallocation_async import (
     AsyncWorker,
@@ -136,7 +136,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
         ):
             if self._max_workers > max_workers:
                 for _ in range(self._max_workers - max_workers):
-                    self._future_queue.queue.insert(0, {"shutdown": True, "wait": True})
+                    put_front(self._future_queue, {"shutdown": True, "wait": True})
                 while len(self._process) > max_workers:
                     self._process = [
                         process for process in self._process if process.is_alive()
