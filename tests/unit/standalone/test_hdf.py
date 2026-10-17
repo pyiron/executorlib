@@ -184,5 +184,20 @@ class TestSharedFunctions(unittest.TestCase):
         self.assertFalse(no_error)
         self.assertTrue(isinstance(output, error.__class__))
 
+    def test_hdf_unpicklable(self):
+        class Unpicklable:
+            def __reduce__(self):
+                raise TypeError("cannot pickle Unpicklable")
+
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        file_name = os.path.join(cache_directory, "test_unpicklable.h5")
+        with self.assertRaises(TypeError):
+            dump(
+                file_name=file_name,
+                data_dict={"fn": my_funct, "args": [Unpicklable()], "kwargs": {}},
+            )
+        self.assertFalse(os.path.exists(file_name))
+
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)

@@ -56,6 +56,20 @@ class TestSplitFuture(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 f3.result()
 
+    def test_split_completed_future(self):
+        f1 = Future()
+        f1.set_result([1, 2])
+        fs1, fs2 = split_future(future=f1, n=2)
+        self.assertTrue(f1.done())
+        self.assertTrue(fs1.done())
+        self.assertEqual(fs2.result(timeout=1), 2)
+        f2 = Future()
+        f2.set_exception(TypeError())
+        fs3 = get_item_from_future(future=f2, key="a")
+        self.assertTrue(f2.done())
+        self.assertTrue(fs3.done())
+        self.assertEqual(type(fs3.exception(timeout=1)), TypeError)
+
     def test_split_future_object(self):
         f1 = Future()
         fs1 = FutureSelector(future=f1, selector=1)

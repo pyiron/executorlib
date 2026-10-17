@@ -21,9 +21,10 @@ class FutureSelector(Future):
             future (Future): The underlying future whose result is a collection.
             selector (int | str): Index or key used to extract an element from the result.
         """
+        # Future.__init__() is not called, as its attributes would be forwarded to the
+        # wrapped future by __setattr__() and reset the state of an already completed future.
         self._future = future
         self._selector = selector
-        super().__init__()
 
     def __getattr__(self, attr: str) -> Any:
         """Delegate attribute access to the wrapped future."""

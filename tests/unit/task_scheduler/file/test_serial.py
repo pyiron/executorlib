@@ -1,4 +1,4 @@
-from concurrent.futures import Future
+from concurrent.futures import CancelledError, Future
 import os
 from queue import Queue
 import shutil
@@ -13,6 +13,7 @@ try:
     )
     from executorlib.task_scheduler.file.task_scheduler import FileTaskScheduler, create_file_executor
     from executorlib.task_scheduler.file.shared import execute_tasks_h5, _convert_args_and_kwargs
+    from executorlib.standalone.select import FutureSelector
 
     skip_h5py_test = False
 except ImportError:
@@ -36,10 +37,50 @@ class Unpicklable:
         raise TypeError("cannot pickle Unpicklable")
 
 
+UNPICKLABLE = Unpicklable()
+
+
+def use_unpicklable_global(a):
+    return UNPICKLABLE is not None and [a, a]
+
+
 @unittest.skipIf(
     skip_h5py_test, "h5py is not installed, so the h5py tests are skipped."
 )
 class TestCacheExecutorSerial(unittest.TestCase):
+    def test_submit_dependency_on_failed_task(self):
+        for resource_dict in [{"cache_key": "bad_dependency"}, {}]:
+            with self.subTest(resource_dict=resource_dict):
+                with FileTaskScheduler(execute_function=subprocess_execute) as exe:
+                    fs_bad = exe.submit(
+                        use_unpicklable_global, 1, resource_dict=resource_dict
+                    )
+                    fs_args = exe.submit(my_funct, fs_bad, b=1)
+                    fs_kwargs = exe.submit(my_funct, 1, b=fs_bad)
+                    fs_selector = exe.submit(
+                        my_funct, FutureSelector(future=fs_bad, selector=0), b=1
+                    )
+                    fs_downstream = exe.submit(my_funct, fs_args, b=1)
+                    fs_good = exe.submit(my_funct, 1, b=2)
+                    for fs in [fs_bad, fs_args, fs_kwargs, fs_selector, fs_downstream]:
+                        with self.assertRaises(TypeError):
+                            fs.result(timeout=15)
+                    self.assertEqual(fs_good.result(timeout=15), 3)
+                self.assertFalse(
+                    os.path.exists(
+                        os.path.join("executorlib_cache", "bad_dependency_i.h5")
+                    )
+                )
+
+    def test_submit_dependency_on_duplicate_task(self):
+        with FileTaskScheduler(execute_function=subprocess_execute) as exe:
+            fs1 = exe.submit(my_funct, 1, b=2)
+            fs2 = exe.submit(my_funct, 1, b=2)
+            fs3 = exe.submit(my_funct, fs2, b=1)
+            self.assertEqual(fs3.result(timeout=15), 4)
+            self.assertEqual(fs1.result(timeout=15), 3)
+            self.assertEqual(fs2.result(timeout=15), 3)
+
     def test_submit_with_positional_and_keyword_args(self):
         with FileTaskScheduler(execute_function=subprocess_execute) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
@@ -355,6 +396,44 @@ class TestCacheExecutorSerial(unittest.TestCase):
         self.assertEqual(task_args, [1])
         self.assertEqual(task_kwargs, {"a": 2})
         self.assertTrue(len(future_wait_key_lst) == 0)
+
+    def test_convert_args_and_kwargs_selector(self):
+        f1 = Future()
+        f1.set_result([1, 2])
+        task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
+            task_dict={
+                "fn": 1,
+                "args": (FutureSelector(future=f1, selector=1),),
+                "kwargs": {"a": FutureSelector(future=f1, selector=0)},
+            },
+            memory_dict={},
+            file_name_dict={},
+        )
+        self.assertEqual(task_args, [2])
+        self.assertEqual(task_kwargs, {"a": 1})
+        self.assertTrue(len(future_wait_key_lst) == 0)
+
+    def test_convert_args_and_kwargs_failed_future(self):
+        f1 = Future()
+        f1.set_exception(TypeError("failed before submission"))
+        f2 = Future()
+        f2.cancel()
+        for task_dict, error in [
+            ({"fn": 1, "args": (f1,), "kwargs": {}}, TypeError),
+            ({"fn": 1, "args": (), "kwargs": {"a": f1}}, TypeError),
+            (
+                {"fn": 1, "args": (FutureSelector(future=f1, selector=0),), "kwargs": {}},
+                TypeError,
+            ),
+            ({"fn": 1, "args": (f2,), "kwargs": {}}, CancelledError),
+        ]:
+            with self.subTest(task_dict=task_dict):
+                with self.assertRaises(error):
+                    _convert_args_and_kwargs(
+                        task_dict=task_dict,
+                        memory_dict={"failed": f1},
+                        file_name_dict={},
+                    )
 
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
