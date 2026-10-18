@@ -1,7 +1,7 @@
 import contextlib
 import os
 import queue
-from concurrent.futures import Future
+from concurrent.futures import CancelledError, Future
 from time import sleep
 from typing import Any, Callable, Optional
 
@@ -118,83 +118,93 @@ def execute_tasks_h5(
             future_queue.join()
             break
         elif task_dict is not None:
-            task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
-                task_dict=task_dict,
-                memory_dict=memory_dict,
-                file_name_dict=file_name_dict,
-            )
-            task_resource_dict, cache_key, cache_directory, error_log_file = (
-                _get_task_input(
-                    task_resource_dict=task_dict["resource_dict"].copy(),
-                    executor_kwargs=executor_kwargs,
+            try:
+                task_args, task_kwargs, future_wait_key_lst = _convert_args_and_kwargs(
+                    task_dict=task_dict,
+                    memory_dict=memory_dict,
+                    file_name_dict=file_name_dict,
+                    duplicate_dict=duplicate_dict,
                 )
-            )
-            task_key, data_dict, serialize_exception = serialize_funct(
-                fn=task_dict["fn"],
-                fn_args=task_args,
-                fn_kwargs=task_kwargs,
-                resource_dict=task_resource_dict,
-                cache_key=cache_key,
-            )
-            data_dict["error_log_file"] = error_log_file
-            if serialize_exception is not None:
-                task_dict["future"].set_exception(serialize_exception)
-            elif task_key not in memory_dict:
-                if os.path.join(
-                    cache_directory, task_key + "_o.h5"
-                ) not in get_cache_files(cache_directory=cache_directory):
-                    file_name = os.path.join(cache_directory, task_key + "_i.h5")
-                    if not disable_dependencies:
-                        task_dependent_lst = [
-                            process_dict[k]
-                            for k in future_wait_key_lst
-                            if k in process_dict
-                        ]
-                    else:
-                        if len(future_wait_key_lst) > 0:
-                            task_dict["future"].set_exception(
-                                ValueError(
-                                    "Future objects are not supported as input if disable_dependencies=True."
+                task_resource_dict, cache_key, cache_directory, error_log_file = (
+                    _get_task_input(
+                        task_resource_dict=task_dict["resource_dict"].copy(),
+                        executor_kwargs=executor_kwargs,
+                    )
+                )
+                task_key, data_dict, serialize_exception = serialize_funct(
+                    fn=task_dict["fn"],
+                    fn_args=task_args,
+                    fn_kwargs=task_kwargs,
+                    resource_dict=task_resource_dict,
+                    cache_key=cache_key,
+                )
+                data_dict["error_log_file"] = error_log_file
+                if serialize_exception is not None:
+                    task_dict["future"].set_exception(serialize_exception)
+                elif task_key not in memory_dict:
+                    if os.path.join(
+                        cache_directory, task_key + "_o.h5"
+                    ) not in get_cache_files(cache_directory=cache_directory):
+                        file_name = os.path.join(cache_directory, task_key + "_i.h5")
+                        if not disable_dependencies:
+                            task_dependent_lst = [
+                                process_dict[k]
+                                for k in future_wait_key_lst
+                                if k in process_dict
+                            ]
+                        else:
+                            if len(future_wait_key_lst) > 0:
+                                task_dict["future"].set_exception(
+                                    ValueError(
+                                        "Future objects are not supported as input if disable_dependencies=True."
+                                    )
                                 )
-                            )
-                        task_dependent_lst = []
-                    try:
-                        process_dict[task_key] = execute_function(
-                            command=get_cache_execute_command(
-                                file_name=file_name,
-                                cores=task_resource_dict["cores"],
-                                backend=backend,
-                                exclusive=task_resource_dict.get("exclusive", False),
-                                openmpi_oversubscribe=task_resource_dict.get(
-                                    "openmpi_oversubscribe", False
+                                continue
+                            task_dependent_lst = []
+                        try:
+                            process_dict[task_key] = execute_function(
+                                command=get_cache_execute_command(
+                                    file_name=file_name,
+                                    cores=task_resource_dict["cores"],
+                                    backend=backend,
+                                    exclusive=task_resource_dict.get(
+                                        "exclusive", False
+                                    ),
+                                    openmpi_oversubscribe=task_resource_dict.get(
+                                        "openmpi_oversubscribe", False
+                                    ),
+                                    pmi_mode=pmi_mode,
                                 ),
-                                pmi_mode=pmi_mode,
-                            ),
-                            file_name=file_name,
-                            data_dict=data_dict,
-                            task_dependent_lst=task_dependent_lst,
-                            resource_dict=task_resource_dict,
-                            config_directory=pysqa_config_directory,
-                            backend=backend,
-                            cache_directory=cache_directory,
-                        )
-                    except Exception as e:
-                        task_dict["future"].set_exception(e)
-                        memory_dict[task_key] = task_dict["future"]
-                        future_queue.task_done()
-                        continue
-                file_name = os.path.join(cache_directory, task_key + "_o.h5")
-                file_name_dict[task_key] = file_name
-                queue_id = get_queue_id(file_name=file_name)
-                if queue_id is not None:
-                    process_dict[task_key] = queue_id
-                memory_dict[task_key] = task_dict["future"]
-                cache_dir_dict[task_key] = cache_directory
-            elif memory_dict[task_key] != task_dict["future"]:
-                if task_key not in duplicate_dict:
-                    duplicate_dict[task_key] = []
-                duplicate_dict[task_key].append(task_dict["future"])
-            future_queue.task_done()
+                                file_name=file_name,
+                                data_dict=data_dict,
+                                task_dependent_lst=task_dependent_lst,
+                                resource_dict=task_resource_dict,
+                                config_directory=pysqa_config_directory,
+                                backend=backend,
+                                cache_directory=cache_directory,
+                            )
+                        except Exception as e:
+                            task_dict["future"].set_exception(e)
+                            memory_dict[task_key] = task_dict["future"]
+                            continue
+                    file_name = os.path.join(cache_directory, task_key + "_o.h5")
+                    file_name_dict[task_key] = file_name
+                    queue_id = get_queue_id(file_name=file_name)
+                    if queue_id is not None:
+                        process_dict[task_key] = queue_id
+                    memory_dict[task_key] = task_dict["future"]
+                    cache_dir_dict[task_key] = cache_directory
+                elif memory_dict[task_key] != task_dict["future"]:
+                    if task_key not in duplicate_dict:
+                        duplicate_dict[task_key] = []
+                    duplicate_dict[task_key].append(task_dict["future"])
+            except Exception as e:
+                # Fail only the current task, never the scheduler thread, e.g. when
+                # one of the input futures of this task failed before submission.
+                if not task_dict["future"].done():
+                    task_dict["future"].set_exception(e)
+            finally:
+                future_queue.task_done()
         else:
             memory_dict = _refresh_memory_dict(
                 memory_dict=memory_dict,
@@ -308,7 +318,10 @@ def _update_future(
 
 
 def _convert_args_and_kwargs(
-    task_dict: dict, memory_dict: dict, file_name_dict: dict
+    task_dict: dict,
+    memory_dict: dict,
+    file_name_dict: dict,
+    duplicate_dict: Optional[dict] = None,
 ) -> tuple[list, dict, list]:
     """
     Convert the arguments and keyword arguments in a task dictionary to the appropriate types.
@@ -317,57 +330,82 @@ def _convert_args_and_kwargs(
         task_dict (dict): The task dictionary containing the arguments and keyword arguments.
         memory_dict (dict): The dictionary mapping future objects to their associated task keys.
         file_name_dict (dict): The dictionary mapping task keys to their corresponding file names.
+        duplicate_dict (dict, optional): The dictionary mapping task keys to their associated duplicate future objects.
 
     Returns:
         Tuple[list, dict, list]: A tuple containing the converted arguments, converted keyword arguments, and a list of future wait keys.
 
+    Raises:
+        Exception: The exception of an input future which already failed, so the dependent task fails as well.
+
     """
-    task_args = []
-    task_kwargs = {}
-    future_wait_key_lst = []
-    for arg in task_dict["args"]:
-        selector = None
-        if isinstance(arg, Future):
-            if hasattr(arg, "_future") and hasattr(arg, "_selector"):
-                selector = arg._selector
-                future = arg._future
-            else:
-                future = arg
-            match_found = False
-            for k, v in memory_dict.items():
-                if future == v:
-                    task_args.append(
-                        FutureItem(file_name=file_name_dict[k], selector=selector)
-                    )
-                    future_wait_key_lst.append(k)
-                    match_found = True
-                    break
-            if not match_found:
-                task_args.append(future.result())
-        else:
-            task_args.append(arg)
-    for key, arg in task_dict["kwargs"].items():
-        selector = None
-        if isinstance(arg, Future):
-            if hasattr(arg, "_future") and hasattr(arg, "_selector"):
-                selector = arg._selector
-                future = arg._future
-            else:
-                future = arg
-            match_found = False
-            for k, v in memory_dict.items():
-                if future == v:
-                    task_kwargs[key] = FutureItem(
-                        file_name=file_name_dict[k], selector=selector
-                    )
-                    future_wait_key_lst.append(k)
-                    match_found = True
-                    break
-            if not match_found:
-                task_kwargs[key] = future.result()
-        else:
-            task_kwargs[key] = arg
+    if duplicate_dict is None:
+        duplicate_dict = {}
+    future_wait_key_lst: list = []
+    task_args = [
+        _convert_future(
+            arg=arg,
+            memory_dict=memory_dict,
+            file_name_dict=file_name_dict,
+            duplicate_dict=duplicate_dict,
+            future_wait_key_lst=future_wait_key_lst,
+        )
+        for arg in task_dict["args"]
+    ]
+    task_kwargs = {
+        key: _convert_future(
+            arg=arg,
+            memory_dict=memory_dict,
+            file_name_dict=file_name_dict,
+            duplicate_dict=duplicate_dict,
+            future_wait_key_lst=future_wait_key_lst,
+        )
+        for key, arg in task_dict["kwargs"].items()
+    }
     return task_args, task_kwargs, future_wait_key_lst
+
+
+def _convert_future(
+    arg: Any,
+    memory_dict: dict,
+    file_name_dict: dict,
+    duplicate_dict: dict,
+    future_wait_key_lst: list,
+) -> Any:
+    """
+    Convert a single argument, replacing future objects by FutureItem objects or their results.
+
+    Args:
+        arg (Any): The argument to convert.
+        memory_dict (dict): The dictionary mapping task keys to their associated future objects.
+        file_name_dict (dict): The dictionary mapping task keys to their corresponding file names.
+        duplicate_dict (dict): The dictionary mapping task keys to their associated duplicate future objects.
+        future_wait_key_lst (list): List of task keys the current task depends on, extended in place.
+
+    Returns:
+        Any: The converted argument.
+
+    Raises:
+        Exception: The exception of the input future, if it already failed.
+
+    """
+    if not isinstance(arg, Future):
+        return arg
+    if hasattr(arg, "_future") and hasattr(arg, "_selector"):
+        selector = arg._selector
+        future = arg._future
+    else:
+        selector = None
+        future = arg
+    if future.done():
+        exception = CancelledError() if future.cancelled() else future.exception()
+        if exception is not None:
+            raise exception
+    for k, v in memory_dict.items():
+        if k in file_name_dict and (future == v or future in duplicate_dict.get(k, [])):
+            future_wait_key_lst.append(k)
+            return FutureItem(file_name=file_name_dict[k], selector=selector)
+    return arg.result()
 
 
 def _refresh_memory_dict(

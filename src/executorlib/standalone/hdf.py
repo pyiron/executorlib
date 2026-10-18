@@ -31,18 +31,22 @@ def dump(file_name: Optional[str], data_dict: dict) -> None:
     """
     if file_name is not None:
         file_name_abs = os.path.abspath(file_name)
+        # Serialize all values before opening the file, so a serialization error does
+        # not leave an incomplete HDF5 file behind.
+        binary_dict = {
+            group_dict[data_key]: cloudpickle.dumps(data_value)
+            for data_key, data_value in data_dict.items()
+            if data_key in group_dict
+        }
         os.makedirs(os.path.dirname(file_name_abs), exist_ok=True)
         with h5py.File(file_name_abs, "a") as fname:
-            for data_key, data_value in data_dict.items():
-                if data_key in group_dict:
-                    with contextlib.suppress(ValueError):
-                        fname.create_dataset(
-                            name="/" + group_dict[data_key],
-                            data=np.frombuffer(
-                                cloudpickle.dumps(data_value), dtype=np.uint8
-                            ),
-                            compression="gzip",
-                        )
+            for group_name, binary in binary_dict.items():
+                with contextlib.suppress(ValueError):
+                    fname.create_dataset(
+                        name="/" + group_name,
+                        data=np.frombuffer(binary, dtype=np.uint8),
+                        compression="gzip",
+                    )
 
 
 def load(file_name: str) -> dict:
