@@ -4,6 +4,7 @@ from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_init_function,
+    check_init_function_with_cache,
     check_log_obj_size,
     check_oversubscribe,
     check_plot_dependency_graph,
@@ -580,6 +581,9 @@ def create_flux_executor(
     executor_kwargs["hostname_localhost"] = hostname_localhost
     executor_kwargs["log_obj_size"] = log_obj_size
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    check_init_function_with_cache(
+        init_function=init_function, cache_directory=cache_directory
+    )
     check_pmi(backend="flux_allocation", pmi=pmi_mode)
     check_oversubscribe(
         oversubscribe=executor_kwargs.get("openmpi_oversubscribe", False)

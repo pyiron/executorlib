@@ -138,6 +138,23 @@ def check_init_function(
         raise ValueError("")
 
 
+def check_init_function_with_cache(
+    init_function: Optional[Callable], cache_directory: Optional[str]
+) -> None:
+    """
+    Check if init_function and cache_directory are both set, and raise a warning if they are. The cache key is
+    computed from the submitted function and its arguments only, so it does not reflect the state set by the
+    init_function, which can lead to stale results being returned from the cache.
+    """
+    if init_function is not None and cache_directory is not None:
+        warn(
+            "The init_function and the cache_directory are incompatible: the cache key does not include the "
+            "state set by the init_function, so functions which depend on this state may return stale results "
+            "from the cache. See https://github.com/pyiron/executorlib/issues/1084",
+            stacklevel=2,
+        )
+
+
 def check_max_workers_and_cores(
     max_workers: Optional[int], max_cores: Optional[int]
 ) -> None:

@@ -23,6 +23,15 @@ def sum_with_wait(a, b):
     return a + b
 
 
+def init_counter():
+    return {"counter": [0]}
+
+
+def increment(counter):
+    counter[0] += 1
+    return counter[0]
+
+
 class AddClass:
     def __call__(self, a, b):
         return a+b
@@ -103,7 +112,23 @@ class TestCacheFunctions(unittest.TestCase):
         self.assertTrue(os.path.exists(error_out))
         os.remove(error_out)
 
+    def test_cache_init_function_warning(self):
+        cache_directory = os.path.abspath("cache_init_function")
+        with self.assertWarns(UserWarning) as cm:
+            with SingleNodeExecutor(
+                max_workers=1,
+                block_allocation=True,
+                init_function=init_counter,
+                cache_directory=cache_directory,
+            ) as exe:
+                cloudpickle_register(ind=1)
+                result_lst = [exe.submit(increment).result() for _ in range(3)]
+        self.assertIn("init_function", str(cm.warning))
+        # Documents the incompatibility from https://github.com/pyiron/executorlib/issues/1084
+        self.assertEqual(result_lst, [1, 1, 1])
+
     def tearDown(self):
         shutil.rmtree("executorlib_cache", ignore_errors=True)
         shutil.rmtree("cache_error", ignore_errors=True)
         shutil.rmtree("cache_duplicate", ignore_errors=True)
+        shutil.rmtree("cache_init_function", ignore_errors=True)

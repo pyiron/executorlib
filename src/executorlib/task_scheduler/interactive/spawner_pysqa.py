@@ -6,7 +6,10 @@ from typing import Callable, Optional
 from pysqa import QueueAdapter
 
 from executorlib.standalone.command_pysqa import pysqa_execute_command, pysqa_terminate
-from executorlib.standalone.inputcheck import validate_number_of_cores
+from executorlib.standalone.inputcheck import (
+    check_init_function_with_cache,
+    validate_number_of_cores,
+)
 from executorlib.standalone.interactive.spawner import (
     BaseSpawner,
     set_current_directory_in_environment,
@@ -233,6 +236,9 @@ def create_pysqa_block_allocation_scheduler(
     backend: Optional[str] = None,
     validator: Callable = validate_resource_dict,
 ):
+    check_init_function_with_cache(
+        init_function=init_function, cache_directory=cache_directory
+    )
     if executor_kwargs is None:
         executor_kwargs = {}
     cores_per_worker = executor_kwargs.get("cores", 1)
