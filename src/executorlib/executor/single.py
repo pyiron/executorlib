@@ -5,6 +5,7 @@ from executorlib.standalone.inputcheck import (
     check_command_line_argument_lst,
     check_gpus_per_worker,
     check_init_function,
+    check_init_function_with_cache,
     check_plot_dependency_graph,
     check_refresh_rate,
     check_restart_limit,
@@ -511,6 +512,9 @@ def create_single_node_executor(
     executor_kwargs["log_obj_size"] = log_obj_size
 
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    check_init_function_with_cache(
+        init_function=init_function, cache_directory=cache_directory
+    )
     check_gpus_per_worker(gpus_per_worker=executor_kwargs.get("gpus_per_core", 0))
     check_command_line_argument_lst(
         command_line_argument_lst=executor_kwargs.get("slurm_cmd_args", [])

@@ -3,6 +3,7 @@ from typing import Callable, Optional, Union
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
     check_init_function,
+    check_init_function_with_cache,
     check_log_obj_size,
     check_plot_dependency_graph,
     check_refresh_rate,
@@ -552,6 +553,9 @@ def create_slurm_executor(
     executor_kwargs["log_obj_size"] = log_obj_size
     executor_kwargs["pmi_mode"] = pmi_mode
     check_init_function(block_allocation=block_allocation, init_function=init_function)
+    check_init_function_with_cache(
+        init_function=init_function, cache_directory=cache_directory
+    )
     check_wait_on_shutdown(wait_on_shutdown=wait)
     if block_allocation:
         executor_kwargs["init_function"] = init_function

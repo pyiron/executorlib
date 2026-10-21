@@ -1,4 +1,5 @@
 import unittest
+import warnings
 
 from executorlib.standalone.inputcheck import (
     check_wait_on_shutdown,
@@ -7,6 +8,7 @@ from executorlib.standalone.inputcheck import (
     check_oversubscribe,
     check_executor,
     check_init_function,
+    check_init_function_with_cache,
     check_nested_flux_executor,
     check_flux_log_files,
     check_pmi,
@@ -49,6 +51,18 @@ class TestInputCheck(unittest.TestCase):
     def test_check_init_function(self):
         with self.assertRaises(ValueError):
             check_init_function(init_function=1, block_allocation=False)
+
+    def test_check_init_function_with_cache(self):
+        with self.assertWarns(UserWarning):
+            check_init_function_with_cache(
+                init_function=lambda: {}, cache_directory="executorlib_cache"
+            )
+
+    def test_check_init_function_with_cache_no_warning(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            check_init_function_with_cache(init_function=None, cache_directory="executorlib_cache")
+            check_init_function_with_cache(init_function=lambda: {}, cache_directory=None)
 
     def test_check_refresh_rate(self):
         with self.assertRaises(ValueError):
