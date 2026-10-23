@@ -21,4 +21,4 @@ dependencies:
 - pygraphviz =2.0.4
 - pysqa =1.0.1
 - pyzmq =27.2.0
-- qe =7.5
+- qe =7.6
