@@ -13,5 +13,5 @@ dependencies:
 - networkx =3.6.1
 - pydantic =2.14.1
 - pygraphviz =2.0.4
-- pysqa =1.0.1
+- pysqa =1.1.0
 - pyzmq =27.2.0
