@@ -13,7 +13,7 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: psf/black@stable
       with:
         options: "--check --diff"
@@ -24,7 +24,7 @@ jobs:
     if: failure()
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         token: ${{ secrets.DEPENDABOT_WORKFLOW_TOKEN }}
         ref: ${{ github.event.pull_request.head.ref }} # Check out the head of the actual branch, not the PR
@@ -50,12 +50,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
           architecture: x64
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install mypy
         run: pip install mypy
       - name: Test
@@ -65,8 +65,8 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.13"
         miniforge-version: latest
@@ -85,8 +85,8 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: '3.14'
         miniforge-version: latest
@@ -106,8 +106,8 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: astral-sh/setup-uv@v7
+    - uses: actions/checkout@v7
+    - uses: astral-sh/setup-uv@v10
     - name: Install the project and pip check
       shell: bash -l {0}
       run: |
@@ -129,8 +129,8 @@ jobs:
           environment-file: .ci_support/environment-mpich.yml
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -157,13 +157,13 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Merge Notebook environment
         run: |
           cp binder/environment.yml environment.yml
           tail --lines=+4 .ci_support/environment-notebooks.yml >> environment.yml
       - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           python-version: "3.13"
           miniforge-version: latest
@@ -186,9 +186,9 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup Mambaforge
-        uses: conda-incubator/setup-miniconda@v3
+        uses: conda-incubator/setup-miniconda@v4
         with:
           python-version: "3.13"
           miniforge-version: latest
@@ -209,7 +209,7 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Extend environment
       shell: bash -l {0}
       timeout-minutes: 5
@@ -240,14 +240,14 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Extend environment
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
         echo -e '- coverage\n- flux-core =0.87.0\n- flux-pmix=0.7.1' >> .ci_support/environment-openmpi.yml
         cat .ci_support/environment-openmpi.yml
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: '3.13'
         miniforge-version: latest
@@ -288,12 +288,12 @@ jobs:
           - "8888:3306"
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: koesterlab/setup-slurm-action@v1
       timeout-minutes: 10
     - name: ubnuntu install
       run: sudo apt install -y mpich
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: '3.13'
         miniforge-version: latest
@@ -339,8 +339,8 @@ jobs:
           python-version: '3.11'
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -383,8 +383,8 @@ jobs:
           python-version: '3.11'
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: ${{ matrix.python-version }}
         miniforge-version: latest
@@ -403,8 +403,8 @@ jobs:
     needs: [black]
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.14"
         miniforge-version: latest
@@ -423,8 +423,8 @@ jobs:
     needs: [black]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: '3.10'
         miniforge-version: latest
@@ -461,8 +461,8 @@ jobs:
     needs: [uv_check, unittest_slurm_mpich, unittest_old, unittest_win, unittest_openmpi, unittest_mpich, unittest_flux_openmpi, unittest_flux_mpich, notebooks, benchmark, minimal, pip_check, mypy]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.13"
         miniforge-version: latest
