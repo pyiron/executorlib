@@ -53,7 +53,7 @@ graphnotebook = [
 ]
 mpi = ["mpi4py==4.1.2"]
 cluster = [
-    "pysqa==1.0.1",
+    "pysqa==1.1.0",
     "h5py==3.16.0",
 ]
 validation = [
@@ -61,7 +61,7 @@ validation = [
 ]
 all = [
     "mpi4py==4.1.2",
-    "pysqa==1.0.1",
+    "pysqa==1.1.0",
     "h5py==3.16.0",
     "pydantic==2.14.1",
     "pygraphviz==2.0.4",
