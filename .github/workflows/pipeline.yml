@@ -407,8 +407,9 @@ jobs:
     - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.14"
-        miniforge-version: "26.7.2"
+        miniforge-version: latest
         channels: conda-forge
+        continue-on-error: true
         conda-remove-defaults: "true"
         environment-file: .ci_support/environment-win.yml
     - name: Test
