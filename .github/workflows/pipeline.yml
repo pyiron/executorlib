@@ -406,7 +406,7 @@ jobs:
     - uses: actions/checkout@v7
     - name: Fix
       shell: bash -l {0}
-      run: touch ~/.bash_rc
+      run: touch ~/.bashrc
     - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.14"
