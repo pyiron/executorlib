@@ -416,11 +416,9 @@ jobs:
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        eval "$(conda shell.bash hook)"
-        conda activate test
-        pip install . --no-deps --no-build-isolation
+        conda run --name test --no-capture-output python -m pip install . --no-deps --no-build-isolation
         cd tests
-        python -m unittest discover .
+        conda run --name test --no-capture-output python -m unittest discover .
 
   unittest_old:
     needs: [black]
