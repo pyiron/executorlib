@@ -405,11 +405,11 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - uses: conda-incubator/setup-miniconda@v4
+      continue-on-error: true
       with:
         python-version: "3.14"
         miniforge-version: latest
         channels: conda-forge
-        continue-on-error: "true"
         conda-remove-defaults: "true"
         environment-file: .ci_support/environment-win.yml
     - name: Test
