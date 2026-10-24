@@ -411,7 +411,7 @@ jobs:
         channels: conda-forge
         conda-remove-defaults: "true"
         environment-file: .ci_support/environment-win.yml
-        run-init: "false"
+        run-init: "true"
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
