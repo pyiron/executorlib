@@ -408,14 +408,16 @@ jobs:
       with:
         python-version: "3.14"
         miniforge-version: latest
-        conda-version: "26.7.2"
         channels: conda-forge
         conda-remove-defaults: "true"
         environment-file: .ci_support/environment-win.yml
+        run-init: "false"
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
+        eval "$(conda shell.bash hook)"
+        conda activate test
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
