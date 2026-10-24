@@ -409,16 +409,16 @@ jobs:
         python-version: "3.14"
         miniforge-version: latest
         channels: conda-forge
+        conda-version: "26.7.1"
         conda-remove-defaults: "true"
         environment-file: .ci_support/environment-win.yml
-        run-init: "true"
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
-        conda run --name test --no-capture-output python -m pip install . --no-deps --no-build-isolation
+        python -m pip install . --no-deps --no-build-isolation
         cd tests
-        conda run --name test --no-capture-output python -m unittest discover .
+        python -m unittest discover .
 
   unittest_old:
     needs: [black]
