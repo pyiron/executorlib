@@ -410,11 +410,14 @@ jobs:
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
+        run-init: "false"
         environment-file: .ci_support/environment-win.yml
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 5
       run: |
+        source "$CONDA/etc/profile.d/conda.sh"
+        conda activate test
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
