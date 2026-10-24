@@ -417,6 +417,7 @@ jobs:
       timeout-minutes: 5
       run: |
         source "$CONDA/etc/profile.d/conda.sh"
+        conda activate test
         pip install . --no-deps --no-build-isolation
         cd tests
         python -m unittest discover .
