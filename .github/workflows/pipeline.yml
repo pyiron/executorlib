@@ -404,12 +404,14 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v7
+    - name: Fix
+      shell: bash -l {0}
+      run: touch ~/.bash_rc
     - uses: conda-incubator/setup-miniconda@v4
       with:
         python-version: "3.14"
         miniforge-version: latest
         channels: conda-forge
-        conda-version: "26.7.1"
         conda-remove-defaults: "true"
         environment-file: .ci_support/environment-win.yml
     - name: Test
