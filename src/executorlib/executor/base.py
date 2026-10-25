@@ -6,9 +6,11 @@ from concurrent.futures import (
 from concurrent.futures import (
     Future,
 )
-from typing import Callable, Optional
+from typing import Any, Callable, Iterable, Iterator, Optional, TypeVar
 
 from executorlib.task_scheduler.base import TaskSchedulerBase
+
+_T = TypeVar("_T")
 
 
 class BaseExecutor(FutureExecutor, ABC):
@@ -121,11 +123,12 @@ class BaseExecutor(FutureExecutor, ABC):
 
     def map(
         self,
-        fn: Callable,
-        *iterables,
+        fn: Callable[..., _T],
+        *iterables: Iterable[Any],
         timeout: Optional[float] = None,
         chunksize: int = 1,
-    ):
+        buffersize: Optional[int] = None,
+    ) -> Iterator[_T]:
         """Returns an iterator equivalent to map(fn, iter).
 
         Args:
@@ -149,9 +152,11 @@ class BaseExecutor(FutureExecutor, ABC):
         """
         if self._is_active:
             return self._task_scheduler.map(
-                *([fn] + list(iterables)),
+                fn,
+                *iterables,
                 timeout=timeout,
                 chunksize=chunksize,
+                buffersize=buffersize,
             )
         else:
             raise RuntimeError("cannot schedule new futures after shutdown")

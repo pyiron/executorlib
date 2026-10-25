@@ -1,5 +1,6 @@
 import contextlib
 import queue
+import sys
 from concurrent.futures import (
     Executor as FutureExecutor,
 )
@@ -7,11 +8,13 @@ from concurrent.futures import (
     Future,
 )
 from threading import Thread
-from typing import Callable, Optional, Union
+from typing import Any, Callable, Iterable, Iterator, Optional, TypeVar, Union
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
 from executorlib.standalone.serialize import cloudpickle_register
+
+_T = TypeVar("_T")
 
 
 def validate_resource_dict(resource_dict: dict):
@@ -179,11 +182,12 @@ class TaskSchedulerBase(FutureExecutor):
 
     def map(
         self,
-        fn: Callable,
-        *iterables,
+        fn: Callable[..., _T],
+        *iterables: Iterable[Any],
         timeout: Optional[float] = None,
         chunksize: int = 1,
-    ):
+        buffersize: Optional[int] = None,
+    ) -> Iterator[_T]:
         """Returns an iterator equivalent to map(fn, iter).
 
         Args:
@@ -212,6 +216,14 @@ class TaskSchedulerBase(FutureExecutor):
                 i.result() if isinstance(i, Future) else i for i in iterables
             )
 
+        if sys.version_info >= (3, 14):
+            return super().map(
+                fn,
+                *iterables,
+                timeout=timeout,
+                chunksize=chunksize,
+                buffersize=buffersize,
+            )
         return super().map(fn, *iterables, timeout=timeout, chunksize=chunksize)
 
     def shutdown(self, wait: bool = True, *, cancel_futures: bool = False):
@@ -262,6 +274,10 @@ class TaskSchedulerBase(FutureExecutor):
         if self._future_queue is not None:
             queue_size = self._future_queue.qsize()
         return queue_size
+
+    def __bool__(self) -> bool:
+        """Return True regardless of the number of queued futures."""
+        return True
 
     def __del__(self):
         """
