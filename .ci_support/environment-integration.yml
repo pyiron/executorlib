@@ -4,10 +4,10 @@ dependencies:
 - h5py =3.16.0
 - jupyter
 - mpi4py =4.1.2
-- numpy =2.3.5
+- numpy =2.5.4
 - openmpi
 - papermill
-- atomistics =0.3.6
+- atomistics =0.4.0
 - cloudpickle =3.1.2
 - flux-core =0.87.0
 - flux-pmix =0.7.1
