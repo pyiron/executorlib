@@ -4,7 +4,7 @@ dependencies:
 - h5py =3.16.0
 - jupyter
 - mpi4py =4.1.2
-- numpy =2.3.5
+- numpy =2.5.3
 - openmpi
 - papermill
 - atomistics =0.3.6
