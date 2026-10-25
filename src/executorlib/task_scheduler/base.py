@@ -1,6 +1,7 @@
 import contextlib
 import queue
 import sys
+from collections.abc import Iterable, Iterator
 from concurrent.futures import (
     Executor as FutureExecutor,
 )
@@ -8,7 +9,7 @@ from concurrent.futures import (
     Future,
 )
 from threading import Thread
-from typing import Any, Callable, Iterable, Iterator, Optional, TypeVar, Union
+from typing import Any, Callable, Optional, TypeVar, Union
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue

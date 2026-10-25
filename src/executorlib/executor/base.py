@@ -1,12 +1,13 @@
 import queue
 from abc import ABC
+from collections.abc import Iterable, Iterator
 from concurrent.futures import (
     Executor as FutureExecutor,
 )
 from concurrent.futures import (
     Future,
 )
-from typing import Any, Callable, Iterable, Iterator, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 
 from executorlib.task_scheduler.base import TaskSchedulerBase
 
