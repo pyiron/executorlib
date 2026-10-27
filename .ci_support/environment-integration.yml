@@ -9,14 +9,14 @@ dependencies:
 - papermill
 - atomistics =0.4.0
 - cloudpickle =3.1.2
-- flux-core =0.87.0
-- flux-pmix =0.7.1
+- flux-core =0.90.0
+- flux-pmix =0.8.0
 - gpaw =25.7.0
 - hatchling =1.32.4
 - hatch-vcs =0.5.0
-- ipython =9.9.0
-- matplotlib =3.10.8
-- networkx =3.6.1
+- ipython =9.17.1
+- matplotlib =3.11.2
+- networkx =3.7
 - pydantic =2.14.1
 - pygraphviz =2.0.4
 - pysqa =1.1.0

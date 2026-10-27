@@ -45,12 +45,12 @@ Repository = "https://github.com/pyiron/executorlib"
 cache = ["h5py==3.16.0"]
 graph = [
     "pygraphviz==2.0.4",
-    "networkx==3.6.1",
+    "networkx==3.7",
 ]
 graphnotebook = [
     "pygraphviz==2.0.4",
-    "networkx==3.6.1",
-    "ipython==9.9.0",
+    "networkx==3.7",
+    "ipython==9.17.1",
 ]
 mpi = ["mpi4py==4.1.2"]
 cluster = [
@@ -66,8 +66,8 @@ all = [
     "h5py==3.16.0",
     "pydantic==2.14.1",
     "pygraphviz==2.0.4",
-    "networkx==3.6.1",
-    "ipython==9.9.0",
+    "networkx==3.7",
+    "ipython==9.17.1",
 ]
 
 [tool.ruff]
