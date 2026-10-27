@@ -44,7 +44,7 @@ Repository = "https://github.com/pyiron/executorlib"
 cache = ["h5py==3.16.0"]
 graph = [
     "pygraphviz==2.0.4",
-    "networkx==3.6.1",
+    "networkx==3.7",
 ]
 graphnotebook = [
     "pygraphviz==2.0.4",
