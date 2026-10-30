@@ -94,12 +94,19 @@ Render every resource combination and pass it to `sbatch --test-only`. This show
 import subprocess
 from jinja2 import Template
 
+
 def test_only(rd, path="test_job.sh"):
     script = Template(rd["submission_template"]).render(
-        job_name="probe", working_directory=os.getcwd(), command="hostname", dependency_list=[],
-        **{k: v for k, v in rd.items() if k != "submission_template"})
+        job_name="probe",
+        working_directory=os.getcwd(),
+        command="hostname",
+        dependency_list=[],
+        **{k: v for k, v in rd.items() if k != "submission_template"},
+    )
     open(path, "w").write(script)
-    return subprocess.run(["sbatch", "--test-only", path], capture_output=True, text=True).stderr
+    return subprocess.run(
+        ["sbatch", "--test-only", path], capture_output=True, text=True
+    ).stderr
 ```
 
 Examples of what this found on Raven: `--get-user-env=L` (the pysqa default) is rejected ("doesn't allow an argument"), and a 1-GPU job with too much `--mem` is rejected by the Lua filter.
