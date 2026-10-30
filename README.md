@@ -160,6 +160,10 @@ Python process which created the executor can be closed and the results reloaded
 an existing allocation and communicate via sockets, which has lower overhead and is the better choice for many short
 function calls.
 
+To set up the submission of Python functions on a new SLURM cluster, the [executorlib-cluster-setup](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#setup-with-claude-code)
+skill for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) analyses the cluster and generates a tested,
+cluster-specific configuration for the `SlurmClusterExecutor`.
+
 ## Documentation
 * [Installation](https://executorlib.readthedocs.io/en/latest/installation.html)
   * [Minimal](https://executorlib.readthedocs.io/en/latest/installation.html#minimal)
@@ -184,6 +188,7 @@ function calls.
   * [Testing and Debugging](https://executorlib.readthedocs.io/en/latest/1-single-node.html#testing-and-debugging)
 * [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html)
   * [SLURM](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#slurm)
+  * [Setup with Claude Code](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#setup-with-claude-code)
   * [Flux](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#flux)
   * [Disconnecting and Reconnecting](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#disconnecting-and-reconnecting)
   * [Combine both](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#combine-both)

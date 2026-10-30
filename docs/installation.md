@@ -97,6 +97,12 @@ dependencies, still at least for [SLURM](https://slurm.schedmd.com) no additiona
 documentation covers the [installation of pysqa](https://pysqa.readthedocs.io/en/latest/installation.html) in more 
 detail.
 
+To configure executorlib for a new [SLURM](https://slurm.schedmd.com) cluster, the [executorlib-cluster-setup](https://github.com/pyiron/executorlib/blob/main/.claude/skills/executorlib-cluster-setup/SKILL.md)
+skill for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) analyses the cluster from the login node, 
+tests the submission of Python functions and generates a cluster-specific skill with a tested submission template. The 
+installation and usage of the skill is explained in the [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#setup-with-claude-code) 
+section.
+
 ## HPC Job Executor
 For optimal performance the [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html) leverages the
 [flux framework](https://flux-framework.org) as its recommended job scheduler. Even when the [Simple Linux Utility for Resource Management (SLURM)](https://slurm.schedmd.com) 
