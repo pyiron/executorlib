@@ -1,13 +1,13 @@
 import queue
 from abc import ABC
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import (
     Executor as FutureExecutor,
 )
 from concurrent.futures import (
     Future,
 )
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, TypeVar
 
 from executorlib.task_scheduler.base import TaskSchedulerBase
 
@@ -27,7 +27,7 @@ class BaseExecutor(FutureExecutor, ABC):
         self._is_active = True
 
     @property
-    def max_workers(self) -> Optional[int]:
+    def max_workers(self) -> int | None:
         """
         Return the number of parallel workers configured for this executor.
 
@@ -47,7 +47,7 @@ class BaseExecutor(FutureExecutor, ABC):
         self._task_scheduler.max_workers = max_workers
 
     @property
-    def info(self) -> Optional[dict]:
+    def info(self) -> dict | None:
         """
         Get the information about the executor.
 
@@ -57,7 +57,7 @@ class BaseExecutor(FutureExecutor, ABC):
         return self._task_scheduler.info
 
     @property
-    def future_queue(self) -> Optional[queue.Queue]:
+    def future_queue(self) -> queue.Queue | None:
         """
         Get the future queue.
 
@@ -88,7 +88,7 @@ class BaseExecutor(FutureExecutor, ABC):
         fn: Callable,
         /,
         *args,
-        resource_dict: Optional[dict] = None,
+        resource_dict: dict | None = None,
         **kwargs,
     ) -> Future:
         """
@@ -126,9 +126,9 @@ class BaseExecutor(FutureExecutor, ABC):
         self,
         fn: Callable[..., _T],
         *iterables: Iterable[Any],
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
         chunksize: int = 1,
-        buffersize: Optional[int] = None,
+        buffersize: int | None = None,
     ) -> Iterator[_T]:
         """Returns an iterator equivalent to map(fn, iter).
 

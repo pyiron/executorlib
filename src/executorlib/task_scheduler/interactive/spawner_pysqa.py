@@ -1,7 +1,7 @@
 import hashlib
 import os
+from collections.abc import Callable
 from time import sleep
-from typing import Callable, Optional
 
 from pysqa import QueueAdapter
 
@@ -23,19 +23,19 @@ from executorlib.task_scheduler.interactive.blockallocation import (
 class PysqaSpawner(BaseSpawner):
     def __init__(
         self,
-        cwd: Optional[str] = None,
+        cwd: str | None = None,
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
-        num_nodes: Optional[int] = None,
+        num_nodes: int | None = None,
         worker_id: int = 0,
         exclusive: bool = False,
         openmpi_oversubscribe: bool = False,
-        slurm_cmd_args: Optional[list[str]] = None,
-        pmi_mode: Optional[str] = None,
-        config_directory: Optional[str] = None,
-        backend: Optional[str] = None,
-        run_time_max: Optional[int] = None,
+        slurm_cmd_args: list[str] | None = None,
+        pmi_mode: str | None = None,
+        config_directory: str | None = None,
+        backend: str | None = None,
+        run_time_max: int | None = None,
         **kwargs,
     ):
         """
@@ -72,14 +72,14 @@ class PysqaSpawner(BaseSpawner):
         self._config_directory = config_directory
         self._backend = backend
         self._pysqa_submission_kwargs = kwargs
-        self._process: Optional[int] = None
-        self._queue_adapter: Optional[QueueAdapter] = None
+        self._process: int | None = None
+        self._queue_adapter: QueueAdapter | None = None
         self._run_time_max = run_time_max
 
     def bootup(
         self,
         command_lst: list[str],
-        stop_function: Optional[Callable] = None,
+        stop_function: Callable | None = None,
     ):
         """
         Method to start the subprocess interface.
@@ -224,16 +224,16 @@ class PysqaSpawner(BaseSpawner):
 
 
 def create_pysqa_block_allocation_scheduler(
-    max_cores: Optional[int] = None,
-    cache_directory: Optional[str] = None,
-    hostname_localhost: Optional[bool] = None,
+    max_cores: int | None = None,
+    cache_directory: str | None = None,
+    hostname_localhost: bool | None = None,
     log_obj_size: bool = False,
-    pmi_mode: Optional[str] = None,
-    init_function: Optional[Callable] = None,
-    max_workers: Optional[int] = None,
-    executor_kwargs: Optional[dict] = None,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    pmi_mode: str | None = None,
+    init_function: Callable | None = None,
+    max_workers: int | None = None,
+    executor_kwargs: dict | None = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
     validator: Callable = validate_resource_dict,
 ):
     check_init_function_with_cache(

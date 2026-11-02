@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from threading import Thread
-from typing import Callable, Optional
 
 from executorlib.standalone.inputcheck import (
     check_executor,
@@ -32,13 +32,13 @@ except ImportError:
 class FileTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
-        executor_kwargs: Optional[dict] = None,
+        executor_kwargs: dict | None = None,
         execute_function: Callable = execute_with_pysqa,
-        terminate_function: Optional[Callable] = None,
-        pysqa_config_directory: Optional[str] = None,
-        backend: Optional[str] = None,
+        terminate_function: Callable | None = None,
+        pysqa_config_directory: str | None = None,
+        backend: str | None = None,
         disable_dependencies: bool = False,
-        pmi_mode: Optional[str] = None,
+        pmi_mode: str | None = None,
         wait: bool = True,
         refresh_rate: float = 0.01,
         validator: Callable = validate_resource_dict,
@@ -96,18 +96,18 @@ class FileTaskScheduler(TaskSchedulerBase):
 
 def create_file_executor(
     executor_kwargs: dict,
-    max_workers: Optional[int] = None,
-    backend: Optional[str] = None,
-    max_cores: Optional[int] = None,
-    cache_directory: Optional[str] = None,
-    pmi_mode: Optional[str] = None,
+    max_workers: int | None = None,
+    backend: str | None = None,
+    max_cores: int | None = None,
+    cache_directory: str | None = None,
+    pmi_mode: str | None = None,
     flux_executor=None,
     flux_executor_nesting: bool = False,
     flux_log_files: bool = False,
-    pysqa_config_directory: Optional[str] = None,
-    hostname_localhost: Optional[bool] = None,
+    pysqa_config_directory: str | None = None,
+    hostname_localhost: bool | None = None,
     block_allocation: bool = False,
-    init_function: Optional[Callable] = None,
+    init_function: Callable | None = None,
     disable_dependencies: bool = False,
     execute_function: Callable = execute_with_pysqa,
     wait: bool = True,

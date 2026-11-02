@@ -1,7 +1,6 @@
 import os
 import subprocess
 import time
-from typing import Optional
 
 from executorlib.standalone.hdf import dump
 from executorlib.standalone.inputcheck import check_file_exists
@@ -14,11 +13,11 @@ def subprocess_execute(
     command: list,
     file_name: str,
     data_dict: dict,
-    cache_directory: Optional[str] = None,
-    task_dependent_lst: Optional[list] = None,
-    resource_dict: Optional[dict] = None,
-    config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    cache_directory: str | None = None,
+    task_dependent_lst: list | None = None,
+    resource_dict: dict | None = None,
+    config_directory: str | None = None,
+    backend: str | None = None,
 ) -> subprocess.Popen:
     """
     Execute a command in a subprocess.
@@ -78,7 +77,7 @@ def subprocess_terminate(task):
 
 
 def _get_working_directory(
-    cache_directory: Optional[str] = None, resource_dict: Optional[dict] = None
+    cache_directory: str | None = None, resource_dict: dict | None = None
 ):
     if resource_dict is None:
         resource_dict = {}

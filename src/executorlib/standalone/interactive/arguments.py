@@ -1,6 +1,6 @@
 from asyncio.exceptions import CancelledError
 from concurrent.futures import Future, TimeoutError
-from typing import Any, Union
+from typing import Any
 
 
 def get_future_objects_from_input(args: tuple, kwargs: dict):
@@ -89,7 +89,7 @@ def update_futures_in_input(args: tuple, kwargs: dict) -> tuple[tuple, dict]:
         tuple, dict: arguments and keyword arguments with each future object in them being evaluated
     """
 
-    def get_result(arg: Union[list[Future], Future]) -> Any:
+    def get_result(arg: list[Future] | Future) -> Any:
         if isinstance(arg, Future):
             return arg.result()
         elif isinstance(arg, list):

@@ -1,7 +1,6 @@
 import pickle
 import sys
 from os.path import abspath
-from typing import Optional
 
 import cloudpickle
 import zmq
@@ -36,8 +35,8 @@ def main() -> None:
     mpi_size_larger_one = MPI.COMM_WORLD.Get_size() > 1
 
     argument_dict = parse_arguments(argument_lst=sys.argv)
-    context: Optional[zmq.Context] = None
-    socket: Optional[zmq.Socket] = None
+    context: zmq.Context | None = None
+    socket: zmq.Socket | None = None
     if mpi_rank_zero:
         context, socket = interface_connect(
             host=argument_dict["host"], port=argument_dict["zmqport"]

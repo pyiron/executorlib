@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 from executorlib.standalone.command import generate_slurm_command
 from executorlib.standalone.interactive.spawner import SubprocessSpawner
@@ -22,17 +21,17 @@ def validate_max_workers(max_workers: int, cores: int, threads_per_core: int):
 class SrunSpawner(SubprocessSpawner):
     def __init__(
         self,
-        cwd: Optional[str] = None,
+        cwd: str | None = None,
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
-        num_nodes: Optional[int] = None,
+        num_nodes: int | None = None,
         worker_id: int = 0,
         exclusive: bool = False,
         openmpi_oversubscribe: bool = False,
-        slurm_cmd_args: Optional[list[str]] = None,
-        pmi_mode: Optional[str] = None,
-        run_time_max: Optional[int] = None,
+        slurm_cmd_args: list[str] | None = None,
+        pmi_mode: str | None = None,
+        run_time_max: int | None = None,
     ):
         """
         Srun interface implementation.

@@ -1,7 +1,7 @@
 import queue
+from collections.abc import Callable
 from concurrent.futures import Future
 from threading import Thread
-from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.interactive.communication import (
@@ -47,9 +47,9 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
 
     def __init__(
         self,
-        max_cores: Optional[int] = None,
-        max_workers: Optional[int] = None,
-        executor_kwargs: Optional[dict] = None,
+        max_cores: int | None = None,
+        max_workers: int | None = None,
+        executor_kwargs: dict | None = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
         validator: Callable = validate_resource_dict,
     ):
@@ -78,9 +78,9 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
 def _execute_single_task(
     future_queue: queue.Queue,
     spawner: type[BaseSpawner] = MpiExecSpawner,
-    max_cores: Optional[int] = None,
-    max_workers: Optional[int] = None,
-    hostname_localhost: Optional[bool] = None,
+    max_cores: int | None = None,
+    max_workers: int | None = None,
+    hostname_localhost: bool | None = None,
     **kwargs,
 ):
     """
@@ -130,8 +130,8 @@ def _execute_single_task(
 def _wait_for_free_slots(
     active_task_dict: dict,
     cores_requested: int,
-    max_cores: Optional[int] = None,
-    max_workers: Optional[int] = None,
+    max_cores: int | None = None,
+    max_workers: int | None = None,
 ) -> dict:
     """
     Wait for available computing resources to become available.
@@ -165,9 +165,9 @@ def _wrap_execute_task_in_separate_process(
     active_task_dict: dict,
     spawner: type[BaseSpawner],
     executor_kwargs: dict,
-    max_cores: Optional[int] = None,
-    max_workers: Optional[int] = None,
-    hostname_localhost: Optional[bool] = None,
+    max_cores: int | None = None,
+    max_workers: int | None = None,
+    hostname_localhost: bool | None = None,
 ):
     """
     Submit function to be executed in separate Python process
@@ -229,12 +229,12 @@ def _execute_task_in_thread(
     future_obj: Future,
     cores: int = 1,
     spawner: type[BaseSpawner] = MpiExecSpawner,
-    hostname_localhost: Optional[bool] = None,
-    cache_directory: Optional[str] = None,
-    cache_key: Optional[str] = None,
+    hostname_localhost: bool | None = None,
+    cache_directory: str | None = None,
+    cache_key: str | None = None,
     log_obj_size: bool = False,
-    error_log_file: Optional[str] = None,
-    worker_id: Optional[int] = None,
+    error_log_file: str | None = None,
+    worker_id: int | None = None,
     **kwargs,
 ):
     """

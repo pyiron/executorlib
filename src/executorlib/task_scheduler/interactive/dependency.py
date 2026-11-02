@@ -1,8 +1,9 @@
 import queue
+from collections.abc import Callable
 from concurrent.futures import Future
 from threading import Thread
 from time import sleep
-from typing import Any, Callable, Optional
+from typing import Any
 
 from executorlib.standalone.batched import batched_futures
 from executorlib.standalone.interactive.arguments import (
@@ -43,11 +44,11 @@ class DependencyTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
         executor: TaskSchedulerBase,
-        max_cores: Optional[int] = None,
+        max_cores: int | None = None,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
-        plot_dependency_graph_filename: Optional[str] = None,
-        export_workflow_filename: Optional[str] = None,
+        plot_dependency_graph_filename: str | None = None,
+        export_workflow_filename: str | None = None,
         validator: Callable = validate_resource_dict,
     ) -> None:
         super().__init__(max_cores=max_cores, validator=validator)
@@ -73,7 +74,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
             self._generate_dependency_graph = True
 
     @property
-    def info(self) -> Optional[dict]:
+    def info(self) -> dict | None:
         """
         Get the information about the executor.
 
@@ -90,7 +91,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
             return None
 
     @property
-    def max_workers(self) -> Optional[int]:
+    def max_workers(self) -> int | None:
         if isinstance(self._future_queue, queue.Queue):
             f: Future = Future()
             self._future_queue.queue.insert(
@@ -120,7 +121,7 @@ class DependencyTaskScheduler(TaskSchedulerBase):
         self,
         fn: Callable[..., Any],
         *args: Any,
-        resource_dict: Optional[dict[str, Any]] = None,
+        resource_dict: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Future:
         """

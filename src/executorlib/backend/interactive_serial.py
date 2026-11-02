@@ -1,6 +1,5 @@
 import sys
 from os.path import abspath
-from typing import Optional
 
 from executorlib.standalone.error import backend_write_error_file
 from executorlib.standalone.interactive.backend import call_funct, parse_arguments
@@ -12,7 +11,7 @@ from executorlib.standalone.interactive.communication import (
 )
 
 
-def evaluate_cmd(argument_lst: Optional[list[str]] = None):
+def evaluate_cmd(argument_lst: list[str] | None = None):
     """
     The main function of the program.
 

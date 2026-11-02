@@ -1,9 +1,10 @@
 import contextlib
 import os
 import queue
+from collections.abc import Callable
 from concurrent.futures import CancelledError, Future
 from time import sleep
-from typing import Any, Callable, Optional
+from typing import Any
 
 from executorlib.standalone.command import get_cache_execute_command
 from executorlib.standalone.hdf import get_cache_files, get_output, get_queue_id
@@ -12,7 +13,7 @@ from executorlib.task_scheduler.file.spawner_subprocess import subprocess_termin
 
 
 class FutureItem:
-    def __init__(self, file_name: str, selector: Optional[int | str] = None):
+    def __init__(self, file_name: str, selector: int | str | None = None):
         """
         Initialize a FutureItem object.
 
@@ -58,12 +59,12 @@ def execute_tasks_h5(
     future_queue: queue.Queue,
     execute_function: Callable,
     executor_kwargs: dict,
-    terminate_function: Optional[Callable] = None,
-    validate_function: Optional[Callable] = None,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    terminate_function: Callable | None = None,
+    validate_function: Callable | None = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
     disable_dependencies: bool = False,
-    pmi_mode: Optional[str] = None,
+    pmi_mode: str | None = None,
     wait: bool = True,
     refresh_rate: float = 0.01,
 ) -> None:
@@ -224,12 +225,12 @@ def _check_task_output(
     task_key: str,
     future_obj: Future,
     cache_directory: str,
-    queue_id: Optional[int] = None,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
-    validate_function: Optional[Callable] = None,
-    status_check_dict: Optional[dict] = None,
-    duplicate_dict: Optional[dict] = None,
+    queue_id: int | None = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
+    validate_function: Callable | None = None,
+    status_check_dict: dict | None = None,
+    duplicate_dict: dict | None = None,
 ) -> Future:
     """
     Check the output of a task and set the result of the future object if available.
@@ -321,7 +322,7 @@ def _convert_args_and_kwargs(
     task_dict: dict,
     memory_dict: dict,
     file_name_dict: dict,
-    duplicate_dict: Optional[dict] = None,
+    duplicate_dict: dict | None = None,
 ) -> tuple[list, dict, list]:
     """
     Convert the arguments and keyword arguments in a task dictionary to the appropriate types.
@@ -412,12 +413,12 @@ def _refresh_memory_dict(
     memory_dict: dict,
     cache_dir_dict: dict,
     process_dict: dict,
-    duplicate_dict: Optional[dict] = None,
-    status_check_dict: Optional[dict] = None,
-    terminate_function: Optional[Callable] = None,
-    validate_function: Optional[Callable] = None,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    duplicate_dict: dict | None = None,
+    status_check_dict: dict | None = None,
+    terminate_function: Callable | None = None,
+    validate_function: Callable | None = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
     refresh_rate: float = 0.01,
 ) -> dict:
     """
@@ -473,9 +474,9 @@ def _refresh_memory_dict(
 
 def _cancel_processes(
     process_dict: dict,
-    terminate_function: Optional[Callable] = None,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    terminate_function: Callable | None = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
 ):
     """
     Cancel processes
@@ -500,7 +501,7 @@ def _cancel_processes(
 
 def _get_task_input(
     task_resource_dict: dict, executor_kwargs: dict
-) -> tuple[dict, Optional[str], str, Optional[str]]:
+) -> tuple[dict, str | None, str, str | None]:
     """
     Merge per-task resource requirements with executor defaults and extract scheduling metadata.
 
@@ -547,12 +548,12 @@ def _shutdown_executor(
     memory_dict: dict,
     process_dict: dict,
     cache_dir_dict: dict,
-    duplicate_dict: Optional[dict] = None,
-    status_check_dict: Optional[dict] = None,
-    terminate_function: Optional[Callable] = None,
-    validate_function: Optional[Callable] = None,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    duplicate_dict: dict | None = None,
+    status_check_dict: dict | None = None,
+    terminate_function: Callable | None = None,
+    validate_function: Callable | None = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
     refresh_rate: float = 0.01,
 ):
     """
