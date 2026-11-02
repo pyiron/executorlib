@@ -12,5 +12,5 @@ dependencies:
 - ipython =7.33.0
 - pydantic =2.5.3
 - pygraphviz =1.10
-- hatchling =1.27.0
+- hatchling =1.33.0
 - hatch-vcs =0.4.0
