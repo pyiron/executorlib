@@ -13,6 +13,7 @@ pandas.DataFrame.
 """
 
 from concurrent.futures import Future
+from typing import Optional
 
 import executorlib._version
 from executorlib.executor.base import BaseExecutor
