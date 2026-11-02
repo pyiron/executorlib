@@ -1,15 +1,15 @@
 channels:
 - conda-forge
 dependencies:
-- python
+- python =3.11
 - numpy =1.23.5
 - openmpi =4.1.4
 - cloudpickle =2.0.0
 - mpi4py =3.1.4
 - pyzmq =25.0.0
-- h5py =3.6.0
+- h5py =3.10.0
 - networkx =2.8.8
-- ipython =7.33.0
+- ipython =8.18.1
 - pydantic =2.5.3
 - pygraphviz =1.10
 - hatchling =1.33.0
