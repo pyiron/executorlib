@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Union
+from collections.abc import Callable
 
 from executorlib.executor.base import BaseExecutor
 from executorlib.standalone.inputcheck import (
@@ -102,18 +102,18 @@ class SingleNodeExecutor(BaseExecutor):
 
     def __init__(
         self,
-        max_workers: Optional[int] = None,
-        cache_directory: Optional[str] = None,
-        max_cores: Optional[int] = None,
-        resource_dict: Optional[dict] = None,
-        hostname_localhost: Optional[bool] = None,
+        max_workers: int | None = None,
+        cache_directory: str | None = None,
+        max_cores: int | None = None,
+        resource_dict: dict | None = None,
+        hostname_localhost: bool | None = None,
         block_allocation: bool = False,
-        init_function: Optional[Callable] = None,
+        init_function: Callable | None = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
-        plot_dependency_graph_filename: Optional[str] = None,
-        export_workflow_filename: Optional[str] = None,
+        plot_dependency_graph_filename: str | None = None,
+        export_workflow_filename: str | None = None,
         log_obj_size: bool = False,
         wait: bool = True,
         restart_limit: int = 0,
@@ -310,18 +310,18 @@ class TestClusterExecutor(BaseExecutor):
 
     def __init__(
         self,
-        max_workers: Optional[int] = None,
-        cache_directory: Optional[str] = None,
-        max_cores: Optional[int] = None,
-        resource_dict: Optional[dict] = None,
-        hostname_localhost: Optional[bool] = None,
+        max_workers: int | None = None,
+        cache_directory: str | None = None,
+        max_cores: int | None = None,
+        resource_dict: dict | None = None,
+        hostname_localhost: bool | None = None,
         block_allocation: bool = False,
-        init_function: Optional[Callable] = None,
+        init_function: Callable | None = None,
         disable_dependencies: bool = False,
         refresh_rate: float = 0.01,
         plot_dependency_graph: bool = False,
-        plot_dependency_graph_filename: Optional[str] = None,
-        export_workflow_filename: Optional[str] = None,
+        plot_dependency_graph_filename: str | None = None,
+        export_workflow_filename: str | None = None,
         log_obj_size: bool = False,
         wait: bool = True,
         openmpi_oversubscribe: bool = False,
@@ -446,18 +446,18 @@ class TestClusterExecutor(BaseExecutor):
 
 
 def create_single_node_executor(
-    max_workers: Optional[int] = None,
-    max_cores: Optional[int] = None,
-    cache_directory: Optional[str] = None,
-    executor_kwargs: Optional[dict] = None,
-    hostname_localhost: Optional[bool] = None,
+    max_workers: int | None = None,
+    max_cores: int | None = None,
+    cache_directory: str | None = None,
+    executor_kwargs: dict | None = None,
+    hostname_localhost: bool | None = None,
     block_allocation: bool = False,
-    init_function: Optional[Callable] = None,
+    init_function: Callable | None = None,
     log_obj_size: bool = False,
     wait: bool = True,
     validator: Callable = validate_resource_dict,
     restart_limit: int = 0,
-) -> Union[OneProcessTaskScheduler, BlockAllocationTaskScheduler]:
+) -> OneProcessTaskScheduler | BlockAllocationTaskScheduler:
     """
     Create a single node executor
 

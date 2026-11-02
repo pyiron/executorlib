@@ -1,8 +1,8 @@
 import queue
 import random
+from collections.abc import Callable
 from concurrent.futures import Future
 from threading import Event, Lock, Thread
-from typing import Callable, Optional
 
 from executorlib.standalone.command import get_interactive_execute_command
 from executorlib.standalone.inputcheck import (
@@ -64,7 +64,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
     def __init__(
         self,
         max_workers: int = 1,
-        executor_kwargs: Optional[dict] = None,
+        executor_kwargs: dict | None = None,
         spawner: type[BaseSpawner] = MpiExecSpawner,
         validator: Callable = validate_resource_dict,
         restart_limit: int = 0,
@@ -149,7 +149,7 @@ class BlockAllocationTaskScheduler(TaskSchedulerBase):
             self._max_workers = max_workers
 
     def submit(  # type: ignore
-        self, fn: Callable, *args, resource_dict: Optional[dict] = None, **kwargs
+        self, fn: Callable, *args, resource_dict: dict | None = None, **kwargs
     ) -> Future:
         """
         Submits a callable to be executed with the given arguments.
@@ -229,20 +229,20 @@ def _execute_multiple_tasks(
     future_queue: queue.Queue,
     cores: int = 1,
     spawner: type[BaseSpawner] = MpiExecSpawner,
-    hostname_localhost: Optional[bool] = None,
-    init_function: Optional[Callable] = None,
-    cache_directory: Optional[str] = None,
-    cache_key: Optional[str] = None,
+    hostname_localhost: bool | None = None,
+    init_function: Callable | None = None,
+    cache_directory: str | None = None,
+    cache_key: str | None = None,
     queue_join_on_shutdown: bool = True,
     log_obj_size: bool = False,
-    error_log_file: Optional[str] = None,
+    error_log_file: str | None = None,
     worker_id: int = 0,
-    stop_function: Optional[Callable] = None,
+    stop_function: Callable | None = None,
     restart_limit: int = 0,
-    bootup_event: Optional[Event] = None,
-    next_bootup_event: Optional[Event] = None,
-    alive_workers: Optional[list] = None,
-    alive_workers_lock: Optional[Lock] = None,
+    bootup_event: Event | None = None,
+    next_bootup_event: Event | None = None,
+    alive_workers: list | None = None,
+    alive_workers_lock: Lock | None = None,
     **kwargs,
 ) -> None:
     """
@@ -344,8 +344,8 @@ def _execute_multiple_tasks(
 
 def _drain_dead_worker(
     future_queue: queue.Queue,
-    alive_workers: Optional[list] = None,
-    alive_workers_lock: Optional[Lock] = None,
+    alive_workers: list | None = None,
+    alive_workers_lock: Lock | None = None,
 ) -> None:
     """Handle a permanently dead worker by recycling or failing its tasks.
 
@@ -385,8 +385,8 @@ def _drain_dead_worker(
 
 def _set_init_function(
     interface: SocketInterface,
-    init_function: Optional[Callable] = None,
-) -> Optional[Exception]:
+    init_function: Callable | None = None,
+) -> Exception | None:
     interface_initialization_exception = None
     if init_function is not None and interface.status:
         output = interface.send_and_receive_dict(

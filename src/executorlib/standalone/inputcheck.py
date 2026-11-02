@@ -1,8 +1,8 @@
 import inspect
 import multiprocessing
 import os.path
+from collections.abc import Callable
 from concurrent.futures import Executor
-from typing import Callable, Optional
 from warnings import warn
 
 
@@ -113,7 +113,7 @@ def check_plot_dependency_graph(plot_dependency_graph: bool) -> None:
         )
 
 
-def check_pmi(backend: Optional[str], pmi: Optional[str]) -> None:
+def check_pmi(backend: str | None, pmi: str | None) -> None:
     """
     Check if pmi is valid for the selected backend and raise a ValueError if it is not.
     """
@@ -128,9 +128,7 @@ def check_pmi(backend: Optional[str], pmi: Optional[str]) -> None:
             )
 
 
-def check_init_function(
-    block_allocation: bool, init_function: Optional[Callable]
-) -> None:
+def check_init_function(block_allocation: bool, init_function: Callable | None) -> None:
     """
     Check if block_allocation is False and init_function is not None, and raise a ValueError if it is.
     """
@@ -139,7 +137,7 @@ def check_init_function(
 
 
 def check_init_function_with_cache(
-    init_function: Optional[Callable], cache_directory: Optional[str]
+    init_function: Callable | None, cache_directory: str | None
 ) -> None:
     """
     Check if init_function and cache_directory are both set, and raise a warning if they are. The cache key is
@@ -155,9 +153,7 @@ def check_init_function_with_cache(
         )
 
 
-def check_max_workers_and_cores(
-    max_workers: Optional[int], max_cores: Optional[int]
-) -> None:
+def check_max_workers_and_cores(max_workers: int | None, max_cores: int | None) -> None:
     """
     Check that neither max_workers nor max_cores is set when using a pysqa-based backend.
 
@@ -178,7 +174,7 @@ def check_max_workers_and_cores(
         )
 
 
-def check_hostname_localhost(hostname_localhost: Optional[bool]) -> None:
+def check_hostname_localhost(hostname_localhost: bool | None) -> None:
     """
     Check that hostname_localhost is not set when using a pysqa-based backend.
 
@@ -211,7 +207,7 @@ def check_restart_limit(restart_limit: int, block_allocation: bool = True) -> No
         )
 
 
-def check_pmi_mode(pmi_mode: Optional[str]) -> None:
+def check_pmi_mode(pmi_mode: str | None) -> None:
     """
     Check that pmi_mode is not set on a local workstation without SLURM or flux.
 
@@ -227,7 +223,7 @@ def check_pmi_mode(pmi_mode: Optional[str]) -> None:
         )
 
 
-def check_flux_log_files(flux_log_files: Optional[bool]) -> None:
+def check_flux_log_files(flux_log_files: bool | None) -> None:
     """
     Check if flux_log_files is True and raise a ValueError if it is.
     """
@@ -237,7 +233,7 @@ def check_flux_log_files(flux_log_files: Optional[bool]) -> None:
         )
 
 
-def check_pysqa_config_directory(pysqa_config_directory: Optional[str]) -> None:
+def check_pysqa_config_directory(pysqa_config_directory: str | None) -> None:
     """
     Check if pysqa_config_directory is None and raise a ValueError if it is not.
     """
@@ -248,9 +244,9 @@ def check_pysqa_config_directory(pysqa_config_directory: Optional[str]) -> None:
 
 
 def validate_number_of_cores(
-    max_cores: Optional[int] = None,
-    max_workers: Optional[int] = None,
-    cores_per_worker: Optional[int] = 1,
+    max_cores: int | None = None,
+    max_workers: int | None = None,
+    cores_per_worker: int | None = 1,
     set_local_cores: bool = False,
 ) -> int:
     """
@@ -289,7 +285,7 @@ def validate_number_of_cores(
         return max_workers
 
 
-def check_file_exists(file_name: Optional[str]):
+def check_file_exists(file_name: str | None):
     """
     Check if file exists and raise a ValueError if it does not or file_name is None.
     """

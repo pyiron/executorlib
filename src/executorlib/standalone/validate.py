@@ -1,5 +1,4 @@
 import warnings
-from typing import Optional
 
 try:
     from pydantic import BaseModel, Extra
@@ -33,19 +32,19 @@ class ResourceDictValidation(BaseModel):
         submission_template (str, optional): Template for queuing system job submission scripts.
     """
 
-    cores: Optional[int] = None
-    threads_per_core: Optional[int] = None
-    gpus_per_core: Optional[int] = None
-    cwd: Optional[str] = None
-    cache_key: Optional[str] = None
-    cache_directory: Optional[str] = None
-    num_nodes: Optional[int] = None
-    exclusive: Optional[bool] = None
-    error_log_file: Optional[str] = None
-    run_time_max: Optional[int] = None
-    priority: Optional[int] = None
-    slurm_cmd_args: Optional[list[str]] = None
-    submission_template: Optional[str] = None
+    cores: int | None = None
+    threads_per_core: int | None = None
+    gpus_per_core: int | None = None
+    cwd: str | None = None
+    cache_key: str | None = None
+    cache_directory: str | None = None
+    num_nodes: int | None = None
+    exclusive: bool | None = None
+    error_log_file: str | None = None
+    run_time_max: int | None = None
+    priority: int | None = None
+    slurm_cmd_args: list[str] | None = None
+    submission_template: str | None = None
 
     if HAS_PYDANTIC:
 

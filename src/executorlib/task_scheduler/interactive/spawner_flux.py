@@ -1,6 +1,6 @@
 import contextlib
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import flux
 import flux.job
@@ -49,20 +49,20 @@ class FluxPythonSpawner(BaseSpawner):
 
     def __init__(
         self,
-        cwd: Optional[str] = None,
+        cwd: str | None = None,
         cores: int = 1,
         threads_per_core: int = 1,
         gpus_per_core: int = 0,
-        num_nodes: Optional[int] = None,
+        num_nodes: int | None = None,
         worker_id: int = 0,
         exclusive: bool = False,
-        priority: Optional[int] = None,
+        priority: int | None = None,
         openmpi_oversubscribe: bool = False,
-        pmi_mode: Optional[str] = None,
-        flux_executor: Optional[flux.job.FluxExecutor] = None,
+        pmi_mode: str | None = None,
+        flux_executor: flux.job.FluxExecutor | None = None,
         flux_executor_nesting: bool = False,
         flux_log_files: bool = False,
-        run_time_max: Optional[int] = None,
+        run_time_max: int | None = None,
     ):
         super().__init__(
             cwd=cwd,
@@ -85,7 +85,7 @@ class FluxPythonSpawner(BaseSpawner):
     def bootup(
         self,
         command_lst: list[str],
-        stop_function: Optional[Callable] = None,
+        stop_function: Callable | None = None,
     ) -> bool:
         """
         Boot up the client process to connect to the SocketInterface.

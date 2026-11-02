@@ -1,5 +1,5 @@
 from concurrent.futures import Future
-from typing import Any, Optional
+from typing import Any
 
 
 class FutureSelector(Future):
@@ -37,7 +37,7 @@ class FutureSelector(Future):
         else:
             setattr(self._future, name, value)
 
-    def result(self, timeout: Optional[float] = None) -> Any:
+    def result(self, timeout: float | None = None) -> Any:
         """
         Return the selected element from the underlying future's result.
 

@@ -1,7 +1,6 @@
 import importlib.util
 import os
 import sys
-from typing import Optional
 
 SLURM_COMMAND = "srun"
 
@@ -22,10 +21,10 @@ def get_command_path(executable: str) -> str:
 def get_cache_execute_command(
     file_name: str,
     cores: int = 1,
-    backend: Optional[str] = None,
+    backend: str | None = None,
     exclusive: bool = False,
     openmpi_oversubscribe: bool = False,
-    pmi_mode: Optional[str] = None,
+    pmi_mode: str | None = None,
 ) -> list:
     """
     Get command to call backend as a list of two strings
@@ -118,15 +117,15 @@ def get_interactive_execute_command(
 
 def generate_slurm_command(
     cores: int,
-    cwd: Optional[str],
+    cwd: str | None,
     threads_per_core: int = 1,
     gpus_per_core: int = 0,
-    num_nodes: Optional[int] = None,
+    num_nodes: int | None = None,
     exclusive: bool = False,
     openmpi_oversubscribe: bool = False,
-    slurm_cmd_args: Optional[list[str]] = None,
-    pmi_mode: Optional[str] = None,
-    run_time_max: Optional[int] = None,
+    slurm_cmd_args: list[str] | None = None,
+    pmi_mode: str | None = None,
+    run_time_max: int | None = None,
 ) -> list[str]:
     """
     Generate the command list for the SLURM interface.

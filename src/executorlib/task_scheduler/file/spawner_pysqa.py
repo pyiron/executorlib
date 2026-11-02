@@ -1,6 +1,5 @@
 import os
 from subprocess import CalledProcessError
-from typing import Optional
 
 from pandas import DataFrame
 from pysqa import QueueAdapter
@@ -18,11 +17,11 @@ def execute_with_pysqa(
     file_name: str,
     data_dict: dict,
     cache_directory: str,
-    task_dependent_lst: Optional[list[int]] = None,
-    resource_dict: Optional[dict] = None,
-    config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
-) -> Optional[int]:
+    task_dependent_lst: list[int] | None = None,
+    resource_dict: dict | None = None,
+    config_directory: str | None = None,
+    backend: str | None = None,
+) -> int | None:
     """
     Execute a command by submitting it to the queuing system
 
@@ -105,8 +104,8 @@ def execute_with_pysqa(
 
 def terminate_tasks_in_cache(
     cache_directory: str,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
 ):
     """
     Delete all jobs stored in the cache directory from the queuing system
@@ -134,8 +133,8 @@ def terminate_tasks_in_cache(
 def terminate_task_in_cache(
     cache_directory: str,
     cache_key: str,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
 ):
     """
     Delete a specific job stored in the cache directory from the queuing system
@@ -159,8 +158,8 @@ def terminate_task_in_cache(
 
 def get_queue_system_cache_data(
     cache_dict: list[dict],
-    queue_type: Optional[str] = None,
-    config_directory: Optional[str] = None,
+    queue_type: str | None = None,
+    config_directory: str | None = None,
 ) -> list[dict]:
     """
     Get the status of the queue system.

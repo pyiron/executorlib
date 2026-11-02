@@ -4,7 +4,6 @@ import queue
 import time
 from concurrent.futures import Future
 from concurrent.futures._base import PENDING
-from typing import Optional
 
 from executorlib.standalone.interactive.communication import (
     ExecutorlibSocketError,
@@ -17,9 +16,9 @@ def execute_task_dict(
     task_dict: dict,
     future_obj: Future,
     interface: SocketInterface,
-    cache_directory: Optional[str] = None,
-    cache_key: Optional[str] = None,
-    error_log_file: Optional[str] = None,
+    cache_directory: str | None = None,
+    cache_key: str | None = None,
+    error_log_file: str | None = None,
 ) -> bool:
     """
     Execute the task in the task_dict by communicating it via the interface.
@@ -120,7 +119,7 @@ def _execute_task_with_cache(
     task_dict: dict,
     future_obj: Future,
     cache_directory: str,
-    cache_key: Optional[str] = None,
+    cache_key: str | None = None,
 ) -> bool:
     """
     Execute the task in the task_dict by communicating it via the interface using the cache in the cache directory.
