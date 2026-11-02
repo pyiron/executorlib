@@ -1,7 +1,7 @@
 import hashlib
 import inspect
 import re
-from typing import Callable, Optional
+from collections.abc import Callable
 
 import cloudpickle
 
@@ -30,11 +30,11 @@ def cloudpickle_register(ind: int = 2):
 
 def serialize_funct(
     fn: Callable,
-    fn_args: Optional[list] = None,
-    fn_kwargs: Optional[dict] = None,
-    resource_dict: Optional[dict] = None,
-    cache_key: Optional[str] = None,
-) -> tuple[str, dict, Optional[Exception]]:
+    fn_args: list | None = None,
+    fn_kwargs: dict | None = None,
+    resource_dict: dict | None = None,
+    cache_key: str | None = None,
+) -> tuple[str, dict, Exception | None]:
     """
     Serialize a function and its arguments and keyword arguments into an HDF5 file.
 

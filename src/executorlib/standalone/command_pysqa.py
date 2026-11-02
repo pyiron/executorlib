@@ -2,7 +2,6 @@ import contextlib
 import os
 import subprocess
 from time import monotonic
-from typing import Optional, Union
 
 from pysqa import QueueAdapter
 
@@ -17,9 +16,9 @@ def pysqa_job_output_validation(
     task_key: str,
     file_name: str,
     queue_id: int,
-    status_check_dict: Optional[dict],
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    status_check_dict: dict | None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
     job_status_check_interval: float = _JOB_STATUS_CHECK_INTERVAL,
 ) -> bool:
     """
@@ -65,8 +64,8 @@ def pysqa_job_output_validation(
 
 def pysqa_terminate(
     queue_id: int,
-    config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    config_directory: str | None = None,
+    backend: str | None = None,
 ):
     """
     Delete job from queuing system
@@ -89,9 +88,9 @@ def pysqa_terminate(
 
 def pysqa_get_status_of_job(
     queue_id: int,
-    config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
-) -> Optional[str]:
+    config_directory: str | None = None,
+    backend: str | None = None,
+) -> str | None:
     """
     Query the status of a job from the queuing system.
 
@@ -114,11 +113,11 @@ def pysqa_get_status_of_job(
 
 def pysqa_execute_command(
     commands: str,
-    working_directory: Optional[str] = None,
+    working_directory: str | None = None,
     split_output: bool = True,
     shell: bool = False,
     error_filename: str = "pysqa.err",
-) -> Union[str, list[str]]:
+) -> str | list[str]:
     """
     A wrapper around the subprocess.check_output function. Modified from pysqa to raise an exception if the subprocess
     fails to submit the job to the queue.

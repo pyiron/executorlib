@@ -1,7 +1,8 @@
 import logging
 import sys
+from collections.abc import Callable
 from socket import gethostname
-from typing import Any, Callable, Optional
+from typing import Any
 
 import cloudpickle
 import zmq
@@ -38,13 +39,13 @@ class SocketInterface:
         self._poller.register(self._socket, zmq.POLLIN)
         self._process = None
         self._time_out_ms = time_out_ms
-        self._logger: Optional[logging.Logger] = None
+        self._logger: logging.Logger | None = None
         if log_obj_size:
             self._logger = logging.getLogger("executorlib")
         self._spawner = spawner
         self._command_lst: list[str] = []
         self._booted_sucessfully: bool = False
-        self._stop_function: Optional[Callable] = None
+        self._stop_function: Callable | None = None
 
     @property
     def status(self) -> bool:
@@ -116,8 +117,8 @@ class SocketInterface:
 
     def bootup(
         self,
-        command_lst: Optional[list[str]] = None,
-        stop_function: Optional[Callable] = None,
+        command_lst: list[str] | None = None,
+        stop_function: Callable | None = None,
     ):
         """
         Boot up the client process to connect to the SocketInterface.
@@ -182,10 +183,10 @@ class SocketInterface:
 def interface_bootup(
     command_lst: list[str],
     connections,
-    hostname_localhost: Optional[bool] = None,
+    hostname_localhost: bool | None = None,
     log_obj_size: bool = False,
-    worker_id: Optional[int] = None,
-    stop_function: Optional[Callable] = None,
+    worker_id: int | None = None,
+    stop_function: Callable | None = None,
 ) -> SocketInterface:
     """
     Start interface for ZMQ communication
@@ -250,7 +251,7 @@ def interface_connect(host: str, port: str) -> tuple[zmq.Context, zmq.Socket]:
     return context, socket
 
 
-def interface_send(socket: Optional[zmq.Socket], result_dict: dict):
+def interface_send(socket: zmq.Socket | None, result_dict: dict):
     """
     Send results to a SocketInterface instance.
 
@@ -262,7 +263,7 @@ def interface_send(socket: Optional[zmq.Socket], result_dict: dict):
         socket.send(cloudpickle.dumps(result_dict))
 
 
-def interface_receive(socket: Optional[zmq.Socket]) -> dict:
+def interface_receive(socket: zmq.Socket | None) -> dict:
     """
     Receive instructions from a SocketInterface instance.
 
@@ -278,7 +279,7 @@ def interface_receive(socket: Optional[zmq.Socket]) -> dict:
         return {}
 
 
-def interface_shutdown(socket: Optional[zmq.Socket], context: Optional[zmq.Context]):
+def interface_shutdown(socket: zmq.Socket | None, context: zmq.Context | None):
     """
     Close the connection to a SocketInterface instance.
 

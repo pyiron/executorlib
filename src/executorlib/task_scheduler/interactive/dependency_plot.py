@@ -2,7 +2,6 @@ import inspect
 import json
 import os.path
 from concurrent.futures import Future
-from typing import Optional
 
 import cloudpickle
 
@@ -203,7 +202,7 @@ def generate_task_hash_for_plotting(task_dict: dict, future_hash_dict: dict) -> 
 
 
 def plot_dependency_graph_function(
-    node_lst: list, edge_lst: list, filename: Optional[str] = None
+    node_lst: list, edge_lst: list, filename: str | None = None
 ):
     """
     Draw the graph visualization of nodes and edges.

@@ -1,9 +1,10 @@
 import inspect
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 
 def call_funct(
-    input_dict: dict, funct: Optional[Callable] = None, memory: Optional[dict] = None
+    input_dict: dict, funct: Callable | None = None, memory: dict | None = None
 ) -> Any:
     """
     Call function from dictionary

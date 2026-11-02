@@ -2,7 +2,7 @@ import contextlib
 import os
 from concurrent.futures import Future
 from time import sleep
-from typing import Any, Optional
+from typing import Any
 
 import cloudpickle
 import h5py
@@ -21,7 +21,7 @@ group_dict = {
 }
 
 
-def dump(file_name: Optional[str], data_dict: dict) -> None:
+def dump(file_name: str | None, data_dict: dict) -> None:
     """
     Dump data dictionary into HDF5 file
 
@@ -134,7 +134,7 @@ def get_runtime(file_name: str) -> float:
             return 0.0
 
 
-def get_queue_id(file_name: Optional[str]) -> Optional[int]:
+def get_queue_id(file_name: str | None) -> int | None:
     """
     Get queuing system id from HDF5 file
 

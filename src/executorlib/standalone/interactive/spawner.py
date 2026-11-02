@@ -1,7 +1,7 @@
 import os
 import subprocess
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from collections.abc import Callable
 
 MPI_COMMAND = "mpiexec"
 
@@ -9,7 +9,7 @@ MPI_COMMAND = "mpiexec"
 class BaseSpawner(ABC):
     def __init__(
         self,
-        cwd: Optional[str] = None,
+        cwd: str | None = None,
         cores: int = 1,
         worker_id: int = 0,
         openmpi_oversubscribe: bool = False,
@@ -32,7 +32,7 @@ class BaseSpawner(ABC):
     def bootup(
         self,
         command_lst: list[str],
-        stop_function: Optional[Callable] = None,
+        stop_function: Callable | None = None,
     ) -> bool:
         """
         Method to start the interface.
@@ -70,7 +70,7 @@ class BaseSpawner(ABC):
 class SubprocessSpawner(BaseSpawner):
     def __init__(
         self,
-        cwd: Optional[str] = None,
+        cwd: str | None = None,
         cores: int = 1,
         worker_id: int = 0,
         openmpi_oversubscribe: bool = False,
@@ -92,13 +92,13 @@ class SubprocessSpawner(BaseSpawner):
             worker_id=worker_id,
             openmpi_oversubscribe=openmpi_oversubscribe,
         )
-        self._process: Optional[subprocess.Popen] = None
+        self._process: subprocess.Popen | None = None
         self._threads_per_core = threads_per_core
 
     def bootup(
         self,
         command_lst: list[str],
-        stop_function: Optional[Callable] = None,
+        stop_function: Callable | None = None,
     ) -> bool:
         """
         Method to start the subprocess interface.

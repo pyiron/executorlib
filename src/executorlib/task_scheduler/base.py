@@ -1,7 +1,7 @@
 import contextlib
 import queue
 import sys
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from concurrent.futures import (
     Executor as FutureExecutor,
 )
@@ -9,7 +9,7 @@ from concurrent.futures import (
     Future,
 )
 from threading import Thread
-from typing import Any, Callable, Optional, TypeVar, Union
+from typing import Any, TypeVar
 
 from executorlib.standalone.inputcheck import check_resource_dict
 from executorlib.standalone.queue import cancel_items_in_queue
@@ -38,7 +38,7 @@ class TaskSchedulerBase(FutureExecutor):
 
     def __init__(
         self,
-        max_cores: Optional[int] = None,
+        max_cores: int | None = None,
         validator: Callable = validate_resource_dict,
     ):
         """
@@ -53,12 +53,12 @@ class TaskSchedulerBase(FutureExecutor):
         cloudpickle_register(ind=3)
         self._process_kwargs: dict = {}
         self._max_cores = max_cores
-        self._future_queue: Optional[queue.Queue] = queue.Queue()
-        self._process: Optional[Union[Thread, list[Thread]]] = None
+        self._future_queue: queue.Queue | None = queue.Queue()
+        self._process: Thread | list[Thread] | None = None
         self._validator = validator
 
     @property
-    def max_workers(self) -> Optional[int]:
+    def max_workers(self) -> int | None:
         """
         Return the configured number of parallel workers, or None if unconstrained.
 
@@ -78,7 +78,7 @@ class TaskSchedulerBase(FutureExecutor):
         raise NotImplementedError("The max_workers setter is not implemented.")
 
     @property
-    def info(self) -> Optional[dict]:
+    def info(self) -> dict | None:
         """
         Get the information about the executor.
 
@@ -97,7 +97,7 @@ class TaskSchedulerBase(FutureExecutor):
             return None
 
     @property
-    def future_queue(self) -> Optional[queue.Queue]:
+    def future_queue(self) -> queue.Queue | None:
         """
         Get the future queue.
 
@@ -128,7 +128,7 @@ class TaskSchedulerBase(FutureExecutor):
         fn: Callable,
         /,
         *args,
-        resource_dict: Optional[dict] = None,
+        resource_dict: dict | None = None,
         **kwargs,
     ) -> Future:
         """
@@ -185,9 +185,9 @@ class TaskSchedulerBase(FutureExecutor):
         self,
         fn: Callable[..., _T],
         *iterables: Iterable[Any],
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
         chunksize: int = 1,
-        buffersize: Optional[int] = None,
+        buffersize: int | None = None,
     ) -> Iterator[_T]:
         """Returns an iterator equivalent to map(fn, iter).
 
