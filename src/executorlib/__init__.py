@@ -45,8 +45,8 @@ def get_cache_data(cache_directory: str) -> list[dict]:
 
 def get_cache_data_queue(
     cache_directory: str,
-    queue_type: Optional[str] = None,
-    config_directory: Optional[str] = None,
+    queue_type: str | None = None,
+    config_directory: str | None = None,
 ) -> list[dict]:
     """
     Collect all HDF5 files in the cache directory and check their status in the queue system
@@ -100,8 +100,8 @@ def get_future_from_cache(
 
 def terminate_tasks_in_cache(
     cache_directory: str,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
 ):
     """
     Delete all jobs stored in the cache directory from the queuing system
@@ -123,8 +123,8 @@ def terminate_tasks_in_cache(
 def terminate_task_in_cache(
     cache_directory: str,
     cache_key: str,
-    pysqa_config_directory: Optional[str] = None,
-    backend: Optional[str] = None,
+    pysqa_config_directory: str | None = None,
+    backend: str | None = None,
 ):
     """
     Delete a specific job stored in the cache directory from the queuing system
