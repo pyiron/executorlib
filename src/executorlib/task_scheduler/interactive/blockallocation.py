@@ -1,5 +1,6 @@
 import queue
 import random
+from _thread import LockType
 from collections.abc import Callable
 from concurrent.futures import Future
 from threading import Event, Lock, Thread
@@ -242,7 +243,7 @@ def _execute_multiple_tasks(
     bootup_event: Event | None = None,
     next_bootup_event: Event | None = None,
     alive_workers: list | None = None,
-    alive_workers_lock: Lock | None = None,
+    alive_workers_lock: LockType | None = None,
     **kwargs,
 ) -> None:
     """
@@ -345,7 +346,7 @@ def _execute_multiple_tasks(
 def _drain_dead_worker(
     future_queue: queue.Queue,
     alive_workers: list | None = None,
-    alive_workers_lock: Lock | None = None,
+    alive_workers_lock: LockType | None = None,
 ) -> None:
     """Handle a permanently dead worker by recycling or failing its tasks.
 
