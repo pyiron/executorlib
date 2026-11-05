@@ -177,7 +177,7 @@ def pysqa_get_status_of_job(
 
 
 def pysqa_execute_command(
-    commands: str,
+    commands: str | list[str],
     working_directory: str | None = None,
     split_output: bool = True,
     shell: bool = False,
