@@ -10,6 +10,15 @@ from pysqa import QueueAdapter
 # on this status query, but it must not be issued on every poll of the (much faster) refresh_rate
 # loop, as that would flood the queuing system commands (e.g. squeue/sacct) with requests.
 _JOB_STATUS_CHECK_INTERVAL = 30.0
+_SLURM_OUTPUT_GRACE_PERIOD = 60.0
+_SLURM_RUNNING_STATES = {
+    "COMPLETING",
+    "CONFIGURING",
+    "PENDING",
+    "RESIZING",
+    "RUNNING",
+    "SUSPENDED",
+}
 
 
 def pysqa_job_output_validation(
@@ -23,9 +32,9 @@ def pysqa_job_output_validation(
 ) -> bool:
     """
     Check whether the queuing system job backing a task has died without ever writing its output
-    file. Only applies to queuing system backends (pysqa) and is throttled to at most once every
-    ``job_status_check_interval`` seconds per task, to avoid flooding the queuing system with
-    status queries on every poll of the (much faster) refresh_rate loop.
+    file. For Slurm, a successful job is given a grace period for its output to appear on a shared
+    filesystem. Status checks are throttled to at most once every ``job_status_check_interval``
+    seconds per task, to avoid flooding the queuing system on every poll of the refresh loop.
 
     A dead job is recognized in two ways, since queuing systems differ in whether they drop
     terminated jobs from their listing: slurm's squeue removes a job as soon as it is gone
@@ -47,19 +56,75 @@ def pysqa_job_output_validation(
             errored out, and still has no output.
     """
     now = monotonic()
-    last_checked = (
-        status_check_dict.get(task_key, 0.0) if status_check_dict is not None else 0.0
+    check_state = (
+        status_check_dict.get(task_key, {}) if status_check_dict is not None else {}
     )
+    if isinstance(check_state, dict):
+        last_checked = check_state.get("last_checked", 0.0)
+        completed_at = check_state.get("completed_at")
+    else:
+        last_checked = check_state
+        completed_at = None
+    if completed_at is not None:
+        return now - completed_at >= _SLURM_OUTPUT_GRACE_PERIOD
     if now - last_checked < job_status_check_interval:
         return False
     if status_check_dict is not None:
-        status_check_dict[task_key] = now
+        status_check_dict[task_key] = {"last_checked": now}
     status = pysqa_get_status_of_job(
         queue_id=queue_id,
         config_directory=pysqa_config_directory,
         backend=backend,
     )
+    if backend == "slurm" and status is None:
+        return _validate_slurm_job_output(
+            task_key=task_key,
+            file_name=file_name,
+            queue_id=queue_id,
+            now=now,
+            status_check_dict=status_check_dict,
+        )
     return (status is None or status == "error") and not os.path.exists(file_name)
+
+
+def _validate_slurm_job_output(
+    task_key: str,
+    file_name: str,
+    queue_id: int,
+    now: float,
+    status_check_dict: dict | None,
+) -> bool:
+    state = pysqa_get_slurm_job_state(queue_id=queue_id)
+    if state == "COMPLETED":
+        if status_check_dict is None:
+            return True
+        status_check_dict[task_key] = {"last_checked": now, "completed_at": now}
+        return False
+    return state not in _SLURM_RUNNING_STATES and not os.path.exists(file_name)
+
+
+def pysqa_get_slurm_job_state(queue_id: int) -> str | None:
+    """
+    Query Slurm accounting for a job that is no longer in the active queue.
+
+    Returns the first allocation state reported by sacct, or None when no state is available.
+    """
+    output = pysqa_execute_command(
+        [
+            "sacct",
+            "--noheader",
+            "--allocations",
+            "--jobs",
+            str(queue_id),
+            "--format=State",
+        ]
+    )
+    lines = output.splitlines() if isinstance(output, str) else output
+    for line in lines:
+        state = line.partition("|")[0].strip().upper()
+        if state:
+            return state
+    return None
 
 
 def pysqa_terminate(
