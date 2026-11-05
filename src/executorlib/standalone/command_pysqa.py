@@ -10,7 +10,7 @@ from pysqa import QueueAdapter
 # on this status query, but it must not be issued on every poll of the (much faster) refresh_rate
 # loop, as that would flood the queuing system commands (e.g. squeue/sacct) with requests.
 _JOB_STATUS_CHECK_INTERVAL = 30.0
-_SLURM_OUTPUT_GRACE_PERIOD = 60.0
+_JOB_OUTPUT_GRACE_PERIOD = 60.0
 _SLURM_RUNNING_STATES = {
     "COMPLETING",
     "CONFIGURING",
@@ -32,9 +32,10 @@ def pysqa_job_output_validation(
 ) -> bool:
     """
     Check whether the queuing system job backing a task has died without ever writing its output
-    file. For Slurm, a successful job is given a grace period for its output to appear on a shared
-    filesystem. Status checks are throttled to at most once every ``job_status_check_interval``
-    seconds per task, to avoid flooding the queuing system on every poll of the refresh loop.
+    file. Successful Slurm and Flux jobs are given a grace period for their output to appear on a
+    shared filesystem. Status checks are throttled to at most once every
+    ``job_status_check_interval`` seconds per task, to avoid flooding the queuing system on every
+    poll of the refresh loop.
 
     A dead job is recognized in two ways, since queuing systems differ in whether they drop
     terminated jobs from their listing: slurm's squeue removes a job as soon as it is gone
@@ -66,7 +67,7 @@ def pysqa_job_output_validation(
         last_checked = check_state
         completed_at = None
     if completed_at is not None:
-        return now - completed_at >= _SLURM_OUTPUT_GRACE_PERIOD
+        return now - completed_at >= _JOB_OUTPUT_GRACE_PERIOD
     if now - last_checked < job_status_check_interval:
         return False
     if status_check_dict is not None:
@@ -84,7 +85,20 @@ def pysqa_job_output_validation(
             now=now,
             status_check_dict=status_check_dict,
         )
+    if backend == "flux" and status == "finished":
+        return _mark_job_completed(task_key, now, status_check_dict)
     return (status is None or status == "error") and not os.path.exists(file_name)
+
+
+def _mark_job_completed(
+    task_key: str,
+    now: float,
+    status_check_dict: dict | None,
+) -> bool:
+    if status_check_dict is None:
+        return True
+    status_check_dict[task_key] = {"last_checked": now, "completed_at": now}
+    return False
 
 
 def _validate_slurm_job_output(
@@ -96,10 +110,7 @@ def _validate_slurm_job_output(
 ) -> bool:
     state = pysqa_get_slurm_job_state(queue_id=queue_id)
     if state == "COMPLETED":
-        if status_check_dict is None:
-            return True
-        status_check_dict[task_key] = {"last_checked": now, "completed_at": now}
-        return False
+        return _mark_job_completed(task_key, now, status_check_dict)
     return state not in _SLURM_RUNNING_STATES and not os.path.exists(file_name)
 
 
