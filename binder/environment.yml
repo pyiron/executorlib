@@ -16,4 +16,4 @@ dependencies:
 - networkx =3.7
 - pygraphviz =2.0.4
 - pysqa =1.1.1
-- pyzmq =27.2.0
+- pyzmq =27.3.0
