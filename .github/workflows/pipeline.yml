@@ -276,7 +276,7 @@ jobs:
 
   unittest_slurm_mpich:
     needs: [black]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       mysql:
         image: mysql:8.0
