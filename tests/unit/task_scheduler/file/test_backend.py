@@ -246,10 +246,7 @@ class TestSharedFunctions(unittest.TestCase):
         with patch(
             "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
             return_value=None,
-        ) as status_mock, patch(
-            "executorlib.standalone.command_pysqa.pysqa_get_slurm_job_state",
-            return_value=None,
-        ):
+        ) as status_mock:
             _check_task_output(
                 task_key=task_key,
                 future_obj=future_obj,
@@ -304,11 +301,7 @@ class TestSharedFunctions(unittest.TestCase):
         with (
             patch(
                 "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
-                return_value=None,
-            ),
-            patch(
-                "executorlib.standalone.command_pysqa.pysqa_get_slurm_job_state",
-                return_value="COMPLETED",
+                return_value="finished",
             ),
             patch(
                 "executorlib.standalone.command_pysqa.monotonic",
@@ -397,11 +390,7 @@ class TestSharedFunctions(unittest.TestCase):
         with (
             patch(
                 "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
-                return_value=None,
-            ),
-            patch(
-                "executorlib.standalone.command_pysqa.pysqa_get_slurm_job_state",
-                return_value="TIMEOUT",
+                return_value="error",
             ),
         ):
             _check_task_output(
@@ -429,11 +418,7 @@ class TestSharedFunctions(unittest.TestCase):
         with (
             patch(
                 "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
-                return_value=None,
-            ),
-            patch(
-                "executorlib.standalone.command_pysqa.pysqa_get_slurm_job_state",
-                return_value="COMPLETED",
+                return_value="finished",
             ),
             patch(
                 "executorlib.standalone.command_pysqa.monotonic",

@@ -10,15 +10,9 @@ from pysqa import QueueAdapter
 # on this status query, but it must not be issued on every poll of the (much faster) refresh_rate
 # loop, as that would flood the queuing system commands (e.g. squeue/sacct) with requests.
 _JOB_STATUS_CHECK_INTERVAL = 30.0
+# Time to wait for the output file of a job, which the queuing system reports as successfully
+# finished, to become visible on a shared filesystem before the task is failed.
 _JOB_OUTPUT_GRACE_PERIOD = 60.0
-_SLURM_RUNNING_STATES = {
-    "COMPLETING",
-    "CONFIGURING",
-    "PENDING",
-    "RESIZING",
-    "RUNNING",
-    "SUSPENDED",
-}
 
 
 def pysqa_job_output_validation(
@@ -32,16 +26,17 @@ def pysqa_job_output_validation(
 ) -> bool:
     """
     Check whether the queuing system job backing a task has died without ever writing its output
-    file. Successful Slurm and Flux jobs are given a grace period for their output to appear on a
-    shared filesystem. Status checks are throttled to at most once every
-    ``job_status_check_interval`` seconds per task, to avoid flooding the queuing system on every
-    poll of the refresh loop.
+    file. Jobs which the queuing system reports as successfully finished are given a grace period
+    for their output to appear on a shared filesystem. Status checks are throttled to at most once
+    every ``job_status_check_interval`` seconds per task, to avoid flooding the queuing system on
+    every poll of the refresh loop.
 
     A dead job is recognized in two ways, since queuing systems differ in whether they drop
-    terminated jobs from their listing: slurm's squeue removes a job as soon as it is gone
-    (status None), while flux's "flux jobs -a" keeps listing inactive jobs and instead reports
-    pysqa's terminal-failure status "error" (the same status pysqa_terminate already treats as
-    not alive).
+    terminated jobs from their listing: flux's "flux jobs -a" keeps listing inactive jobs, while for
+    slurm pysqa falls back to the accounting database (sacct) once a job left squeue. Both report
+    pysqa's terminal-failure status "error" for jobs which failed (timeout, OOM, node failure,
+    scancel, ...). A job which is unknown to the queuing system (status None), for example because
+    slurm accounting is not available, is treated as dead as well.
 
     Args:
         task_key (str): The key of the task.
@@ -77,65 +72,12 @@ def pysqa_job_output_validation(
         config_directory=pysqa_config_directory,
         backend=backend,
     )
-    if backend == "slurm" and status is None:
-        return _validate_slurm_job_output(
-            task_key=task_key,
-            file_name=file_name,
-            queue_id=queue_id,
-            now=now,
-            status_check_dict=status_check_dict,
-        )
-    if backend == "flux" and status == "finished":
-        return _mark_job_completed(task_key, now, status_check_dict)
+    if status == "finished":
+        if status_check_dict is None:
+            return not os.path.exists(file_name)
+        status_check_dict[task_key] = {"last_checked": now, "completed_at": now}
+        return False
     return (status is None or status == "error") and not os.path.exists(file_name)
-
-
-def _mark_job_completed(
-    task_key: str,
-    now: float,
-    status_check_dict: dict | None,
-) -> bool:
-    if status_check_dict is None:
-        return True
-    status_check_dict[task_key] = {"last_checked": now, "completed_at": now}
-    return False
-
-
-def _validate_slurm_job_output(
-    task_key: str,
-    file_name: str,
-    queue_id: int,
-    now: float,
-    status_check_dict: dict | None,
-) -> bool:
-    state = pysqa_get_slurm_job_state(queue_id=queue_id)
-    if state == "COMPLETED":
-        return _mark_job_completed(task_key, now, status_check_dict)
-    return state not in _SLURM_RUNNING_STATES and not os.path.exists(file_name)
-
-
-def pysqa_get_slurm_job_state(queue_id: int) -> str | None:
-    """
-    Query Slurm accounting for a job that is no longer in the active queue.
-
-    Returns the first allocation state reported by sacct, or None when no state is available.
-    """
-    output = pysqa_execute_command(
-        [
-            "sacct",
-            "--noheader",
-            "--allocations",
-            "--jobs",
-            str(queue_id),
-            "--format=State",
-        ]
-    )
-    lines = output.splitlines() if isinstance(output, str) else output
-    for line in lines:
-        state = line.partition("|")[0].strip().upper()
-        if state:
-            return state
-    return None
 
 
 def pysqa_terminate(
@@ -154,7 +96,7 @@ def pysqa_terminate(
     qa = QueueAdapter(
         directory=config_directory,
         queue_type=backend,
-        execute_command=pysqa_execute_command,
+        execute_command=_pysqa_execute_status_command,
     )
     status = qa.get_status_of_job(process_id=queue_id)
     if status is not None and status not in ["finished", "error"]:
@@ -182,7 +124,7 @@ def pysqa_get_status_of_job(
     qa = QueueAdapter(
         directory=config_directory,
         queue_type=backend,
-        execute_command=pysqa_execute_command,
+        execute_command=_pysqa_execute_status_command,
     )
     return qa.get_status_of_job(process_id=queue_id)
 
@@ -221,3 +163,30 @@ def pysqa_execute_command(
         return out.split("\n")
     else:
         return out
+
+
+def _pysqa_execute_status_command(
+    commands: str | list[str],
+    working_directory: str | None = None,
+    split_output: bool = True,
+    shell: bool = False,
+    error_filename: str = "pysqa.err",
+) -> str | list[str] | None:
+    """
+    Variant of pysqa_execute_command for job status queries. pysqa falls back to the slurm
+    accounting database (sacct) for jobs which are no longer listed by squeue. On clusters without
+    slurm accounting sacct fails, in this case None is returned so pysqa reports the job as unknown
+    rather than raising an exception.
+    """
+    try:
+        return pysqa_execute_command(
+            commands=commands,
+            working_directory=working_directory,
+            split_output=split_output,
+            shell=shell,
+            error_filename=error_filename,
+        )
+    except subprocess.CalledProcessError:
+        if "sacct" in commands:
+            return None
+        raise
