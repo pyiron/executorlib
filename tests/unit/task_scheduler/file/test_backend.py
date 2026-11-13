@@ -290,6 +290,215 @@ class TestSharedFunctions(unittest.TestCase):
             future_obj.result()
 
     @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
+    def test_check_task_output_completed_slurm_job_waits_for_output(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, _, _ = serialize_funct(
+            fn=my_funct, fn_args=[1], fn_kwargs={"b": 2}
+        )
+        future_obj = Future()
+        status_check_dict = {}
+        with (
+            patch(
+                "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
+                return_value="finished",
+            ),
+            patch(
+                "executorlib.standalone.command_pysqa.monotonic",
+                side_effect=[100.0, 101.0],
+            ),
+        ):
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="slurm",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+            self.assertFalse(future_obj.done())
+            dump(
+                file_name=os.path.join(cache_directory, task_key + "_o.h5"),
+                data_dict={"output": 3},
+            )
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="slurm",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+        self.assertTrue(future_obj.done())
+        self.assertEqual(future_obj.result(), 3)
+
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
+    def test_check_task_output_completed_flux_job_waits_for_output(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, _, _ = serialize_funct(
+            fn=my_funct, fn_args=[1], fn_kwargs={"b": 2}
+        )
+        future_obj = Future()
+        status_check_dict = {}
+        with (
+            patch(
+                "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
+                return_value="finished",
+            ),
+            patch(
+                "executorlib.standalone.command_pysqa.monotonic",
+                side_effect=[100.0],
+            ),
+        ):
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="flux",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+            self.assertFalse(future_obj.done())
+            dump(
+                file_name=os.path.join(cache_directory, task_key + "_o.h5"),
+                data_dict={"output": 3},
+            )
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="flux",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+        self.assertTrue(future_obj.done())
+        self.assertEqual(future_obj.result(), 3)
+
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
+    def test_check_task_output_failed_slurm_job_does_not_wait(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, _, _ = serialize_funct(
+            fn=my_funct, fn_args=[1], fn_kwargs={"b": 2}
+        )
+        future_obj = Future()
+        with (
+            patch(
+                "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
+                return_value="error",
+            ),
+        ):
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="slurm",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict={},
+            )
+        self.assertTrue(future_obj.done())
+        with self.assertRaises(RuntimeError):
+            future_obj.result()
+
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
+    def test_check_task_output_completed_slurm_job_wait_is_bounded(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, _, _ = serialize_funct(
+            fn=my_funct, fn_args=[1], fn_kwargs={"b": 2}
+        )
+        future_obj = Future()
+        status_check_dict = {}
+        with (
+            patch(
+                "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
+                return_value="finished",
+            ),
+            patch(
+                "executorlib.standalone.command_pysqa.monotonic",
+                side_effect=[100.0, 160.0],
+            ),
+            patch(
+                "executorlib.standalone.command_pysqa._JOB_OUTPUT_GRACE_PERIOD",
+                60.0,
+            ),
+        ):
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="slurm",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+            self.assertFalse(future_obj.done())
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="slurm",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+        self.assertTrue(future_obj.done())
+        with self.assertRaises(RuntimeError):
+            future_obj.result()
+
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
+    def test_check_task_output_completed_flux_job_wait_is_bounded(self):
+        cache_directory = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_directory, exist_ok=True)
+        task_key, _, _ = serialize_funct(
+            fn=my_funct, fn_args=[1], fn_kwargs={"b": 2}
+        )
+        future_obj = Future()
+        status_check_dict = {}
+        with (
+            patch(
+                "executorlib.standalone.command_pysqa.pysqa_get_status_of_job",
+                return_value="finished",
+            ),
+            patch(
+                "executorlib.standalone.command_pysqa.monotonic",
+                side_effect=[100.0, 160.0],
+            ),
+            patch(
+                "executorlib.standalone.command_pysqa._JOB_OUTPUT_GRACE_PERIOD",
+                60.0,
+            ),
+        ):
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="flux",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+            self.assertFalse(future_obj.done())
+            _check_task_output(
+                task_key=task_key,
+                future_obj=future_obj,
+                cache_directory=cache_directory,
+                queue_id=123,
+                backend="flux",
+                validate_function=pysqa_job_output_validation,
+                status_check_dict=status_check_dict,
+            )
+        self.assertTrue(future_obj.done())
+        with self.assertRaises(RuntimeError):
+            future_obj.result()
+
+    @unittest.skipIf(sys.platform == "win32" or skip_pysqa_test, "pysqa module patching not supported on Windows or when pysqa is not installed")
     def test_check_task_output_job_still_running(self):
         cache_directory = os.path.abspath("executorlib_cache")
         os.makedirs(cache_directory, exist_ok=True)

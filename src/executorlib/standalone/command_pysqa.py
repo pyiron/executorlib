@@ -10,6 +10,9 @@ from pysqa import QueueAdapter
 # on this status query, but it must not be issued on every poll of the (much faster) refresh_rate
 # loop, as that would flood the queuing system commands (e.g. squeue/sacct) with requests.
 _JOB_STATUS_CHECK_INTERVAL = 30.0
+# Time to wait for the output file of a job, which the queuing system reports as successfully
+# finished, to become visible on a shared filesystem before the task is failed.
+_JOB_OUTPUT_GRACE_PERIOD = 60.0
 
 
 def pysqa_job_output_validation(
@@ -23,15 +26,17 @@ def pysqa_job_output_validation(
 ) -> bool:
     """
     Check whether the queuing system job backing a task has died without ever writing its output
-    file. Only applies to queuing system backends (pysqa) and is throttled to at most once every
-    ``job_status_check_interval`` seconds per task, to avoid flooding the queuing system with
-    status queries on every poll of the (much faster) refresh_rate loop.
+    file. Jobs which the queuing system reports as successfully finished are given a grace period
+    for their output to appear on a shared filesystem. Status checks are throttled to at most once
+    every ``job_status_check_interval`` seconds per task, to avoid flooding the queuing system on
+    every poll of the refresh loop.
 
     A dead job is recognized in two ways, since queuing systems differ in whether they drop
-    terminated jobs from their listing: slurm's squeue removes a job as soon as it is gone
-    (status None), while flux's "flux jobs -a" keeps listing inactive jobs and instead reports
-    pysqa's terminal-failure status "error" (the same status pysqa_terminate already treats as
-    not alive).
+    terminated jobs from their listing: flux's "flux jobs -a" keeps listing inactive jobs, while for
+    slurm pysqa falls back to the accounting database (sacct) once a job left squeue. Both report
+    pysqa's terminal-failure status "error" for jobs which failed (timeout, OOM, node failure,
+    scancel, ...). A job which is unknown to the queuing system (status None), for example because
+    slurm accounting is not available, is treated as dead as well.
 
     Args:
         task_key (str): The key of the task.
@@ -47,18 +52,31 @@ def pysqa_job_output_validation(
             errored out, and still has no output.
     """
     now = monotonic()
-    last_checked = (
-        status_check_dict.get(task_key, 0.0) if status_check_dict is not None else 0.0
+    check_state = (
+        status_check_dict.get(task_key, {}) if status_check_dict is not None else {}
     )
+    if isinstance(check_state, dict):
+        last_checked = check_state.get("last_checked", 0.0)
+        completed_at = check_state.get("completed_at")
+    else:
+        last_checked = check_state
+        completed_at = None
+    if completed_at is not None:
+        return now - completed_at >= _JOB_OUTPUT_GRACE_PERIOD
     if now - last_checked < job_status_check_interval:
         return False
     if status_check_dict is not None:
-        status_check_dict[task_key] = now
+        status_check_dict[task_key] = {"last_checked": now}
     status = pysqa_get_status_of_job(
         queue_id=queue_id,
         config_directory=pysqa_config_directory,
         backend=backend,
     )
+    if status == "finished":
+        if status_check_dict is None:
+            return not os.path.exists(file_name)
+        status_check_dict[task_key] = {"last_checked": now, "completed_at": now}
+        return False
     return (status is None or status == "error") and not os.path.exists(file_name)
 
 
@@ -78,7 +96,7 @@ def pysqa_terminate(
     qa = QueueAdapter(
         directory=config_directory,
         queue_type=backend,
-        execute_command=pysqa_execute_command,
+        execute_command=_pysqa_execute_status_command,
     )
     status = qa.get_status_of_job(process_id=queue_id)
     if status is not None and status not in ["finished", "error"]:
@@ -106,13 +124,13 @@ def pysqa_get_status_of_job(
     qa = QueueAdapter(
         directory=config_directory,
         queue_type=backend,
-        execute_command=pysqa_execute_command,
+        execute_command=_pysqa_execute_status_command,
     )
     return qa.get_status_of_job(process_id=queue_id)
 
 
 def pysqa_execute_command(
-    commands: str,
+    commands: str | list[str],
     working_directory: str | None = None,
     split_output: bool = True,
     shell: bool = False,
@@ -145,3 +163,30 @@ def pysqa_execute_command(
         return out.split("\n")
     else:
         return out
+
+
+def _pysqa_execute_status_command(
+    commands: str | list[str],
+    working_directory: str | None = None,
+    split_output: bool = True,
+    shell: bool = False,
+    error_filename: str = "pysqa.err",
+) -> str | list[str] | None:
+    """
+    Variant of pysqa_execute_command for job status queries. pysqa falls back to the slurm
+    accounting database (sacct) for jobs which are no longer listed by squeue. On clusters without
+    slurm accounting sacct fails, in this case None is returned so pysqa reports the job as unknown
+    rather than raising an exception.
+    """
+    try:
+        return pysqa_execute_command(
+            commands=commands,
+            working_directory=working_directory,
+            split_output=split_output,
+            shell=shell,
+            error_filename=error_filename,
+        )
+    except subprocess.CalledProcessError:
+        if "sacct" in commands:
+            return None
+        raise
