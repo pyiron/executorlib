@@ -16,7 +16,7 @@ authors = [
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["high performance computing", "hpc", "task scheduler", "slurm", "flux-framework", "executor", "python", "parallel computing", "distributed computing", "scientific computing", "concurrent.futures", "mpi4py", "gpu"]
-requires-python = ">3.10, <3.16"
+requires-python = ">=3.12, <3.16, !=3.14.1"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Topic :: Scientific/Engineering :: Physics",
@@ -49,24 +49,24 @@ graph = [
 graphnotebook = [
     "pygraphviz==2.0.4",
     "networkx==3.7",
-    "ipython==9.17.1",
+    "ipython==9.18.1",
 ]
 mpi = ["mpi4py==4.1.2"]
 cluster = [
-    "pysqa==1.1.1",
+    "pysqa==1.2.0",
     "h5py==3.16.0",
 ]
 validation = [
-    "pydantic==2.14.2",
+    "pydantic==2.14.3",
 ]
 all = [
     "mpi4py==4.1.2",
-    "pysqa==1.1.1",
+    "pysqa==1.2.0",
     "h5py==3.16.0",
-    "pydantic==2.14.2",
+    "pydantic==2.14.3",
     "pygraphviz==2.0.4",
     "networkx==3.7",
-    "ipython==9.17.1",
+    "ipython==9.18.1",
 ]
 
 [tool.ruff]
