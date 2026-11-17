@@ -1,8 +1,14 @@
+import subprocess
 import unittest
+from unittest.mock import patch
+
 from executorlib.standalone.command import generate_slurm_command
 
 try:
-    from executorlib.standalone.command_pysqa import pysqa_execute_command
+    from executorlib.standalone.command_pysqa import (
+        _pysqa_execute_status_command,
+        pysqa_execute_command,
+    )
 
     skip_pysqa_test = False
 except ImportError:
@@ -44,6 +50,20 @@ class TestPysqaExecuteCommand(unittest.TestCase):
                 shell=False,
                 error_filename="pysqa.err",
             )
+
+    def test_pysqa_execute_status_command_sacct_fail(self):
+        error = subprocess.CalledProcessError(returncode=1, cmd="sacct")
+        with patch(
+            "executorlib.standalone.command_pysqa.subprocess.check_output",
+            side_effect=error,
+        ):
+            self.assertIsNone(
+                _pysqa_execute_status_command(
+                    commands=["sacct", "--jobs", "1"], split_output=False
+                )
+            )
+            with self.assertRaises(subprocess.CalledProcessError):
+                _pysqa_execute_status_command(commands=["squeue"])
 
     def test_generate_slurm_command(self):
         command_lst = generate_slurm_command(
