@@ -1,17 +1,33 @@
 format: jb-book
 root: README
-chapters:
-- file: installation.md
-- file: hpc-workflow.md
-- file: comparison.md
-- file: 1-single-node.ipynb
-- file: 2-hpc-cluster.ipynb
-- file: 3-hpc-job.ipynb
-- file: application.md
-  sections:
+parts:
+- caption: Getting Started
+  chapters:
+  - file: installation.md
+- caption: User Stories
+  chapters:
+  - file: story-1-submit-and-reconnect.ipynb
+  - file: story-2-multi-resource-pipeline.ipynb
+  - file: story-3-parameter-study.ipynb
+  - file: story-4-prototype-then-scale.ipynb
+  - file: story-5-recover-failed-jobs.ipynb
+  - file: story-6-expensive-setup-once.ipynb
+  - file: story-7-fan-out-inside-jobs.ipynb
+  - file: story-8-adaptive-workflows.ipynb
+  - file: story-9-document-and-share.ipynb
+- caption: Background
+  chapters:
+  - file: comparison.md
+- caption: Reference
+  chapters:
+  - file: 1-single-node.ipynb
+  - file: 2-hpc-cluster.ipynb
+  - file: 3-hpc-job.ipynb
+  - file: application.md
+    sections:
     - file: 4-1-gpaw.ipynb
     - file: 4-2-quantum-espresso.ipynb
-- file: coupling.md
-- file: trouble_shooting.md
-- file: 5-developer.ipynb
-- file: api.rst
+  - file: coupling.md
+  - file: trouble_shooting.md
+  - file: 5-developer.ipynb
+  - file: api.rst
