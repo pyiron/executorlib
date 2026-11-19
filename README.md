@@ -56,8 +56,8 @@ with SlurmClusterExecutor(cache_directory="./cache") as exe:
     future_lst = [exe.submit(calc, i) for i in range(1, 4)]
     print([f.result() for f in future_lst])
 ```
-The user stories each start from a typical challenge of HPC users and solve it end-to-end, combining the features of
-executorlib which are needed along the way:
+Each user story starts from a challenge you are likely to face on an HPC cluster and solves it end-to-end, introducing
+the features of executorlib as you need them:
 1. [Submit a long-running function and come back later](https://executorlib.readthedocs.io/en/latest/story-1-submit-and-reconnect.html) - submit
    from the login node, disconnect, check the status, reconnect and cancel jobs.
 2. [A parameter study with many short calculations](https://executorlib.readthedocs.io/en/latest/story-2-parameter-study.html) - distribute
