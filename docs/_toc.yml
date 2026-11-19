@@ -7,17 +7,17 @@ parts:
 - caption: User Stories
   chapters:
   - file: story-1-submit-and-reconnect.ipynb
-  - file: story-2-multi-resource-pipeline.ipynb
-  - file: story-3-parameter-study.ipynb
-  - file: story-4-prototype-then-scale.ipynb
-  - file: story-5-recover-failed-jobs.ipynb
-  - file: story-6-expensive-setup-once.ipynb
-  - file: story-7-fan-out-inside-jobs.ipynb
-  - file: story-8-adaptive-workflows.ipynb
-  - file: story-9-document-and-share.ipynb
-  - file: story-10-pandas-dataframes.ipynb
-  - file: story-11-couple-mpi-simulation-codes.ipynb
-  - file: story-12-mpi4py-functions.ipynb
+  - file: story-2-parameter-study.ipynb
+  - file: story-3-pandas-dataframes.ipynb
+  - file: story-4-couple-mpi-simulation-codes.ipynb
+  - file: story-5-mpi4py-functions.ipynb
+  - file: story-6-multi-resource-pipeline.ipynb
+  - file: story-7-prototype-then-scale.ipynb
+  - file: story-8-recover-failed-jobs.ipynb
+  - file: story-9-expensive-setup-once.ipynb
+  - file: story-10-fan-out-inside-jobs.ipynb
+  - file: story-11-adaptive-workflows.ipynb
+  - file: story-12-document-and-share.ipynb
 - caption: Background
   chapters:
   - file: comparison.md

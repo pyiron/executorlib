@@ -60,32 +60,32 @@ The user stories each start from a typical challenge of HPC users and solve it e
 executorlib which are needed along the way:
 1. [Submit a long-running function and come back later](https://executorlib.readthedocs.io/en/latest/story-1-submit-and-reconnect.html) - submit
    from the login node, disconnect, check the status, reconnect and cancel jobs.
-2. [A pipeline whose steps need different resources](https://executorlib.readthedocs.io/en/latest/story-2-multi-resource-pipeline.html) - per-call
-   resources, MPI-parallel functions and SLURM job dependencies from future objects.
-3. [A parameter study with many short calculations](https://executorlib.readthedocs.io/en/latest/story-3-parameter-study.html) - distribute
+2. [A parameter study with many short calculations](https://executorlib.readthedocs.io/en/latest/story-2-parameter-study.html) - distribute
    calculations within one allocation, find failing parameter sets and collect the results in a DataFrame.
-4. [Prototype on a laptop, then scale up](https://executorlib.readthedocs.io/en/latest/story-4-prototype-then-scale.html) - develop locally with
-   the same interface, test the file-based cluster mode and switch executors with one line.
-5. [Recover from failed jobs](https://executorlib.readthedocs.io/en/latest/story-5-recover-failed-jobs.html) - diagnose exceptions and killed
-   jobs, then rerun only the failed calculations.
-6. [Pay for an expensive setup only once](https://executorlib.readthedocs.io/en/latest/story-6-expensive-setup-once.html) - long-lived workers
-   with an initialization function and automatic restarts.
-7. [Large jobs which each fan out into many small tasks](https://executorlib.readthedocs.io/en/latest/story-7-fan-out-inside-jobs.html) -
-   combine one SLURM job per campaign with many tasks inside each job.
-8. [Adaptive workflows](https://executorlib.readthedocs.io/en/latest/story-8-adaptive-workflows.html) - convergence loops, recursion with
-   `asyncio` and batching in the order results arrive.
-9. [Document and share a workflow](https://executorlib.readthedocs.io/en/latest/story-9-document-and-share.html) - export the workflow graph and
-   use the cache as an audit trail.
-10. [Parallel computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-10-pandas-dataframes.html) -
+3. [Parallel computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-3-pandas-dataframes.html) -
     replace `df.apply()`, submit chunks of rows as SLURM jobs and recompute only new rows with the cache.
-11. [Couple Python to simulation codes which use MPI internally](https://executorlib.readthedocs.io/en/latest/story-11-couple-mpi-simulation-codes.html) -
+4. [Couple Python to simulation codes which use MPI internally](https://executorlib.readthedocs.io/en/latest/story-4-couple-mpi-simulation-codes.html) -
     wrap MPI executables written in C, C++ or Fortran in Python functions, each with its own working directory.
-12. [Parallelize only the functions which need it with mpi4py](https://executorlib.readthedocs.io/en/latest/story-12-mpi4py-functions.html) -
+5. [Parallelize only the functions which need it with mpi4py](https://executorlib.readthedocs.io/en/latest/story-5-mpi4py-functions.html) -
     MPI-parallel functions within a serial script, their per-rank results and mpi4py-enabled codes like GPAW.
+6. [A pipeline whose steps need different resources](https://executorlib.readthedocs.io/en/latest/story-6-multi-resource-pipeline.html) - per-call
+   resources, MPI-parallel functions and SLURM job dependencies from future objects.
+7. [Prototype on a laptop, then scale up](https://executorlib.readthedocs.io/en/latest/story-7-prototype-then-scale.html) - develop locally with
+   the same interface, test the file-based cluster mode and switch executors with one line.
+8. [Recover from failed jobs](https://executorlib.readthedocs.io/en/latest/story-8-recover-failed-jobs.html) - diagnose exceptions and killed
+   jobs, then rerun only the failed calculations.
+9. [Pay for an expensive setup only once](https://executorlib.readthedocs.io/en/latest/story-9-expensive-setup-once.html) - long-lived workers
+   with an initialization function and automatic restarts.
+10. [Large jobs which each fan out into many small tasks](https://executorlib.readthedocs.io/en/latest/story-10-fan-out-inside-jobs.html) -
+   combine one SLURM job per campaign with many tasks inside each job.
+11. [Adaptive workflows](https://executorlib.readthedocs.io/en/latest/story-11-adaptive-workflows.html) - convergence loops, recursion with
+   `asyncio` and batching in the order results arrive.
+12. [Document and share a workflow](https://executorlib.readthedocs.io/en/latest/story-12-document-and-share.html) - export the workflow graph and
+   use the cache as an audit trail.
 
 The cluster-specific settings like the partition, run time limits and the submission template are collected in one
 cell at the top of each story. Readers without access to an HPC cluster can start with
-[Story 4](https://executorlib.readthedocs.io/en/latest/story-4-prototype-then-scale.html) or follow the examples below locally.
+[Story 7](https://executorlib.readthedocs.io/en/latest/story-7-prototype-then-scale.html) or follow the examples below locally.
 
 ## Examples
 The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
@@ -224,17 +224,17 @@ cluster-specific configuration for the `SlurmClusterExecutor`.
   * [For Developers](https://executorlib.readthedocs.io/en/latest/installation.html#for-developers)
 * User Stories
   * [Submit a Long-running Function and Come Back Later](https://executorlib.readthedocs.io/en/latest/story-1-submit-and-reconnect.html)
-  * [A Pipeline whose Steps Need Different Resources](https://executorlib.readthedocs.io/en/latest/story-2-multi-resource-pipeline.html)
-  * [A Parameter Study with Many Short Calculations](https://executorlib.readthedocs.io/en/latest/story-3-parameter-study.html)
-  * [Prototype on a Laptop, then Scale Up](https://executorlib.readthedocs.io/en/latest/story-4-prototype-then-scale.html)
-  * [Recover from Failed Jobs](https://executorlib.readthedocs.io/en/latest/story-5-recover-failed-jobs.html)
-  * [Pay for an Expensive Setup Only Once](https://executorlib.readthedocs.io/en/latest/story-6-expensive-setup-once.html)
-  * [Large Jobs which Each Fan Out into Many Small Tasks](https://executorlib.readthedocs.io/en/latest/story-7-fan-out-inside-jobs.html)
-  * [Adaptive Workflows](https://executorlib.readthedocs.io/en/latest/story-8-adaptive-workflows.html)
-  * [Document and Share a Workflow](https://executorlib.readthedocs.io/en/latest/story-9-document-and-share.html)
-  * [Parallel Computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-10-pandas-dataframes.html)
-  * [Couple Python to Simulation Codes which Use MPI Internally](https://executorlib.readthedocs.io/en/latest/story-11-couple-mpi-simulation-codes.html)
-  * [Parallelize Only the Functions which Need It with mpi4py](https://executorlib.readthedocs.io/en/latest/story-12-mpi4py-functions.html)
+  * [A Parameter Study with Many Short Calculations](https://executorlib.readthedocs.io/en/latest/story-2-parameter-study.html)
+  * [Parallel Computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-3-pandas-dataframes.html)
+  * [Couple Python to Simulation Codes which Use MPI Internally](https://executorlib.readthedocs.io/en/latest/story-4-couple-mpi-simulation-codes.html)
+  * [Parallelize Only the Functions which Need It with mpi4py](https://executorlib.readthedocs.io/en/latest/story-5-mpi4py-functions.html)
+  * [A Pipeline whose Steps Need Different Resources](https://executorlib.readthedocs.io/en/latest/story-6-multi-resource-pipeline.html)
+  * [Prototype on a Laptop, then Scale Up](https://executorlib.readthedocs.io/en/latest/story-7-prototype-then-scale.html)
+  * [Recover from Failed Jobs](https://executorlib.readthedocs.io/en/latest/story-8-recover-failed-jobs.html)
+  * [Pay for an Expensive Setup Only Once](https://executorlib.readthedocs.io/en/latest/story-9-expensive-setup-once.html)
+  * [Large Jobs which Each Fan Out into Many Small Tasks](https://executorlib.readthedocs.io/en/latest/story-10-fan-out-inside-jobs.html)
+  * [Adaptive Workflows](https://executorlib.readthedocs.io/en/latest/story-11-adaptive-workflows.html)
+  * [Document and Share a Workflow](https://executorlib.readthedocs.io/en/latest/story-12-document-and-share.html)
 * [Comparison](https://executorlib.readthedocs.io/en/latest/comparison.html#comparison)
   * [At a glace](https://executorlib.readthedocs.io/en/latest/comparison.html#at-a-glance)
   * [Concurrent futures](https://executorlib.readthedocs.io/en/latest/comparison.html#concurrent-futures-the-python-standard-library)
