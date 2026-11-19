@@ -15,6 +15,9 @@ parts:
   - file: story-7-fan-out-inside-jobs.ipynb
   - file: story-8-adaptive-workflows.ipynb
   - file: story-9-document-and-share.ipynb
+  - file: story-10-pandas-dataframes.ipynb
+  - file: story-11-couple-mpi-simulation-codes.ipynb
+  - file: story-12-mpi4py-functions.ipynb
 - caption: Background
   chapters:
   - file: comparison.md

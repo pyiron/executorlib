@@ -76,6 +76,12 @@ executorlib which are needed along the way:
    `asyncio` and batching in the order results arrive.
 9. [Document and share a workflow](https://executorlib.readthedocs.io/en/latest/story-9-document-and-share.html) - export the workflow graph and
    use the cache as an audit trail.
+10. [Parallel computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-10-pandas-dataframes.html) -
+    replace `df.apply()`, submit chunks of rows as SLURM jobs and recompute only new rows with the cache.
+11. [Couple Python to simulation codes which use MPI internally](https://executorlib.readthedocs.io/en/latest/story-11-couple-mpi-simulation-codes.html) -
+    wrap MPI executables written in C, C++ or Fortran in Python functions, each with its own working directory.
+12. [Parallelize only the functions which need it with mpi4py](https://executorlib.readthedocs.io/en/latest/story-12-mpi4py-functions.html) -
+    MPI-parallel functions within a serial script, their per-rank results and mpi4py-enabled codes like GPAW.
 
 The cluster-specific settings like the partition, run time limits and the submission template are collected in one
 cell at the top of each story. Readers without access to an HPC cluster can start with
@@ -226,6 +232,9 @@ cluster-specific configuration for the `SlurmClusterExecutor`.
   * [Large Jobs which Each Fan Out into Many Small Tasks](https://executorlib.readthedocs.io/en/latest/story-7-fan-out-inside-jobs.html)
   * [Adaptive Workflows](https://executorlib.readthedocs.io/en/latest/story-8-adaptive-workflows.html)
   * [Document and Share a Workflow](https://executorlib.readthedocs.io/en/latest/story-9-document-and-share.html)
+  * [Parallel Computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-10-pandas-dataframes.html)
+  * [Couple Python to Simulation Codes which Use MPI Internally](https://executorlib.readthedocs.io/en/latest/story-11-couple-mpi-simulation-codes.html)
+  * [Parallelize Only the Functions which Need It with mpi4py](https://executorlib.readthedocs.io/en/latest/story-12-mpi4py-functions.html)
 * [Comparison](https://executorlib.readthedocs.io/en/latest/comparison.html#comparison)
   * [At a glace](https://executorlib.readthedocs.io/en/latest/comparison.html#at-a-glance)
   * [Concurrent futures](https://executorlib.readthedocs.io/en/latest/comparison.html#concurrent-futures-the-python-standard-library)
