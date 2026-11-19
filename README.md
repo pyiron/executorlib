@@ -39,6 +39,41 @@ know, rather than asking you to adopt a new data, actor, or workflow model.
 [comparison: when to use which](https://executorlib.readthedocs.io/en/latest/comparison.html) for honest guidance on
 when another tool is the better fit.
 
+## Getting Started on HPC
+Running Python functions on an HPC cluster typically means writing batch scripts, requesting resources for each 
+calculation, tracking job IDs to chain calculations, and resubmitting work after a session was interrupted. executorlib 
+replaces these steps with the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects) 
+of the Python standard library. Submitting a Python function from the login node as a SLURM job is as simple as:
+```python
+from executorlib import SlurmClusterExecutor
+
+
+def calc(i):
+    return i * 2
+
+
+with SlurmClusterExecutor(cache_directory="./cache") as exe:
+    future_lst = [exe.submit(calc, i) for i in range(1, 4)]
+    print([f.result() for f in future_lst])
+```
+The [Getting Started on HPC](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html) guide walks through a 
+complete HPC workflow and introduces each feature where it solves a concrete challenge:
+* [Submission](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#submission) - run existing Python 
+  functions through SLURM with the `SlurmClusterExecutor`.
+* [Resources and MPI](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#resources-and-mpi) - assign MPI 
+  ranks, CPU threads and GPUs to individual function calls.
+* [Dependencies](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#dependencies) - connect calculations 
+  without manually coordinating scheduler jobs and intermediate files.
+* [Caching](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#caching) - reuse completed calculations 
+  when revising or resuming a workflow.
+* [Execution strategy](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#execution-strategy) - choose 
+  between one scheduler job per function and many functions within one allocation with the `SlurmJobExecutor`.
+* [Local development](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#local-development) - develop and 
+  test the same workflow on a laptop with the `SingleNodeExecutor`.
+
+The cluster-specific settings like the partition, run time limits and the submission template are explained in the 
+guide. Readers without access to an HPC cluster can follow the same workflow locally, as shown below.
+
 ## Examples
 The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
 with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor) and the 
@@ -47,9 +82,10 @@ execution of Python functions on a single computer. executorlib extends this fun
 functions over multiple computers within a high performance computing (HPC) cluster. This can be either achieved by 
 submitting each function as individual job to the HPC job scheduler with an [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html) - 
 or by requesting a job from the HPC cluster and then distribute the Python functions within this job with an
-[HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html). Finally, to accelerate the 
-development process executorlib also provides a [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html) - 
-to use the executorlib functionality on a laptop, workstation or single compute node for testing. Starting with the 
+[HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html). To develop and test the same workflow 
+on a laptop, workstation or single compute node before using cluster resources, executorlib also provides a 
+[Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html). The following examples can be 
+executed without cluster access, starting with the 
 [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html):
 ```python
 from executorlib import SingleNodeExecutor
@@ -173,6 +209,14 @@ cluster-specific configuration for the `SlurmClusterExecutor`.
   * [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-job-executor)
   * [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation)
   * [For Developers](https://executorlib.readthedocs.io/en/latest/installation.html#for-developers)
+* [Getting Started on HPC](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html)
+  * [Submission](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#submission)
+  * [Resources and MPI](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#resources-and-mpi)
+  * [Dependencies](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#dependencies)
+  * [Caching](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#caching)
+  * [Execution Strategy](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#execution-strategy)
+  * [Local Development](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#local-development)
+  * [Next Steps](https://executorlib.readthedocs.io/en/latest/hpc-workflow.html#next-steps)
 * [Comparison](https://executorlib.readthedocs.io/en/latest/comparison.html#comparison)
   * [At a glace](https://executorlib.readthedocs.io/en/latest/comparison.html#at-a-glance)
   * [Concurrent futures](https://executorlib.readthedocs.io/en/latest/comparison.html#concurrent-futures-the-python-standard-library)
