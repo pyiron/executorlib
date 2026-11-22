@@ -140,6 +140,16 @@ def execute_tasks_h5(
                     cache_key=cache_key,
                 )
                 data_dict["error_log_file"] = error_log_file
+                if task_key in memory_dict and memory_dict[task_key].done():
+                    # The previous task with the same key already finished, but was not yet
+                    # removed by _refresh_memory_dict(). Handle the new task like a new
+                    # submission, rather than as a duplicate which is never resolved.
+                    _remove_finished_task(
+                        task_key=task_key,
+                        memory_dict=memory_dict,
+                        process_dict=process_dict,
+                        status_check_dict=status_check_dict,
+                    )
                 if serialize_exception is not None:
                     task_dict["future"].set_exception(serialize_exception)
                 elif task_key not in memory_dict:
@@ -298,6 +308,27 @@ def _check_task_output(
             )
         del duplicate_dict[task_key]
     return future_obj
+
+
+def _remove_finished_task(
+    task_key: str,
+    memory_dict: dict,
+    process_dict: dict,
+    status_check_dict: dict,
+) -> None:
+    """
+    Remove the bookkeeping of a finished task, so a new task with the same key can be submitted.
+
+    Args:
+        task_key (str): The key of the finished task.
+        memory_dict (dict): The dictionary mapping task keys to their associated future objects.
+        process_dict (dict): The dictionary mapping task keys to process handles or queue IDs.
+        status_check_dict (dict): The dictionary mapping task keys to the last time their queuing
+            system job status was queried.
+    """
+    del memory_dict[task_key]
+    process_dict.pop(task_key, None)
+    status_check_dict.pop(task_key, None)
 
 
 def _update_future(
