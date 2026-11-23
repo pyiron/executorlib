@@ -39,7 +39,55 @@ know, rather than asking you to adopt a new data, actor, or workflow model.
 [comparison: when to use which](https://executorlib.readthedocs.io/en/latest/comparison.html) for honest guidance on
 when another tool is the better fit.
 
-## Examples
+## Getting Started on HPC
+Running Python functions on an HPC cluster typically means writing batch scripts, requesting resources for each 
+calculation, tracking job IDs to chain calculations, and resubmitting work after a session was interrupted. executorlib 
+replaces these steps with the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects) 
+of the Python standard library. Submitting a Python function from the login node as a SLURM job is as simple as:
+```python
+from executorlib import SlurmClusterExecutor
+
+
+def calc(i):
+    return i * 2
+
+
+with SlurmClusterExecutor(cache_directory="./cache") as exe:
+    future_lst = [exe.submit(calc, i) for i in range(1, 4)]
+    print([f.result() for f in future_lst])
+```
+Each user story starts from a challenge you are likely to face on an HPC cluster and solves it end-to-end, introducing
+the features of executorlib as you need them:
+1. [Submit a long-running function and come back later](https://executorlib.readthedocs.io/en/latest/story-1-submit-and-reconnect.html) - submit
+   from the login node, disconnect, check the status, reconnect and cancel jobs.
+2. [A parameter study with many short calculations](https://executorlib.readthedocs.io/en/latest/story-2-parameter-study.html) - distribute
+   calculations within one allocation, find failing parameter sets and collect the results in a DataFrame.
+3. [Parallel computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-3-pandas-dataframes.html) -
+    replace `df.apply()`, submit chunks of rows as SLURM jobs and recompute only new rows with the cache.
+4. [Couple Python to simulation codes which use MPI internally](https://executorlib.readthedocs.io/en/latest/story-4-couple-mpi-simulation-codes.html) -
+    wrap MPI executables written in C, C++ or Fortran in Python functions, each with its own working directory.
+5. [Parallelize only the functions which need it with mpi4py](https://executorlib.readthedocs.io/en/latest/story-5-mpi4py-functions.html) -
+    MPI-parallel functions within a serial script, their per-rank results and mpi4py-enabled codes like GPAW.
+6. [A pipeline whose steps need different resources](https://executorlib.readthedocs.io/en/latest/story-6-multi-resource-pipeline.html) - per-call
+   resources, MPI-parallel functions and SLURM job dependencies from future objects.
+7. [Prototype on a laptop, then scale up](https://executorlib.readthedocs.io/en/latest/story-7-prototype-then-scale.html) - develop locally with
+   the same interface, test the file-based cluster mode and switch executors with one line.
+8. [Recover from failed jobs](https://executorlib.readthedocs.io/en/latest/story-8-recover-failed-jobs.html) - diagnose exceptions and killed
+   jobs, then rerun only the failed calculations.
+9. [Pay for an expensive setup only once](https://executorlib.readthedocs.io/en/latest/story-9-expensive-setup-once.html) - long-lived workers
+   with an initialization function and automatic restarts.
+10. [Large jobs which each fan out into many small tasks](https://executorlib.readthedocs.io/en/latest/story-10-fan-out-inside-jobs.html) -
+   combine one SLURM job per campaign with many tasks inside each job.
+11. [Adaptive workflows](https://executorlib.readthedocs.io/en/latest/story-11-adaptive-workflows.html) - convergence loops, recursion with
+   `asyncio` and batching in the order results arrive.
+12. [Document and share a workflow](https://executorlib.readthedocs.io/en/latest/story-12-document-and-share.html) - export the workflow graph and
+   use the cache as an audit trail.
+
+The cluster-specific settings like the partition, run time limits and the submission template are collected in one
+cell at the top of each story. Readers without access to an HPC cluster can start with
+[Story 7](https://executorlib.readthedocs.io/en/latest/story-7-prototype-then-scale.html) or follow the examples below locally.
+
+## Which Executor should I use?
 The Python standard library provides the [Executor interface](https://docs.python.org/3/library/concurrent.futures.html#executor-objects)
 with the [ProcessPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#processpoolexecutor) and the 
 [ThreadPoolExecutor](https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor) for parallel 
@@ -47,9 +95,33 @@ execution of Python functions on a single computer. executorlib extends this fun
 functions over multiple computers within a high performance computing (HPC) cluster. This can be either achieved by 
 submitting each function as individual job to the HPC job scheduler with an [HPC Cluster Executor](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html) - 
 or by requesting a job from the HPC cluster and then distribute the Python functions within this job with an
-[HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html). Finally, to accelerate the 
-development process executorlib also provides a [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html) - 
-to use the executorlib functionality on a laptop, workstation or single compute node for testing. Starting with the 
+[HPC Job Executor](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html). To develop and test the same workflow 
+on a laptop, workstation or single compute node before using cluster resources, executorlib also provides a 
+[Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html).
+
+executorlib provides five `Executor` classes. They all share the same `submit()` / `map()` interface and only differ in
+*where* the Python functions are executed and *how* the resources are requested. A common workflow is to develop and 
+test with the `SingleNodeExecutor` on a laptop and then switch to one of the HPC executors by changing only the class 
+name:
+
+| Executor | Where it runs | Scheduler command | Best for |
+|---|---|---|---|
+| [`SingleNodeExecutor`](https://executorlib.readthedocs.io/en/latest/1-single-node.html) | laptop, workstation or single compute node | `subprocess` | developing and testing a workflow |
+| [`SlurmClusterExecutor`](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#slurm) | HPC login node | `sbatch` (one job per function) | long-running functions that should outlive the Python session |
+| [`SlurmJobExecutor`](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm) | inside a SLURM allocation | `srun` (job steps) | many functions within one existing allocation |
+| [`FluxClusterExecutor`](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#flux) | HPC login node or Flux instance | `flux submit` | long-running functions; disconnecting and reconnecting |
+| [`FluxJobExecutor`](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#flux) | inside a Flux allocation | `flux run` | high-throughput execution of many short functions |
+
+The **Cluster** executors submit each Python function as an individual job and communicate via the file system, so the
+Python process which created the executor can be closed and the results reloaded later. The **Job** executors run inside
+an existing allocation and communicate via sockets, which has lower overhead and is the better choice for many short
+function calls.
+
+To set up the submission of Python functions on a new SLURM cluster, the [executorlib-cluster-setup](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#setup-with-claude-code)
+skill for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) analyses the cluster and generates a tested,
+cluster-specific configuration for the `SlurmClusterExecutor`.
+
+The following examples can be executed without cluster access, starting with the 
 [Single Node Executor](https://executorlib.readthedocs.io/en/latest/1-single-node.html):
 ```python
 from executorlib import SingleNodeExecutor
@@ -141,29 +213,6 @@ given allocation. Even when [SLURM](https://slurm.schedmd.com) is used as primar
 recommended to use [SLURM with flux](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm-with-flux) 
 as hierarchical job scheduler within the allocations. 
 
-## Which Executor should I use?
-executorlib provides five `Executor` classes. They all share the same `submit()` / `map()` interface and only differ in
-*where* the Python functions are executed and *how* the resources are requested. A common workflow is to develop and 
-test with the `SingleNodeExecutor` on a laptop and then switch to one of the HPC executors by changing only the class 
-name:
-
-| Executor | Where it runs | Scheduler command | Best for |
-|---|---|---|---|
-| [`SingleNodeExecutor`](https://executorlib.readthedocs.io/en/latest/1-single-node.html) | laptop, workstation or single compute node | `subprocess` | developing and testing a workflow |
-| [`SlurmClusterExecutor`](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#slurm) | HPC login node | `sbatch` (one job per function) | long-running functions that should outlive the Python session |
-| [`SlurmJobExecutor`](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#slurm) | inside a SLURM allocation | `srun` (job steps) | many functions within one existing allocation |
-| [`FluxClusterExecutor`](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#flux) | HPC login node or Flux instance | `flux submit` | long-running functions; disconnecting and reconnecting |
-| [`FluxJobExecutor`](https://executorlib.readthedocs.io/en/latest/3-hpc-job.html#flux) | inside a Flux allocation | `flux run` | high-throughput execution of many short functions |
-
-The **Cluster** executors submit each Python function as an individual job and communicate via the file system, so the
-Python process which created the executor can be closed and the results reloaded later. The **Job** executors run inside
-an existing allocation and communicate via sockets, which has lower overhead and is the better choice for many short
-function calls.
-
-To set up the submission of Python functions on a new SLURM cluster, the [executorlib-cluster-setup](https://executorlib.readthedocs.io/en/latest/2-hpc-cluster.html#setup-with-claude-code)
-skill for [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) analyses the cluster and generates a tested,
-cluster-specific configuration for the `SlurmClusterExecutor`.
-
 ## Documentation
 * [Installation](https://executorlib.readthedocs.io/en/latest/installation.html)
   * [Minimal](https://executorlib.readthedocs.io/en/latest/installation.html#minimal)
@@ -173,6 +222,19 @@ cluster-specific configuration for the `SlurmClusterExecutor`.
   * [HPC Job Executor](https://executorlib.readthedocs.io/en/latest/installation.html#hpc-job-executor)
   * [Visualisation](https://executorlib.readthedocs.io/en/latest/installation.html#visualisation)
   * [For Developers](https://executorlib.readthedocs.io/en/latest/installation.html#for-developers)
+* User Stories
+  * [Submit a Long-running Function and Come Back Later](https://executorlib.readthedocs.io/en/latest/story-1-submit-and-reconnect.html)
+  * [A Parameter Study with Many Short Calculations](https://executorlib.readthedocs.io/en/latest/story-2-parameter-study.html)
+  * [Parallel Computations on pandas DataFrames](https://executorlib.readthedocs.io/en/latest/story-3-pandas-dataframes.html)
+  * [Couple Python to Simulation Codes which Use MPI Internally](https://executorlib.readthedocs.io/en/latest/story-4-couple-mpi-simulation-codes.html)
+  * [Parallelize Only the Functions which Need It with mpi4py](https://executorlib.readthedocs.io/en/latest/story-5-mpi4py-functions.html)
+  * [A Pipeline whose Steps Need Different Resources](https://executorlib.readthedocs.io/en/latest/story-6-multi-resource-pipeline.html)
+  * [Prototype on a Laptop, then Scale Up](https://executorlib.readthedocs.io/en/latest/story-7-prototype-then-scale.html)
+  * [Recover from Failed Jobs](https://executorlib.readthedocs.io/en/latest/story-8-recover-failed-jobs.html)
+  * [Pay for an Expensive Setup Only Once](https://executorlib.readthedocs.io/en/latest/story-9-expensive-setup-once.html)
+  * [Large Jobs which Each Fan Out into Many Small Tasks](https://executorlib.readthedocs.io/en/latest/story-10-fan-out-inside-jobs.html)
+  * [Adaptive Workflows](https://executorlib.readthedocs.io/en/latest/story-11-adaptive-workflows.html)
+  * [Document and Share a Workflow](https://executorlib.readthedocs.io/en/latest/story-12-document-and-share.html)
 * [Comparison](https://executorlib.readthedocs.io/en/latest/comparison.html#comparison)
   * [At a glace](https://executorlib.readthedocs.io/en/latest/comparison.html#at-a-glance)
   * [Concurrent futures](https://executorlib.readthedocs.io/en/latest/comparison.html#concurrent-futures-the-python-standard-library)
