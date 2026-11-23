@@ -8,7 +8,7 @@ dependencies:
 - openmpi
 - papermill
 - atomistics =0.4.0
-- cloudpickle =3.1.2
+- cloudpickle =3.1.3
 - flux-core =0.90.0
 - flux-pmix =0.8.0
 - gpaw =25.7.0
