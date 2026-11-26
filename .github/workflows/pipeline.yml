@@ -192,7 +192,7 @@ jobs:
   # notebooks/story-*.ipynb follow the same convention and are executed if they exist.
   notebooks_slurm:
     needs: [black]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:8.0
