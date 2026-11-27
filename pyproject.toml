@@ -59,6 +59,14 @@ cluster = [
 validation = [
     "pydantic==2.14.4",
 ]
+docs = [
+    "myst-parser",
+    "nbsphinx",
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinxcontrib-mermaid",
+    "jupyter-book==1.0.0",
+]
 all = [
     "mpi4py==4.1.2",
     "pysqa==1.2.0",

@@ -8,11 +8,10 @@ version: 2
 build:
   os: "ubuntu-24.04"
   tools:
-    python: "mambaforge-23.11"
+    python: "3.14"
   jobs:
     pre_build:
       # Generate the Sphinx configuration for this Jupyter Book so it builds.
-      - pip install . --no-deps --no-build-isolation
       - "cp README.md docs"
       - "cp notebooks/*.ipynb docs"
       - "jupyter-book config sphinx docs/"
@@ -25,6 +24,11 @@ sphinx:
 # Optionally build your docs in additional formats such as PDF and ePub
 formats: []
 
-# Install executorlib from conda
-conda:
-  environment: .ci_support/environment-docs.yml
+# Install executorlib from pypi
+python:
+  install:
+    - method: uv
+      command: pip
+      path: .
+      extras:
+        - docs
