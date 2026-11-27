@@ -72,6 +72,22 @@ class TestCacheExecutorSerial(unittest.TestCase):
                     )
                 )
 
+    def test_resubmit_finished_task_with_same_cache_key(self):
+        with FileTaskScheduler(execute_function=subprocess_execute) as exe:
+            for i in range(3):
+                resource_dict = {"cache_key": "error_" + str(i)}
+                fs1 = exe.submit(get_error, a=1, resource_dict=resource_dict)
+                with self.assertRaises(ValueError):
+                    fs1.result(timeout=15)
+                fs2 = exe.submit(get_error, a=1, resource_dict=resource_dict)
+                with self.assertRaises(ValueError):
+                    fs2.result(timeout=15)
+                resource_dict = {"cache_key": "result_" + str(i)}
+                fs3 = exe.submit(my_funct, 1, b=2, resource_dict=resource_dict)
+                self.assertEqual(fs3.result(timeout=15), 3)
+                fs4 = exe.submit(my_funct, 1, b=2, resource_dict=resource_dict)
+                self.assertEqual(fs4.result(timeout=15), 3)
+
     def test_submit_dependency_on_duplicate_task(self):
         with FileTaskScheduler(execute_function=subprocess_execute) as exe:
             fs1 = exe.submit(my_funct, 1, b=2)
@@ -379,6 +395,49 @@ class TestCacheExecutorSerial(unittest.TestCase):
         process.start()
         with self.assertRaises(TypeError):
             fs_bad.result(timeout=15)
+        self.assertEqual(fs_good.result(timeout=15), 3)
+        q.put({"shutdown": True, "wait": True})
+        process.join()
+
+    def test_executor_function_resubmit_after_failed_submission(self):
+        fs_bad_1 = Future()
+        fs_bad_2 = Future()
+        fs_good = Future()
+        q = Queue()
+        for fs in [fs_bad_1, fs_bad_2]:
+            q.put(
+                {
+                    "fn": len,
+                    "args": ([Unpicklable()],),
+                    "kwargs": {},
+                    "future": fs,
+                    "resource_dict": {"cache_key": "bad/key"},
+                }
+            )
+        q.put(
+            {
+                "fn": my_funct,
+                "args": (),
+                "kwargs": {"a": 1, "b": 2},
+                "future": fs_good,
+                "resource_dict": {},
+            }
+        )
+        cache_dir = os.path.abspath("executorlib_cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        process = Thread(
+            target=execute_tasks_h5,
+            kwargs={
+                "future_queue": q,
+                "execute_function": subprocess_execute,
+                "executor_kwargs": {"cores": 1, "cwd": None, "cache_directory": cache_dir},
+                "terminate_function": subprocess_terminate,
+            },
+        )
+        process.start()
+        for fs in [fs_bad_1, fs_bad_2]:
+            with self.assertRaises(TypeError):
+                fs.result(timeout=15)
         self.assertEqual(fs_good.result(timeout=15), 3)
         q.put({"shutdown": True, "wait": True})
         process.join()
