@@ -112,29 +112,18 @@ jobs:
       shell: bash -l {0}
       run: uv run --all-extras --dev -- uv pip check
 
-  benchmark:
+  benchmark_openmpi:
     needs: [black]
-    runs-on: ${{ matrix.operating-system }}
-    strategy:
-      matrix:
-        include:
-        - operating-system: ubuntu-latest
-          python-version: '3.15'
-          environment-file: .ci_support/environment-openmpi.yml
-
-        - operating-system: ubuntu-latest
-          python-version: '3.15'
-          environment-file: .ci_support/environment-mpich.yml
-
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
     - uses: conda-incubator/setup-miniconda@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.15'
         miniforge-version: latest
         channels: conda-forge
         conda-remove-defaults: "true"
-        environment-file: ${{ matrix.environment-file }}
+        environment-file: .ci_support/environment-openmpi.yml
     - name: Test
       shell: bash -l {0}
       timeout-minutes: 10
@@ -150,6 +139,32 @@ jobs:
         python -m unittest tests/benchmark/test_results.py
       env:
         PRTE_MCA_rmaps_default_mapping_policy: ':oversubscribe'
+
+  benchmark_mpich:
+    needs: [black]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - uses: conda-incubator/setup-miniconda@v4
+      with:
+        python-version: '3.15'
+        miniforge-version: latest
+        channels: conda-forge
+        conda-remove-defaults: "true"
+        environment-file: .ci_support/environment-mpich.yml
+    - name: Test
+      shell: bash -l {0}
+      timeout-minutes: 10
+      run: |
+        pip install . --no-deps --no-build-isolation
+        python tests/benchmark/llh.py static >> timing.log
+        python tests/benchmark/llh.py process >> timing.log
+        python tests/benchmark/llh.py thread >> timing.log
+        mpiexec -n 4 python -m mpi4py.futures tests/benchmark/llh.py mpi4py >> timing.log
+        python tests/benchmark/llh.py executorlib >> timing.log
+        python tests/benchmark/llh.py block_allocation >> timing.log
+        cat timing.log
+        python -m unittest tests/benchmark/test_results.py
 
   notebooks:
     needs: [black]
