@@ -55,9 +55,7 @@ class OneProcessTaskScheduler(TaskSchedulerBase):
     ):
         if executor_kwargs is None:
             executor_kwargs = {}
-        super().__init__(
-            max_cores=executor_kwargs.get("max_cores"), validator=validator
-        )
+        super().__init__(max_cores=max_cores, validator=validator)
         executor_kwargs.update(
             {
                 "future_queue": self._future_queue,
